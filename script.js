@@ -15,27 +15,30 @@ const games = [
     "Tunic",
     "The Witcher 3"
 ];
-const gamesPerRow = 7;
-const gapRatio = 1 / 8;
-/* cardWidth * gamesPerRow + gapWidth * gapsPerRow = 100% (row width)
-gapsPerRow = gamesPerRow - 1
-gapWidth = cardWidth * gapRatio (e.g. 1/8)
-c * g + (c/8) * (g-1) = rowWidth
-cardWidth = rowWidth / (1.125g - 0.125) */
+let gamesPerRow = 8;
+let gapPixels = 30;
+const cssRoot = document.querySelector(':root');
+setCssVar('gapPixels', gapPixels + 'px');
+setCssVar('gamesPerRow', gamesPerRow);
 
-const cardWidth = 100 / ((1 + gapRatio) * gamesPerRow - gapRatio);
-const gapSize = cardWidth * gapRatio;
 function createGameButtons() {
-    const gameGrid = document.getElementById("gameGrid");
-    gameGrid.style.gap = gapSize + '%';
-
+    const gameGrid = document.getElementById('gameGrid');
     games.forEach(game => {
-        const gameButton = document.createElement("button");
+        const gameButton = document.createElement('button');
         gameButton.classList.add("game-button");
-        gameButton.style.width = cardWidth + '%';
+        gameButton.addEventListener("click", () => {
+            console.log('The ' + game + ' button was clicked.');
+            gamesPerRow++;
+            setCssVar('gamesPerRow', String(gamesPerRow));
+        });
         gameButton.innerHTML = `<img src="./Games/${game}.png" alt="Game Cover">`;
+        // TODO: Should images instead be background of buttons? dragging behavior difference?
         gameGrid.appendChild(gameButton);
     });
+}
+
+function setCssVar(name, value) {
+    cssRoot.style.setProperty('--' + name, String(value));
 }
 
 createGameButtons();

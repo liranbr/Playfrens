@@ -27,12 +27,9 @@ function createGameButtons() {
         const gameButton = document.createElement('button');
         gameButton.classList.add("game-button");
         gameButton.addEventListener("click", () => {
-            console.log('The ' + game + ' button was clicked.');
-            gamesPerRow++;
-            setCssVar('gamesPerRow', String(gamesPerRow));
+            setCssVar('gamesPerRow', String(++gamesPerRow));
         });
-        gameButton.innerHTML = `<img src="./Games/${game}.png" alt="Game Cover">`;
-        // TODO: Should images instead be background of buttons? dragging behavior difference?
+        gameButton.innerHTML = `<img draggable="false" src="./Games/${game}.png" alt="Game Cover">`;
         gameGrid.appendChild(gameButton);
     });
 }

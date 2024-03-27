@@ -20,7 +20,7 @@ body {
 }
 .container {
     display: grid;
-    max-width: 80%;
+    max-width: 100%;
     grid-template-columns: repeat(var(--gamesPerRow), 1fr);
     gap: var(--gapPixels);
     padding: var(--gapPixels);

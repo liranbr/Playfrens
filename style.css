@@ -20,7 +20,8 @@ body {
 }
 .container {
     display: grid;
-    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
     grid-template-columns: repeat(var(--gamesPerRow), 1fr);
     gap: var(--gapPixels);
     padding: var(--gapPixels);
@@ -43,3 +44,4 @@ body {
     box-shadow: 0 15px 22px rgba(0, 0, 0, 0.5);
     z-index: 1;
 }
+/* TODO: Get a color palette from coolors.co */

@@ -39,3 +39,4 @@ function setCssVar(name, value) {
 }
 
 createGameButtons();
+// TODO: Convert to React+Vite with JavaScript (not TypeScript) and bring over these files

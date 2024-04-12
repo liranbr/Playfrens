@@ -1,22 +1,16 @@
 import './App.css'
-import {useState} from 'react'
 import 'bootstrap/dist/css/bootstrap.min.css'
-import Button from 'react-bootstrap/Button'
+import React from 'react'
+import {Navbar, Container, Nav, NavDropdown} from "react-bootstrap"
+import GameGrid from "./GameGrid.jsx";
 
-
-import {Navbar, Container, Nav, NavDropdown} from "react-bootstrap";
-
-export default function NavbarStart() {
+function PFNavbar() {
     return (
         <Navbar expand="lg" className="bg-body-tertiary" fixed="top">
             <Container fluid>
-                <Navbar.Brand href="#home"><img
-                    src="/public/PF_logo.png"
-                    width="30"
-                    height="30"
-                    className="d-inline-block align-top"
-                    alt="Playfrens logo"
-                    style={{marginRight: '6px'}}/>
+                <Navbar.Brand href="#home">
+                    <img src="/PF_logo.png" alt="Playfrens logo"
+                         height={30} width={30} className="d-inline-block align-top me-1"/>
                     Playfrens
                 </Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav"/>
@@ -38,4 +32,9 @@ export default function NavbarStart() {
     );
 }
 
-// TODO: First, recreate Game Grid element
+export default function App() {
+    return <>
+        <PFNavbar></PFNavbar>
+        <GameGrid></GameGrid>
+    </>
+}

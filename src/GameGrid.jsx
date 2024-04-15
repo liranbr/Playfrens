@@ -49,8 +49,4 @@ const GameGrid = () => {
     );
 };
 
-// TODO: Add +- gamesPerRow, +- gridGap buttons
-// TODO: Figure out interaction between States and refreshing
-// TODO: Fix Grid sliding under navbar
-
 export default GameGrid;

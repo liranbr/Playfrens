@@ -32,9 +32,20 @@ function PFNavbar() {
     );
 }
 
+// contains all page content, with 56px topPadding to offset the navbar
+function Content({children}) {
+    return (
+        <div style={{paddingTop: '56px'}} id="Content">
+            {children}
+        </div>
+    )
+}
+
 export default function App() {
     return <>
         <PFNavbar></PFNavbar>
-        <GameGrid></GameGrid>
+        <Content>
+            <GameGrid></GameGrid>
+        </Content>
     </>
 }

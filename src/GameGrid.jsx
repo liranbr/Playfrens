@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import {useState} from 'react';
 import './GameGrid.css'
 
 const games = [
@@ -22,19 +22,6 @@ const games = [
 const GameGrid = () => {
     const [gamesPerRow, setGamesPerRow] = useState(8);
     const [gapPixels, setGridGap] = useState(30);
-
-    const gameButtons = games.map((game, index) => (
-        <button
-            key={index}
-            className="game-button"
-            onClick={() => {}}>
-            <img
-                draggable="false"
-                src={`src/assets/Games/${game}.png`}
-                alt={`${game} Game Cover`}/>
-        </button>
-    ));
-
     return (
         <div style={{
             display: 'grid',
@@ -44,9 +31,22 @@ const GameGrid = () => {
             gap: `${gapPixels}px`,
             padding: `${gapPixels}px`
         }}>
-            {gameButtons}
+            {games.map((game) => (gameButton(game)))}
         </div>
     );
 };
+
+const gameButton = (game) => (
+    <button
+        key={game}
+        className="game-button"
+        onClick={() => {
+        }}>
+        <img
+            draggable="false"
+            src={`/Games/${game}.png`}
+            alt={`${game} Game Cover`}/>
+    </button>
+)
 
 export default GameGrid;

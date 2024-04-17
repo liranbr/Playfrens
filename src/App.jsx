@@ -1,7 +1,6 @@
-import './App.css'
-import 'bootstrap/dist/css/bootstrap.min.css'
-import React from 'react'
-import {Navbar, Container, Nav, NavDropdown} from "react-bootstrap"
+import './App.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import {Navbar, Container, Nav, NavDropdown} from "react-bootstrap";
 import GameGrid from "./GameGrid.jsx";
 
 function PFNavbar() {
@@ -17,12 +16,17 @@ function PFNavbar() {
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="me-auto" variant="pills">
                         <Nav.Link href="#home">Home</Nav.Link>
-                        <Nav.Link href="#link">Link</Nav.Link>
+                        <Nav.Link href="https://trello.com/b/H9Cln6UD/playfrens"
+                                  target="_blank">Kanban</Nav.Link>
+                        <Nav.Link href="https://ui.shadcn.com/docs/installation/vite"
+                                  target="_blank">ShadCN-Vite</Nav.Link>
+                        <Nav.Link href="https://react-bootstrap.netlify.app/docs/layout/grid"
+                                  target="_blank">Bootstrap-Grid</Nav.Link>
                         <NavDropdown title="Dropdown" id="basic-nav-dropdown">
                             <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
                             <NavDropdown.Item href="#action/3.2">Another action</NavDropdown.Item>
                             <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>
-                            <NavDropdown.Divider />
+                            <NavDropdown.Divider/>
                             <NavDropdown.Item href="#action/3.4">Separated link</NavDropdown.Item>
                         </NavDropdown>
                     </Nav>
@@ -32,20 +36,9 @@ function PFNavbar() {
     );
 }
 
-// contains all page content, with 56px topPadding to offset the navbar
-function Content({children}) {
-    return (
-        <div style={{paddingTop: '56px'}} id="Content">
-            {children}
-        </div>
-    )
-}
-
 export default function App() {
     return <>
         <PFNavbar></PFNavbar>
-        <Content>
-            <GameGrid></GameGrid>
-        </Content>
+        <GameGrid></GameGrid>
     </>
 }

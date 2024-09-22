@@ -28,4 +28,3 @@
     padding: 30px;
     grid-template-columns: repeat(8, 1fr);
 }
-/*TODO: make grid gap and columns count dynamic*/

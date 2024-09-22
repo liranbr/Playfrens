@@ -1,6 +1,3 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
 import { GamesGrid } from "./GameGrid.jsx";
 import { Button, Form, Nav, Navbar, NavDropdown } from "react-bootstrap";
@@ -57,9 +54,9 @@ function Header() {
 
 function Body() {
     return (
-        <>
+        <div className="body">
             <GamesGrid></GamesGrid>
-        </>
+        </div>
     );
 }
 

@@ -30,8 +30,6 @@ const GameCard = (game) => (
 
 export function GamesGrid() {
     return (
-        <div className={"games-grid"}>
-            {games.map((game) => GameCard(game))}
-        </div>
+        <div className="games-grid">{games.map((game) => GameCard(game))}</div>
     );
 }

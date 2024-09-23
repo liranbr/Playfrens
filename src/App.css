@@ -2,8 +2,18 @@
   margin: 0 auto;
   text-align: center;
 }
-.body {
+.content-body {
   padding-top: 56px; /* 56px compensates for navbar height */
+  height: 100vh;
+}
+.sidebar {
+  width: 300px;
+  border-right: 2px solid var(--bs-secondary-border-subtle);
+}
+/*TODO: Customize the Sidebar/TBGs*/
+.tbg-friends {
+}
+.tbg-categories {
 }
 .logo {
   height: 6em;

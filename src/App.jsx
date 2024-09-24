@@ -10,8 +10,8 @@ import {
     NavDropdown,
     Row,
     ToggleButton,
-    ToggleButtonGroup,
 } from "react-bootstrap";
+import { useState } from "react";
 
 function Header() {
     return (
@@ -60,54 +60,61 @@ function Header() {
     );
 }
 
+function SidebarButton(id, value, label) {
+    const [checked, setChecked] = useState(false);
+    return (
+        <ToggleButton
+            id={id}
+            value={value}
+            type="checkbox"
+            className="btn-sidebar"
+            checked={checked}
+            onChange={(e) => setChecked(e.currentTarget.checked)}
+        >
+            {label}
+        </ToggleButton>
+    );
+}
+
 function SidebarContent() {
+    const friends = [
+        "Sami",
+        "Nibbix",
+        "RocketDN",
+        "MindHawk",
+        "VX",
+        "Cake",
+        "Labreris",
+        "Gooey",
+    ];
+    const categories = [
+        "Ongoing",
+        "Plan To Play",
+        "Round-based",
+        "Later",
+        "Finished",
+    ];
     return (
         <>
-            <Row className="h-50 border-bottom border-2 border-secondary-subtle align-content-start">
-                <ToggleButtonGroup
-                    type="checkbox"
-                    vertical="true"
-                    name="tbg-friends"
-                    className="tbg-friends"
-                >
-                    <ToggleButton id="tbg-check-1" value={1}>
-                        Friend 1
-                    </ToggleButton>
-                    <ToggleButton id="tbg-check-2" value={2}>
-                        Friend 2
-                    </ToggleButton>
-                    <ToggleButton id="tbg-check-3" value={3}>
-                        Friend 3
-                    </ToggleButton>
-                    <ToggleButton id="tbg-check-4" value={4}>
-                        Friend 4
-                    </ToggleButton>
-                </ToggleButtonGroup>
+            <Row className="h-50 align-content-start p-3">
+                <p className="sidebar-title">FRIENDS</p>
+                {friends.map((friend) =>
+                    SidebarButton(
+                        "btn-sidebar-friend-" + friends.indexOf(friend),
+                        friend,
+                        friend,
+                    ),
+                )}
             </Row>
-            <Row className="h-50 align-content-start">
-                <ToggleButtonGroup
-                    type="radio"
-                    defaultValue={1}
-                    vertical="true"
-                    name="tbg-categories"
-                    className="tbg-categories"
-                >
-                    <ToggleButton id="tbg-radio-1" value={1}>
-                        All
-                    </ToggleButton>
-                    <ToggleButton id="tbg-radio-2" value={2}>
-                        Looking For More
-                    </ToggleButton>
-                    <ToggleButton id="tbg-radio-3" value={3}>
-                        Ongoing
-                    </ToggleButton>
-                    <ToggleButton id="tbg-radio-4" value={4}>
-                        Round-Based
-                    </ToggleButton>
-                    <ToggleButton id="tbg-radio-5" value={5}>
-                        Finished
-                    </ToggleButton>
-                </ToggleButtonGroup>
+            <Row className="h-50 align-content-start p-3">
+                <p className="sidebar-title">CATEGORIES</p>
+                {categories.map((category) =>
+                    SidebarButton(
+                        "btn-sidebar-category-" + categories.indexOf(category),
+                        category,
+                        category,
+                    ),
+                )}
             </Row>
         </>
     );

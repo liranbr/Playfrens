@@ -10,10 +10,24 @@
   width: 300px;
   border-right: 2px solid var(--bs-secondary-border-subtle);
 }
-/*TODO: Customize the Sidebar/TBGs*/
-.tbg-friends {
+.btn-sidebar {
+  background: var(--bs-dark);
+  text-align: start;
+  font-size: 18px;
+  border: none;
 }
-.tbg-categories {
+.btn-sidebar:checked{
+   background: var(--bs-light);
+   text-align: start;
+   border: none;
+ }
+.sidebar-title {
+  font-size: 20px;
+  font-weight: bold;
+  text-align: left;
+  padding: 0;
+  border-bottom: 2px solid var(--bs-secondary-border-subtle);
+  margin: 0 0 6px;
 }
 .logo {
   height: 6em;

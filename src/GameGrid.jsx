@@ -1,6 +1,7 @@
 import "./GameGrid.css";
 import { Button, Modal } from "react-bootstrap";
 import { useState } from "react";
+import styled from "styled-components";
 
 const games = [
     "Baldur's Gate 3",
@@ -20,6 +21,35 @@ const games = [
     "The Witcher 3",
 ];
 
+const ModalCard = styled(Modal)`
+    .modal-content {
+        height: 900px;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+        box-shadow: 0 0 50px rgba(0, 0, 0, 1);
+        border: none;
+    }
+    .modal-dialog {
+        --bs-modal-width: 600px;
+    }
+    .modal-content::before {
+        // using ::before to make a blurred background
+        content: "";
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        background-size: cover;
+        background-position: center;
+        z-index: -1;
+        background-image: ${({ game }) =>
+            `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("/cards/${game}.png")`};
+        filter: blur(5px);
+        transform: scale(1.02);
+        // scale fixes the 5px of transparency pulled from outside the image in the blur
+    }
+`;
+
 function GameCard(game) {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
@@ -34,40 +64,31 @@ function GameCard(game) {
                     alt={`${game} Game Cover`}
                 />
             </button>
-            <Modal show={show} onHide={handleClose} centered>
+            <ModalCard game={game} show={show} onHide={handleClose} centered>
                 <Modal.Header closeButton>
-                    <Modal.Title>{game}</Modal.Title>
+                    <Modal.Title
+                        style={{
+                            marginLeft: "32px",
+                            textAlign: "center",
+                            fontWeight: "bold",
+                            width: "100%",
+                        }}
+                    >
+                        {game}
+                    </Modal.Title>
                 </Modal.Header>
                 <Modal.Body style={{ display: "flex", flexDirection: "row" }}>
-                    <img
-                        draggable="false"
-                        src={`/cards/${game}.png`}
-                        alt={`${game} Game Cover`}
-                        style={{
-                            width: "100%",
-                            height: "100%",
-                            marginRight: "10px",
-                        }}
-                    />
-                    <div>
-                        <p>
-                            [Placeholder for Form about game details,
-                            categories, friends, etc]
-                        </p>
-                        <div
-                            style={{
-                                position: "absolute",
-                                bottom: "1rem",
-                                right: "1rem",
-                            }}
-                        >
-                            <Button variant="primary" onClick={handleClose}>
-                                Save
-                            </Button>
-                        </div>
-                    </div>
+                    <p>
+                        [Placeholder for Form about game details, categories,
+                        friends, etc]
+                    </p>
                 </Modal.Body>
-            </Modal>
+                <Modal.Footer>
+                    <Button variant="primary" onClick={handleClose}>
+                        Save
+                    </Button>
+                </Modal.Footer>
+            </ModalCard>
         </>
     );
 }

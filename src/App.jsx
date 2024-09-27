@@ -123,14 +123,14 @@ function SidebarContent() {
 function ContentBody() {
     return (
         <Container fluid className="content-body">
-            <Row className="h-100">
-                <Col md={3} className="sidebar">
-                    <SidebarContent></SidebarContent>
-                </Col>
-                <Col md={9}>
-                    <GamesGrid></GamesGrid>
-                </Col>
-            </Row>
+            <div className="d-flex flex-row h-100">
+                <div className="sidebar">
+                    <SidebarContent/>
+                </div>
+                <div>
+                    <GamesGrid/>
+                </div>
+            </div>
         </Container>
     );
 }

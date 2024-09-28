@@ -15,8 +15,8 @@ import { useState } from "react";
 
 function Header() {
     return (
-        <Navbar className="bg-body-tertiary px-3" fixed="top">
-            <Navbar.Brand href="#home">
+        <Navbar className="px-3" fixed="top" style={{backgroundColor: "#1e1f22"}}>
+            <Navbar.Brand>
                 <img
                     src="/Playfrens_Logo.png"
                     alt="Playfrens Logo"
@@ -26,36 +26,35 @@ function Header() {
                 />{" "}
                 Playfrens
             </Navbar.Brand>
-            <Navbar.Toggle aria-controls="basic-navbar-nav" />
-            <Navbar.Collapse id="basic-navbar-nav">
-                <Nav className="me-auto">
-                    <Nav.Link href="#link1">Link1</Nav.Link>
-                    <Nav.Link href="#link2">Link2</Nav.Link>
-                    <NavDropdown title="Dropdown" id="basic-nav-dropdown">
-                        <NavDropdown.Item href="#action/3.1">
-                            Action
-                        </NavDropdown.Item>
-                        <NavDropdown.Item href="#action/3.2">
-                            Another action
-                        </NavDropdown.Item>
-                        <NavDropdown.Item href="#action/3.3">
-                            Something
-                        </NavDropdown.Item>
-                        <NavDropdown.Divider />
-                        <NavDropdown.Item href="#action/3.4">
-                            Separated link
-                        </NavDropdown.Item>
-                    </NavDropdown>
-                </Nav>
-                <Form inline className="d-flex">
-                    <Form.Control
-                        type="text"
-                        placeholder="Search"
-                        className="me-2"
-                    />
-                    <Button type="submit">Submit</Button>
-                </Form>
-            </Navbar.Collapse>
+            <Nav className="me-auto">
+                {/* temp links for dev */}
+                <Nav.Link href="https://trello.com/b/H9Cln6UD/playfrens">Kanban</Nav.Link>
+                <Nav.Link href="https://github.com/liranbr/Playfrens">GitHub</Nav.Link>
+                <NavDropdown title="Dropdown" id="basic-nav-dropdown">
+                    <NavDropdown.Item href="#action/3.1">
+                        Action
+                    </NavDropdown.Item>
+                    <NavDropdown.Item href="#action/3.2">
+                        Another action
+                    </NavDropdown.Item>
+                    <NavDropdown.Item href="#action/3.3">
+                        Something
+                    </NavDropdown.Item>
+                    <NavDropdown.Divider />
+                    <NavDropdown.Item href="#action/3.4">
+                        Separated link
+                    </NavDropdown.Item>
+                </NavDropdown>
+            </Nav>
+            <Form inline className="d-flex">
+                <Form.Control
+                    type="text"
+                    placeholder="Search"
+                    className="me-2"
+                    style={{ backgroundColor: "#1e1f22" }}
+                />
+                <Button type="submit">Submit</Button>
+            </Form>
         </Navbar>
     );
 }
@@ -88,15 +87,15 @@ function SidebarContent() {
         "Gooey",
     ];
     const categories = [
-        "Ongoing",
-        "Plan To Play",
+        "Playthroughs",
         "Round-based",
+        "Plan To Play",
         "Later",
         "Finished",
     ];
     return (
         <>
-            <Row className="h-50 align-content-start p-3">
+            <Row className="h-50 align-content-start p-3" >
                 <p className="sidebar-title">FRIENDS</p>
                 {friends.map((friend) =>
                     SidebarButton(

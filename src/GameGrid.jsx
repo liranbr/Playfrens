@@ -46,25 +46,45 @@ const ModalCard = styled(Modal)`
             `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("/cards/${game}.png")`};
         filter: blur(5px);
         transform: scale(1.02);
-        // scale fixes the 5px of transparency pulled from outside the image in the blur
+        // scale fixes the 5px of transparent border from the blur
     }
 `;
 
-function GameCard(game) {
-    const [show, setShow] = useState(false);
-    const handleClose = () => setShow(false);
-    const handleShow = () => setShow(true);
-
+function GameCard(game, handleShowModal) {
     return (
         <>
-            <button key={game} className="game-card" onClick={handleShow}>
+            <button
+                key={game}
+                className="game-card"
+                onClick={() => handleShowModal(game)}
+            >
                 <img
                     draggable="false"
                     src={`/cards/${game}.png`}
                     alt={`${game} Game Cover`}
                 />
             </button>
-            <ModalCard game={game} show={show} onHide={handleClose} centered>
+        </>
+    );
+}
+
+export function GamesGrid() {
+    const [show, setShow] = useState(false);
+    const [modalGame, setModalGame] = useState(null);
+    const handleClose = () => setShow(false);
+    const handleShow = (game) => {
+        setModalGame(game);
+        setShow(true);
+    };
+    return (
+        <div className="games-grid">
+            {games.map((game) => GameCard(game, handleShow))}
+            <ModalCard
+                game={modalGame}
+                show={show}
+                onHide={handleClose}
+                centered
+            >
                 <Modal.Header closeButton>
                     <Modal.Title
                         style={{
@@ -74,7 +94,7 @@ function GameCard(game) {
                             width: "100%",
                         }}
                     >
-                        {game}
+                        {modalGame}
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body style={{ display: "flex", flexDirection: "row" }}>
@@ -89,12 +109,6 @@ function GameCard(game) {
                     </Button>
                 </Modal.Footer>
             </ModalCard>
-        </>
-    );
-}
-
-export function GamesGrid() {
-    return (
-        <div className="games-grid">{games.map((game) => GameCard(game))}</div>
+        </div>
     );
 }

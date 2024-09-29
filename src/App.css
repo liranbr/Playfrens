@@ -1,28 +1,41 @@
 #root {
-  margin: 0 auto;
-  text-align: center;
+    margin: 0 auto;
+    text-align: center;
 }
+
 .content-body {
-  background-color: #2b2d31;
-  padding: 56px 0 0 0; /* 56px compensates for navbar height */
-  height: 100vh;
+    background-color: #2b2d31;
+    padding: 56px 0 0 0; /* 56px compensates for navbar height */
+    height: 100vh;
 }
+
 .sidebar {
-  max-width: 300px;
-  min-width: 300px;
-  padding: 1rem;
-  background-color: #232428;
+    max-width: 300px;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
 }
-.btn-sidebar {
-  background: none;
-  text-align: start;
-  font-size: 18px;
-  border: none;
+
+.sidebar-card {
+    flex: 1;
+    align-content: start;
+    margin: 10px;
+    padding: 1rem;
+    border-radius: 20px;
+    background-color: #232428;
 }
+
 .sidebar-title {
-  font-size: 20px;
-  font-weight: bold;
-  text-align: left;
-  padding: 0;
-  margin: 0 0 6px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #80848e;
+    padding: 0;
+    margin: 0 0 6px;
+}
+
+.sidebar-button {
+    background: none;
+    text-align: start;
+    font-size: 18px;
+    border: none;
 }

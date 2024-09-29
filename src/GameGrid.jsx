@@ -1,6 +1,6 @@
 import "./GameGrid.css";
-import { Button, Modal } from "react-bootstrap";
-import { useState } from "react";
+import {Button, Modal} from "react-bootstrap";
+import {useState} from "react";
 import styled from "styled-components";
 
 const games = [
@@ -18,6 +18,7 @@ const games = [
     "Tears of the Kingdom",
     "Terraria",
     "Tunic",
+    "V Rising",
     "The Witcher 3",
 ];
 
@@ -30,9 +31,11 @@ const ModalCard = styled(Modal)`
         box-shadow: 0 0 50px rgba(0, 0, 0, 1);
         border: none;
     }
+
     .modal-dialog {
         --bs-modal-width: 600px;
     }
+
     .modal-content::before {
         // using ::before to make a blurred background
         content: "";
@@ -42,8 +45,8 @@ const ModalCard = styled(Modal)`
         background-size: cover;
         background-position: center;
         z-index: -1;
-        background-image: ${({ game }) =>
-            `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("/cards/${game}.png")`};
+        background-image: ${({game}) =>
+                `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("/cards/${game}.png")`};
         filter: blur(5px);
         transform: scale(1.02);
         // scale fixes the 5px of transparent border from the blur
@@ -77,38 +80,40 @@ export function GamesGrid() {
         setShow(true);
     };
     return (
-        <div className="games-grid">
-            {games.map((game) => GameCard(game, handleShow))}
-            <ModalCard
-                game={modalGame}
-                show={show}
-                onHide={handleClose}
-                centered
-            >
-                <Modal.Header closeButton>
-                    <Modal.Title
-                        style={{
-                            marginLeft: "32px",
-                            textAlign: "center",
-                            fontWeight: "bold",
-                            width: "100%",
-                        }}
-                    >
-                        {modalGame}
-                    </Modal.Title>
-                </Modal.Header>
-                <Modal.Body style={{ display: "flex", flexDirection: "row" }}>
-                    <p>
-                        [Placeholder for Form about game details, categories,
-                        friends, etc]
-                    </p>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="primary" onClick={handleClose}>
-                        Save
-                    </Button>
-                </Modal.Footer>
-            </ModalCard>
+        <div>
+            <div className="games-grid">
+                {games.map((game) => GameCard(game, handleShow))}
+                <ModalCard
+                    game={modalGame}
+                    show={show}
+                    onHide={handleClose}
+                    centered
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title
+                            style={{
+                                marginLeft: "32px",
+                                textAlign: "center",
+                                fontWeight: "bold",
+                                width: "100%",
+                            }}
+                        >
+                            {modalGame}
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body style={{display: "flex", flexDirection: "row"}}>
+                        <p>
+                            [Placeholder for Form about game details, categories,
+                            friends, etc]
+                        </p>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="primary" onClick={handleClose}>
+                            Save
+                        </Button>
+                    </Modal.Footer>
+                </ModalCard>
+            </div>
         </div>
     );
 }

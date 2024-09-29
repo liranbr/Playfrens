@@ -1,8 +1,7 @@
 import "./App.css";
-import { GamesGrid } from "./GameGrid.jsx";
+import {GamesGrid} from "./GameGrid.jsx";
 import {
     Button,
-    Col,
     Container,
     Form,
     Nav,
@@ -11,7 +10,7 @@ import {
     Row,
     ToggleButton,
 } from "react-bootstrap";
-import { useState } from "react";
+import {useState} from "react";
 
 function Header() {
     return (
@@ -30,20 +29,13 @@ function Header() {
                 {/* temp links for dev */}
                 <Nav.Link href="https://trello.com/b/H9Cln6UD/playfrens">Kanban</Nav.Link>
                 <Nav.Link href="https://github.com/liranbr/Playfrens">GitHub</Nav.Link>
+                <Nav.Link href="https://react-bootstrap.netlify.app/docs/components/cards">Bootstrap</Nav.Link>
                 <NavDropdown title="Dropdown" id="basic-nav-dropdown">
-                    <NavDropdown.Item href="#action/3.1">
-                        Action
-                    </NavDropdown.Item>
-                    <NavDropdown.Item href="#action/3.2">
-                        Another action
-                    </NavDropdown.Item>
-                    <NavDropdown.Item href="#action/3.3">
-                        Something
-                    </NavDropdown.Item>
-                    <NavDropdown.Divider />
-                    <NavDropdown.Item href="#action/3.4">
-                        Separated link
-                    </NavDropdown.Item>
+                    <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
+                    <NavDropdown.Item href="#action/3.2">Another action</NavDropdown.Item>
+                    <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>
+                    <NavDropdown.Divider/>
+                    <NavDropdown.Item href="#action/3.4">Separated link</NavDropdown.Item>
                 </NavDropdown>
             </Nav>
             <Form inline className="d-flex">
@@ -51,7 +43,7 @@ function Header() {
                     type="text"
                     placeholder="Search"
                     className="me-2"
-                    style={{ backgroundColor: "#1e1f22" }}
+                    style={{backgroundColor: "#1e1f22"}}
                 />
                 <Button type="submit">Submit</Button>
             </Form>
@@ -66,7 +58,7 @@ function SidebarButton(id, value, label) {
             id={id}
             value={value}
             type="checkbox"
-            className="btn-sidebar"
+            className="sidebar-button"
             checked={checked}
             onChange={(e) => setChecked(e.currentTarget.checked)}
         >
@@ -75,7 +67,7 @@ function SidebarButton(id, value, label) {
     );
 }
 
-function SidebarContent() {
+function Sidebar() {
     const friends = [
         "Sami",
         "Nibbix",
@@ -94,8 +86,8 @@ function SidebarContent() {
         "Finished",
     ];
     return (
-        <>
-            <Row className="h-50 align-content-start p-3" >
+        <div className="sidebar">
+            <Row className="sidebar-card" style={{marginBottom: "5px"}}>
                 <p className="sidebar-title">FRIENDS</p>
                 {friends.map((friend) =>
                     SidebarButton(
@@ -105,7 +97,7 @@ function SidebarContent() {
                     ),
                 )}
             </Row>
-            <Row className="h-50 align-content-start p-3">
+            <Row className="sidebar-card" style={{marginTop: "5px"}}>
                 <p className="sidebar-title">CATEGORIES</p>
                 {categories.map((category) =>
                     SidebarButton(
@@ -115,7 +107,7 @@ function SidebarContent() {
                     ),
                 )}
             </Row>
-        </>
+        </div>
     );
 }
 
@@ -123,12 +115,8 @@ function ContentBody() {
     return (
         <Container fluid className="content-body">
             <div className="d-flex flex-row h-100">
-                <div className="sidebar">
-                    <SidebarContent/>
-                </div>
-                <div>
-                    <GamesGrid/>
-                </div>
+                <Sidebar/>
+                <GamesGrid/>
             </div>
         </Container>
     );
@@ -137,8 +125,8 @@ function ContentBody() {
 export default function App() {
     return (
         <>
-            <Header />
-            <ContentBody />
+            <Header/>
+            <ContentBody/>
         </>
     );
 }

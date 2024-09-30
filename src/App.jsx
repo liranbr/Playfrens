@@ -95,23 +95,11 @@ function Sidebar() {
         "Round-based",
         "Plan To Play",
         "Later",
-        "Finished",
+        "Finished"
     ];
     return (
         <div className="sidebar">
             <Row className="sidebar-card" style={{marginBottom: "5px"}}>
-                <p className="sidebar-title">FRIENDS</p>
-                <div className="sidebar-buttons-list">
-                    {friends.map((friend) =>
-                        SidebarButton(
-                            "btn-sidebar-friend-" + friends.indexOf(friend),
-                            friend,
-                            friend,
-                        ),
-                    )}
-                </div>
-            </Row>
-            <Row className="sidebar-card" style={{marginTop: "5px"}}>
                 <p className="sidebar-title">CATEGORIES</p>
                 <div className="sidebar-buttons-list">
                     {categories.map((category) =>
@@ -119,6 +107,18 @@ function Sidebar() {
                             "btn-sidebar-category-" + categories.indexOf(category),
                             category,
                             category,
+                        ),
+                    )}
+                </div>
+            </Row>
+            <Row className="sidebar-card" style={{marginTop: "5px"}}>
+                <p className="sidebar-title">FRIENDS</p>
+                <div className="sidebar-buttons-list">
+                    {friends.map((friend) =>
+                        SidebarButton(
+                            "btn-sidebar-friend-" + friends.indexOf(friend),
+                            friend,
+                            friend,
                         ),
                     )}
                 </div>

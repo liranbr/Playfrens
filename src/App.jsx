@@ -57,9 +57,10 @@ function SidebarButton(id, value, label) {
         <ToggleButton
             id={id}
             value={value}
-            type="checkbox"
             className="sidebar-button"
+            type="checkbox"
             checked={checked}
+            draggable="true"
             onChange={(e) => setChecked(e.currentTarget.checked)}
         >
             {label}
@@ -77,6 +78,17 @@ function Sidebar() {
         "Cake",
         "Labreris",
         "Gooey",
+        "shinn",
+        "Bram",
+        "wesje101",
+        "Twinkle",
+        "Vented",
+        "MechArcana",
+        "Tristan",
+        "Xianji",
+        "Sky",
+        "Niv",
+        "Aco"
     ];
     const categories = [
         "Playthroughs",
@@ -89,23 +101,27 @@ function Sidebar() {
         <div className="sidebar">
             <Row className="sidebar-card" style={{marginBottom: "5px"}}>
                 <p className="sidebar-title">FRIENDS</p>
-                {friends.map((friend) =>
-                    SidebarButton(
-                        "btn-sidebar-friend-" + friends.indexOf(friend),
-                        friend,
-                        friend,
-                    ),
-                )}
+                <div className="sidebar-buttons-list">
+                    {friends.map((friend) =>
+                        SidebarButton(
+                            "btn-sidebar-friend-" + friends.indexOf(friend),
+                            friend,
+                            friend,
+                        ),
+                    )}
+                </div>
             </Row>
             <Row className="sidebar-card" style={{marginTop: "5px"}}>
                 <p className="sidebar-title">CATEGORIES</p>
-                {categories.map((category) =>
-                    SidebarButton(
-                        "btn-sidebar-category-" + categories.indexOf(category),
-                        category,
-                        category,
-                    ),
-                )}
+                <div className="sidebar-buttons-list">
+                    {categories.map((category) =>
+                        SidebarButton(
+                            "btn-sidebar-category-" + categories.indexOf(category),
+                            category,
+                            category,
+                        ),
+                    )}
+                </div>
             </Row>
         </div>
     );

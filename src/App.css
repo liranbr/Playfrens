@@ -17,20 +17,31 @@
 }
 
 .sidebar-card {
-    flex: 1;
-    align-content: start;
+    height: 50%;
+    display: flex;
+    flex-direction: column;
     margin: 10px;
     padding: 1rem;
     border-radius: 20px;
-    background-color: #232428;
+    background-color: #1e1f22;
+}
+
+.sidebar-buttons-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: scroll;
+    scrollbar-width: thin;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .sidebar-title {
     font-size: 20px;
     font-weight: bold;
-    color: #80848e;
+    color: #777b84;
     padding: 0;
-    margin: 0 0 6px;
+    margin: 0 0 10px;
 }
 
 .sidebar-button {
@@ -38,4 +49,5 @@
     text-align: start;
     font-size: 18px;
     border: none;
+    border-radius: 15px;
 }

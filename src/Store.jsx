@@ -19,14 +19,14 @@ export const allFriends = [
     "Niv",
     "Aco"
 ];
-export const allCategories = [
+export const allCategories = new Set([
     "Playthroughs",
     "Round-based",
     "Plan To Play",
     "Later",
     "Finished"
-];
-export const allGameNames = [
+]);
+export const allGameNames = new Set([
     "Baldur's Gate 3",
     "Celeste",
     "CrossCode",
@@ -43,10 +43,10 @@ export const allGameNames = [
     "Tunic",
     "V Rising",
     "The Witcher 3",
-];
+]);
 
 export class GameObject {
-    title = "empty modal";
+    title = "";
     friends = [];
     categories = [];
 
@@ -69,7 +69,7 @@ export class GameObject {
     }
 }
 
-export const allGames = allGameNames.map((gameName) => {
+export const allGames = [...allGameNames].map((gameName) => {
     const gameObject = new GameObject(gameName);
     // TODO: Temp logic for testing filters
     if (gameName.includes(" "))

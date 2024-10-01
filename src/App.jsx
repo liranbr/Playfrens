@@ -1,13 +1,15 @@
 import "./App.css";
 import {GamesGrid} from "./GameGrid.jsx";
-import {Button, Container, Form, Nav, Navbar, NavDropdown, Row, ToggleButton,} from "react-bootstrap";
+import {Button, Container, Form, InputGroup, Nav, Navbar, NavDropdown, Row, ToggleButton,} from "react-bootstrap";
 import {useMemo, useState} from "react";
 import {allCategories, allFriends, allGames} from "./Store.jsx"
 import PropTypes from "prop-types";
 
-function Header({setSearch}) {
+function Header({setSearchOuter}) {
+    const [search, setSearch] = useState("")
     const handleSearchChange = (event) => {
         setSearch(event.target.value);
+        setSearchOuter(event.target.value);
     }
 
     return (
@@ -39,13 +41,25 @@ function Header({setSearch}) {
                 <Form.Control
                     type="text"
                     placeholder="Search"
-                    className="me-2"
+                    value={search}
                     onChange={handleSearchChange}
-                    style={{backgroundColor: "#1e1f22"}}
+                    style={{background: "none"}}
                 />
+                <Button variant="outline-secondary" type="reset" onClick={handleSearchChange}
+                        style={{
+                            display: search ? 'block' : 'none',
+                            position: "absolute",
+                            right: "16px",
+                            border: "none",
+                            background: "none"
+                        }}>x</Button>
             </Form>
         </Navbar>
     );
+}
+
+Header.propTypes = {
+    setSearchOuter: PropTypes.func.isRequired,
 }
 
 function SidebarButton({id, value, label}) {
@@ -71,13 +85,13 @@ SidebarButton.propTypes = {
     label: PropTypes.string.isRequired,
 }
 
-function Sidebar() {
+function Sidebar({selections: {friends, categories}}) {
     return (
         <div className="sidebar">
             <Row className="sidebar-card" style={{marginBottom: "5px"}}>
                 <p className="sidebar-title">CATEGORIES</p>
                 <div className="sidebar-buttons-list">
-                    {allCategories.map((category, index) =>
+                    {[...allCategories].map((category, index) =>
                         (<SidebarButton
                             key={"btn-sidebar-category-" + index}
                             id={"btn-sidebar-category-" + index}
@@ -104,6 +118,13 @@ function Sidebar() {
     );
 }
 
+Sidebar.propTypes = {
+    selections: PropTypes.shape({
+        friends: PropTypes.func.isRequired,
+        categories: PropTypes.func.isRequired,
+    })
+}
+
 export default function App() {
     const [selectedFriends, setSelectedFriends] = useState([]);
     const [selectedCategories, setSelectedCategories] = useState([]);
@@ -114,14 +135,14 @@ export default function App() {
         return allGames.filter((game) => {
             return game.title.toLowerCase().includes(search.toLowerCase())
         })
-    }, [search]);
+    }, [search, selectedFriends, selectedCategories]);
 
     return (
         <>
-            <Header setSearch={setSearch}/>
+            <Header setSearchOuter={setSearch}/>
             <Container fluid className="content-body">
                 <div className="d-flex flex-row h-100">
-                    <Sidebar setSelectedFriends={setSelectedFriends} setSelectedCategories={setSelectedCategories}/>
+                    <Sidebar selections={{friends: setSelectedCategories, categories: setSelectedFriends}}/>
                     <GamesGrid filteredGames={filteredGames}/>
                 </div>
             </Container>

@@ -109,3 +109,7 @@ export function GamesGrid({filteredGames}) {
         </div>
     );
 }
+
+GamesGrid.propTypes = {
+    filteredGames: PropTypes.array.isRequired,
+}

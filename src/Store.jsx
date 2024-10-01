@@ -46,15 +46,35 @@ export const allGameNames = [
 ];
 
 export class GameObject {
-    title;
+    title = "empty modal";
     friends = [];
+    categories = [];
+
     constructor(name) {
         this.title = name;
     }
+
     addFriend(friend) {
         this.friends.push(friend);
-        console.log("Game: " + this.title + ", friends: " + this.friends);
+        console.log("Added Friend: " + friend + " to Game: " + this.title);
+    }
+
+    addCategory(category) {
+        this.categories.push(category);
+        console.log("Added Category: " + category + " to Game: " + this.title);
+    }
+
+    toString() {
+        return "GameObject: title: " + this.title + ", friends: " + this.friends + ", categories: " + this.categories;
     }
 }
 
-export const allGames = allGameNames.map((gameName) => {return new GameObject(gameName)});
+export const allGames = allGameNames.map((gameName) => {
+    const gameObject = new GameObject(gameName);
+    // TODO: Temp logic for testing filters
+    if (gameName.includes(" "))
+        gameObject.addFriend("Sami");
+    else
+        gameObject.addFriend("Nibbix");
+    return gameObject;
+});

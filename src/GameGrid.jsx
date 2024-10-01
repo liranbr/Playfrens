@@ -60,24 +60,24 @@ GameCard.propTypes = {
     onClick: PropTypes.func.isRequired,
 }
 
-export function GamesGrid() {
-    const [show, setShow] = useState(false);
-    const [modalGame, setModalGame] = useState(allGames[0]);
-    const handleClose = () => setShow(false);
+export function GamesGrid({filteredGames}) {
+    const [showModal, setShowModal] = useState(false);
+    const [modalGame, setModalGame] = useState(new GameObject("Default"));
+    const handleClose = () => setShowModal(false);
     const handleShow = (game) => {
         setModalGame(game);
-        setShow(true);
+        setShowModal(true);
     };
     return (
         <div>
             <div className="games-grid">
-                {allGames.map((game) => (<GameCard
+                {filteredGames.map((game) => (<GameCard
                     key={"gg-gc-" + game.title}
                     game={game}
                     onClick={handleShow}/>))}
                 <ModalCard
                     game={modalGame}
-                    show={show}
+                    show={showModal}
                     onHide={handleClose}
                     centered
                 >

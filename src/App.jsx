@@ -1,11 +1,15 @@
 import "./App.css";
 import {GamesGrid} from "./GameGrid.jsx";
 import {Button, Container, Form, Nav, Navbar, NavDropdown, Row, ToggleButton,} from "react-bootstrap";
-import {useState} from "react";
-import {allCategories, allFriends} from "./Store.jsx"
+import {useMemo, useState} from "react";
+import {allCategories, allFriends, allGames} from "./Store.jsx"
 import PropTypes from "prop-types";
 
-function Header() {
+function Header({setSearch}) {
+    const handleSearchChange = (event) => {
+        setSearch(event.target.value);
+    }
+
     return (
         <Navbar className="px-3" fixed="top" style={{backgroundColor: "#1e1f22"}}>
             <Navbar.Brand>
@@ -36,9 +40,9 @@ function Header() {
                     type="text"
                     placeholder="Search"
                     className="me-2"
+                    onChange={handleSearchChange}
                     style={{backgroundColor: "#1e1f22"}}
                 />
-                <Button type="submit">Submit</Button>
             </Form>
         </Navbar>
     );
@@ -100,22 +104,27 @@ function Sidebar() {
     );
 }
 
-function ContentBody() {
-    return (
-        <Container fluid className="content-body">
-            <div className="d-flex flex-row h-100">
-                <Sidebar/>
-                <GamesGrid/>
-            </div>
-        </Container>
-    );
-}
-
 export default function App() {
+    const [selectedFriends, setSelectedFriends] = useState([]);
+    const [selectedCategories, setSelectedCategories] = useState([]);
+    const [search, setSearch] = useState("");
+
+    const filteredGames = useMemo(() => {
+        if (search === "") return allGames;
+        return allGames.filter((game) => {
+            return game.title.toLowerCase().includes(search.toLowerCase())
+        })
+    }, [search]);
+
     return (
         <>
-            <Header/>
-            <ContentBody/>
+            <Header setSearch={setSearch}/>
+            <Container fluid className="content-body">
+                <div className="d-flex flex-row h-100">
+                    <Sidebar setSelectedFriends={setSelectedFriends} setSelectedCategories={setSelectedCategories}/>
+                    <GamesGrid filteredGames={filteredGames}/>
+                </div>
+            </Container>
         </>
     );
 }

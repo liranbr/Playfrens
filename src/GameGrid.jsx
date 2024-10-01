@@ -2,25 +2,9 @@ import "./GameGrid.css";
 import {Button, Modal} from "react-bootstrap";
 import {useState} from "react";
 import styled from "styled-components";
+import {allGames, GameObject} from "./Store.jsx";
+import PropTypes from "prop-types";
 
-const games = [
-    "Baldur's Gate 3",
-    "Celeste",
-    "CrossCode",
-    "Dark Souls I Remastered",
-    "Dead Cells",
-    "Hades",
-    "Heroes of the Storm",
-    "Hollow Knight",
-    "Outer Wilds",
-    "Sekiro - Shadows Die Twice",
-    "Subnautica",
-    "Tears of the Kingdom",
-    "Terraria",
-    "Tunic",
-    "V Rising",
-    "The Witcher 3",
-];
 
 const ModalCard = styled(Modal)`
     .modal-content {
@@ -46,34 +30,39 @@ const ModalCard = styled(Modal)`
         background-position: center;
         z-index: -1;
         background-image: ${({game}) =>
-                `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("/cards/${game}.png")`};
+                `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("/cards/${game.title}.png")`};
         filter: blur(5px);
         transform: scale(1.02);
         // scale fixes the 5px of transparent border from the blur
     }
 `;
 
-function GameCard(game, handleShowModal) {
+function GameCard({game, onClick}) {
     return (
         <>
             <button
-                key={game}
+                key={"gg-btn-" + game.title}
                 className="game-card"
-                onClick={() => handleShowModal(game)}
+                onClick={() => onClick(game)}
             >
                 <img
                     draggable="false"
-                    src={`/cards/${game}.png`}
-                    alt={`${game} Game Cover`}
+                    src={`/cards/${game.title}.png`}
+                    alt={`${game.title} Game Cover`}
                 />
             </button>
         </>
     );
 }
 
+GameCard.propTypes = {
+    game: PropTypes.instanceOf(GameObject).isRequired,
+    onClick: PropTypes.func.isRequired,
+}
+
 export function GamesGrid() {
     const [show, setShow] = useState(false);
-    const [modalGame, setModalGame] = useState(null);
+    const [modalGame, setModalGame] = useState(allGames[0]);
     const handleClose = () => setShow(false);
     const handleShow = (game) => {
         setModalGame(game);
@@ -82,7 +71,10 @@ export function GamesGrid() {
     return (
         <div>
             <div className="games-grid">
-                {games.map((game) => GameCard(game, handleShow))}
+                {allGames.map((game) => (<GameCard
+                    key={"gg-gc-" + game.title}
+                    game={game}
+                    onClick={handleShow}/>))}
                 <ModalCard
                     game={modalGame}
                     show={show}
@@ -98,7 +90,7 @@ export function GamesGrid() {
                                 width: "100%",
                             }}
                         >
-                            {modalGame}
+                            {modalGame.title}
                         </Modal.Title>
                     </Modal.Header>
                     <Modal.Body style={{display: "flex", flexDirection: "row"}}>

@@ -1,16 +1,9 @@
 import "./App.css";
 import {GamesGrid} from "./GameGrid.jsx";
-import {
-    Button,
-    Container,
-    Form,
-    Nav,
-    Navbar,
-    NavDropdown,
-    Row,
-    ToggleButton,
-} from "react-bootstrap";
+import {Button, Container, Form, Nav, Navbar, NavDropdown, Row, ToggleButton,} from "react-bootstrap";
 import {useState} from "react";
+import {allCategories, allFriends} from "./Store.jsx"
+import PropTypes from "prop-types";
 
 function Header() {
     return (
@@ -38,7 +31,7 @@ function Header() {
                     <NavDropdown.Item href="#action/3.4">Separated link</NavDropdown.Item>
                 </NavDropdown>
             </Nav>
-            <Form inline className="d-flex">
+            <Form inline="true" className="d-flex">
                 <Form.Control
                     type="text"
                     placeholder="Search"
@@ -51,7 +44,7 @@ function Header() {
     );
 }
 
-function SidebarButton(id, value, label) {
+function SidebarButton({id, value, label}) {
     const [checked, setChecked] = useState(false);
     return (
         <ToggleButton
@@ -68,58 +61,38 @@ function SidebarButton(id, value, label) {
     );
 }
 
+SidebarButton.propTypes = {
+    id: PropTypes.string.isRequired,
+    value: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired,
+}
+
 function Sidebar() {
-    const friends = [
-        "Sami",
-        "Nibbix",
-        "RocketDN",
-        "MindHawk",
-        "VX",
-        "Cake",
-        "Labreris",
-        "Gooey",
-        "shinn",
-        "Bram",
-        "wesje101",
-        "Twinkle",
-        "Vented",
-        "MechArcana",
-        "Tristan",
-        "Xianji",
-        "Sky",
-        "Niv",
-        "Aco"
-    ];
-    const categories = [
-        "Playthroughs",
-        "Round-based",
-        "Plan To Play",
-        "Later",
-        "Finished"
-    ];
     return (
         <div className="sidebar">
             <Row className="sidebar-card" style={{marginBottom: "5px"}}>
                 <p className="sidebar-title">CATEGORIES</p>
                 <div className="sidebar-buttons-list">
-                    {categories.map((category) =>
-                        SidebarButton(
-                            "btn-sidebar-category-" + categories.indexOf(category),
-                            category,
-                            category,
-                        ),
+                    {allCategories.map((category, index) =>
+                        (<SidebarButton
+                            key={"btn-sidebar-category-" + index}
+                            id={"btn-sidebar-category-" + index}
+                            value={category}
+                            label={category}
+                        />)
                     )}
                 </div>
             </Row>
             <Row className="sidebar-card" style={{marginTop: "5px"}}>
                 <p className="sidebar-title">FRIENDS</p>
                 <div className="sidebar-buttons-list">
-                    {friends.map((friend) =>
-                        SidebarButton(
-                            "btn-sidebar-friend-" + friends.indexOf(friend),
-                            friend,
-                            friend,
-                        ),
+                    {allFriends.map((friend, index) =>
+                        (<SidebarButton
+                            key={"btn-sidebar-friend-" + index}
+                            id={"btn-sidebar-friend-" + index}
+                            value={friend}
+                            label={friend}
+                        />)
                     )}
                 </div>
             </Row>

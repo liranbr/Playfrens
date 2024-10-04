@@ -8,8 +8,9 @@ import PropTypes from "prop-types";
 function Header({setSearchOuter}) {
     const [search, setSearch] = useState("")
     const handleSearchChange = (event) => {
-        setSearch(event.target.value);
-        setSearchOuter(event.target.value);
+        setSearch(event.target.value); // value of searchbar, used for search reset button behavior
+        setSearchOuter(event.target.value); // sends up the value for filtering
+        // TODO: Improve implementation
     }
 
     return (
@@ -62,27 +63,33 @@ Header.propTypes = {
     setSearchOuter: PropTypes.func.isRequired,
 }
 
-function SidebarButton({id, value, label, setSelection}) {
+function SidebarButton({id, value, label, dataType, setSelection, handleDragStart}) {
+    // TODO: Too many props? improve implementation
     const [checked, setChecked] = useState(false);
+    const handleChange = (e) => {
+        const isChecked = e.currentTarget.checked;
+        setChecked(isChecked); // set button state
+        setSelection(prevSelection => {
+            return isChecked
+                ? [...prevSelection, value] // select filter
+                : prevSelection.filter(item => item !== value); // deselect filter
+        })
+    }
+    const handleDrag = (e) => {
+        handleDragStart(e, value, dataType)
+    }
+
     return (
         <ToggleButton
             id={id}
             value={value}
             className="sidebar-button"
             type="checkbox"
+            datatype={dataType}
             checked={checked}
             draggable="true"
-            onChange={(e) => {
-                setChecked(e.currentTarget.checked);
-                if (checked) // need to remove
-                    setSelection(prev => {
-                        return prev.filter(item => item !== value);
-                    })
-                else // need to add
-                    setSelection(prev => {
-                        return [...prev, value];
-                    })
-            }}
+            onDragStart={handleDrag}
+            onChange={handleChange}
         >
             {label}
         </ToggleButton>
@@ -93,10 +100,12 @@ SidebarButton.propTypes = {
     id: PropTypes.string.isRequired,
     value: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
+    dataType: PropTypes.string.isRequired,
     setSelection: PropTypes.func.isRequired,
+    handleDragStart: PropTypes.func.isRequired,
 }
 
-function Sidebar({setSelectedFriends, setSelectedCategories}) {
+function Sidebar({setSelectedFriends, setSelectedCategories, handleDragStart}) {
     return (
         <div className="sidebar">
             <Row className="sidebar-card" style={{marginBottom: "5px"}}>
@@ -108,7 +117,9 @@ function Sidebar({setSelectedFriends, setSelectedCategories}) {
                             id={"btn-sidebar-category-" + index}
                             value={category}
                             label={category}
+                            dataType={'category'}
                             setSelection={setSelectedCategories}
+                            handleDragStart={handleDragStart}
                         />)
                     )}
                 </div>
@@ -122,7 +133,9 @@ function Sidebar({setSelectedFriends, setSelectedCategories}) {
                             id={"btn-sidebar-friend-" + index}
                             value={friend}
                             label={friend}
+                            dataType={'friend'}
                             setSelection={setSelectedFriends}
+                            handleDragStart={handleDragStart}
                         />)
                     )}
                 </div>
@@ -134,6 +147,7 @@ function Sidebar({setSelectedFriends, setSelectedCategories}) {
 Sidebar.propTypes = {
     setSelectedFriends: PropTypes.func.isRequired,
     setSelectedCategories: PropTypes.func.isRequired,
+    handleDragStart: PropTypes.func.isRequired,
 }
 
 export default function App() {
@@ -149,12 +163,20 @@ export default function App() {
         })
     }, [search, selectedFriends, selectedCategories]);
 
+    const handleDragStart = (e, item, dataType) => {
+        e.dataTransfer.setData('item', item);
+        e.dataTransfer.setData('dataType', dataType);
+    }
+
     return (
         <>
             <Header setSearchOuter={setSearch}/>
             <Container fluid className="content-body">
                 <div className="d-flex flex-row h-100">
-                    <Sidebar setSelectedCategories={setSelectedCategories} setSelectedFriends={setSelectedFriends}/>
+                    <Sidebar setSelectedCategories={setSelectedCategories}
+                             setSelectedFriends={setSelectedFriends}
+                             handleDragStart={handleDragStart}
+                    />
                     <GamesGrid filteredGames={filteredGames}/>
                 </div>
             </Container>

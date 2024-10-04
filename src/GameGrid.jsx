@@ -2,7 +2,7 @@ import "./GameGrid.css";
 import {Button, Modal} from "react-bootstrap";
 import {useState} from "react";
 import styled from "styled-components";
-import {allGames, GameObject} from "./Store.jsx";
+import {GameObject} from "./Store.jsx";
 import PropTypes from "prop-types";
 
 
@@ -38,12 +38,25 @@ const ModalCard = styled(Modal)`
 `;
 
 function GameCard({game, onClick}) {
+    const handleDrop = (e) => {
+        const item = e.dataTransfer.getData('item');
+        const dataType = e.dataTransfer.getData('dataType');
+        console.log("Handling Drop! item and data type: " + item + ", " + dataType)
+        if (dataType === 'friend')
+            game.addFriend(item)
+        else if (dataType === 'category')
+            game.addCategory(item)
+        else
+            console.log("Drag Issue : not a friend or a category")
+    }
     return (
         <>
             <button
                 key={"gg-btn-" + game.title}
                 className="game-card"
                 onClick={() => onClick(game)}
+                onDrop={handleDrop}
+                onDragOver={e => e.preventDefault()}
             >
                 <img
                     draggable="false"

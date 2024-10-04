@@ -65,7 +65,7 @@ export class GameObject {
     }
 
     toString() {
-        return "Game Title: " + this.title + ", friends: " + this.friends + ", categories: " + his.categories;
+        return "Game Title: " + this.title + ", friends: " + this.friends + ", categories: " + this.categories;
     }
 }
 

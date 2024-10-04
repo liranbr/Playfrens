@@ -1,6 +1,6 @@
 import "./App.css";
 import {GamesGrid} from "./GameGrid.jsx";
-import {Button, Container, Form, InputGroup, Nav, Navbar, NavDropdown, Row, ToggleButton,} from "react-bootstrap";
+import {Button, Container, Form, Nav, Navbar, NavDropdown, Row, ToggleButton} from "react-bootstrap";
 import {useMemo, useState} from "react";
 import {allCategories, allFriends, allGames} from "./Store.jsx"
 import PropTypes from "prop-types";
@@ -62,7 +62,7 @@ Header.propTypes = {
     setSearchOuter: PropTypes.func.isRequired,
 }
 
-function SidebarButton({id, value, label}) {
+function SidebarButton({id, value, label, setSelection}) {
     const [checked, setChecked] = useState(false);
     return (
         <ToggleButton
@@ -72,7 +72,17 @@ function SidebarButton({id, value, label}) {
             type="checkbox"
             checked={checked}
             draggable="true"
-            onChange={(e) => setChecked(e.currentTarget.checked)}
+            onChange={(e) => {
+                setChecked(e.currentTarget.checked);
+                if (checked) // need to remove
+                    setSelection(prev => {
+                        return prev.filter(item => item !== value);
+                    })
+                else // need to add
+                    setSelection(prev => {
+                        return [...prev, value];
+                    })
+            }}
         >
             {label}
         </ToggleButton>
@@ -83,9 +93,10 @@ SidebarButton.propTypes = {
     id: PropTypes.string.isRequired,
     value: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
+    setSelection: PropTypes.func.isRequired,
 }
 
-function Sidebar({selections: {friends, categories}}) {
+function Sidebar({setSelectedFriends, setSelectedCategories}) {
     return (
         <div className="sidebar">
             <Row className="sidebar-card" style={{marginBottom: "5px"}}>
@@ -97,6 +108,7 @@ function Sidebar({selections: {friends, categories}}) {
                             id={"btn-sidebar-category-" + index}
                             value={category}
                             label={category}
+                            setSelection={setSelectedCategories}
                         />)
                     )}
                 </div>
@@ -110,6 +122,7 @@ function Sidebar({selections: {friends, categories}}) {
                             id={"btn-sidebar-friend-" + index}
                             value={friend}
                             label={friend}
+                            setSelection={setSelectedFriends}
                         />)
                     )}
                 </div>
@@ -119,21 +132,20 @@ function Sidebar({selections: {friends, categories}}) {
 }
 
 Sidebar.propTypes = {
-    selections: PropTypes.shape({
-        friends: PropTypes.func.isRequired,
-        categories: PropTypes.func.isRequired,
-    })
+    setSelectedFriends: PropTypes.func.isRequired,
+    setSelectedCategories: PropTypes.func.isRequired,
 }
 
 export default function App() {
     const [selectedFriends, setSelectedFriends] = useState([]);
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [search, setSearch] = useState("");
-
     const filteredGames = useMemo(() => {
-        if (search === "") return allGames;
         return allGames.filter((game) => {
-            return game.title.toLowerCase().includes(search.toLowerCase())
+            return game.title.toLowerCase().includes(search.toLowerCase()) && // Game Title includes the search value
+                selectedFriends.every(selectedFriend => game.friends.includes(selectedFriend)) && // All friends are in the game
+                (!selectedCategories.length || // No categories selected, or
+                    selectedCategories.some(selectedCategory => game.categories.includes(selectedCategory))); // Game belongs to at least one category
         })
     }, [search, selectedFriends, selectedCategories]);
 
@@ -142,7 +154,7 @@ export default function App() {
             <Header setSearchOuter={setSearch}/>
             <Container fluid className="content-body">
                 <div className="d-flex flex-row h-100">
-                    <Sidebar selections={{friends: setSelectedCategories, categories: setSelectedFriends}}/>
+                    <Sidebar setSelectedCategories={setSelectedCategories} setSelectedFriends={setSelectedFriends}/>
                     <GamesGrid filteredGames={filteredGames}/>
                 </div>
             </Container>

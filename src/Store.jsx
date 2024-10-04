@@ -19,14 +19,14 @@ export const allFriends = [
     "Niv",
     "Aco"
 ];
-export const allCategories = new Set([
+export const allCategories = [
     "Playthroughs",
     "Round-based",
     "Plan To Play",
     "Later",
     "Finished"
-]);
-export const allGameNames = new Set([
+];
+export const allGameNames = [
     "Baldur's Gate 3",
     "Celeste",
     "CrossCode",
@@ -43,7 +43,7 @@ export const allGameNames = new Set([
     "Tunic",
     "V Rising",
     "The Witcher 3",
-]);
+];
 
 export class GameObject {
     title = "";
@@ -65,7 +65,7 @@ export class GameObject {
     }
 
     toString() {
-        return "GameObject: title: " + this.title + ", friends: " + this.friends + ", categories: " + this.categories;
+        return "Game Title: " + this.title + ", friends: " + this.friends + ", categories: " + his.categories;
     }
 }
 

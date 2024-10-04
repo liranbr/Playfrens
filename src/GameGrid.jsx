@@ -95,8 +95,7 @@ export function GamesGrid({filteredGames}) {
                     </Modal.Header>
                     <Modal.Body style={{display: "flex", flexDirection: "row"}}>
                         <p>
-                            [Placeholder for Form about game details, categories,
-                            friends, etc]
+                            {modalGame.toString()}
                         </p>
                     </Modal.Body>
                     <Modal.Footer>

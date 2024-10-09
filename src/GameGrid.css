@@ -6,7 +6,7 @@
     border: 0;
     cursor: pointer;
     background-color: transparent;
-    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.75);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6);
     transition: 0.3s ease;
 }
 
@@ -29,4 +29,24 @@
     gap: 30px;
     padding: 30px;
     grid-template-columns: repeat(8, 1fr);
+}
+
+.modal-list-button {
+    background: none;
+    text-align: start;
+    font-size: 18px;
+    border: 1px solid #80848e00;
+    margin: 2px 0;
+    border-radius: 15px;
+}
+
+.modal-list-button:hover {
+    background: none;
+    border: 1px solid #80848e;
+    color: #fff;
+}
+
+.modal-list-button-container {
+    /*visibility: hidden;*/
+    position: relative;
 }

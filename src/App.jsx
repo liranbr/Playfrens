@@ -63,7 +63,7 @@ Header.propTypes = {
     setSearchOuter: PropTypes.func.isRequired,
 }
 
-function SidebarButton({id, value, label, dataType, setSelection, handleDragStart}) {
+export function SidebarButton({id, value, label, dataType, setSelection, handleDragStart}) {
     // TODO: Too many props? improve implementation
     const [checked, setChecked] = useState(false);
     const handleChange = (e) => {

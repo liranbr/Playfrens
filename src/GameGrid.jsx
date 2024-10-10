@@ -1,11 +1,10 @@
 import "./App.css";
 import "./GameGrid.css";
 import {Button, Modal, Form, OverlayTrigger, Tooltip} from "react-bootstrap";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import styled from "styled-components";
 import {GameObject, allFriends, allCategories} from "./Store.jsx";
 import PropTypes from "prop-types";
-import {SidebarButton} from "./App.jsx";
 
 
 const ModalCard = styled(Modal)`
@@ -79,12 +78,12 @@ GameCard.propTypes = {
     onClick: PropTypes.func.isRequired,
 }
 
-function ModalListButton({id, value, label, dataType, removeItem, handleDragStart}) {
+function ModalListButton({id, value, label, dataType, handleRemove, handleDragStart}) {
     const handleDrag = (e) => {
         handleDragStart(e, value, dataType)
     }
     const handleClick = (e) => {
-        removeItem(value);
+        handleRemove(value);
     }
     return (
         <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Click to remove</Tooltip>}>
@@ -102,22 +101,31 @@ function ModalListButton({id, value, label, dataType, removeItem, handleDragStar
     );
 }
 
-function ListAndAdder({title, dataType, innerList, fullList}) {
-    const cardTitle = dataType === 'friend' ? 'Friends' : 'Categories';
-    const [list, setList] = useState(innerList);
-    const [adderValue, setAdderValue] = useState("");
-    const handleAdderChange = (e) => {
-        setAdderValue(""); // reset the adder to 'Add...'
-        setList(prevList => [...prevList, e.target.value]);
-        innerList.push(e.target.value);
-    };
-    const handleDragStart = () => {
-    };
-    const removeItem = (item) => {
-        setList(prevList => prevList.filter(i => i !== item));
-        innerList.splice(innerList.indexOf(item), 1);
+function ListAndAdder({game, dataType}) {
+    if (dataType !== 'friend' && dataType !== 'category') {
+        console.log("Error: dataType must be 'friend' or 'category'");
+        return null;
     }
+    const [cardTitle, innerList, fullList, addItem, removeItem] = dataType === 'friend'
+        ? ['Friends', game.friends, allFriends, game.addFriend.bind(game), game.removeFriend.bind(game)]
+        : ['Categories', game.categories, allCategories, game.addCategory.bind(game), game.removeCategory.bind(game)];
 
+    const [list, setList] = useState(innerList);
+    const updateList = () => setList([...innerList]);
+    const [selectorValue, setSelectorValue] = useState("");
+    const handleDragStart = () => {
+        // will implement after Playthroughs are added and in modal
+    };
+    const handleAdderChange = (e) => {
+        setSelectorValue(""); // reset the selector to 'Add...'
+        addItem(e.target.value);
+        updateList();
+    };
+    const handleRemove = (item) => {
+        removeItem(item);
+        updateList();
+    }
+    useEffect(updateList, [innerList]);
 
     return (
         <div className="sidebar">
@@ -132,16 +140,17 @@ function ListAndAdder({title, dataType, innerList, fullList}) {
                             value={data}
                             label={data}
                             dataType={'friend'}
-                            removeItem={removeItem}
+                            handleRemove={handleRemove}
                             handleDragStart={handleDragStart}
                         />)
                     )}
 
-                    <Form.Select value={adderValue} onChange={handleAdderChange}>
+                    <Form.Select value={selectorValue} onChange={handleAdderChange}>
                         <option value="" hidden>Add...</option>
                         {fullList.filter(item => !list.includes(item))
                             .map((item, index) => (
-                                <option key={title + "-" + dataType + "-option-" + index} value={item}>{item}</option>
+                                <option key={game.title + "-" + dataType + "-option-" + index}
+                                        value={String(item)}>{item}</option>
                             ))}
                     </Form.Select>
                 </div>
@@ -185,10 +194,8 @@ export function GamesGrid({filteredGames}) {
                         </Modal.Title>
                     </Modal.Header>
                     <Modal.Body style={{display: "flex", flexDirection: "row", padding: 0}}>
-                        <ListAndAdder title={modalGame.title} dataType="friend" fullList={allFriends}
-                                      innerList={modalGame.friends}></ListAndAdder>
-                        <ListAndAdder title={modalGame.title} dataType="category" fullList={allCategories}
-                                      innerList={modalGame.categories}></ListAndAdder>
+                        <ListAndAdder game={modalGame} dataType="friend"></ListAndAdder>
+                        <ListAndAdder game={modalGame} dataType="category"></ListAndAdder>
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="primary" onClick={handleClose}>

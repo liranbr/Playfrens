@@ -4,6 +4,8 @@ import {Button, Container, Form, Nav, Navbar, NavDropdown, Row, ToggleButton} fr
 import {useMemo, useState} from "react";
 import {allCategories, allFriends, allGames} from "./Store.jsx"
 import PropTypes from "prop-types";
+import 'react-toastify/dist/ReactToastify.css';
+import {ToastContainer} from "react-toastify";
 
 function Header({setSearchOuter}) {
     const [search, setSearch] = useState("")
@@ -180,6 +182,7 @@ export default function App() {
                     <GamesGrid filteredGames={filteredGames}/>
                 </div>
             </Container>
+            <ToastContainer/>
         </>
     );
 }

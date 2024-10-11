@@ -35,7 +35,7 @@ const ModalCard = styled(Modal)`
         background-position: center;
         z-index: -1;
         background-image: ${({game}) =>
-                `linear-gradient(rgba(0, 0, 0, 0.66), rgba(0, 0, 0, 0.66)), url("/cards/${game.title}.png")`};
+                `linear-gradient(rgba(0, 0, 0, 0.66), rgba(0, 0, 0, 0.66)), url("${game.imageCoverPath}")`};
         filter: blur(8px);
         transform: scale(1.02);
         // scale fixes the 5px of transparent border from the blur
@@ -65,8 +65,11 @@ function GameCard({game, onClick}) {
             >
                 <img
                     draggable="false"
-                    src={`/cards/${game.title}.png`}
-                    alt={`${game.title} Game Cover`}
+                    src={game.imageCoverPath}
+                    alt={game.title + " Game Cover"}
+                    onError={(e) => {
+                        e.target.src = "/cards/missing_image.png"
+                    }}
                 />
             </button>
         </>

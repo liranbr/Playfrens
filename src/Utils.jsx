@@ -6,6 +6,7 @@ const toastOptions = {
     hideProgressBar: false,
     closeOnClick: true,
     pauseOnHover: true,
+    pauseOnFocusLoss: false,
     draggable: true,
     progress: undefined,
     theme: "dark",

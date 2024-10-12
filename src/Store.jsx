@@ -60,44 +60,46 @@ export class GameObject {
         this.imageCoverPath = imageCoverPath;
     }
 
+
     addFriend(friend) {
         if (!this.friends.includes(friend)) {
             this.friends = [...this.friends, friend];
-            toastSuccess("Added " + friend + " as a friend for " + this.title);
+            toastSuccess(`Added ${friend} as a friend for ${this.title}`);
         } else {
-            toastError(friend + " is already a friend for " + this.title);
+            toastError(`${friend} is already a friend for ${this.title}`);
         }
     }
 
     removeFriend(friend) {
         if (this.friends.includes(friend)) {
             this.friends = this.friends.filter(f => f !== friend);
-            toastSuccess("Removed " + friend + " from " + this.title + "'s friends");
+            toastSuccess(`Removed ${friend} from ${this.title}'s friends`);
         } else {
-            toastError(friend + " is not a friend for " + this.title);
+            toastError(`${friend} is not a friend for ${this.title}`);
         }
     }
 
+    // continuing to replace with string literals
     addCategory(category) {
         if (!this.categories.includes(category)) {
             this.categories.push(category);
-            toastSuccess("Added " + category + " as a category for " + this.title);
+            toastSuccess(`Added ${category} as a category for ${this.title}`);
         } else {
-            toastError(category + " is already a category for " + this.title);
+            toastError(`${category} is already a category for ${this.title}`);
         }
     }
 
     removeCategory(category) {
         if (this.categories.includes(category)) {
             this.categories = this.categories.filter(c => c !== category);
-            toastSuccess("Removed " + category + " from " + this.title + "'s categories");
+            toastSuccess(`Removed ${category} from ${this.title}'s categories`);
         } else {
-            toastError(category + " is not a category for " + this.title);
+            toastError(`${category} is not a category for ${this.title}`);
         }
     }
 
     toString() {
-        return "Game Title: " + this.title + ", friends: " + this.friends + ", categories: " + this.categories;
+        return `Game Title: ${this.title}, friends: ${this.friends}, categories: ${this.categories}`;
     }
 }
 

@@ -6,7 +6,6 @@ import styled from "styled-components";
 import {GameObject, allFriends, allCategories} from "./Store.jsx";
 import PropTypes from "prop-types";
 
-
 const ModalCard = styled(Modal)`
     .modal-content {
         height: 900px;
@@ -46,7 +45,7 @@ function GameCard({game, onClick}) {
     const handleDrop = (e) => {
         const item = e.dataTransfer.getData('item');
         const dataType = e.dataTransfer.getData('dataType');
-        console.log("Handling Drop! item and data type: " + item + ", " + dataType)
+        console.log(`Handling Drop! item and data type: ${item}, ${dataType}`)
         if (dataType === 'friend')
             game.addFriend(item)
         else if (dataType === 'category')
@@ -85,7 +84,7 @@ function ModalListButton({id, value, label, dataType, handleRemove, handleDragSt
     const handleDrag = (e) => {
         handleDragStart(e, value, dataType)
     }
-    const handleClick = (e) => {
+    const handleClick = () => {
         handleRemove(value);
     }
     return (
@@ -104,11 +103,16 @@ function ModalListButton({id, value, label, dataType, handleRemove, handleDragSt
     );
 }
 
+ModalListButton.propTypes = {
+    id: PropTypes.string.isRequired,
+    value: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired,
+    dataType: PropTypes.string.isRequired,
+    handleRemove: PropTypes.func.isRequired,
+    handleDragStart: PropTypes.func.isRequired,
+}
+
 function ListAndAdder({game, dataType}) {
-    if (dataType !== 'friend' && dataType !== 'category') {
-        console.log("Error: dataType must be 'friend' or 'category'");
-        return null;
-    }
     const [cardTitle, innerList, fullList, addItem, removeItem] = dataType === 'friend'
         ? ['Friends', game.friends, allFriends, game.addFriend.bind(game), game.removeFriend.bind(game)]
         : ['Categories', game.categories, allCategories, game.addCategory.bind(game), game.removeCategory.bind(game)];
@@ -138,8 +142,8 @@ function ListAndAdder({game, dataType}) {
                 <div className="sidebar-buttons-list">
                     {list.map((data, index) =>
                         (<ModalListButton
-                            key={"btn-modal-" + dataType + "-" + index}
-                            id={"btn-modal-" + dataType + "-" + index}
+                            key={`btn-modal-${dataType}-${index}`}
+                            id={`btn-modal-${dataType}-${index}`}
                             value={data}
                             label={data}
                             dataType={'friend'}
@@ -160,7 +164,11 @@ function ListAndAdder({game, dataType}) {
             </div>
         </div>
     )
+}
 
+ListAndAdder.propTypes = {
+    game: PropTypes.instanceOf(GameObject).isRequired,
+    dataType: PropTypes.string.isRequired,
 }
 
 export function GamesGrid({filteredGames}) {

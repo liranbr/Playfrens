@@ -15,12 +15,13 @@
     min-width: 300px;
     display: flex;
     flex-direction: column;
+    padding: 5px;
 }
 
 .sidebar-card {
     display: flex;
     flex-direction: column;
-    margin: 10px;
+    margin: 5px;
     padding: 1rem;
     border-radius: 20px;
     background-color: #1e1f22;

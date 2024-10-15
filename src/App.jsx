@@ -1,19 +1,15 @@
 import "./App.css";
-import {GamesGrid} from "./GameGrid.jsx";
-import {Button, Container, Form, Nav, Navbar, NavDropdown, Row, ToggleButton} from "react-bootstrap";
-import {useMemo, useState} from "react";
-import {allCategories, allFriends, allGames} from "./Store.jsx"
-import PropTypes from "prop-types";
 import 'react-toastify/dist/ReactToastify.css';
+import {Button, Container, Form, Nav, Navbar, NavDropdown, Row, ToggleButton} from "react-bootstrap";
 import {ToastContainer} from "react-toastify";
+import {useMemo, useState} from "react";
+import PropTypes from "prop-types";
+import {GamesGrid} from "./GameGrid.jsx";
+import {allCategories, allFriends, allGames} from "./Store.jsx";
 
-function Header({setSearchOuter}) {
-    const [search, setSearch] = useState("")
-    const handleSearchChange = (event) => {
-        setSearch(event.target.value); // value of searchbar, used for search reset button behavior
-        setSearchOuter(event.target.value); // sends up the value for filtering
-        // TODO: Improve implementation
-    }
+function Header({searchState}) {
+    const [search, setSearch] = searchState;
+    const updateSearch = (e) => setSearch(e.target.value);
 
     return (
         <Navbar className="px-3" fixed="top" style={{backgroundColor: "#1e1f22"}}>
@@ -24,8 +20,8 @@ function Header({setSearchOuter}) {
                     width={30}
                     height={30}
                     className="d-inline-block align-top"
-                />{" "}
-                Playfrens
+                />
+                <b> Playfrens</b>
             </Navbar.Brand>
             <Nav className="me-auto">
                 {/* temp links for dev */}
@@ -45,10 +41,10 @@ function Header({setSearchOuter}) {
                     type="text"
                     placeholder="Search"
                     value={search}
-                    onChange={handleSearchChange}
+                    onChange={updateSearch}
                     style={{background: "none"}}
                 />
-                <Button variant="outline-secondary" type="reset" onClick={handleSearchChange}
+                <Button variant="outline-secondary" type="reset" onClick={updateSearch}
                         style={{
                             display: search ? 'block' : 'none',
                             position: "absolute",
@@ -62,11 +58,10 @@ function Header({setSearchOuter}) {
 }
 
 Header.propTypes = {
-    setSearchOuter: PropTypes.func.isRequired,
+    searchState: PropTypes.array.isRequired,
 }
 
-export function SidebarButton({id, value, label, dataType, setSelection, handleDragStart}) {
-    // TODO: Too many props? improve implementation
+export function SidebarButton({value, dataType, setSelection}) {
     const [checked, setChecked] = useState(false);
     const handleChange = (e) => {
         const isChecked = e.currentTarget.checked;
@@ -77,108 +72,81 @@ export function SidebarButton({id, value, label, dataType, setSelection, handleD
                 : prevSelection.filter(item => item !== value); // deselect filter
         })
     }
-    const handleDrag = (e) => {
-        handleDragStart(e, value, dataType)
-    }
 
     return (
         <ToggleButton
-            id={id}
+            id={"btn-sidebar-" + dataType + "-" + value}
             value={value}
             className="sidebar-button"
             type="checkbox"
-            datatype={dataType}
             checked={checked}
             draggable="true"
-            onDragStart={handleDrag}
             onChange={handleChange}
+            onDragStart={(e) => {
+                e.dataTransfer.setData('item', value);
+                e.dataTransfer.setData('dataType', dataType);
+            }}
         >
-            {label}
+            {value}
         </ToggleButton>
     );
 }
 
 SidebarButton.propTypes = {
-    id: PropTypes.string.isRequired,
     value: PropTypes.string.isRequired,
-    label: PropTypes.string.isRequired,
     dataType: PropTypes.string.isRequired,
     setSelection: PropTypes.func.isRequired,
-    handleDragStart: PropTypes.func.isRequired,
 }
 
-function Sidebar({setSelectedFriends, setSelectedCategories, handleDragStart}) {
+function SidebarCard({dataType, setSelection}) {
+    const [title, fullList] = dataType === 'friend'
+        ? ['FRIENDS', allFriends]
+        : ['CATEGORIES', allCategories];
     return (
-        <div className="sidebar">
-            <Row className="sidebar-card" style={{marginBottom: "5px"}}>
-                <p className="sidebar-title">CATEGORIES</p>
-                <div className="sidebar-buttons-list">
-                    {[...allCategories].map((category, index) =>
-                        (<SidebarButton
-                            key={"btn-sidebar-category-" + index}
-                            id={"btn-sidebar-category-" + index}
-                            value={category}
-                            label={category}
-                            dataType={'category'}
-                            setSelection={setSelectedCategories}
-                            handleDragStart={handleDragStart}
-                        />)
-                    )}
-                </div>
-            </Row>
-            <Row className="sidebar-card" style={{marginTop: "5px"}}>
-                <p className="sidebar-title">FRIENDS</p>
-                <div className="sidebar-buttons-list">
-                    {allFriends.map((friend, index) =>
-                        (<SidebarButton
-                            key={"btn-sidebar-friend-" + index}
-                            id={"btn-sidebar-friend-" + index}
-                            value={friend}
-                            label={friend}
-                            dataType={'friend'}
-                            setSelection={setSelectedFriends}
-                            handleDragStart={handleDragStart}
-                        />)
-                    )}
-                </div>
-            </Row>
-        </div>
+        <Row className="sidebar-card">
+            <p className="sidebar-title">{title}</p>
+            <div className="sidebar-buttons-list">
+                {fullList.map((item, index) =>
+                    <SidebarButton
+                        key={"btn-sidebar-" + dataType + "-" + index}
+                        value={item}
+                        dataType={dataType}
+                        setSelection={setSelection}
+                    />
+                )}
+            </div>
+        </Row>
     );
 }
 
-Sidebar.propTypes = {
-    setSelectedFriends: PropTypes.func.isRequired,
-    setSelectedCategories: PropTypes.func.isRequired,
-    handleDragStart: PropTypes.func.isRequired,
+SidebarCard.propTypes = {
+    dataType: PropTypes.string.isRequired,
+    setSelection: PropTypes.func.isRequired,
 }
 
 export default function App() {
+    const searchState = useState("");
+    const search = searchState[0];
     const [selectedFriends, setSelectedFriends] = useState([]);
     const [selectedCategories, setSelectedCategories] = useState([]);
-    const [search, setSearch] = useState("");
-    const filteredGames = useMemo(() => {
-        return allGames.filter((game) => {
-            return game.title.toLowerCase().includes(search.toLowerCase()) && // Game Title includes the search value
+    const filteredGames = useMemo(() =>
+            allGames.filter((game) =>
+                game.title.toLowerCase().includes(search.toLowerCase()) && // Game Title includes the search value
                 selectedFriends.every(selectedFriend => game.friends.includes(selectedFriend)) && // All friends are in the game
                 (!selectedCategories.length || // No categories selected, or
-                    selectedCategories.some(selectedCategory => game.categories.includes(selectedCategory))); // Game belongs to at least one category
-        })
-    }, [search, selectedFriends, selectedCategories]);
-
-    const handleDragStart = (e, item, dataType) => {
-        e.dataTransfer.setData('item', item);
-        e.dataTransfer.setData('dataType', dataType);
-    }
+                    selectedCategories.some(selectedCategory => game.categories.includes(selectedCategory))) // Game belongs to at least one category
+            )
+        , [search, selectedFriends, selectedCategories]);
 
     return (
         <>
-            <Header setSearchOuter={setSearch}/>
+            <Header searchState={searchState}/>
             <Container fluid className="content-body">
                 <div className="d-flex flex-row h-100">
-                    <Sidebar setSelectedCategories={setSelectedCategories}
-                             setSelectedFriends={setSelectedFriends}
-                             handleDragStart={handleDragStart}
-                    />
+                    <div className="sidebar">
+                        <SidebarCard dataType="category" setSelection={setSelectedCategories}/>
+                        <SidebarCard dataType="friend" setSelection={setSelectedFriends}/>
+                    </div>
                     <GamesGrid filteredGames={filteredGames}/>
                 </div>
             </Container>

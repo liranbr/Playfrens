@@ -3,9 +3,11 @@ import "./GameGrid.css";
 import {Button, Modal, Form, OverlayTrigger, Tooltip} from "react-bootstrap";
 import {useEffect, useState} from "react";
 import styled from "styled-components";
-import {GameObject, allFriends, allCategories} from "./Store.jsx";
 import PropTypes from "prop-types";
+import {GameObject, allFriends, allCategories} from "./Store.jsx";
 
+// Styled Components create unused CSS warnings, but they are used in the JSX
+// noinspection CssUnusedSymbol
 const ModalCard = styled(Modal)`
     .modal-content {
         height: 900px;
@@ -45,33 +47,33 @@ function GameCard({game, onClick}) {
     const handleDrop = (e) => {
         const item = e.dataTransfer.getData('item');
         const dataType = e.dataTransfer.getData('dataType');
-        console.log(`Handling Drop! item and data type: ${item}, ${dataType}`)
-        if (dataType === 'friend')
-            game.addFriend(item)
-        else if (dataType === 'category')
-            game.addCategory(item)
-        else
-            console.log("Drag Issue : not a friend or a category")
+        switch (dataType) {
+            case 'friend':
+                game.addFriend(item);
+                break;
+            case 'category':
+                game.addCategory(item);
+                break;
+            default:
+                console.error("Drag Issue: not a friend or a category");
+        }
     }
     return (
-        <>
-            <button
-                key={"gg-btn-" + game.title}
-                className="game-card"
-                onClick={() => onClick(game)}
-                onDrop={handleDrop}
-                onDragOver={e => e.preventDefault()}
-            >
-                <img
-                    draggable="false"
-                    src={game.imageCoverPath}
-                    alt={game.title + " Game Cover"}
-                    onError={(e) => {
-                        e.target.src = "/cards/missing_image.png"
-                    }}
-                />
-            </button>
-        </>
+        <button
+            className="game-card"
+            onClick={() => onClick(game)}
+            onDrop={handleDrop}
+            onDragOver={e => e.preventDefault()}
+        >
+            <img
+                draggable="false"
+                src={game.imageCoverPath}
+                alt={game.title + " Game Cover"}
+                onError={(e) => {
+                    e.target.src = "/cards/missing_image.png"
+                }}
+            />
+        </button>
     );
 }
 
@@ -80,79 +82,61 @@ GameCard.propTypes = {
     onClick: PropTypes.func.isRequired,
 }
 
-function ModalListButton({id, value, label, dataType, handleRemove, handleDragStart}) {
-    const handleDrag = (e) => {
-        handleDragStart(e, value, dataType)
-    }
-    const handleClick = () => {
-        handleRemove(value);
-    }
+function ModalListButton({value, dataType, handleRemove}) {
     return (
-        <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Click to remove</Tooltip>}>
+        <OverlayTrigger overlay={<Tooltip>Click to remove</Tooltip>}>
             <Button
-                id={id}
+                id={"btn-modal-" + dataType + "-" + value}
                 value={value}
                 className="modal-list-button"
                 draggable="true"
-                onDragStart={handleDrag}
-                onClick={handleClick}
+                onClick={() => handleRemove(value)}
             >
-                {label}
+                {value}
             </Button>
         </OverlayTrigger>
     );
 }
 
 ModalListButton.propTypes = {
-    id: PropTypes.string.isRequired,
     value: PropTypes.string.isRequired,
-    label: PropTypes.string.isRequired,
     dataType: PropTypes.string.isRequired,
     handleRemove: PropTypes.func.isRequired,
-    handleDragStart: PropTypes.func.isRequired,
 }
 
 function ListAndAdder({game, dataType}) {
     const [cardTitle, innerList, fullList, addItem, removeItem] = dataType === 'friend'
         ? ['Friends', game.friends, allFriends, game.addFriend.bind(game), game.removeFriend.bind(game)]
         : ['Categories', game.categories, allCategories, game.addCategory.bind(game), game.removeCategory.bind(game)];
-
-    const [list, setList] = useState(innerList);
-    const updateList = () => setList([...innerList]);
-    const [selectorValue, setSelectorValue] = useState("");
-    const handleDragStart = () => {
-        // will implement after Playthroughs are added and in modal
-    };
+    // TODO: Refactor, probably remake GameObject
+    const [list, setList] = useState([...innerList])
+    const updateList = () => setList([...innerList])
     const handleAdderChange = (e) => {
-        setSelectorValue(""); // reset the selector to 'Add...'
-        addItem(e.target.value);
-        updateList();
-    };
-    const handleRemove = (item) => {
-        removeItem(item);
-        updateList();
+        addItem(e.target.value)
+        updateList()
     }
-    useEffect(updateList, [innerList]);
+    const handleRemove = (item) => {
+        removeItem(item)
+        updateList()
+    }
+    useEffect(updateList, [innerList])
 
     return (
         <div className="sidebar">
             <div className="sidebar-card" style={{background: "none", maxHeight: "none"}}>
                 <p className="sidebar-title"
                    style={{color: "#fff", textAlign: "left", padding: "5px 10px"}}>{cardTitle}</p>
-                <div className="sidebar-buttons-list">
+                <div key={"innerList" + innerList.length} className="sidebar-buttons-list">
                     {list.map((data, index) =>
                         (<ModalListButton
                             key={`btn-modal-${dataType}-${index}`}
-                            id={`btn-modal-${dataType}-${index}`}
                             value={data}
-                            label={data}
-                            dataType={'friend'}
+                            dataType={dataType}
                             handleRemove={handleRemove}
-                            handleDragStart={handleDragStart}
                         />)
                     )}
 
-                    <Form.Select value={selectorValue} onChange={handleAdderChange}>
+                    <Form.Select onChange={handleAdderChange}>
                         <option value="" hidden>Add...</option>
                         {fullList.filter(item => !list.includes(item))
                             .map((item, index) => (
@@ -171,11 +155,50 @@ ListAndAdder.propTypes = {
     dataType: PropTypes.string.isRequired,
 }
 
+function GameModal({game, show, handleHide}) {
+    return (
+        <ModalCard
+            game={game}
+            show={show}
+            onHide={handleHide}
+            centered
+        >
+            <Modal.Header closeButton>
+                <Modal.Title
+                    style={{
+                        marginLeft: "32px",
+                        textAlign: "center",
+                        fontWeight: "bold",
+                        width: "100%",
+                    }}
+                >
+                    {game.title}
+                </Modal.Title>
+            </Modal.Header>
+            <Modal.Body style={{display: "flex", flexDirection: "row", padding: 0}}>
+                <ListAndAdder game={game} dataType="friend"></ListAndAdder>
+                <ListAndAdder game={game} dataType="category"></ListAndAdder>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="primary" onClick={handleHide}>
+                    Save
+                </Button>
+            </Modal.Footer>
+        </ModalCard>
+    )
+}
+
+GameModal.propTypes = {
+    game: PropTypes.instanceOf(GameObject).isRequired,
+    show: PropTypes.bool.isRequired,
+    handleHide: PropTypes.func.isRequired,
+}
+
 export function GamesGrid({filteredGames}) {
     const [showModal, setShowModal] = useState(false);
-    const [modalGame, setModalGame] = useState(new GameObject("Default"));
-    const handleClose = () => setShowModal(false);
-    const handleShow = (game) => {
+    const [modalGame, setModalGame] = useState(new GameObject("[no game]"));
+    const handleHideModal = () => setShowModal(false);
+    const handleShowModal = (game) => {
         setModalGame(game);
         setShowModal(true);
     };
@@ -183,37 +206,10 @@ export function GamesGrid({filteredGames}) {
         <div>
             <div className="games-grid">
                 {filteredGames.map((game) => (<GameCard
-                    key={"gg-gc-" + game.title}
+                    key={"gamegrid-card-" + game.title}
                     game={game}
-                    onClick={handleShow}/>))}
-                <ModalCard
-                    game={modalGame}
-                    show={showModal}
-                    onHide={handleClose}
-                    centered
-                >
-                    <Modal.Header closeButton>
-                        <Modal.Title
-                            style={{
-                                marginLeft: "32px",
-                                textAlign: "center",
-                                fontWeight: "bold",
-                                width: "100%",
-                            }}
-                        >
-                            {modalGame.title}
-                        </Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body style={{display: "flex", flexDirection: "row", padding: 0}}>
-                        <ListAndAdder game={modalGame} dataType="friend"></ListAndAdder>
-                        <ListAndAdder game={modalGame} dataType="category"></ListAndAdder>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="primary" onClick={handleClose}>
-                            Save
-                        </Button>
-                    </Modal.Footer>
-                </ModalCard>
+                    onClick={handleShowModal}/>))}
+                <GameModal game={modalGame} show={showModal} handleHide={handleHideModal}/>
             </div>
         </div>
     );

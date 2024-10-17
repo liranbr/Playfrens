@@ -1,9 +1,9 @@
-import {Bounce, toast} from "react-toastify";
+import { Bounce, toast } from "react-toastify";
 
 const toastOptions = {
     position: "bottom-center",
     autoClose: 3000,
-    hideProgressBar: false,
+    hideProgressBar: true,
     closeOnClick: true,
     pauseOnHover: true,
     pauseOnFocusLoss: false,

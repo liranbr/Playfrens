@@ -1,10 +1,11 @@
 import "./App.css";
 import "./GameGrid.css";
-import {Button, Modal, Form, OverlayTrigger, Tooltip} from "react-bootstrap";
-import {useEffect, useState} from "react";
+import { Button, Modal, Form, OverlayTrigger, Tooltip } from "react-bootstrap";
+import { useState } from "react";
 import styled from "styled-components";
 import PropTypes from "prop-types";
-import {GameObject, allFriends, allCategories} from "./Store.jsx";
+import { GameObject, allFriends, allCategories } from "./Store.jsx";
+import { observer } from "mobx-react-lite";
 
 // Styled Components create unused CSS warnings, but they are used in the JSX
 // noinspection CssUnusedSymbol
@@ -35,7 +36,7 @@ const ModalCard = styled(Modal)`
         background-size: cover;
         background-position: center;
         z-index: -1;
-        background-image: ${({game}) =>
+        background-image: ${({ game }) =>
                 `linear-gradient(rgba(0, 0, 0, 0.66), rgba(0, 0, 0, 0.66)), url("${game.imageCoverPath}")`};
         filter: blur(8px);
         transform: scale(1.02);
@@ -43,21 +44,21 @@ const ModalCard = styled(Modal)`
     }
 `;
 
-function GameCard({game, onClick}) {
+function GameCard({ game, onClick }) {
     const handleDrop = (e) => {
-        const item = e.dataTransfer.getData('item');
-        const dataType = e.dataTransfer.getData('dataType');
+        const item = e.dataTransfer.getData("item");
+        const dataType = e.dataTransfer.getData("dataType");
         switch (dataType) {
-            case 'friend':
+            case "friend":
                 game.addFriend(item);
                 break;
-            case 'category':
+            case "category":
                 game.addCategory(item);
                 break;
             default:
                 console.error("Drag Issue: not a friend or a category");
         }
-    }
+    };
     return (
         <button
             className="game-card"
@@ -70,7 +71,7 @@ function GameCard({game, onClick}) {
                 src={game.imageCoverPath}
                 alt={game.title + " Game Cover"}
                 onError={(e) => {
-                    e.target.src = "/cards/missing_image.png"
+                    e.target.src = "/cards/missing_image.png";
                 }}
             />
         </button>
@@ -79,10 +80,10 @@ function GameCard({game, onClick}) {
 
 GameCard.propTypes = {
     game: PropTypes.instanceOf(GameObject).isRequired,
-    onClick: PropTypes.func.isRequired,
-}
+    onClick: PropTypes.func.isRequired
+};
 
-function ModalListButton({value, dataType, handleRemove}) {
+function ModalListButton({ value, dataType, handleRemove }) {
     return (
         <OverlayTrigger overlay={<Tooltip>Click to remove</Tooltip>}>
             <Button
@@ -101,35 +102,33 @@ function ModalListButton({value, dataType, handleRemove}) {
 ModalListButton.propTypes = {
     value: PropTypes.string.isRequired,
     dataType: PropTypes.string.isRequired,
-    handleRemove: PropTypes.func.isRequired,
-}
+    handleRemove: PropTypes.func.isRequired
+};
 
-function ListAndAdder({game, dataType}) {
-    const [cardTitle, innerList, fullList, addItem, removeItem] = dataType === 'friend'
-        ? ['Friends', game.friends, allFriends, game.addFriend.bind(game), game.removeFriend.bind(game)]
-        : ['Categories', game.categories, allCategories, game.addCategory.bind(game), game.removeCategory.bind(game)];
-    // TODO: Refactor, probably remake GameObject
-    const [list, setList] = useState([...innerList])
-    const updateList = () => setList([...innerList])
+const ListAndAdder = observer(({ game, dataType }) => {
+    const [cardTitle, innerList, fullList] = dataType === "friend"
+        ? ["Friends", game.friends, allFriends]
+        : ["Categories", game.categories, allCategories];
     const handleAdderChange = (e) => {
-        addItem(e.target.value)
-        updateList()
-    }
+        dataType === "friend"
+            ? game.addFriend(e.target.value)
+            : game.addCategory(e.target.value);
+    };
     const handleRemove = (item) => {
-        removeItem(item)
-        updateList()
-    }
-    useEffect(updateList, [innerList])
+        dataType === "friend"
+            ? game.removeFriend(item)
+            : game.removeCategory(item);
+    };
 
     return (
         <div className="sidebar">
-            <div className="sidebar-card" style={{background: "none", maxHeight: "none"}}>
+            <div className="sidebar-card" style={{ background: "none", maxHeight: "none" }}>
                 <p className="sidebar-title"
-                   style={{color: "#fff", textAlign: "left", padding: "5px 10px"}}>{cardTitle}</p>
+                   style={{ color: "#fff", textAlign: "left", padding: "5px 10px" }}>{cardTitle}</p>
                 <div key={"innerList" + innerList.length} className="sidebar-buttons-list">
-                    {list.map((data, index) =>
+                    {innerList.map((data, index) =>
                         (<ModalListButton
-                            key={`btn-modal-${dataType}-${index}`}
+                            key={index}
                             value={data}
                             dataType={dataType}
                             handleRemove={handleRemove}
@@ -138,24 +137,24 @@ function ListAndAdder({game, dataType}) {
 
                     <Form.Select onChange={handleAdderChange}>
                         <option value="" hidden>Add...</option>
-                        {fullList.filter(item => !list.includes(item))
+                        {fullList.filter(item => !innerList.includes(item))
                             .map((item, index) => (
-                                <option key={game.title + "-" + dataType + "-option-" + index}
+                                <option key={index}
                                         value={String(item)}>{item}</option>
                             ))}
                     </Form.Select>
                 </div>
             </div>
         </div>
-    )
-}
+    );
+});
 
 ListAndAdder.propTypes = {
     game: PropTypes.instanceOf(GameObject).isRequired,
-    dataType: PropTypes.string.isRequired,
-}
+    dataType: PropTypes.string.isRequired
+};
 
-function GameModal({game, show, handleHide}) {
+function GameModal({ game, show, handleHide }) {
     return (
         <ModalCard
             game={game}
@@ -169,13 +168,13 @@ function GameModal({game, show, handleHide}) {
                         marginLeft: "32px",
                         textAlign: "center",
                         fontWeight: "bold",
-                        width: "100%",
+                        width: "100%"
                     }}
                 >
                     {game.title}
                 </Modal.Title>
             </Modal.Header>
-            <Modal.Body style={{display: "flex", flexDirection: "row", padding: 0}}>
+            <Modal.Body style={{ display: "flex", flexDirection: "row", padding: 0 }}>
                 <ListAndAdder game={game} dataType="friend"></ListAndAdder>
                 <ListAndAdder game={game} dataType="category"></ListAndAdder>
             </Modal.Body>
@@ -185,16 +184,16 @@ function GameModal({game, show, handleHide}) {
                 </Button>
             </Modal.Footer>
         </ModalCard>
-    )
+    );
 }
 
 GameModal.propTypes = {
     game: PropTypes.instanceOf(GameObject).isRequired,
     show: PropTypes.bool.isRequired,
-    handleHide: PropTypes.func.isRequired,
-}
+    handleHide: PropTypes.func.isRequired
+};
 
-export function GamesGrid({filteredGames}) {
+export function GamesGrid({ filteredGames }) {
     const [showModal, setShowModal] = useState(false);
     const [modalGame, setModalGame] = useState(new GameObject("[no game]"));
     const handleHideModal = () => setShowModal(false);
@@ -205,16 +204,16 @@ export function GamesGrid({filteredGames}) {
     return (
         <div>
             <div className="games-grid">
-                {filteredGames.map((game) => (<GameCard
-                    key={"gamegrid-card-" + game.title}
+                {filteredGames.map((game, index) => (<GameCard
+                    key={index}
                     game={game}
-                    onClick={handleShowModal}/>))}
-                <GameModal game={modalGame} show={showModal} handleHide={handleHideModal}/>
+                    onClick={handleShowModal} />))}
+                <GameModal game={modalGame} show={showModal} handleHide={handleHideModal} />
             </div>
         </div>
     );
 }
 
 GamesGrid.propTypes = {
-    filteredGames: PropTypes.array.isRequired,
-}
+    filteredGames: PropTypes.array.isRequired
+};

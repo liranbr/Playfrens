@@ -1,4 +1,6 @@
-import {toastError, toastSuccess} from "./Utils.jsx";
+import { toastError, toastSuccess } from "./Utils.jsx";
+import { action, makeObservable, observable } from "mobx";
+
 
 export const allFriends = [
     "Sami",
@@ -46,20 +48,26 @@ export const allGameNamesAndCovers = {
     "Terraria": "https://cdn2.steamgriddb.com/grid/9bc661e8362657d8cbbe4bb41d17c7f3.png",
     "Tunic": "https://cdn2.steamgriddb.com/grid/a65b94d656df502d858e723807451382.png",
     "V Rising": "https://cdn2.steamgriddb.com/grid/bce13d4914a906527ba4098eeb929767.png",
-    "The Witcher 3": "https://cdn2.steamgriddb.com/grid/67ac4b0f4d18ef599b7bf7253a83ef3c.png",
-}
+    "The Witcher 3": "https://cdn2.steamgriddb.com/grid/67ac4b0f4d18ef599b7bf7253a83ef3c.png"
+};
 
 export class GameObject {
-    title = "";
-    imageCoverPath = "";
-    friends = [];
-    categories = [];
-
     constructor(name, imageCoverPath = "") {
         this.title = name;
         this.imageCoverPath = imageCoverPath;
+        this.friends = [];
+        this.categories = [];
+        makeObservable(this, {
+            title: observable,
+            imageCoverPath: observable,
+            friends: observable,
+            categories: observable,
+            addFriend: action,
+            removeFriend: action,
+            addCategory: action,
+            removeCategory: action
+        });
     }
-
 
     addFriend(friend) {
         if (!this.friends.includes(friend)) {
@@ -79,10 +87,9 @@ export class GameObject {
         }
     }
 
-    // continuing to replace with string literals
     addCategory(category) {
         if (!this.categories.includes(category)) {
-            this.categories.push(category);
+            this.categories = [...this.categories, category];
             toastSuccess(`Added ${category} as a category for ${this.title}`);
         } else {
             toastError(`${category} is already a category for ${this.title}`);

@@ -1,10 +1,10 @@
 import "./App.css";
 import "./GameGrid.css";
-import { Button, Modal, Form, OverlayTrigger, Tooltip } from "react-bootstrap";
+import { Button, Form, Modal, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { useState } from "react";
 import styled from "styled-components";
 import PropTypes from "prop-types";
-import { GameObject, allFriends, allCategories } from "./Store.jsx";
+import { allCategories, allFriends, GameObject } from "./Store.jsx";
 import { observer } from "mobx-react-lite";
 
 // Styled Components create unused CSS warnings, but they are used in the JSX

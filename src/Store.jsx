@@ -1,62 +1,12 @@
 import { toastError, toastSuccess } from "./Utils.jsx";
-import { action, makeObservable, observable } from "mobx";
-
-
-export const allFriends = [
-    "Sami",
-    "Nibbix",
-    "RocketDN",
-    "MindHawk",
-    "VX",
-    "Cake",
-    "Labreris",
-    "Gooey",
-    "shinn",
-    "Bram",
-    "wesje101",
-    "Twinkle",
-    "Vented",
-    "MechArcana",
-    "Tristan",
-    "Xianji",
-    "Sky",
-    "Niv",
-    "Aco"
-];
-export const allCategories = [
-    "Playthrough",
-    "Round-based",
-    "Persistent World",
-    "Plan To Play",
-    "Later",
-    "Finished"
-];
-// TODO: temp for testing, soon changing to JSON storage
-export const allGameNamesAndCovers = {
-    "Baldur's Gate 3": "https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/library_600x900_2x.jpg",
-    "Celeste": "https://cdn2.steamgriddb.com/grid/b2dfad356a40408faf455dcf85084f7d.png",
-    "CrossCode": "https://cdn2.steamgriddb.com/grid/e0daea4d341688039c558c0095b9a30f.png",
-    "Dark Souls I Remastered": "https://cdn2.steamgriddb.com/grid/0b6b193b8b26ae5875b6d4e4f69a4103.png",
-    "Dead Cells": "https://cdn2.steamgriddb.com/grid/9a233d274515549314aeacfaf2702f25.png",
-    "Hades": "https://cdn2.steamgriddb.com/grid/bfe339860b048949369fc6945cea504d.png",
-    "Heroes of the Storm": "https://cdn2.steamgriddb.com/grid/9946800209f33bce8ba0dd67bf724ce5.png",
-    "Hollow Knight": "https://cdn2.steamgriddb.com/grid/9122e6917c43df2c068332f00db0ff97.png",
-    "Tears of the Kingdom": "https://cdn2.steamgriddb.com/grid/e38dfc6695227a26cb6aa312b997dccf.jpg",
-    "Outer Wilds": "https://cdn2.steamgriddb.com/grid/ff9bc06bf30f5066e1be70b7fe1be7d6.png",
-    "Sekiro - Shadows Die Twice": "https://cdn2.steamgriddb.com/grid/36b92582b9d1639873b06bcfe0e73635.png",
-    "Subnautica": "https://cdn2.steamgriddb.com/grid/50896c8a37922749110dae272e7a345b.png",
-    "Terraria": "https://cdn2.steamgriddb.com/grid/9bc661e8362657d8cbbe4bb41d17c7f3.png",
-    "Tunic": "https://cdn2.steamgriddb.com/grid/a65b94d656df502d858e723807451382.png",
-    "V Rising": "https://cdn2.steamgriddb.com/grid/bce13d4914a906527ba4098eeb929767.png",
-    "The Witcher 3": "https://cdn2.steamgriddb.com/grid/67ac4b0f4d18ef599b7bf7253a83ef3c.png"
-};
+import { action, autorun, makeObservable, observable, runInAction } from "mobx";
 
 export class GameObject {
-    constructor(name, imageCoverPath = "") {
-        this.title = name;
+    constructor(title, imageCoverPath = "", friends = [], categories = []) {
+        this.title = title;
         this.imageCoverPath = imageCoverPath;
-        this.friends = [];
-        this.categories = [];
+        this.friends = friends;
+        this.categories = categories;
         makeObservable(this, {
             title: observable,
             imageCoverPath: observable,
@@ -105,17 +55,66 @@ export class GameObject {
         }
     }
 
+    toJSON() {
+        return {
+            title: this.title,
+            imageCoverPath: this.imageCoverPath,
+            friends: this.friends,
+            categories: this.categories
+        };
+    }
+
     toString() {
         return `Game Title: ${this.title}, friends: ${this.friends}, categories: ${this.categories}`;
     }
 }
 
-export const allGames = Object.entries(allGameNamesAndCovers).map(([gameName, coverPath]) => {
-    const gameObject = new GameObject(gameName, coverPath);
-    // TODO: Temp logic for testing filters
-    if (gameName.includes(" "))
-        gameObject.addFriend("Sami");
-    else
-        gameObject.addFriend("Nibbix");
-    return gameObject;
-});
+function loadObsArray(key) {
+    return observable.array(JSON.parse(localStorage.getItem(key) || "[]"));
+}
+
+function saveObsArray(key, value) {
+    localStorage.setItem(key, JSON.stringify(value, null, 4));
+}
+
+// load data from localstorage as observables
+export const allFriends = loadObsArray("allFriends");
+export const allCategories = loadObsArray("allCategories");
+export const allGames = observable.array(loadObsArray("allGames").map(game =>
+    new GameObject(game.title, game.imageCoverPath, game.friends, game.categories)));
+
+// when a change is made to an array, it is saved to localstorage
+autorun(() => saveObsArray("allFriends", allFriends));
+autorun(() => saveObsArray("allCategories", allCategories));
+autorun(() => saveObsArray("allGames", allGames.map(game => game.toJSON())));
+
+export function saveDataToFile() {
+    const data = {
+        allFriends: allFriends,
+        allCategories: allCategories,
+        allGames: allGames
+    };
+    const blob = new Blob([JSON.stringify(data, null, 4)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "PlayfrensData.json";
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+export function loadDataFromFile(file) {
+    console.log("Reading file...");
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const data = JSON.parse(e.target.result);
+        runInAction(() => {
+            allFriends.replace(data["allFriends"]);
+            allCategories.replace(data["allCategories"]);
+            allGames.replace(data["allGames"].map(game =>
+                new GameObject(game.title, game.imageCoverPath, game.friends, game.categories)));
+        });
+        window.location.reload();
+    };
+    reader.readAsText(file);
+}

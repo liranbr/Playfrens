@@ -1,5 +1,5 @@
 import { toastError, toastSuccess } from "./Utils.jsx";
-import { action, autorun, makeObservable, observable, runInAction } from "mobx";
+import { action, autorun, makeObservable, observable } from "mobx";
 
 export class GameObject {
     constructor(title, imageCoverPath = "", friends = [], categories = []) {
@@ -86,7 +86,7 @@ export const allGames = observable.array(loadObsArray("allGames").map(game =>
 // when a change is made to an array, it is saved to localstorage
 autorun(() => saveObsArray("allFriends", allFriends));
 autorun(() => saveObsArray("allCategories", allCategories));
-autorun(() => saveObsArray("allGames", allGames.map(game => game.toJSON())));
+autorun(() => saveObsArray("allGames", allGames));
 
 export function saveDataToFile() {
     const data = {
@@ -108,12 +108,10 @@ export function loadDataFromFile(file) {
     const reader = new FileReader();
     reader.onload = function(e) {
         const data = JSON.parse(e.target.result);
-        runInAction(() => {
-            allFriends.replace(data["allFriends"]);
-            allCategories.replace(data["allCategories"]);
-            allGames.replace(data["allGames"].map(game =>
-                new GameObject(game.title, game.imageCoverPath, game.friends, game.categories)));
-        });
+        allFriends.replace(data["allFriends"]);
+        allCategories.replace(data["allCategories"]);
+        allGames.replace(data["allGames"].map(game =>
+            new GameObject(game.title, game.imageCoverPath, game.friends, game.categories)));
         window.location.reload();
     };
     reader.readAsText(file);

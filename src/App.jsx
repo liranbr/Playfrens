@@ -29,9 +29,6 @@ function Header({ searchState }) {
                     <NavDropdown.Item onClick={() => document.getElementById("file-selector").click()}>
                         Import Data</NavDropdown.Item>
                     <NavDropdown.Item onClick={saveDataToFile}>Export Data</NavDropdown.Item>
-                    <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
-                    <NavDropdown.Divider />
-                    <NavDropdown.Item href="#action/3.2">Separated link</NavDropdown.Item>
                 </NavDropdown>
                 <Nav.Link href="https://trello.com/b/H9Cln6UD/playfrens">Kanban</Nav.Link>
                 <Nav.Link href="https://github.com/liranbr/Playfrens">GitHub</Nav.Link>
@@ -132,10 +129,10 @@ SidebarCard.propTypes = {
 };
 
 export default function App() {
-    const searchState = useState("");
-    const search = searchState[0];
     const [selectedFriends, setSelectedFriends] = useState([]);
     const [selectedCategories, setSelectedCategories] = useState([]);
+    const searchState = useState("");
+    const search = searchState[0];
     const filteredGames = useMemo(() =>
             allGames.filter((game) =>
                 game.title.toLowerCase().includes(search.toLowerCase()) && // Game Title includes the search value

@@ -69,10 +69,7 @@ function GameCard({ game, onClick }) {
             <img
                 draggable="false"
                 src={game.imageCoverPath}
-                alt={game.title + " Game Cover"}
-                onError={(e) => {
-                    e.target.src = "/cards/missing_image.png";
-                }}
+                alt={game.title + " Card"}
             />
         </button>
     );

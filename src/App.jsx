@@ -3,7 +3,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { Button, Container, Form, Nav, Navbar, NavDropdown, Row, ToggleButton } from "react-bootstrap";
 import { ToastContainer } from "react-toastify";
 import { useMemo, useState } from "react";
-import PropTypes from "prop-types";
 import { GamesGrid } from "./GameGrid.jsx";
 import { allCategories, allFriends, allGames, loadDataFromFile, saveDataToFile } from "./Store.jsx";
 
@@ -61,10 +60,6 @@ function Header({ searchState }) {
     );
 }
 
-Header.propTypes = {
-    searchState: PropTypes.array.isRequired
-};
-
 export function SidebarButton({ value, dataType, setSelection }) {
     const [checked, setChecked] = useState(false);
     const handleChange = (e) => {
@@ -96,12 +91,6 @@ export function SidebarButton({ value, dataType, setSelection }) {
     );
 }
 
-SidebarButton.propTypes = {
-    value: PropTypes.string.isRequired,
-    dataType: PropTypes.string.isRequired,
-    setSelection: PropTypes.func.isRequired
-};
-
 function SidebarCard({ dataType, setSelection }) {
     const [title, fullList] = dataType === "friend"
         ? ["FRIENDS", allFriends]
@@ -122,11 +111,6 @@ function SidebarCard({ dataType, setSelection }) {
         </Row>
     );
 }
-
-SidebarCard.propTypes = {
-    dataType: PropTypes.string.isRequired,
-    setSelection: PropTypes.func.isRequired
-};
 
 export default function App() {
     const [selectedFriends, setSelectedFriends] = useState([]);

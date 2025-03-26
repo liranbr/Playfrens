@@ -31,7 +31,7 @@ export class GameObject {
     removeFriend(friend) {
         if (this.friends.includes(friend)) {
             this.friends = this.friends.filter(f => f !== friend);
-            toastSuccess(`Removed ${friend} from ${this.title}'s friends`);
+            toastSuccess(`Removed ${friend} from the ${this.title} friendslist`);
         } else {
             toastError(`${friend} is not a friend for ${this.title}`);
         }

@@ -3,7 +3,6 @@ import "./GameGrid.css";
 import { Button, Form, Modal, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { useState } from "react";
 import styled from "styled-components";
-import PropTypes from "prop-types";
 import { allCategories, allFriends, GameObject } from "./Store.jsx";
 import { observer } from "mobx-react-lite";
 
@@ -75,11 +74,6 @@ function GameCard({ game, onClick }) {
     );
 }
 
-GameCard.propTypes = {
-    game: PropTypes.instanceOf(GameObject).isRequired,
-    onClick: PropTypes.func.isRequired
-};
-
 function ModalListButton({ value, dataType, handleRemove }) {
     return (
         <OverlayTrigger overlay={<Tooltip>Click to remove</Tooltip>}>
@@ -95,12 +89,6 @@ function ModalListButton({ value, dataType, handleRemove }) {
         </OverlayTrigger>
     );
 }
-
-ModalListButton.propTypes = {
-    value: PropTypes.string.isRequired,
-    dataType: PropTypes.string.isRequired,
-    handleRemove: PropTypes.func.isRequired
-};
 
 const ListAndAdder = observer(({ game, dataType }) => {
     const [cardTitle, innerList, fullList] = dataType === "friend"
@@ -146,11 +134,6 @@ const ListAndAdder = observer(({ game, dataType }) => {
     );
 });
 
-ListAndAdder.propTypes = {
-    game: PropTypes.instanceOf(GameObject).isRequired,
-    dataType: PropTypes.string.isRequired
-};
-
 function GameModal({ game, show, handleHide }) {
     return (
         <ModalCard
@@ -184,12 +167,6 @@ function GameModal({ game, show, handleHide }) {
     );
 }
 
-GameModal.propTypes = {
-    game: PropTypes.instanceOf(GameObject).isRequired,
-    show: PropTypes.bool.isRequired,
-    handleHide: PropTypes.func.isRequired
-};
-
 export function GamesGrid({ filteredGames }) {
     const [showModal, setShowModal] = useState(false);
     const [modalGame, setModalGame] = useState(new GameObject("[no game]"));
@@ -210,7 +187,3 @@ export function GamesGrid({ filteredGames }) {
         </div>
     );
 }
-
-GamesGrid.propTypes = {
-    filteredGames: PropTypes.array.isRequired
-};

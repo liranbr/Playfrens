@@ -1,12 +1,12 @@
 import "./App.css";
 import "react-toastify/dist/ReactToastify.css";
-import { Button, Container, Form, Nav, Navbar, NavDropdown, Row, ToggleButton } from "react-bootstrap";
+import { Button, Form, Nav, Navbar, NavDropdown, Row, ToggleButton } from "react-bootstrap";
 import { ToastContainer } from "react-toastify";
 import { useMemo, useState } from "react";
 import { GamesGrid } from "./GameGrid.jsx";
 import { allCategories, allFriends, allGames, loadDataFromFile, saveDataToFile } from "./Store.jsx";
 
-function Header({ searchState }) {
+function AppHeader({ searchState }) {
     const [search, setSearch] = searchState;
     const updateSearch = (e) => setSearch(e.target.value);
 
@@ -91,12 +91,12 @@ export function SidebarButton({ value, dataType, setSelection }) {
     );
 }
 
-function SidebarCard({ dataType, setSelection }) {
+function SidebarGroup({ dataType, setSelection }) {
     const [title, fullList] = dataType === "friend"
         ? ["FRIENDS", allFriends]
         : ["CATEGORIES", allCategories];
     return (
-        <Row className="sidebar-card">
+        <Row className="sidebar-group">
             <p className="sidebar-title">{title}</p>
             <div className="sidebar-buttons-list">
                 {fullList.map((item, index) =>
@@ -112,11 +112,21 @@ function SidebarCard({ dataType, setSelection }) {
     );
 }
 
+function Sidebar(props) {
+    const { dataTypes, selectionSetters } = props;
+    return (
+        <div className="sidebar">
+            {dataTypes.map((dataType, index) =>
+                <SidebarGroup key={dataType} dataType={dataType} setSelection={selectionSetters[index]} />)}
+        </div>
+    );
+}
+
 export default function App() {
     const [selectedFriends, setSelectedFriends] = useState([]);
     const [selectedCategories, setSelectedCategories] = useState([]);
-    const searchState = useState("");
-    const search = searchState[0];
+    const [search, setSearch] = useState("");
+
     const filteredGames = useMemo(() =>
             allGames.filter((game) =>
                 game.title.toLowerCase().includes(search.toLowerCase()) && // Game Title includes the search value
@@ -128,16 +138,12 @@ export default function App() {
 
     return (
         <>
-            <Header searchState={searchState} />
-            <Container fluid className="content-body">
-                <div className="d-flex flex-row h-100">
-                    <div className="sidebar">
-                        <SidebarCard dataType="category" setSelection={setSelectedCategories} />
-                        <SidebarCard dataType="friend" setSelection={setSelectedFriends} />
-                    </div>
-                    <GamesGrid filteredGames={filteredGames} />
-                </div>
-            </Container>
+            <AppHeader searchState={[search, setSearch]} />
+            <div id="main-content">
+                <Sidebar dataTypes={["friend", "category"]}
+                         selectionSetters={[setSelectedFriends, setSelectedCategories]} />
+                <GamesGrid filteredGames={filteredGames} />
+            </div>
             <ToastContainer />
         </>
     );

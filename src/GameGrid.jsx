@@ -107,7 +107,7 @@ const ListAndAdder = observer(({ game, dataType }) => {
 
     return (
         <div className="sidebar">
-            <div className="sidebar-card" style={{ background: "none", maxHeight: "none" }}>
+            <div className="sidebar-group" style={{ background: "none", maxHeight: "none" }}>
                 <p className="sidebar-title"
                    style={{ color: "#fff", textAlign: "left", padding: "5px 10px" }}>{cardTitle}</p>
                 <div key={"innerList" + innerList.length} className="sidebar-buttons-list">

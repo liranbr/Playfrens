@@ -3,11 +3,12 @@
     text-align: center;
 }
 
-.content-body {
+#main-content {
     background-color: #2b2d31;
     padding: 56px 0 0 0; /* 56px compensates for navbar height */
     height: 100vh;
     width: 100vw;
+    display: flex;
 }
 
 .sidebar {
@@ -18,7 +19,7 @@
     padding: 5px;
 }
 
-.sidebar-card {
+.sidebar-group {
     display: flex;
     flex-direction: column;
     margin: 5px;
@@ -27,11 +28,11 @@
     background-color: #1e1f22;
 }
 
-.sidebar-card:first-child {
+.sidebar-group:first-child {
     max-height: 50%;
 }
 
-.sidebar-card:last-child {
+.sidebar-group:last-child {
     height: 100%;
     overflow: auto;
 }

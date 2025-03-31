@@ -3,7 +3,8 @@ import "./GameGrid.css";
 import { Button, Form, Modal, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { useState } from "react";
 import styled from "styled-components";
-import { allCategories, allFriends, GameObject } from "./Store.jsx";
+import { GameObject } from "./Store.jsx";
+import { dataTypes } from "./dataTypes.jsx";
 import { observer } from "mobx-react-lite";
 
 // Styled Components create unused CSS warnings, but they are used in the JSX
@@ -46,17 +47,8 @@ const ModalCard = styled(Modal)`
 function GameCard({ game, onClick }) {
     const handleDrop = (e) => {
         const item = e.dataTransfer.getData("item");
-        const dataType = e.dataTransfer.getData("dataType");
-        switch (dataType) {
-            case "friend":
-                game.addFriend(item);
-                break;
-            case "category":
-                game.addCategory(item);
-                break;
-            default:
-                console.error("Drag Issue: not a friend or a category");
-        }
+        const dataTypeKey = e.dataTransfer.getData("dataTypeKey");
+        dataTypes[dataTypeKey].add(game, item);
     };
     return (
         <button
@@ -91,18 +83,16 @@ function ModalListButton({ value, dataType, handleRemove }) {
 }
 
 const ListAndAdder = observer(({ game, dataType }) => {
-    const [cardTitle, innerList, fullList] = dataType === "friend"
-        ? ["Friends", game.friends, allFriends]
-        : ["Categories", game.categories, allCategories];
+    console.log(dataType);
+    const cardTitle = dataType.plural;
+    const allDataList = dataType.allDataList;
+    const gameDataList = dataType.gameDataList(game);
+    console.log("game data list: " + gameDataList);
     const handleAdderChange = (e) => {
-        dataType === "friend"
-            ? game.addFriend(e.target.value)
-            : game.addCategory(e.target.value);
+        dataType.add(game, e.target.value);
     };
     const handleRemove = (item) => {
-        dataType === "friend"
-            ? game.removeFriend(item)
-            : game.removeCategory(item);
+        dataType.remove(game, item);
     };
 
     return (
@@ -110,19 +100,19 @@ const ListAndAdder = observer(({ game, dataType }) => {
             <div className="sidebar-group" style={{ background: "none", maxHeight: "none" }}>
                 <p className="sidebar-title"
                    style={{ color: "#fff", textAlign: "left", padding: "5px 10px" }}>{cardTitle}</p>
-                <div key={"innerList" + innerList.length} className="sidebar-buttons-list">
-                    {innerList.map((data, index) =>
+                <div key={"gameDataList" + gameDataList.length} className="sidebar-buttons-list">
+                    {gameDataList.map((data, index) =>
                         (<ModalListButton
                             key={index}
                             value={data}
-                            dataType={dataType}
+                            dataTypeKey={dataType.key}
                             handleRemove={handleRemove}
                         />)
                     )}
 
                     <Form.Select onChange={handleAdderChange}>
                         <option value="" hidden>Add...</option>
-                        {fullList.filter(item => !innerList.includes(item))
+                        {allDataList.filter(item => !gameDataList.includes(item))
                             .map((item, index) => (
                                 <option key={index}
                                         value={String(item)}>{item}</option>
@@ -154,9 +144,10 @@ function GameModal({ game, show, handleHide }) {
                     {game.title}
                 </Modal.Title>
             </Modal.Header>
-            <Modal.Body style={{ display: "flex", flexDirection: "row", padding: 0 }}>
-                <ListAndAdder game={game} dataType="friend"></ListAndAdder>
-                <ListAndAdder game={game} dataType="category"></ListAndAdder>
+            <Modal.Body style={{ display: "flex", flexDirection: "column", padding: 0 }}>
+                <ListAndAdder game={game} dataType={dataTypes.friend}></ListAndAdder>
+                <ListAndAdder game={game} dataType={dataTypes.category}></ListAndAdder>
+                <ListAndAdder game={game} dataType={dataTypes.status}></ListAndAdder>
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="primary" onClick={handleHide}>

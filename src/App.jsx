@@ -4,7 +4,8 @@ import { Button, Form, Nav, Navbar, NavDropdown, Row, ToggleButton } from "react
 import { ToastContainer } from "react-toastify";
 import { useMemo, useState } from "react";
 import { GamesGrid } from "./GameGrid.jsx";
-import { allCategories, allFriends, allGames, loadDataFromFile, saveDataToFile } from "./Store.jsx";
+import { allGames, loadDataFromFile, saveDataToFile } from "./Store.jsx";
+import { dataTypes } from "./dataTypes.jsx";
 
 function AppHeader({ searchState }) {
     const [search, setSearch] = searchState;
@@ -60,7 +61,7 @@ function AppHeader({ searchState }) {
     );
 }
 
-export function SidebarButton({ value, dataType, setSelection }) {
+export function SidebarButton({ value, dataTypeKey, setSelection }) {
     const [checked, setChecked] = useState(false);
     const handleChange = (e) => {
         const isChecked = e.currentTarget.checked;
@@ -74,7 +75,7 @@ export function SidebarButton({ value, dataType, setSelection }) {
 
     return (
         <ToggleButton
-            id={"btn-sidebar-" + dataType + "-" + value}
+            id={"btn-sidebar-" + dataTypeKey + "-" + value}
             value={value}
             className="sidebar-button"
             type="checkbox"
@@ -83,7 +84,7 @@ export function SidebarButton({ value, dataType, setSelection }) {
             onChange={handleChange}
             onDragStart={(e) => {
                 e.dataTransfer.setData("item", value);
-                e.dataTransfer.setData("dataType", dataType);
+                e.dataTransfer.setData("dataTypeKey", dataTypeKey);
             }}
         >
             {value}
@@ -92,18 +93,17 @@ export function SidebarButton({ value, dataType, setSelection }) {
 }
 
 function SidebarGroup({ dataType, setSelection }) {
-    const [title, fullList] = dataType === "friend"
-        ? ["FRIENDS", allFriends]
-        : ["CATEGORIES", allCategories];
+    const title = dataType.plural.toUpperCase();
+    const allDataList = dataType.allDataList;
     return (
         <Row className="sidebar-group">
             <p className="sidebar-title">{title}</p>
             <div className="sidebar-buttons-list">
-                {fullList.map((item, index) =>
+                {allDataList.map((item, index) =>
                     <SidebarButton
                         key={index}
                         value={item}
-                        dataType={dataType}
+                        dataTypeKey={dataType.key}
                         setSelection={setSelection}
                     />
                 )}
@@ -117,31 +117,36 @@ function Sidebar(props) {
     return (
         <div className="sidebar">
             {dataTypes.map((dataType, index) =>
-                <SidebarGroup key={dataType} dataType={dataType} setSelection={selectionSetters[index]} />)}
+                <SidebarGroup key={dataType.single} dataType={dataType} setSelection={selectionSetters[index]} />)}
         </div>
     );
 }
 
 export default function App() {
+    const [search, setSearch] = useState("");
     const [selectedFriends, setSelectedFriends] = useState([]);
     const [selectedCategories, setSelectedCategories] = useState([]);
-    const [search, setSearch] = useState("");
+    const [selectedStatuses, setSelectedStatuses] = useState([]);
 
     const filteredGames = useMemo(() =>
             allGames.filter((game) =>
-                game.title.toLowerCase().includes(search.toLowerCase()) && // Game Title includes the search value
-                selectedFriends.every(selectedFriend => game.friends.includes(selectedFriend)) && // All friends are in the game
-                (!selectedCategories.length || // No categories selected, or
-                    selectedCategories.some(selectedCategory => game.categories.includes(selectedCategory))) // Game belongs to at least one category
+                // Game Title includes the search value
+                game.title.toLowerCase().includes(search.toLowerCase()) &&
+                // All selected friends are in the game
+                selectedFriends.every(friend => game.friends.includes(friend)) &&
+                // No categories selected, or game belongs to at least one selected category
+                (!selectedCategories.length || selectedCategories.some(category => game.categories.includes(category))) &&
+                // No statuses selected, or game has at least one selected status
+                (!selectedStatuses.length || selectedStatuses.some(status => game.statuses.includes(status)))
             )
-        , [search, selectedFriends, selectedCategories]);
+        , [search, selectedFriends, selectedCategories, selectedStatuses]);
 
     return (
         <>
             <AppHeader searchState={[search, setSearch]} />
             <div id="main-content">
-                <Sidebar dataTypes={["friend", "category"]}
-                         selectionSetters={[setSelectedFriends, setSelectedCategories]} />
+                <Sidebar dataTypes={[dataTypes.friend, dataTypes.category, dataTypes.status]}
+                         selectionSetters={[setSelectedFriends, setSelectedCategories, setSelectedStatuses]} />
                 <GamesGrid filteredGames={filteredGames} />
             </div>
             <ToastContainer />

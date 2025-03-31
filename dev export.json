@@ -23,9 +23,14 @@
     "allCategories": [
         "Playthrough",
         "Round-based",
-        "Persistent World",
-        "Plan To Play",
+        "Persistent World"
+    ],
+    "allStatuses": [
+        "Playing",
+        "Paused",
+        "LFM",
         "Later",
+        "Abandoned",
         "Finished"
     ],
     "allGames": [
@@ -35,7 +40,11 @@
             "friends": [
                 "Sami"
             ],
-            "categories": []
+            "categories": [
+                "Playthrough",
+                "Round-based"
+            ],
+            "statuses": []
         },
         {
             "title": "Celeste",
@@ -43,7 +52,12 @@
             "friends": [
                 "Nibbix"
             ],
-            "categories": []
+            "categories": [
+                "Round-based"
+            ],
+            "statuses": [
+                "Playing"
+            ]
         },
         {
             "title": "CrossCode",
@@ -51,7 +65,8 @@
             "friends": [
                 "Nibbix"
             ],
-            "categories": []
+            "categories": [],
+            "statuses": []
         },
         {
             "title": "Dark Souls I Remastered",
@@ -59,7 +74,8 @@
             "friends": [
                 "Sami"
             ],
-            "categories": []
+            "categories": [],
+            "statuses": []
         },
         {
             "title": "Dead Cells",
@@ -67,7 +83,8 @@
             "friends": [
                 "Sami"
             ],
-            "categories": []
+            "categories": [],
+            "statuses": []
         },
         {
             "title": "Hades",
@@ -75,7 +92,8 @@
             "friends": [
                 "Nibbix"
             ],
-            "categories": []
+            "categories": [],
+            "statuses": []
         },
         {
             "title": "Heroes of the Storm",
@@ -83,7 +101,8 @@
             "friends": [
                 "Sami"
             ],
-            "categories": []
+            "categories": [],
+            "statuses": []
         },
         {
             "title": "Hollow Knight",
@@ -91,7 +110,8 @@
             "friends": [
                 "Sami"
             ],
-            "categories": []
+            "categories": [],
+            "statuses": []
         },
         {
             "title": "Tears of the Kingdom",
@@ -99,7 +119,8 @@
             "friends": [
                 "Sami"
             ],
-            "categories": []
+            "categories": [],
+            "statuses": []
         },
         {
             "title": "Outer Wilds",
@@ -107,7 +128,8 @@
             "friends": [
                 "Sami"
             ],
-            "categories": []
+            "categories": [],
+            "statuses": []
         },
         {
             "title": "Sekiro - Shadows Die Twice",
@@ -115,7 +137,8 @@
             "friends": [
                 "Sami"
             ],
-            "categories": []
+            "categories": [],
+            "statuses": []
         },
         {
             "title": "Subnautica",
@@ -123,7 +146,8 @@
             "friends": [
                 "Nibbix"
             ],
-            "categories": []
+            "categories": [],
+            "statuses": []
         },
         {
             "title": "Terraria",
@@ -131,7 +155,8 @@
             "friends": [
                 "Nibbix"
             ],
-            "categories": []
+            "categories": [],
+            "statuses": []
         },
         {
             "title": "Tunic",
@@ -139,7 +164,8 @@
             "friends": [
                 "Nibbix"
             ],
-            "categories": []
+            "categories": [],
+            "statuses": []
         },
         {
             "title": "V Rising",
@@ -147,7 +173,8 @@
             "friends": [
                 "Sami"
             ],
-            "categories": []
+            "categories": [],
+            "statuses": []
         },
         {
             "title": "The Witcher 3",
@@ -155,7 +182,8 @@
             "friends": [
                 "Sami"
             ],
-            "categories": []
+            "categories": [],
+            "statuses": []
         }
     ]
 }

@@ -2,20 +2,24 @@ import { toastError, toastSuccess } from "./Utils.jsx";
 import { action, autorun, makeObservable, observable } from "mobx";
 
 export class GameObject {
-    constructor(title, imageCoverPath = "", friends = [], categories = []) {
+    constructor(title, imageCoverPath = "", friends = [], categories = [], statuses = []) {
         this.title = title;
         this.imageCoverPath = imageCoverPath;
         this.friends = friends;
         this.categories = categories;
+        this.statuses = statuses;
         makeObservable(this, {
             title: observable,
             imageCoverPath: observable,
             friends: observable,
             categories: observable,
+            statuses: observable,
             addFriend: action,
             removeFriend: action,
             addCategory: action,
-            removeCategory: action
+            removeCategory: action,
+            addStatus: action,
+            removeStatus: action
         });
     }
 
@@ -55,17 +59,36 @@ export class GameObject {
         }
     }
 
+    addStatus(status) {
+        if (!this.statuses.includes(status)) {
+            this.statuses = [...this.statuses, status];
+            toastSuccess(`Added ${status} as a status for ${this.title}`);
+        } else {
+            toastError(`${status} is already a status for ${this.title}`);
+        }
+    }
+
+    removeStatus(status) {
+        if (this.statuses.includes(status)) {
+            this.statuses = this.statuses.filter(s => s !== status);
+            toastSuccess(`Removed ${status} from ${this.title}'s statuses`);
+        } else {
+            toastError(`${status} is not a status for ${this.title}`);
+        }
+    }
+
     toJSON() {
         return {
             title: this.title,
             imageCoverPath: this.imageCoverPath,
             friends: this.friends,
-            categories: this.categories
+            categories: this.categories,
+            statuses: this.statuses
         };
     }
 
     toString() {
-        return `Game Title: ${this.title}, friends: ${this.friends}, categories: ${this.categories}`;
+        return `Game Title: ${this.title}, friends: ${this.friends}, categories: ${this.categories}, statuses: ${this.statuses}`;
     }
 }
 
@@ -80,18 +103,21 @@ function saveObsArray(key, value) {
 // load data from localstorage as observables
 export const allFriends = loadObsArray("allFriends");
 export const allCategories = loadObsArray("allCategories");
+export const allStatuses = loadObsArray("allStatuses");
 export const allGames = observable.array(loadObsArray("allGames").map(game =>
-    new GameObject(game.title, game.imageCoverPath, game.friends, game.categories)));
+    new GameObject(game.title, game.imageCoverPath, game.friends, game.categories, game.statuses)));
 
 // when a change is made to an array, it is saved to localstorage
 autorun(() => saveObsArray("allFriends", allFriends));
 autorun(() => saveObsArray("allCategories", allCategories));
+autorun(() => saveObsArray("allStatuses", allStatuses));
 autorun(() => saveObsArray("allGames", allGames));
 
 export function saveDataToFile() {
     const data = {
         allFriends: allFriends,
         allCategories: allCategories,
+        allStatuses: allStatuses,
         allGames: allGames
     };
     const blob = new Blob([JSON.stringify(data, null, 4)], { type: "application/json" });
@@ -110,8 +136,9 @@ export function loadDataFromFile(file) {
         const data = JSON.parse(e.target.result);
         allFriends.replace(data["allFriends"]);
         allCategories.replace(data["allCategories"]);
+        allStatuses.replace(data["allStatuses"]);
         allGames.replace(data["allGames"].map(game =>
-            new GameObject(game.title, game.imageCoverPath, game.friends, game.categories)));
+            new GameObject(game.title, game.imageCoverPath, game.friends, game.categories, game.statuses)));
         window.location.reload();
     };
     reader.readAsText(file);

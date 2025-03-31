@@ -32,6 +32,10 @@
     max-height: 50%;
 }
 
+.sidebar-group:nth-child(2) {
+    max-height: 50%;
+}
+
 .sidebar-group:last-child {
     height: 100%;
     overflow: auto;

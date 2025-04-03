@@ -1,6 +1,14 @@
 import { toastError, toastSuccess } from "./Utils.jsx";
 import { action, autorun, makeObservable, observable } from "mobx";
 
+/**
+ * @typedef {Object} GameObject
+ * @property {string} title - The title of the game.
+ * @property {string} imageCoverPath - The path to the game's cover image file.
+ * @property {Array<string>} friends - The list of friends for this game.
+ * @property {Array<string>} categories - The list of categories for this game.
+ * @property {Array<string>} statuses - The list of statuses for this game.
+ */
 export class GameObject {
     constructor(title, imageCoverPath = "", friends = [], categories = [], statuses = []) {
         this.title = title;

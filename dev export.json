@@ -27,8 +27,8 @@
     ],
     "allStatuses": [
         "Playing",
-        "Paused",
         "LFM",
+        "Paused",
         "Later",
         "Abandoned",
         "Finished"

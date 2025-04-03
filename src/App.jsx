@@ -95,6 +95,9 @@ export function SidebarButton({ value, dataTypeKey, setSelection }) {
 function SidebarGroup({ dataType, setSelection }) {
     const title = dataType.plural.toUpperCase();
     const allDataList = dataType.allDataList;
+    if (dataType.key === "friend") {
+        allDataList.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+    }
     return (
         <Row className="sidebar-group">
             <p className="sidebar-title">{title}</p>

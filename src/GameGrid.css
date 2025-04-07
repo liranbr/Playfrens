@@ -31,6 +31,35 @@
     grid-template-columns: repeat(8, 1fr);
 }
 
+.modal-list {
+    display: flex;
+    flex-direction: column;
+    margin: 5px;
+    padding: 1rem;
+    border-radius: 20px;
+}
+
+.modal-list-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #fff;
+    text-align: left;
+    margin: 0;
+    padding: 5px 10px;
+}
+
+.title-and-adder {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+/* change the CSS variable bs-btn-active-color to black*/
+.bs-btn-active-color {
+    background-color: #000;
+    color: #fff;
+}
+
 .modal-list-button {
     background: none;
     text-align: start;
@@ -38,15 +67,11 @@
     border: 1px solid #80848e00;
     margin: 2px 0;
     border-radius: 15px;
+    --bs-btn-active-bg: none;
 }
 
 .modal-list-button:hover {
     background: none;
     border: 1px solid #80848e;
     color: #fff;
-}
-
-.modal-list-button-container {
-    /*visibility: hidden;*/
-    position: relative;
 }

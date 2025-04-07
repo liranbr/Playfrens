@@ -1,24 +1,24 @@
 {
     "allFriends": [
-        "Sami",
-        "Nibbix",
-        "RocketDN",
-        "MindHawk",
-        "VX",
-        "Cake",
-        "Labreris",
-        "Gooey",
-        "shinn",
+        "Aco",
         "Bram",
-        "wesje101",
+        "Cake",
+        "Gooey",
+        "Labreris",
+        "MechArcana",
+        "MindHawk",
+        "Nibbix",
+        "Niv",
+        "RocketDN",
+        "Sami",
+        "shinn",
+        "Sky",
+        "Tristan",
         "Twinkle",
         "Vented",
-        "MechArcana",
-        "Tristan",
-        "Xianji",
-        "Sky",
-        "Niv",
-        "Aco"
+        "VX",
+        "wesje101",
+        "Xianji"
     ],
     "allCategories": [
         "Playthrough",
@@ -50,7 +50,8 @@
             "title": "Celeste",
             "imageCoverPath": "https://cdn2.steamgriddb.com/grid/b2dfad356a40408faf455dcf85084f7d.png",
             "friends": [
-                "Nibbix"
+                "Nibbix",
+                "Gooey"
             ],
             "categories": [
                 "Round-based"

@@ -1,11 +1,13 @@
 import "./App.css";
 import "./GameGrid.css";
-import { Button, Form, Modal, OverlayTrigger, Tooltip } from "react-bootstrap";
-import { useState } from "react";
+import { Button, Col, Form, Modal, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
+import { useRef, useState } from "react";
 import styled from "styled-components";
 import { GameObject } from "./Store.jsx";
-import { dataTypes } from "./dataTypes.jsx";
+import { dataTypes } from "./DataTypes.jsx";
 import { observer } from "mobx-react-lite";
+import { FaPlus } from "react-icons/fa";
+import { ButtonAdd } from "./Components.jsx";
 
 // Styled Components create unused CSS warnings, but they are used in the JSX
 // noinspection CssUnusedSymbol
@@ -44,31 +46,9 @@ const ModalCard = styled(Modal)`
     }
 `;
 
-function GameCard({ game, onClick }) {
-    const handleDrop = (e) => {
-        const item = e.dataTransfer.getData("item");
-        const dataTypeKey = e.dataTransfer.getData("dataTypeKey");
-        dataTypes[dataTypeKey].add(game, item);
-    };
-    return (
-        <button
-            className="game-card"
-            onClick={() => onClick(game)}
-            onDrop={handleDrop}
-            onDragOver={e => e.preventDefault()}
-        >
-            <img
-                draggable="false"
-                src={game.imageCoverPath}
-                alt={game.title + " Card"}
-            />
-        </button>
-    );
-}
-
 function ModalListButton({ value, dataType, handleRemove }) {
     return (
-        <OverlayTrigger overlay={<Tooltip>Click to remove</Tooltip>}>
+        <OverlayTrigger overlay={<Tooltip style={{ transition: "none" }}>Click to remove</Tooltip>}>
             <Button
                 id={"btn-modal-" + dataType + "-" + value}
                 value={value}
@@ -83,11 +63,12 @@ function ModalListButton({ value, dataType, handleRemove }) {
 }
 
 const ListAndAdder = observer(({ game, dataType }) => {
-    console.log(dataType);
+    // TODO: Clean up this code
     const cardTitle = dataType.plural;
     const allDataList = dataType.allDataList;
     const gameDataList = dataType.gameDataList(game);
-    console.log("game data list: " + gameDataList);
+    console.log("ListAndAdder data type:" + dataType.key + ",\ngame data list: " + gameDataList);
+    const selectRef = useRef(null);
     const handleAdderChange = (e) => {
         dataType.add(game, e.target.value);
     };
@@ -96,29 +77,43 @@ const ListAndAdder = observer(({ game, dataType }) => {
     };
 
     return (
-        <div className="sidebar">
-            <div className="sidebar-group" style={{ background: "none", maxHeight: "none" }}>
-                <p className="sidebar-title"
-                   style={{ color: "#fff", textAlign: "left", padding: "5px 10px" }}>{cardTitle}</p>
-                <div key={"gameDataList" + gameDataList.length} className="sidebar-buttons-list">
-                    {gameDataList.map((data, index) =>
-                        (<ModalListButton
-                            key={index}
-                            value={data}
-                            dataTypeKey={dataType.key}
-                            handleRemove={handleRemove}
-                        />)
-                    )}
-
-                    <Form.Select onChange={handleAdderChange}>
-                        <option value="" hidden>Add...</option>
-                        {allDataList.filter(item => !gameDataList.includes(item))
-                            .map((item, index) => (
-                                <option key={index}
-                                        value={String(item)}>{item}</option>
-                            ))}
-                    </Form.Select>
-                </div>
+        <div className="modal-list">
+            <div className="title-and-adder">
+                <p className="modal-list-title">{cardTitle}</p>
+                <OverlayTrigger overlay={<Tooltip style={{ transition: "none" }}>Add a {dataType.single}</Tooltip>}>
+                    <div style={{ position: "relative" }}>
+                        <ButtonAdd>
+                            <Form.Select
+                                ref={selectRef}
+                                onChange={handleAdderChange}
+                                style={{
+                                    position: "absolute",
+                                    opacity: 0, // Invisible but clickable, positioned in the button
+                                    cursor: "pointer",
+                                    height: "100%",
+                                    width: "100%",
+                                    top: 0,
+                                    left: 0
+                                }}
+                            >
+                                <option value="" hidden>Add a {dataType.single}</option>
+                                {allDataList.filter(item => !gameDataList.includes(item)).map(item => (
+                                    <option key={String(item)} value={String(item)}>{item}</option>
+                                ))}
+                            </Form.Select>
+                        </ButtonAdd>
+                    </div>
+                </OverlayTrigger>
+            </div>
+            <div key={"gameDataList" + gameDataList.length} className="sidebar-buttons-list">
+                {gameDataList.map((data, index) =>
+                    (<ModalListButton
+                        key={index}
+                        value={data}
+                        dataTypeKey={dataType.key}
+                        handleRemove={handleRemove}
+                    />)
+                )}
             </div>
         </div>
     );
@@ -145,9 +140,17 @@ function GameModal({ game, show, handleHide }) {
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body style={{ display: "flex", flexDirection: "column", padding: 0 }}>
-                <ListAndAdder game={game} dataType={dataTypes.friend}></ListAndAdder>
-                <ListAndAdder game={game} dataType={dataTypes.category}></ListAndAdder>
-                <ListAndAdder game={game} dataType={dataTypes.status}></ListAndAdder>
+                <Row id="data-lists">
+                    <Col>
+                        <ListAndAdder game={game} dataType={dataTypes.friend}></ListAndAdder>
+                    </Col>
+                    <Col>
+                        <ListAndAdder game={game} dataType={dataTypes.category}></ListAndAdder>
+                        <ListAndAdder game={game} dataType={dataTypes.status}></ListAndAdder>
+                    </Col>
+                </Row>
+                <Row id="playthroughs">
+                </Row>
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="primary" onClick={handleHide}>
@@ -155,6 +158,28 @@ function GameModal({ game, show, handleHide }) {
                 </Button>
             </Modal.Footer>
         </ModalCard>
+    );
+}
+
+function GameCard({ game, onClick }) {
+    const handleDrop = (e) => {
+        const item = e.dataTransfer.getData("item");
+        const dataTypeKey = e.dataTransfer.getData("dataTypeKey");
+        dataTypes[dataTypeKey].add(game, item);
+    };
+    return (
+        <button
+            className="game-card"
+            onClick={() => onClick(game)}
+            onDrop={handleDrop}
+            onDragOver={e => e.preventDefault()}
+        >
+            <img
+                draggable="false"
+                src={game.imageCoverPath}
+                alt={game.title + " Card"}
+            />
+        </button>
     );
 }
 

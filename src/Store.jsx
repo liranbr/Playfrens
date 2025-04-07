@@ -109,7 +109,7 @@ function saveObsArray(key, value) {
 }
 
 // load data from localstorage as observables
-export const allFriends = loadObsArray("allFriends");
+export const allFriends = loadObsArray("allFriends").sort((a, b) => a.localeCompare(b.toLowerCase()));
 export const allCategories = loadObsArray("allCategories");
 export const allStatuses = loadObsArray("allStatuses");
 export const allGames = observable.array(loadObsArray("allGames").map(game =>

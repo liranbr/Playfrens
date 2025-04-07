@@ -5,7 +5,7 @@ import { ToastContainer } from "react-toastify";
 import { useMemo, useState } from "react";
 import { GamesGrid } from "./GameGrid.jsx";
 import { allGames, loadDataFromFile, saveDataToFile } from "./Store.jsx";
-import { dataTypes } from "./dataTypes.jsx";
+import { dataTypes } from "./DataTypes.jsx";
 
 function AppHeader({ searchState }) {
     const [search, setSearch] = searchState;
@@ -95,9 +95,6 @@ export function SidebarButton({ value, dataTypeKey, setSelection }) {
 function SidebarGroup({ dataType, setSelection }) {
     const title = dataType.plural.toUpperCase();
     const allDataList = dataType.allDataList;
-    if (dataType.key === "friend") {
-        allDataList.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
-    }
     return (
         <Row className="sidebar-group">
             <p className="sidebar-title">{title}</p>

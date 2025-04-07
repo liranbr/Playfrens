@@ -1,0 +1,16 @@
+.button-add {
+    display: flex;
+    align-items: center;
+    background: none;
+    color: #aaa;
+    border: none;
+    position: relative;
+    overflow: hidden;;
+    padding: 3px 3px;
+}
+
+.button-add:hover {
+    background: none;
+    color: #fff;
+    cursor: pointer;
+}

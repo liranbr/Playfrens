@@ -54,6 +54,19 @@
     align-items: center;
 }
 
+.game-note {
+    resize: vertical;
+    margin: 20px 40px;
+    flex-shrink: 1;
+    background: none;
+    border: 1px solid var(--pf-fg-100);
+    border-radius: 8px;
+}
+
+.game-note:focus {
+    outline: 1px solid var(--pf-fg-100);
+}
+
 /* change the CSS variable bs-btn-active-color to black*/
 .bs-btn-active-color {
     background-color: #000;

@@ -6,7 +6,6 @@ import styled from "styled-components";
 import { GameObject } from "./Store.jsx";
 import { dataTypes } from "./DataTypes.jsx";
 import { observer } from "mobx-react-lite";
-import { FaPlus } from "react-icons/fa";
 import { ButtonAdd } from "./Components.jsx";
 
 // Styled Components create unused CSS warnings, but they are used in the JSX
@@ -118,6 +117,18 @@ const ListAndAdder = observer(({ game, dataType }) => {
     );
 });
 
+const GameNoteArea = observer(({ game }) => {
+    const [note, setNote] = useState(game.note);
+    const handleNoteChange = (e) => {
+        game.setNote(e.target.value);
+        setNote(game.note);
+    };
+    return (
+        <textarea className="game-note" placeholder="Note" rows={3}
+                  value={note} onChange={handleNoteChange} />
+    );
+});
+
 function GameModal({ game, show, handleHide }) {
     return (
         <ModalCard
@@ -149,6 +160,7 @@ function GameModal({ game, show, handleHide }) {
                     </Col>
                 </Row>
                 <Row id="playthroughs">
+                    <GameNoteArea game={game} />
                 </Row>
             </Modal.Body>
             <Modal.Footer>

@@ -8,26 +8,30 @@ import { action, autorun, makeObservable, observable } from "mobx";
  * @property {Array<string>} friends - The list of friends for this game.
  * @property {Array<string>} categories - The list of categories for this game.
  * @property {Array<string>} statuses - The list of statuses for this game.
+ * @property {string} note - A custom note for this game.
  */
 export class GameObject {
-    constructor(title, imageCoverPath = "", friends = [], categories = [], statuses = []) {
+    constructor(title, imageCoverPath = "", friends = [], categories = [], statuses = [], note = "") {
         this.title = title;
         this.imageCoverPath = imageCoverPath;
         this.friends = friends;
         this.categories = categories;
         this.statuses = statuses;
+        this.note = note;
         makeObservable(this, {
             title: observable,
             imageCoverPath: observable,
             friends: observable,
             categories: observable,
             statuses: observable,
+            note: observable,
             addFriend: action,
             removeFriend: action,
             addCategory: action,
             removeCategory: action,
             addStatus: action,
-            removeStatus: action
+            removeStatus: action,
+            setNote: action
         });
     }
 
@@ -85,18 +89,23 @@ export class GameObject {
         }
     }
 
+    setNote(note) {
+        this.note = note;
+    }
+
     toJSON() {
         return {
             title: this.title,
             imageCoverPath: this.imageCoverPath,
             friends: this.friends,
             categories: this.categories,
-            statuses: this.statuses
+            statuses: this.statuses,
+            note: this.note
         };
     }
 
     toString() {
-        return `Game Title: ${this.title}, friends: ${this.friends}, categories: ${this.categories}, statuses: ${this.statuses}`;
+        return `Game Title: ${this.title}, friends: ${this.friends}, categories: ${this.categories}, statuses: ${this.statuses}, note: ${this.note}`;
     }
 }
 
@@ -113,7 +122,8 @@ export const allFriends = loadObsArray("allFriends").sort((a, b) => a.localeComp
 export const allCategories = loadObsArray("allCategories");
 export const allStatuses = loadObsArray("allStatuses");
 export const allGames = observable.array(loadObsArray("allGames").map(game =>
-    new GameObject(game.title, game.imageCoverPath, game.friends, game.categories, game.statuses)));
+    new GameObject(game.title, game.imageCoverPath, game.friends, game.categories, game.statuses, game.note)));
+// TODO: can the new GameObject skip specifying the properties?
 
 // when a change is made to an array, it is saved to localstorage
 autorun(() => saveObsArray("allFriends", allFriends));
@@ -146,7 +156,7 @@ export function loadDataFromFile(file) {
         allCategories.replace(data["allCategories"]);
         allStatuses.replace(data["allStatuses"]);
         allGames.replace(data["allGames"].map(game =>
-            new GameObject(game.title, game.imageCoverPath, game.friends, game.categories, game.statuses)));
+            new GameObject(game.title, game.imageCoverPath, game.friends, game.categories, game.statuses, game.note)));
         window.location.reload();
     };
     reader.readAsText(file);

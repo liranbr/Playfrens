@@ -12,7 +12,7 @@ function AppHeader({ searchState }) {
     const updateSearch = (e) => setSearch(e.target.value);
 
     return (
-        <Navbar className="px-3" fixed="top" style={{ backgroundColor: "#1e1f22" }}>
+        <Navbar className="app-header" fixed="top">
             <Navbar.Brand>
                 <img
                     src="/Playfrens_Logo.png"

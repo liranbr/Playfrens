@@ -6,7 +6,7 @@
     border: 0;
     cursor: pointer;
     background-color: transparent;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.8);
     transition: 0.3s ease;
 }
 
@@ -18,7 +18,7 @@
 
 .game-card:hover {
     transform: scale(1.05);
-    box-shadow: 0 15px 22px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 15px 22px rgba(0, 0, 0, 0.6);
     z-index: 1;
 }
 

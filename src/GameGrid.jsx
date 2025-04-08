@@ -63,7 +63,6 @@ function ModalListButton({ value, dataType, handleRemove }) {
 }
 
 const ListAndAdder = observer(({ game, dataType }) => {
-    // TODO: Clean up this code
     const cardTitle = dataType.plural;
     const allDataList = dataType.allDataList;
     const gameDataList = dataType.gameDataList(game);

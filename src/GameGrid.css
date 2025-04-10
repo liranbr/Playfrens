@@ -26,9 +26,12 @@
     width: 100%;
     display: grid;
     box-sizing: border-box;
-    gap: 30px;
+    grid-auto-flow: row;
+    justify-content: space-between;
+    grid-gap: 30px;
     padding: 30px;
-    grid-template-columns: repeat(8, 1fr);
+    grid-template-columns: repeat(auto-fit, 247px);
+    /*grid-template-columns: repeat(8, 1fr);*/
 }
 
 .modal-list {

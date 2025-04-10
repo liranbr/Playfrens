@@ -22,13 +22,15 @@
     min-width: 300px;
     display: flex;
     flex-direction: column;
-    padding: 5px;
+    /*0 margin on the sidebar-right, for an exact gap with the grid*/
+    margin: 10px 0 10px 10px;
+    gap: 10px;
 }
 
 .sidebar-group {
     display: flex;
     flex-direction: column;
-    margin: 5px;
+    margin: 0;
     padding: 1rem;
     border-radius: 20px;
     background-color: var(--pf-bg-900);

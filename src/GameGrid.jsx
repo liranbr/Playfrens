@@ -202,8 +202,9 @@ export function GamesGrid({ filteredGames }) {
         setModalGame(game);
         setShowModal(true);
     };
+    // need the empty div to contain the grid correctly
     return (
-        <div>
+        <div style={{ width: "100%", overflow: "scroll" }}>
             <div className="games-grid">
                 {filteredGames.map((game, index) => (<GameCard
                     key={index}

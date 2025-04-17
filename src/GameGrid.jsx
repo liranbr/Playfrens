@@ -2,48 +2,10 @@ import "./App.css";
 import "./GameGrid.css";
 import { Button, Col, Form, Modal, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
 import { useRef, useState } from "react";
-import styled from "styled-components";
 import { GameObject } from "./Store.jsx";
 import { dataTypes } from "./DataTypes.jsx";
 import { observer } from "mobx-react-lite";
 import { ButtonAdd } from "./Components.jsx";
-
-// Styled Components create unused CSS warnings, but they are used in the JSX
-// noinspection CssUnusedSymbol
-const ModalCard = styled(Modal)`
-    .modal-content {
-        height: 900px;
-        position: relative;
-        overflow: hidden;
-        z-index: 1;
-        box-shadow: 0 0 50px rgba(0, 0, 0, 1);
-        border: none;
-    }
-
-    .modal-header, .modal-footer {
-        border: none;
-    }
-
-    .modal-dialog {
-        --bs-modal-width: 600px;
-    }
-
-    .modal-content::before {
-        // using ::before to make a blurred background
-        content: "";
-        position: absolute;
-        height: 100%;
-        width: 100%;
-        background-size: cover;
-        background-position: center;
-        z-index: -1;
-        background-image: ${({ game }) =>
-                `linear-gradient(rgba(0, 0, 0, 0.66), rgba(0, 0, 0, 0.66)), url("${game.imageCoverPath}")`};
-        filter: blur(8px);
-        transform: scale(1.02);
-        // scale fixes the 5px of transparent border from the blur
-    }
-`;
 
 function ModalListButton({ value, dataType, handleRemove }) {
     return (
@@ -129,48 +91,88 @@ const GameNoteArea = observer(({ game }) => {
     );
 });
 
-function GameModal({ game, show, handleHide }) {
+const ModalSidebarGroup = observer(({ game, dataType }) => {
+    const title = dataType.plural.toUpperCase();
+    const gameDataList = dataType.gameDataList(game);
     return (
-        <ModalCard
-            game={game}
-            show={show}
-            onHide={handleHide}
-            centered
-        >
-            <Modal.Header closeButton>
-                <Modal.Title
-                    style={{
-                        marginLeft: "32px",
-                        textAlign: "center",
-                        fontWeight: "bold",
-                        width: "100%"
-                    }}
-                >
-                    {game.title}
-                </Modal.Title>
-            </Modal.Header>
-            <Modal.Body style={{ display: "flex", flexDirection: "column", padding: 0 }}>
-                <Row id="data-lists">
-                    <Col>
-                        <ListAndAdder game={game} dataType={dataTypes.friend}></ListAndAdder>
-                    </Col>
-                    <Col>
-                        <ListAndAdder game={game} dataType={dataTypes.category}></ListAndAdder>
-                        <ListAndAdder game={game} dataType={dataTypes.status}></ListAndAdder>
-                    </Col>
-                </Row>
-                <Row id="playthroughs">
-                    <GameNoteArea game={game} />
-                </Row>
-            </Modal.Body>
-            <Modal.Footer>
-                <Button variant="primary" onClick={handleHide}>
-                    Save
-                </Button>
-            </Modal.Footer>
-        </ModalCard>
+        <Row className="sidebar-group">
+            <p className="sidebar-title">{title}</p>
+            <div className="sidebar-buttons-list">
+                {gameDataList.map((item, index) =>
+                    <ModalListButton
+                        key={index}
+                        value={item}
+                        dataTypeKey={dataType.key}
+                    />
+                )}
+            </div>
+        </Row>
     );
-}
+});
+
+const GameModal = observer(({ game, show, handleHide }) => {
+    return (
+        <Modal className={"pf-modal"} show={show} onHide={handleHide} centered>
+            <div className="modal-sidebar">
+                <ModalSidebarGroup dataType={dataTypes.friend} game={game} />
+            </div>
+            <div className="modal-card">
+                <div
+                    className="modal-card-bg"
+                    style={{
+                        position: "absolute",
+                        height: "900px",
+                        width: "600px",
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        zIndex: -2,
+                        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.66), rgba(0, 0, 0, 0.66)), url("${game.imageCoverPath}")`
+                    }}
+                />
+                <div
+                    className="modal-card-bg"
+                    style={{
+                        position: "absolute",
+                        height: "900px",
+                        width: "600px",
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        zIndex: -1,
+                        filter: "blur(8px)",
+                        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.66), rgba(0, 0, 0, 0.66)), url("${game.imageCoverPath}")`
+                    }}
+                />
+                <Modal.Header closeButton>
+                    <Modal.Title
+                        style={{
+                            marginLeft: "32px",
+                            textAlign: "center",
+                            fontWeight: "bold",
+                            width: "100%"
+                        }}
+                    >
+                        {game.title}
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body
+                    style={{ display: "flex", flexDirection: "column", justifyContent: "end", padding: 0 }}>
+                    <Row id="playthroughs">
+                        <GameNoteArea game={game} />
+                    </Row>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="primary" onClick={handleHide}>
+                        Save
+                    </Button>
+                </Modal.Footer>
+            </div>
+            <div className="modal-sidebar">
+                <ModalSidebarGroup dataType={dataTypes.category} game={game} />
+                <ModalSidebarGroup dataType={dataTypes.status} game={game} />
+            </div>
+        </Modal>
+    );
+});
 
 function GameCard({ game, onClick }) {
     const handleDrop = (e) => {

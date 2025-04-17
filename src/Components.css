@@ -14,3 +14,56 @@
     color: #fff;
     cursor: pointer;
 }
+
+.sidebar-group {
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 1rem;
+    border: 1px solid #333;
+    border-radius: 20px;
+    background-color: var(--pf-bg-900);
+    overflow: hidden;
+}
+
+.app-sidebar > .sidebar-group:first-of-type {
+    max-height: 50%;
+}
+
+.app-sidebar > .sidebar-group:nth-of-type(2) {
+    max-height: 50%;
+}
+
+.app-sidebar > .sidebar-group:last-of-type {
+    max-height: 50%;
+    overflow: auto;
+}
+
+.sidebar-buttons-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: scroll;
+    scrollbar-width: thin;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.sidebar-title {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    color: var(--pf-fg-100);
+    padding: 0;
+    margin: 0 0 10px;
+}
+
+.sidebar-button {
+    background: none;
+    text-align: start;
+    font-size: 18px;
+    border: none;
+    margin: 2px 0;
+    border-radius: 15px;
+}

@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { GamesGrid } from "./GameGrid.jsx";
 import { allGames, loadDataFromFile, saveDataToFile } from "./Store.jsx";
 import { dataTypes } from "./DataTypes.jsx";
+import { SidebarGroup } from "./Components.jsx";
 
 function AppHeader({ searchState }) {
     const [search, setSearch] = searchState;
@@ -61,63 +62,13 @@ function AppHeader({ searchState }) {
     );
 }
 
-export function SidebarButton({ value, dataTypeKey, setSelection }) {
-    const [checked, setChecked] = useState(false);
-    const handleChange = (e) => {
-        const isChecked = e.currentTarget.checked;
-        setChecked(isChecked); // set button state
-        setSelection(prevSelection => {
-            return isChecked
-                ? [...prevSelection, value] // select filter
-                : prevSelection.filter(item => item !== value); // deselect filter
-        });
-    };
-
-    return (
-        <ToggleButton
-            id={"btn-sidebar-" + dataTypeKey + "-" + value}
-            value={value}
-            className="sidebar-button"
-            type="checkbox"
-            checked={checked}
-            draggable="true"
-            onChange={handleChange}
-            onDragStart={(e) => {
-                e.dataTransfer.setData("item", value);
-                e.dataTransfer.setData("dataTypeKey", dataTypeKey);
-            }}
-        >
-            {value}
-        </ToggleButton>
-    );
-}
-
-function SidebarGroup({ dataType, setSelection }) {
-    const title = dataType.plural.toUpperCase();
-    const allDataList = dataType.allDataList;
-    return (
-        <Row className="sidebar-group">
-            <p className="sidebar-title">{title}</p>
-            <div className="sidebar-buttons-list">
-                {allDataList.map((item, index) =>
-                    <SidebarButton
-                        key={index}
-                        value={item}
-                        dataTypeKey={dataType.key}
-                        setSelection={setSelection}
-                    />
-                )}
-            </div>
-        </Row>
-    );
-}
-
-function Sidebar(props) {
+function AppSidebar(props) {
     const { dataTypes, selectionSetters } = props;
     return (
-        <div className="sidebar">
+        <div className="app-sidebar">
             {dataTypes.map((dataType, index) =>
-                <SidebarGroup key={dataType.single} dataType={dataType} setSelection={selectionSetters[index]} />)}
+                <SidebarGroup key={dataType.key} dataType={dataType} dataList={dataType.allDataList}
+                              setSelection={selectionSetters[index]} />)}
         </div>
     );
 }
@@ -145,8 +96,8 @@ export default function App() {
         <>
             <AppHeader searchState={[search, setSearch]} />
             <div id="main-content">
-                <Sidebar dataTypes={[dataTypes.friend, dataTypes.category, dataTypes.status]}
-                         selectionSetters={[setSelectedFriends, setSelectedCategories, setSelectedStatuses]} />
+                <AppSidebar dataTypes={[dataTypes.friend, dataTypes.category, dataTypes.status]}
+                            selectionSetters={[setSelectedFriends, setSelectedCategories, setSelectedStatuses]} />
                 <GamesGrid filteredGames={filteredGames} />
             </div>
             <ToastContainer />

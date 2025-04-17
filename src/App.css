@@ -17,7 +17,7 @@
     display: flex;
 }
 
-.sidebar {
+.app-sidebar {
     max-width: 300px;
     min-width: 300px;
     display: flex;
@@ -25,54 +25,4 @@
     /*0 margin on the sidebar-right, for an exact gap with the grid*/
     margin: 10px 0 10px 10px;
     gap: 10px;
-}
-
-.sidebar-group {
-    display: flex;
-    flex-direction: column;
-    margin: 0;
-    padding: 1rem;
-    border-radius: 20px;
-    background-color: var(--pf-bg-900);
-}
-
-.sidebar-group:first-child {
-    max-height: 50%;
-}
-
-.sidebar-group:nth-child(2) {
-    max-height: 50%;
-}
-
-.sidebar-group:last-child {
-    height: 100%;
-    overflow: auto;
-}
-
-.sidebar-buttons-list {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: scroll;
-    scrollbar-width: thin;
-    overflow-x: hidden;
-    overflow-y: auto;
-}
-
-.sidebar-title {
-    font-size: 20px;
-    font-weight: bold;
-    /*color: #777b84;*/
-    color: var(--pf-fg-100);
-    padding: 0;
-    margin: 0 0 10px;
-}
-
-.sidebar-button {
-    background: none;
-    text-align: start;
-    font-size: 18px;
-    border: none;
-    margin: 2px 0;
-    border-radius: 15px;
 }

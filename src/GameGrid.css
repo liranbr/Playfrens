@@ -1,15 +1,3 @@
-.game-card {
-    width: 100%;
-    aspect-ratio: 1 / 1.5;
-    margin: 0;
-    padding: 0;
-    border: 0;
-    cursor: pointer;
-    background-color: transparent;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.8);
-    transition: 0.3s ease;
-}
-
 .pf-modal {
     .modal-content {
         display: flex;
@@ -48,6 +36,16 @@
         border-radius: 8px;
     }
 
+    .modal-card-bg {
+        position: absolute;
+        height: 900px;
+        width: 600px;
+        background-size: cover;
+        background-position: center;
+        --bg-url: url('/public/cards/missing_image.png');
+        background-image: linear-gradient(rgba(0, 0, 0, 0.66), rgba(0, 0, 0, 0.66)), var(--bg-url);
+    }
+
     .modal-sidebar {
         width: 300px;
         height: 900px;
@@ -68,20 +66,23 @@
     transition: 0.2s opacity;
 }
 
-.game-card img {
+.game-card {
     width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
+    aspect-ratio: 1 / 1.5;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    cursor: pointer;
+    background-color: transparent;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.8);
+    transition: 0.3s ease;
 
-.modal-card-bg {
-    position: absolute;
-    height: 900px;
-    width: 600px;
-    background-size: cover;
-    background-position: center;
-    --bg-url: url('/public/cards/missing_image.png');
-    background-image: linear-gradient(rgba(0, 0, 0, 0.66), rgba(0, 0, 0, 0.66)), var(--bg-url);
+    & img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+
+    }
 }
 
 .game-card:hover {
@@ -131,6 +132,9 @@
     background: none;
     border: 1px solid var(--pf-fg-100);
     border-radius: 8px;
+    right: 0;
+    left: 0;
+    width: 100%;
 }
 
 .game-note:focus {

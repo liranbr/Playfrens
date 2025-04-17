@@ -86,7 +86,7 @@ const GameNoteArea = observer(({ game }) => {
         setNote(game.note);
     };
     return (
-        <textarea className="game-note" placeholder="Note" rows={3}
+        <textarea className="game-note" placeholder="Note" rows={5}
                   value={note} onChange={handleNoteChange} />
     );
 });
@@ -121,9 +121,12 @@ const GameModal = observer(({ game, show, handleHide }) => {
                 <ModalSidebarGroup dataType={dataTypes.friend} game={game} />
             </div>
             <div className="modal-card">
+                {/* need two background images to handle transparent border blurring */}
                 <div className="modal-card-bg" style={{
                     "--bg-url": `url("${game.imageCoverPath}")`,
-                    zIndex: -2
+                    zIndex: -2,
+                    filter: "blur(4px)",
+                    transform: "scale(1.01)"
                 }} />
                 <div className="modal-card-bg" style={{
                     "--bg-url": `url("${game.imageCoverPath}")`,
@@ -143,12 +146,19 @@ const GameModal = observer(({ game, show, handleHide }) => {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body
-                    style={{ display: "flex", flexDirection: "column", justifyContent: "end", padding: 0 }}>
-                    <Row id="playthroughs">
+                    style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "end",
+                        padding: 0,
+                        overflow: "scroll"
+                    }}>
+                    <div className="w-100 d-flex overflow-auto">
                         <GameNoteArea game={game} />
-                    </Row>
+                    </div>
                 </Modal.Body>
-                <Modal.Footer>
+                {/*footer needs to be sticky*/}
+                <Modal.Footer style={{ position: "sticky", bottom: 0 }}>
                     <Button variant="primary" onClick={handleHide}>
                         Save
                     </Button>

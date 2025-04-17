@@ -11,13 +11,6 @@ import { SidebarGroup } from "./Components.jsx";
 function AppHeader({ searchState }) {
     const [search, setSearch] = searchState;
     const updateSearch = (e) => setSearch(e.target.value);
-    const handleJsonImport = () => {
-        const fileSelector = document.getElementById("file-selector");
-        const currentAccept = fileSelector.getAttribute("accept");
-        fileSelector.setAttribute("accept", ".json");
-        fileSelector.click();
-        fileSelector.setAttribute("accept", currentAccept);
-    };
     return (
         <Navbar className="app-header" fixed="top">
             <Navbar.Brand>
@@ -32,14 +25,17 @@ function AppHeader({ searchState }) {
             </Navbar.Brand>
             <input
                 type="file"
-                id="file-selector"
+                id="json-selector"
+                accept=".json"
                 style={{ display: "none" }}
                 onChange={(e) => loadDataFromFile(e.target.files[0])}
             />
             <Nav className="me-auto">
                 {/* temp links for dev */}
                 <NavDropdown title="File" id="basic-nav-dropdown">
-                    <NavDropdown.Item onClick={handleJsonImport}>
+                    <NavDropdown.Item onClick={() => {
+                        document.getElementById("json-selector").click();
+                    }}>
                         Import Data</NavDropdown.Item>
                     <NavDropdown.Item onClick={saveDataToFile}>
                         Export Data</NavDropdown.Item>

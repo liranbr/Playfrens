@@ -147,6 +147,7 @@
     color: #fff;
 }
 
+/* TODO: reuse sidebar-button CSS */
 .modal-list-button {
     background: none;
     text-align: start;
@@ -155,6 +156,7 @@
     margin: 2px 0;
     border-radius: 15px;
     --bs-btn-active-bg: none;
+    transition: none;
 }
 
 .modal-list-button:hover {

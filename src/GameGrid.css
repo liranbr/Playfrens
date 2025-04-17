@@ -74,6 +74,16 @@
     object-fit: contain;
 }
 
+.modal-card-bg {
+    position: absolute;
+    height: 900px;
+    width: 600px;
+    background-size: cover;
+    background-position: center;
+    --bg-url: url('/public/cards/missing_image.png');
+    background-image: linear-gradient(rgba(0, 0, 0, 0.66), rgba(0, 0, 0, 0.66)), var(--bg-url);
+}
+
 .game-card:hover {
     transform: scale(1.05);
     box-shadow: 0 15px 22px rgba(0, 0, 0, 0.6);

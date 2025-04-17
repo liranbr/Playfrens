@@ -1,7 +1,7 @@
 import "./App.css";
 import "./GameGrid.css";
 import { Button, Col, Form, Modal, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GameObject } from "./Store.jsx";
 import { dataTypes } from "./DataTypes.jsx";
 import { observer } from "mobx-react-lite";
@@ -94,6 +94,9 @@ const GameNoteArea = observer(({ game }) => {
 const ModalSidebarGroup = observer(({ game, dataType }) => {
     const title = dataType.plural.toUpperCase();
     const gameDataList = dataType.gameDataList(game);
+    const handleRemove = (item) => {
+        dataType.remove(game, item);
+    };
     return (
         <Row className="sidebar-group">
             <p className="sidebar-title">{title}</p>
@@ -103,6 +106,7 @@ const ModalSidebarGroup = observer(({ game, dataType }) => {
                         key={index}
                         value={item}
                         dataTypeKey={dataType.key}
+                        handleRemove={handleRemove}
                     />
                 )}
             </div>
@@ -117,31 +121,15 @@ const GameModal = observer(({ game, show, handleHide }) => {
                 <ModalSidebarGroup dataType={dataTypes.friend} game={game} />
             </div>
             <div className="modal-card">
-                <div
-                    className="modal-card-bg"
-                    style={{
-                        position: "absolute",
-                        height: "900px",
-                        width: "600px",
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
-                        zIndex: -2,
-                        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.66), rgba(0, 0, 0, 0.66)), url("${game.imageCoverPath}")`
-                    }}
-                />
-                <div
-                    className="modal-card-bg"
-                    style={{
-                        position: "absolute",
-                        height: "900px",
-                        width: "600px",
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
-                        zIndex: -1,
-                        filter: "blur(8px)",
-                        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.66), rgba(0, 0, 0, 0.66)), url("${game.imageCoverPath}")`
-                    }}
-                />
+                <div className="modal-card-bg" style={{
+                    "--bg-url": `url("${game.imageCoverPath}")`,
+                    zIndex: -2
+                }} />
+                <div className="modal-card-bg" style={{
+                    "--bg-url": `url("${game.imageCoverPath}")`,
+                    zIndex: -1,
+                    filter: "blur(8px)"
+                }} />
                 <Modal.Header closeButton>
                     <Modal.Title
                         style={{
@@ -204,10 +192,27 @@ export function GamesGrid({ filteredGames }) {
         setModalGame(game);
         setShowModal(true);
     };
+    // useEffect to update the grid justification if there aren't enough items to fill the row
+    const gridRef = useRef(null);
+    useEffect(() => {
+        const grid = gridRef.current;
+        if (!grid) return;
+
+        const updateGridJustification = () => {
+            const styles = getComputedStyle(grid);
+            const rows = styles.getPropertyValue("grid-template-rows").trim().split(" ");
+            const isSingleRow = rows.length === 1;
+            grid.style.justifyContent = isSingleRow ? "start" : "space-between";
+        };
+
+        updateGridJustification();
+        window.addEventListener("resize", updateGridJustification);
+    }, [filteredGames]);
+
     // need the empty div to contain the grid correctly
     return (
         <div style={{ width: "100%", overflow: "scroll" }}>
-            <div className="games-grid">
+            <div className="games-grid" ref={gridRef}>
                 {filteredGames.map((game, index) => (<GameCard
                     key={index}
                     game={game}

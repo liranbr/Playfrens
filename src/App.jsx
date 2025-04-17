@@ -11,7 +11,13 @@ import { SidebarGroup } from "./Components.jsx";
 function AppHeader({ searchState }) {
     const [search, setSearch] = searchState;
     const updateSearch = (e) => setSearch(e.target.value);
-
+    const handleJsonImport = () => {
+        const fileSelector = document.getElementById("file-selector");
+        const currentAccept = fileSelector.getAttribute("accept");
+        fileSelector.setAttribute("accept", ".json");
+        fileSelector.click();
+        fileSelector.setAttribute("accept", currentAccept);
+    };
     return (
         <Navbar className="app-header" fixed="top">
             <Navbar.Brand>
@@ -24,23 +30,24 @@ function AppHeader({ searchState }) {
                 />
                 <b> Playfrens</b>
             </Navbar.Brand>
-            <Nav className="me-auto">
-                {/* temp links for dev */}
-                <NavDropdown title="File" id="basic-nav-dropdown">
-                    <NavDropdown.Item onClick={() => document.getElementById("file-selector").click()}>
-                        Import Data</NavDropdown.Item>
-                    <NavDropdown.Item onClick={saveDataToFile}>Export Data</NavDropdown.Item>
-                </NavDropdown>
-                <Nav.Link href="https://trello.com/b/H9Cln6UD/playfrens">Kanban</Nav.Link>
-                <Nav.Link href="https://github.com/liranbr/Playfrens">GitHub</Nav.Link>
-                <Nav.Link href="https://react-bootstrap.netlify.app/docs/components/cards">Bootstrap</Nav.Link>
-            </Nav>
             <input
                 type="file"
                 id="file-selector"
                 style={{ display: "none" }}
                 onChange={(e) => loadDataFromFile(e.target.files[0])}
             />
+            <Nav className="me-auto">
+                {/* temp links for dev */}
+                <NavDropdown title="File" id="basic-nav-dropdown">
+                    <NavDropdown.Item onClick={handleJsonImport}>
+                        Import Data</NavDropdown.Item>
+                    <NavDropdown.Item onClick={saveDataToFile}>
+                        Export Data</NavDropdown.Item>
+                </NavDropdown>
+                <Nav.Link href="https://trello.com/b/H9Cln6UD/playfrens">Kanban</Nav.Link>
+                <Nav.Link href="https://github.com/liranbr/Playfrens">GitHub</Nav.Link>
+                <Nav.Link href="https://react-bootstrap.netlify.app/docs/components/cards">Bootstrap</Nav.Link>
+            </Nav>
             <Form inline="true" className="d-flex">
                 <Form.Control
                     type="text"
@@ -48,6 +55,8 @@ function AppHeader({ searchState }) {
                     value={search}
                     onChange={updateSearch}
                     style={{ background: "none" }}
+                    onKeyDown={(e) => e.key === "Enter" ? e.preventDefault() : null}
+                    onSubmit={(e) => e.preventDefault()}
                 />
                 <Button variant="outline-secondary" type="reset" onClick={updateSearch}
                         style={{

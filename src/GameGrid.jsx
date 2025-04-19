@@ -151,7 +151,7 @@ const GameModal = observer(({ game, show, handleHide }) => {
                         flexDirection: "column",
                         justifyContent: "end",
                         padding: 0,
-                        overflow: "scroll"
+                        overflow: "auto"
                     }}>
                     <div className="w-100 d-flex overflow-auto">
                         <GameNoteArea game={game} />
@@ -202,6 +202,7 @@ export function GamesGrid({ filteredGames }) {
         setModalGame(game);
         setShowModal(true);
     };
+
     // useEffect to update the grid justification if there aren't enough items to fill the row
     const gridRef = useRef(null);
     useEffect(() => {
@@ -212,7 +213,7 @@ export function GamesGrid({ filteredGames }) {
             const styles = getComputedStyle(grid);
             const rows = styles.getPropertyValue("grid-template-rows").trim().split(" ");
             const isSingleRow = rows.length === 1;
-            grid.style.justifyContent = isSingleRow ? "start" : "space-between";
+            grid.style.justifyContent = isSingleRow ? "left" : "space-between";
         };
 
         updateGridJustification();
@@ -221,7 +222,7 @@ export function GamesGrid({ filteredGames }) {
 
     // need the empty div to contain the grid correctly
     return (
-        <div style={{ width: "100%", overflow: "scroll" }}>
+        <div style={{ width: "100%", overflowY: "auto" }}>
             <div className="games-grid" ref={gridRef}>
                 {filteredGames.map((game, index) => (<GameCard
                     key={index}

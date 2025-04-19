@@ -1,3 +1,38 @@
+.game-card {
+    width: 100%;
+    aspect-ratio: 1 / 1.5;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    cursor: pointer;
+    background-color: transparent;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.8);
+    transition: 0.3s ease;
+
+    & img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+}
+
+.game-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 15px 22px rgba(0, 0, 0, 0.6);
+    z-index: 1;
+}
+
+.games-grid {
+    width: 100%;
+    display: grid;
+    box-sizing: border-box;
+    grid-auto-flow: row;
+    justify-content: space-between;
+    grid-gap: 30px;
+    padding: 30px;
+    grid-template-columns: repeat(auto-fit, 245px);
+}
+
 .pf-modal {
     .modal-content {
         display: flex;
@@ -66,42 +101,6 @@
     transition: 0.2s opacity;
 }
 
-.game-card {
-    width: 100%;
-    aspect-ratio: 1 / 1.5;
-    margin: 0;
-    padding: 0;
-    border: 0;
-    cursor: pointer;
-    background-color: transparent;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.8);
-    transition: 0.3s ease;
-
-    & img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-
-    }
-}
-
-.game-card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 15px 22px rgba(0, 0, 0, 0.6);
-    z-index: 1;
-}
-
-.games-grid {
-    width: 100%;
-    display: grid;
-    box-sizing: border-box;
-    grid-auto-flow: row;
-    justify-content: space-between;
-    grid-gap: 30px;
-    padding: 30px;
-    grid-template-columns: repeat(auto-fit, 247px);
-}
-
 .modal-list {
     display: flex;
     flex-direction: column;
@@ -139,12 +138,6 @@
 
 .game-note:focus {
     outline: 1px solid var(--pf-fg-100);
-}
-
-/* change the CSS variable bs-btn-active-color to black*/
-.bs-btn-active-color {
-    background-color: #000;
-    color: #fff;
 }
 
 /* TODO: reuse sidebar-button CSS */

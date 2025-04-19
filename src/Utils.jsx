@@ -10,7 +10,7 @@ const toastOptions = {
     draggable: true,
     progress: undefined,
     theme: "dark",
-    transition: Bounce,
+    transition: Bounce
 };
 
 export function toastError(message) {
@@ -19,4 +19,13 @@ export function toastError(message) {
 
 export function toastSuccess(message) {
     toast.success(message, toastOptions);
+}
+
+export function insertSortedByOrder(item, array, orderArray) {
+    if (!orderArray.includes(item)) {
+        console.error(`Item ${item} is not in the order array`);
+        return array;
+    }
+    array = [...array, item];
+    return array.sort((a, b) => orderArray.indexOf(a) - orderArray.indexOf(b));
 }

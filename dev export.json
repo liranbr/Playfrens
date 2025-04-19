@@ -27,8 +27,8 @@
     ],
     "allStatuses": [
         "Playing",
-        "LFM",
         "Paused",
+        "LFM",
         "Later",
         "Abandoned",
         "Finished"
@@ -40,25 +40,19 @@
             "friends": [
                 "Sami"
             ],
-            "categories": [
-                "Playthrough",
-                "Round-based"
-            ],
-            "statuses": []
+            "categories": [],
+            "statuses": [],
+            "note": ""
         },
         {
             "title": "Celeste",
             "imageCoverPath": "https://cdn2.steamgriddb.com/grid/b2dfad356a40408faf455dcf85084f7d.png",
             "friends": [
-                "Nibbix",
-                "Gooey"
+                "Nibbix"
             ],
-            "categories": [
-                "Round-based"
-            ],
-            "statuses": [
-                "Playing"
-            ]
+            "categories": [],
+            "statuses": [],
+            "note": ""
         },
         {
             "title": "CrossCode",
@@ -67,7 +61,8 @@
                 "Nibbix"
             ],
             "categories": [],
-            "statuses": []
+            "statuses": [],
+            "note": "Crossycodeaaaa"
         },
         {
             "title": "Dark Souls I Remastered",
@@ -76,7 +71,8 @@
                 "Sami"
             ],
             "categories": [],
-            "statuses": []
+            "statuses": [],
+            "note": ""
         },
         {
             "title": "Dead Cells",
@@ -85,7 +81,8 @@
                 "Sami"
             ],
             "categories": [],
-            "statuses": []
+            "statuses": [],
+            "note": ""
         },
         {
             "title": "Hades",
@@ -94,7 +91,8 @@
                 "Nibbix"
             ],
             "categories": [],
-            "statuses": []
+            "statuses": [],
+            "note": ""
         },
         {
             "title": "Heroes of the Storm",
@@ -103,7 +101,8 @@
                 "Sami"
             ],
             "categories": [],
-            "statuses": []
+            "statuses": [],
+            "note": ""
         },
         {
             "title": "Hollow Knight",
@@ -112,7 +111,8 @@
                 "Sami"
             ],
             "categories": [],
-            "statuses": []
+            "statuses": [],
+            "note": ""
         },
         {
             "title": "Tears of the Kingdom",
@@ -121,7 +121,8 @@
                 "Sami"
             ],
             "categories": [],
-            "statuses": []
+            "statuses": [],
+            "note": ""
         },
         {
             "title": "Outer Wilds",
@@ -130,7 +131,8 @@
                 "Sami"
             ],
             "categories": [],
-            "statuses": []
+            "statuses": [],
+            "note": ""
         },
         {
             "title": "Sekiro - Shadows Die Twice",
@@ -139,7 +141,8 @@
                 "Sami"
             ],
             "categories": [],
-            "statuses": []
+            "statuses": [],
+            "note": ""
         },
         {
             "title": "Subnautica",
@@ -148,7 +151,8 @@
                 "Nibbix"
             ],
             "categories": [],
-            "statuses": []
+            "statuses": [],
+            "note": ""
         },
         {
             "title": "Terraria",
@@ -157,7 +161,8 @@
                 "Nibbix"
             ],
             "categories": [],
-            "statuses": []
+            "statuses": [],
+            "note": ""
         },
         {
             "title": "Tunic",
@@ -166,7 +171,8 @@
                 "Nibbix"
             ],
             "categories": [],
-            "statuses": []
+            "statuses": [],
+            "note": ""
         },
         {
             "title": "V Rising",
@@ -175,7 +181,8 @@
                 "Sami"
             ],
             "categories": [],
-            "statuses": []
+            "statuses": [],
+            "note": ""
         },
         {
             "title": "The Witcher 3",
@@ -184,7 +191,8 @@
                 "Sami"
             ],
             "categories": [],
-            "statuses": []
+            "statuses": [],
+            "note": ""
         }
     ]
 }

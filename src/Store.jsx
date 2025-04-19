@@ -1,5 +1,6 @@
 import { toastError, toastSuccess } from "./Utils.jsx";
 import { action, autorun, makeObservable, observable } from "mobx";
+import { insertSortedByOrder } from "./Utils.jsx";
 
 /**
  * @typedef {Object} GameObject
@@ -37,7 +38,7 @@ export class GameObject {
 
     addFriend(friend) {
         if (!this.friends.includes(friend)) {
-            this.friends = [...this.friends, friend];
+            this.friends = insertSortedByOrder(friend, this.friends, allFriends);
             toastSuccess(`Added ${friend} as a friend for ${this.title}`);
         } else {
             toastError(`${friend} is already a friend for ${this.title}`);
@@ -55,7 +56,7 @@ export class GameObject {
 
     addCategory(category) {
         if (!this.categories.includes(category)) {
-            this.categories = [...this.categories, category];
+            this.categories = insertSortedByOrder(category, this.categories, allCategories);
             toastSuccess(`Added ${category} as a category for ${this.title}`);
         } else {
             toastError(`${category} is already a category for ${this.title}`);
@@ -73,7 +74,7 @@ export class GameObject {
 
     addStatus(status) {
         if (!this.statuses.includes(status)) {
-            this.statuses = [...this.statuses, status];
+            this.statuses = insertSortedByOrder(status, this.statuses, allStatuses);
             toastSuccess(`Added ${status} as a status for ${this.title}`);
         } else {
             toastError(`${status} is already a status for ${this.title}`);

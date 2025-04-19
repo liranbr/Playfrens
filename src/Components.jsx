@@ -4,15 +4,6 @@ import "./Components.css";
 import { Row, ToggleButton } from "react-bootstrap";
 import { useState } from "react";
 
-export const ButtonAdd = ({ onClick, children }) => {
-    return (
-        <button className="icon-button" onClick={onClick}>
-            <MdAdd />
-            {children}
-        </button>
-    );
-};
-
 export function SidebarButton({ value, dataTypeKey, setSelection }) {
     const [checked, setChecked] = useState(false);
     const handleChange = (e) => {
@@ -51,7 +42,9 @@ export function SidebarGroup({ dataType, dataList, setSelection }) {
             <div className="sidebar-top-panel">
                 <p className="sidebar-title">{title}</p>
                 <div className="ms-auto">
-                    <ButtonAdd />
+                    <button className="icon-button">
+                        <MdAdd />
+                    </button>
                 </div>
             </div>
             <div className="sidebar-buttons-list">

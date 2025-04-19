@@ -8,10 +8,11 @@ import { allGames, loadDataFromFile, saveDataToFile } from "./Store.jsx";
 import { dataTypes } from "./DataTypes.jsx";
 import { SidebarGroup } from "./Components.jsx";
 import { setForceFilterUpdateCallback } from "./Utils.jsx";
+import { MdClose } from "react-icons/md";
 
 function AppHeader({ searchState }) {
     const [search, setSearch] = searchState;
-    const updateSearch = (e) => setSearch(e.target.value);
+    const updateSearch = (e) => setSearch(e.target.value || "");
     return (
         <Navbar className="app-header" fixed="top">
             <Navbar.Brand>
@@ -55,14 +56,19 @@ function AppHeader({ searchState }) {
                     onKeyDown={(e) => e.key === "Enter" ? e.preventDefault() : null}
                     onSubmit={(e) => e.preventDefault()}
                 />
-                <Button variant="outline-secondary" type="reset" onClick={updateSearch}
-                        style={{
-                            display: search ? "block" : "none",
-                            position: "absolute",
-                            right: "16px",
-                            border: "none",
-                            background: "none"
-                        }}>x</Button>
+                <button type="reset" className="icon-button" onClick={updateSearch} style={{
+                    display: search ? "flex" : "none",
+                    position: "absolute",
+                    fontSize: "20px",
+                    right: "16px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    border: "none",
+                    background: "none",
+                    alignItems: "center"
+                }}>
+                    <MdClose />
+                </button>
             </Form>
         </Navbar>
     );

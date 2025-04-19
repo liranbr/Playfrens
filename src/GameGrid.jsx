@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { GameObject } from "./Store.jsx";
 import { dataTypes } from "./DataTypes.jsx";
 import { observer } from "mobx-react-lite";
-import { ButtonAdd } from "./Components.jsx";
+import { MdAdd, MdClose } from "react-icons/md";
 
 const GameNoteArea = observer(({ game }) => {
     const [note, setNote] = useState(game.note);
@@ -34,7 +34,8 @@ const ModalSidebarGroup = observer(({ game, dataType }) => {
             <div className="sidebar-top-panel">
                 <p className="sidebar-title">{title}</p>
                 <div className="ms-auto">
-                    <ButtonAdd className={"position-relative d-block"}>
+                    <button className={"icon-button"}>
+                        <MdAdd />
                         <Form.Select
                             ref={selectRef}
                             onChange={handleAdd}
@@ -54,7 +55,7 @@ const ModalSidebarGroup = observer(({ game, dataType }) => {
                                 <option key={String(item)} value={String(item)}>{item}</option>
                             ))}
                         </Form.Select>
-                    </ButtonAdd>
+                    </button>
                 </div>
             </div>
             <div className="sidebar-buttons-list">
@@ -97,17 +98,21 @@ const GameModal = observer(({ game, show, handleHide }) => {
                     zIndex: -1,
                     filter: "blur(8px)"
                 }} />
-                <Modal.Header closeButton>
+                <Modal.Header style={{ padding: "14px" }}>
                     <Modal.Title
                         style={{
-                            marginLeft: "32px",
                             textAlign: "center",
                             fontWeight: "bold",
-                            width: "100%"
+                            position: "absolute",
+                            left: "50%",
+                            transform: "translateX(-50%)"
                         }}
                     >
                         {game.title}
                     </Modal.Title>
+                    <button className="icon-button ms-auto" onClick={handleHide}>
+                        <MdClose />
+                    </button>
                 </Modal.Header>
                 <Modal.Body
                     style={{

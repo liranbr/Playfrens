@@ -85,19 +85,16 @@ export default function App() {
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [selectedStatuses, setSelectedStatuses] = useState([]);
     const [forceFilterUpdate, setForceFilterUpdate] = useState(0);
+    setForceFilterUpdateCallback(() => {
+        setForceFilterUpdate(prev => prev + 1); // used in Utils to trigger a filter update
+    });
 
-    useEffect(() => {
-        setForceFilterUpdateCallback(() => {
-            setForceFilterUpdate(prev => prev + 1);
-        });
-    }, []);
-
+    // Game Title includes the search value
+    // If friends selected, all friends are in the game
+    // If categories selected, game belongs to at least one of them
+    // If statuses selected, game has at least one of them
     const filteredGames = useMemo(() =>
             allGames.filter((game) =>
-                // Game Title includes the search value
-                // If friends selected, all friends are in the game
-                // If categories selected, game belongs to at least one of them
-                // If statuses selected, game has at least one of them
                 game.title.toLowerCase().includes(search.toLowerCase()) &&
                 selectedFriends.every(friend => game.friends.includes(friend)) &&
                 (!selectedCategories.length || selectedCategories.some(category => game.categories.includes(category))) &&

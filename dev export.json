@@ -40,7 +40,9 @@
             "friends": [
                 "Sami"
             ],
-            "categories": [],
+            "categories": [
+                "Playthrough"
+            ],
             "statuses": [],
             "note": ""
         },
@@ -50,7 +52,9 @@
             "friends": [
                 "Nibbix"
             ],
-            "categories": [],
+            "categories": [
+                "Playthrough"
+            ],
             "statuses": [],
             "note": ""
         },
@@ -60,7 +64,9 @@
             "friends": [
                 "Nibbix"
             ],
-            "categories": [],
+            "categories": [
+                "Playthrough"
+            ],
             "statuses": [],
             "note": "Crossycodeaaaa"
         },
@@ -70,7 +76,9 @@
             "friends": [
                 "Sami"
             ],
-            "categories": [],
+            "categories": [
+                "Playthrough"
+            ],
             "statuses": [],
             "note": ""
         },
@@ -80,7 +88,10 @@
             "friends": [
                 "Sami"
             ],
-            "categories": [],
+            "categories": [
+                "Playthrough",
+                "Round-based"
+            ],
             "statuses": [],
             "note": ""
         },
@@ -90,7 +101,10 @@
             "friends": [
                 "Nibbix"
             ],
-            "categories": [],
+            "categories": [
+                "Playthrough",
+                "Round-based"
+            ],
             "statuses": [],
             "note": ""
         },
@@ -98,9 +112,25 @@
             "title": "Heroes of the Storm",
             "imageCoverPath": "https://cdn2.steamgriddb.com/grid/9946800209f33bce8ba0dd67bf724ce5.png",
             "friends": [
-                "Sami"
+                "Aco",
+                "Bram",
+                "Cake",
+                "Gooey",
+                "Labreris",
+                "MechArcana",
+                "MindHawk",
+                "Nibbix",
+                "Sami",
+                "shinn",
+                "Tristan",
+                "Twinkle",
+                "Vented",
+                "VX",
+                "wesje101"
             ],
-            "categories": [],
+            "categories": [
+                "Round-based"
+            ],
             "statuses": [],
             "note": ""
         },
@@ -110,7 +140,9 @@
             "friends": [
                 "Sami"
             ],
-            "categories": [],
+            "categories": [
+                "Playthrough"
+            ],
             "statuses": [],
             "note": ""
         },
@@ -120,7 +152,9 @@
             "friends": [
                 "Sami"
             ],
-            "categories": [],
+            "categories": [
+                "Playthrough"
+            ],
             "statuses": [],
             "note": ""
         },
@@ -130,7 +164,9 @@
             "friends": [
                 "Sami"
             ],
-            "categories": [],
+            "categories": [
+                "Playthrough"
+            ],
             "statuses": [],
             "note": ""
         },
@@ -140,7 +176,9 @@
             "friends": [
                 "Sami"
             ],
-            "categories": [],
+            "categories": [
+                "Playthrough"
+            ],
             "statuses": [],
             "note": ""
         },
@@ -150,7 +188,9 @@
             "friends": [
                 "Nibbix"
             ],
-            "categories": [],
+            "categories": [
+                "Playthrough"
+            ],
             "statuses": [],
             "note": ""
         },
@@ -160,7 +200,10 @@
             "friends": [
                 "Nibbix"
             ],
-            "categories": [],
+            "categories": [
+                "Playthrough",
+                "Persistent World"
+            ],
             "statuses": [],
             "note": ""
         },
@@ -170,7 +213,9 @@
             "friends": [
                 "Nibbix"
             ],
-            "categories": [],
+            "categories": [
+                "Playthrough"
+            ],
             "statuses": [],
             "note": ""
         },
@@ -180,7 +225,10 @@
             "friends": [
                 "Sami"
             ],
-            "categories": [],
+            "categories": [
+                "Playthrough",
+                "Persistent World"
+            ],
             "statuses": [],
             "note": ""
         },
@@ -190,7 +238,9 @@
             "friends": [
                 "Sami"
             ],
-            "categories": [],
+            "categories": [
+                "Playthrough"
+            ],
             "statuses": [],
             "note": ""
         }

@@ -140,20 +140,9 @@
     outline: 1px solid var(--pf-fg-100);
 }
 
-/* TODO: reuse sidebar-button CSS */
-.modal-list-button {
-    background: none;
-    text-align: start;
-    font-size: 18px;
-    border: 1px solid #80848e00;
-    margin: 2px 0;
-    border-radius: 15px;
+.modal-sidebar-button:hover {
     --bs-btn-active-bg: none;
-    transition: none;
-}
-
-.modal-list-button:hover {
     background: none;
-    border: 1px solid #80848e;
+    outline: 1px solid #80848e;
     color: #fff;
 }

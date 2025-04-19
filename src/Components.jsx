@@ -1,4 +1,4 @@
-import { FaPlus } from "react-icons/fa";
+import { MdAdd } from "react-icons/md";
 import "./App.css";
 import "./Components.css";
 import { Row, ToggleButton } from "react-bootstrap";
@@ -6,8 +6,8 @@ import { useState } from "react";
 
 export const ButtonAdd = ({ onClick, children }) => {
     return (
-        <button className="button-add" onClick={onClick}>
-            <FaPlus />
+        <button className="icon-button" onClick={onClick}>
+            <MdAdd />
             {children}
         </button>
     );
@@ -48,7 +48,12 @@ export function SidebarGroup({ dataType, dataList, setSelection }) {
     const title = dataType.plural.toUpperCase();
     return (
         <Row className="sidebar-group">
-            <p className="sidebar-title">{title}</p>
+            <div className="sidebar-top-panel">
+                <p className="sidebar-title">{title}</p>
+                <div className="ms-auto">
+                    <ButtonAdd />
+                </div>
+            </div>
             <div className="sidebar-buttons-list">
                 {dataList.map((item, index) =>
                     <SidebarButton

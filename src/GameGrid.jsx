@@ -7,78 +7,6 @@ import { dataTypes } from "./DataTypes.jsx";
 import { observer } from "mobx-react-lite";
 import { ButtonAdd } from "./Components.jsx";
 
-function ModalListButton({ value, dataType, handleRemove }) {
-    return (
-        <OverlayTrigger overlay={<Tooltip style={{ transition: "none" }}>Click to remove</Tooltip>}>
-            <Button
-                id={"btn-modal-" + dataType + "-" + value}
-                value={value}
-                className="modal-list-button"
-                draggable="true"
-                onClick={() => handleRemove(value)}
-            >
-                {value}
-            </Button>
-        </OverlayTrigger>
-    );
-}
-
-const ListAndAdder = observer(({ game, dataType }) => {
-    const cardTitle = dataType.plural;
-    const allDataList = dataType.allDataList;
-    const gameDataList = dataType.gameDataList(game);
-    console.log("ListAndAdder data type:" + dataType.key + ",\ngame data list: " + gameDataList);
-    const selectRef = useRef(null);
-    const handleAdderChange = (e) => {
-        dataType.add(game, e.target.value);
-    };
-    const handleRemove = (item) => {
-        dataType.remove(game, item);
-    };
-
-    return (
-        <div className="modal-list">
-            <div className="title-and-adder">
-                <p className="modal-list-title">{cardTitle}</p>
-                <OverlayTrigger overlay={<Tooltip style={{ transition: "none" }}>Add a {dataType.single}</Tooltip>}>
-                    <div style={{ position: "relative" }}>
-                        <ButtonAdd>
-                            <Form.Select
-                                ref={selectRef}
-                                onChange={handleAdderChange}
-                                style={{
-                                    position: "absolute",
-                                    opacity: 0, // Invisible but clickable, positioned in the button
-                                    cursor: "pointer",
-                                    height: "100%",
-                                    width: "100%",
-                                    top: 0,
-                                    left: 0
-                                }}
-                            >
-                                <option value="" hidden>Add a {dataType.single}</option>
-                                {allDataList.filter(item => !gameDataList.includes(item)).map(item => (
-                                    <option key={String(item)} value={String(item)}>{item}</option>
-                                ))}
-                            </Form.Select>
-                        </ButtonAdd>
-                    </div>
-                </OverlayTrigger>
-            </div>
-            <div key={"gameDataList" + gameDataList.length} className="sidebar-buttons-list">
-                {gameDataList.map((data, index) =>
-                    (<ModalListButton
-                        key={index}
-                        value={data}
-                        dataTypeKey={dataType.key}
-                        handleRemove={handleRemove}
-                    />)
-                )}
-            </div>
-        </div>
-    );
-});
-
 const GameNoteArea = observer(({ game }) => {
     const [note, setNote] = useState(game.note);
     const handleNoteChange = (e) => {
@@ -97,17 +25,53 @@ const ModalSidebarGroup = observer(({ game, dataType }) => {
     const handleRemove = (item) => {
         dataType.remove(game, item);
     };
+    const handleAdd = (item) => {
+        dataType.add(game, item.target.value);
+    };
+    const selectRef = useRef(null);
     return (
         <Row className="sidebar-group">
-            <p className="sidebar-title">{title}</p>
+            <div className="sidebar-top-panel">
+                <p className="sidebar-title">{title}</p>
+                <div className="ms-auto">
+                    <ButtonAdd className={"position-relative d-block"}>
+                        <Form.Select
+                            ref={selectRef}
+                            onChange={handleAdd}
+                            style={{
+                                position: "absolute",
+                                opacity: 0, // Invisible but clickable, positioned in the button
+                                cursor: "pointer",
+                                height: "100%",
+                                width: "30px",
+                                top: 0,
+                                right: 0,
+                                padding: 0
+                            }}
+                        >
+                            <option value="" hidden>Add a {dataType.single}</option>
+                            {dataType.allDataList.filter(item => !gameDataList.includes(item)).map(item => (
+                                <option key={String(item)} value={String(item)}>{item}</option>
+                            ))}
+                        </Form.Select>
+                    </ButtonAdd>
+                </div>
+            </div>
             <div className="sidebar-buttons-list">
                 {gameDataList.map((item, index) =>
-                    <ModalListButton
-                        key={index}
-                        value={item}
-                        dataTypeKey={dataType.key}
-                        handleRemove={handleRemove}
-                    />
+                    <OverlayTrigger
+                        key={"btn-modal-" + dataType.key + "-" + item + "-" + index}
+                        overlay={() => (<Tooltip style={{ transition: "none" }}>
+                            Click to remove
+                        </Tooltip>)}>
+                        <Button
+                            value={item}
+                            className="sidebar-button modal-sidebar-button"
+                            draggable="true"
+                            onClick={() => handleRemove(item)}>
+                            {item}
+                        </Button>
+                    </OverlayTrigger>
                 )}
             </div>
         </Row>

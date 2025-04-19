@@ -1,12 +1,13 @@
 import "./App.css";
 import "react-toastify/dist/ReactToastify.css";
-import { Button, Form, Nav, Navbar, NavDropdown, Row, ToggleButton } from "react-bootstrap";
+import { Button, Form, Nav, Navbar, NavDropdown } from "react-bootstrap";
 import { ToastContainer } from "react-toastify";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { GamesGrid } from "./GameGrid.jsx";
 import { allGames, loadDataFromFile, saveDataToFile } from "./Store.jsx";
 import { dataTypes } from "./DataTypes.jsx";
 import { SidebarGroup } from "./Components.jsx";
+import { setForceFilterUpdateCallback } from "./Utils.jsx";
 
 function AppHeader({ searchState }) {
     const [search, setSearch] = searchState;
@@ -83,19 +84,26 @@ export default function App() {
     const [selectedFriends, setSelectedFriends] = useState([]);
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [selectedStatuses, setSelectedStatuses] = useState([]);
+    const [forceFilterUpdate, setForceFilterUpdate] = useState(0);
+
+    useEffect(() => {
+        setForceFilterUpdateCallback(() => {
+            setForceFilterUpdate(prev => prev + 1);
+        });
+    }, []);
 
     const filteredGames = useMemo(() =>
             allGames.filter((game) =>
                 // Game Title includes the search value
+                // If friends selected, all friends are in the game
+                // If categories selected, game belongs to at least one of them
+                // If statuses selected, game has at least one of them
                 game.title.toLowerCase().includes(search.toLowerCase()) &&
-                // All selected friends are in the game
                 selectedFriends.every(friend => game.friends.includes(friend)) &&
-                // No categories selected, or game belongs to at least one selected category
                 (!selectedCategories.length || selectedCategories.some(category => game.categories.includes(category))) &&
-                // No statuses selected, or game has at least one selected status
                 (!selectedStatuses.length || selectedStatuses.some(status => game.statuses.includes(status)))
             )
-        , [search, selectedFriends, selectedCategories, selectedStatuses]);
+        , [search, selectedFriends, selectedCategories, selectedStatuses, forceFilterUpdate]);
 
     return (
         <>

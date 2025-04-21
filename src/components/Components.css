@@ -38,7 +38,7 @@
     overflow: auto;
 }
 
-.sidebar-top-panel {
+.sidebar-header {
     display: flex;
     position: relative;
     width: 100%;

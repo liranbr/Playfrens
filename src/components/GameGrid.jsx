@@ -1,9 +1,9 @@
-import "./App.css";
+import "../App.css";
 import "./GameGrid.css";
 import { Button, Form, Modal, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
 import { useEffect, useRef, useState } from "react";
-import { GameObject } from "./Store.jsx";
-import { dataTypes } from "./DataTypes.jsx";
+import { GameObject } from "../models/GameObject.jsx";
+import { dataTypes } from "../models/DataTypes.jsx";
 import { observer } from "mobx-react-lite";
 import { MdAdd, MdClose } from "react-icons/md";
 
@@ -19,7 +19,7 @@ const ModalSidebarGroup = observer(({ game, dataType }) => {
     const selectRef = useRef(null);
     return (
         <Row className="sidebar-group pfm-shadow">
-            <div className="sidebar-top-panel">
+            <div className="sidebar-header">
                 <p className="sidebar-title">{title}</p>
                 <div className="ms-auto">
                     <button className={"icon-button"}>
@@ -74,7 +74,7 @@ const GameModal = observer(({ game, show, handleHide }) => {
                 <ModalSidebarGroup dataType={dataTypes.friend} game={game} />
             </div>
 
-            <div className="pfm-card" style={{ "--bg-url": `url("${game.imageCoverPath}")` }}>
+            <div className="pfm-card" style={{ "--bg-url": `url("${game.coverImagePath}")` }}>
                 {/* need two background images to handle transparent border blurring */}
                 <div className="pfm-card-bg layer1" />
                 <div className="pfm-card-bg layer2" />
@@ -117,7 +117,7 @@ function GameCard({ game, onClick }) {
         >
             <img
                 draggable="false"
-                src={game.imageCoverPath}
+                src={game.coverImagePath}
                 alt={game.title + " Card"}
             />
         </button>

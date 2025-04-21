@@ -1,4 +1,4 @@
-import { allFriends, allCategories, allStatuses } from "./Store.jsx";
+import { allFriends, allCategories, allStatuses } from "../Store.jsx";
 
 /**
  * @typedef {Object} dataType

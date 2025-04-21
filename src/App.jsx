@@ -1,12 +1,12 @@
 import "./App.css";
 import "react-toastify/dist/ReactToastify.css";
-import { Button, Form, Nav, Navbar, NavDropdown } from "react-bootstrap";
+import { Form, Nav, Navbar, NavDropdown } from "react-bootstrap";
 import { ToastContainer } from "react-toastify";
-import { useEffect, useMemo, useState } from "react";
-import { GamesGrid } from "./GameGrid.jsx";
+import { useMemo, useState } from "react";
+import { GamesGrid } from "./components/GameGrid.jsx";
 import { allGames, loadDataFromFile, saveDataToFile } from "./Store.jsx";
-import { dataTypes } from "./DataTypes.jsx";
-import { SidebarGroup } from "./Components.jsx";
+import { dataTypes } from "./models/DataTypes.jsx";
+import { SidebarGroup } from "./components/Components.jsx";
 import { setForceFilterUpdateCallback } from "./Utils.jsx";
 import { MdClose } from "react-icons/md";
 

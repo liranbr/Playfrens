@@ -1,5 +1,5 @@
 import { MdAdd } from "react-icons/md";
-import "./App.css";
+import "../App.css";
 import "./Components.css";
 import { Row, ToggleButton } from "react-bootstrap";
 import { useState } from "react";
@@ -39,7 +39,7 @@ export function SidebarGroup({ dataType, dataList, setSelection }) {
     const title = dataType.plural.toUpperCase();
     return (
         <Row className="sidebar-group">
-            <div className="sidebar-top-panel">
+            <div className="sidebar-header">
                 <p className="sidebar-title">{title}</p>
                 <div className="ms-auto">
                     <button className="icon-button">

@@ -36,7 +36,7 @@
     "allGames": [
         {
             "title": "Baldur's Gate 3",
-            "imageCoverPath": "https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/library_600x900_2x.jpg",
+            "coverImagePath": "https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/library_600x900_2x.jpg",
             "friends": [
                 "Sami"
             ],
@@ -48,7 +48,7 @@
         },
         {
             "title": "Celeste",
-            "imageCoverPath": "https://cdn2.steamgriddb.com/grid/b2dfad356a40408faf455dcf85084f7d.png",
+            "coverImagePath": "https://cdn2.steamgriddb.com/grid/b2dfad356a40408faf455dcf85084f7d.png",
             "friends": [
                 "Nibbix"
             ],
@@ -60,7 +60,7 @@
         },
         {
             "title": "CrossCode",
-            "imageCoverPath": "https://cdn2.steamgriddb.com/grid/e0daea4d341688039c558c0095b9a30f.png",
+            "coverImagePath": "https://cdn2.steamgriddb.com/grid/e0daea4d341688039c558c0095b9a30f.png",
             "friends": [
                 "Nibbix"
             ],
@@ -72,7 +72,7 @@
         },
         {
             "title": "Dark Souls I Remastered",
-            "imageCoverPath": "https://cdn2.steamgriddb.com/grid/0b6b193b8b26ae5875b6d4e4f69a4103.png",
+            "coverImagePath": "https://cdn2.steamgriddb.com/grid/0b6b193b8b26ae5875b6d4e4f69a4103.png",
             "friends": [
                 "Sami"
             ],
@@ -84,7 +84,7 @@
         },
         {
             "title": "Dead Cells",
-            "imageCoverPath": "https://cdn2.steamgriddb.com/grid/9a233d274515549314aeacfaf2702f25.png",
+            "coverImagePath": "https://cdn2.steamgriddb.com/grid/9a233d274515549314aeacfaf2702f25.png",
             "friends": [
                 "Sami"
             ],
@@ -97,7 +97,7 @@
         },
         {
             "title": "Hades",
-            "imageCoverPath": "https://cdn2.steamgriddb.com/grid/bfe339860b048949369fc6945cea504d.png",
+            "coverImagePath": "https://cdn2.steamgriddb.com/grid/bfe339860b048949369fc6945cea504d.png",
             "friends": [
                 "Nibbix"
             ],
@@ -110,7 +110,7 @@
         },
         {
             "title": "Heroes of the Storm",
-            "imageCoverPath": "https://cdn2.steamgriddb.com/grid/9946800209f33bce8ba0dd67bf724ce5.png",
+            "coverImagePath": "https://cdn2.steamgriddb.com/grid/9946800209f33bce8ba0dd67bf724ce5.png",
             "friends": [
                 "Aco",
                 "Bram",
@@ -136,7 +136,7 @@
         },
         {
             "title": "Hollow Knight",
-            "imageCoverPath": "https://cdn2.steamgriddb.com/grid/9122e6917c43df2c068332f00db0ff97.png",
+            "coverImagePath": "https://cdn2.steamgriddb.com/grid/9122e6917c43df2c068332f00db0ff97.png",
             "friends": [
                 "Sami"
             ],
@@ -148,7 +148,7 @@
         },
         {
             "title": "Tears of the Kingdom",
-            "imageCoverPath": "https://cdn2.steamgriddb.com/grid/e38dfc6695227a26cb6aa312b997dccf.jpg",
+            "coverImagePath": "https://cdn2.steamgriddb.com/grid/e38dfc6695227a26cb6aa312b997dccf.jpg",
             "friends": [
                 "Sami"
             ],
@@ -160,7 +160,7 @@
         },
         {
             "title": "Outer Wilds",
-            "imageCoverPath": "https://cdn2.steamgriddb.com/grid/ff9bc06bf30f5066e1be70b7fe1be7d6.png",
+            "coverImagePath": "https://cdn2.steamgriddb.com/grid/ff9bc06bf30f5066e1be70b7fe1be7d6.png",
             "friends": [
                 "Sami"
             ],
@@ -172,7 +172,7 @@
         },
         {
             "title": "Sekiro - Shadows Die Twice",
-            "imageCoverPath": "https://cdn2.steamgriddb.com/grid/36b92582b9d1639873b06bcfe0e73635.png",
+            "coverImagePath": "https://cdn2.steamgriddb.com/grid/36b92582b9d1639873b06bcfe0e73635.png",
             "friends": [
                 "Sami"
             ],
@@ -184,7 +184,7 @@
         },
         {
             "title": "Subnautica",
-            "imageCoverPath": "https://cdn2.steamgriddb.com/grid/50896c8a37922749110dae272e7a345b.png",
+            "coverImagePath": "https://cdn2.steamgriddb.com/grid/50896c8a37922749110dae272e7a345b.png",
             "friends": [
                 "Nibbix"
             ],
@@ -196,7 +196,7 @@
         },
         {
             "title": "Terraria",
-            "imageCoverPath": "https://cdn2.steamgriddb.com/grid/9bc661e8362657d8cbbe4bb41d17c7f3.png",
+            "coverImagePath": "https://cdn2.steamgriddb.com/grid/9bc661e8362657d8cbbe4bb41d17c7f3.png",
             "friends": [
                 "Nibbix"
             ],
@@ -209,7 +209,7 @@
         },
         {
             "title": "Tunic",
-            "imageCoverPath": "https://cdn2.steamgriddb.com/grid/a65b94d656df502d858e723807451382.png",
+            "coverImagePath": "https://cdn2.steamgriddb.com/grid/a65b94d656df502d858e723807451382.png",
             "friends": [
                 "Nibbix"
             ],
@@ -221,7 +221,7 @@
         },
         {
             "title": "V Rising",
-            "imageCoverPath": "https://cdn2.steamgriddb.com/grid/bce13d4914a906527ba4098eeb929767.png",
+            "coverImagePath": "https://cdn2.steamgriddb.com/grid/bce13d4914a906527ba4098eeb929767.png",
             "friends": [
                 "Sami"
             ],
@@ -234,7 +234,7 @@
         },
         {
             "title": "The Witcher 3",
-            "imageCoverPath": "https://cdn2.steamgriddb.com/grid/67ac4b0f4d18ef599b7bf7253a83ef3c.png",
+            "coverImagePath": "https://cdn2.steamgriddb.com/grid/67ac4b0f4d18ef599b7bf7253a83ef3c.png",
             "friends": [
                 "Sami"
             ],

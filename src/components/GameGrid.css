@@ -73,7 +73,7 @@
         box-shadow: 0 0 20px rgba(0, 0, 0, 1);
         border: none;
         border-radius: 8px;
-        --bg-url: url('/public/cards/missing_image.png');
+        --bg-url: url('/public/missing_game_card.png');
 
         .pfm-card-bg {
             position: absolute;

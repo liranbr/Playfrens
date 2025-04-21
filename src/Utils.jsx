@@ -24,7 +24,7 @@ export function toastDataChangeSuccess(message) {
 }
 
 export function insertSortedByOrder(item, array, orderArray) {
-    if (!orderArray.includes(item)) {
+    if (!orderArray || !orderArray.includes(item)) {
         console.error(`Item ${item} is not in the order array`);
         return array;
     }
@@ -46,4 +46,13 @@ export function forceFilterUpdate() {
     } else {
         console.error("No force filter update callback set");
     }
+}
+
+export function validateImage(url) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve(true);      // Valid image
+        img.onerror = () => resolve(false);    // Broken image
+        img.src = url;
+    });
 }

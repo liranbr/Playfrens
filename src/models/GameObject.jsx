@@ -11,7 +11,7 @@ import { action, makeObservable, observable } from "mobx";
  * @property {string} note - A custom note for this game.
  */
 export class GameObject {
-    constructor(title, coverImagePath = "/missing_game_card.png", friends = [], categories = [], statuses = [], note = "", dataSortOrder = {}) {
+    constructor(title, coverImagePath = "/missing_game_cover.png", friends = [], categories = [], statuses = [], note = "", dataSortOrder = {}) {
         this.title = title;
         this.coverImagePath = coverImagePath;
         this.friends = friends;

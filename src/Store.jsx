@@ -19,7 +19,6 @@ const dataSortOrder = {
     statuses: allStatuses
 };
 
-// TODO: IMPROVE HERE
 export const allGames = observable.array(loadObsArray("allGames").map(game => {
     if (!game) {
         console.warn("Skipping invalid game data:", game);
@@ -27,7 +26,7 @@ export const allGames = observable.array(loadObsArray("allGames").map(game => {
     }
     return new GameObject(game.title, game.coverImagePath, game.friends, game.categories, game.statuses, game.note, dataSortOrder);
 }).filter(game => game !== null));
-// TODO: can the new GameObject skip specifying the properties?
+// TODO: can the new GameObject skip specifying the properties, if they have the same name in the input?
 
 // when a change is made to an array, it is saved to localstorage
 autorun(() => saveObsArray("allFriends", allFriends));

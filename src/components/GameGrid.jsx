@@ -6,6 +6,7 @@ import { GameObject } from "../models/GameObject.jsx";
 import { dataTypes } from "../models/DataTypes.jsx";
 import { observer } from "mobx-react-lite";
 import { MdAdd, MdClose } from "react-icons/md";
+import { useValidatedImage } from "../hooks/useValidatedImage.js";
 
 const ModalSidebarGroup = observer(({ game, dataType }) => {
     const title = dataType.plural.toUpperCase();
@@ -69,13 +70,15 @@ const ModalSidebarGroup = observer(({ game, dataType }) => {
 });
 
 const GameModal = observer(({ game, show, handleHide }) => {
+    const gameCover = useValidatedImage(game.coverImagePath);
+
     return (
         <Modal className={"playfrens-modal pfm-shadow"} show={show} onHide={handleHide} centered>
             <div className="pfm-sidebar">
                 <ModalSidebarGroup dataType={dataTypes.friend} game={game} />
             </div>
 
-            <div className="pfm-card" style={{ "--bg-url": `url("${game.coverImagePath}")` }}>
+            <div className="pfm-card" style={{ "--bg-url": `url("${gameCover}")` }}>
                 {/* need two background images to handle transparent border blurring */}
                 <div className="pfm-card-bg layer1" />
                 <div className="pfm-card-bg layer2" />
@@ -104,6 +107,7 @@ const GameModal = observer(({ game, show, handleHide }) => {
 });
 
 function GameCard({ game, onClick }) {
+    const gameCover = useValidatedImage(game.coverImagePath);
     const handleDrop = (e) => {
         const item = e.dataTransfer.getData("item");
         const dataTypeKey = e.dataTransfer.getData("dataTypeKey");
@@ -118,7 +122,7 @@ function GameCard({ game, onClick }) {
         >
             <img
                 draggable="false"
-                src={game.coverImagePath}
+                src={gameCover}
                 alt={game.title + " Card"}
             />
         </button>

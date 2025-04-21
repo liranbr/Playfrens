@@ -47,12 +47,3 @@ export function forceFilterUpdate() {
         console.error("No force filter update callback set");
     }
 }
-
-export function validateImage(url) {
-    return new Promise((resolve) => {
-        const img = new Image();
-        img.onload = () => resolve(true);      // Valid image
-        img.onerror = () => resolve(false);    // Broken image
-        img.src = url;
-    });
-}

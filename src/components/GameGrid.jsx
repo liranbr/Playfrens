@@ -50,9 +50,10 @@ const ModalSidebarGroup = observer(({ game, dataType }) => {
                 {gameDataList.map((item, index) =>
                     <OverlayTrigger
                         key={"btn-modal-" + dataType.key + "-" + item + "-" + index}
-                        overlay={() => (<Tooltip style={{ transition: "none" }}>
-                            Click to remove
-                        </Tooltip>)}>
+                        placement={"right"}
+                        overlay={<Tooltip style={{ transition: "none" }}>
+                            Remove
+                        </Tooltip>}>
                         <Button
                             value={item}
                             className="sidebar-button pfm-sidebar-button"

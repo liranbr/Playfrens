@@ -1,27 +1,3 @@
-.game-card {
-    width: 100%;
-    aspect-ratio: 1 / 1.5;
-    margin: 0;
-    padding: 0;
-    border: 0;
-    cursor: pointer;
-    background-color: transparent;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.8);
-    transition: 0.3s ease;
-
-    & img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-    }
-}
-
-.game-card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 15px 22px rgba(0, 0, 0, 0.6);
-    z-index: 1;
-}
-
 .games-grid {
     width: 100%;
     display: grid;
@@ -33,7 +9,39 @@
     grid-template-columns: repeat(auto-fit, 245px);
 }
 
-.pf-modal {
+.game-card {
+    width: 100%;
+    aspect-ratio: 1 / 1.5;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    cursor: pointer;
+    background-color: transparent;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.8);
+    transition: 0.3s ease;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    &:hover {
+        transform: scale(1.05);
+        box-shadow: 0 15px 22px rgba(0, 0, 0, 0.6);
+        z-index: 1;
+    }
+}
+
+/* is implemented as a separate element from the modal itself */
+.modal-backdrop {
+    --bs-backdrop-opacity: 0.7;
+    transition: 0.2s opacity;
+}
+
+/* Playfrens Modal - shortened to PFM */
+/* '.modal' classes alter Bootstrap Modal properties */
+.playfrens-modal {
     .modal-content {
         display: flex;
         flex-direction: row;
@@ -47,16 +55,12 @@
         }
     }
 
-    .modal-header, .modal-footer {
-        border: none;
-    }
-
     .modal-dialog {
         --bs-modal-width: 1220px;
         background: none;
     }
 
-    .modal-card {
+    .pfm-card {
         width: 600px;
         height: 900px;
         display: flex;
@@ -69,19 +73,52 @@
         box-shadow: 0 0 20px rgba(0, 0, 0, 1);
         border: none;
         border-radius: 8px;
-    }
-
-    .modal-card-bg {
-        position: absolute;
-        height: 900px;
-        width: 600px;
-        background-size: cover;
-        background-position: center;
         --bg-url: url('/public/cards/missing_image.png');
-        background-image: linear-gradient(rgba(0, 0, 0, 0.66), rgba(0, 0, 0, 0.66)), var(--bg-url);
+
+        .pfm-card-bg {
+            position: absolute;
+            height: 900px;
+            width: 600px;
+            background-size: cover;
+            background-position: center;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.66), rgba(0, 0, 0, 0.66)), var(--bg-url);
+
+            &.layer1 {
+                z-index: -2;
+                filter: blur(4px);
+                transform: scale(1.01);
+            }
+
+            &.layer2 {
+                z-index: -1;
+                filter: blur(8px);
+            }
+        }
     }
 
-    .modal-sidebar {
+    .pfm-header {
+        padding: 17px;
+
+        .pfm-title {
+            font-size: 24px;
+            color: #fff;
+            text-align: center;
+            font-weight: bold;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+    }
+
+    .pfm-body {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        justify-content: end;
+        margin: 40px 40px;
+    }
+
+    .pfm-sidebar {
         width: 300px;
         height: 900px;
         display: flex;
@@ -91,42 +128,20 @@
         pointer-events: none;
     }
 
-    .sidebar-group {
+    .pfm-shadow {
         box-shadow: 0 0 20px rgba(0, 0, 0, 1);
     }
-}
 
-.modal-backdrop {
-    --bs-backdrop-opacity: 0.7;
-    transition: 0.2s opacity;
-}
-
-.modal-list {
-    display: flex;
-    flex-direction: column;
-    margin: 5px;
-    padding: 1rem;
-    border-radius: 20px;
-}
-
-.modal-list-title {
-    font-size: 20px;
-    font-weight: bold;
-    color: #fff;
-    text-align: left;
-    margin: 0;
-    padding: 5px 10px;
-}
-
-.title-and-adder {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+    .pfm-sidebar-button:hover {
+        --bs-btn-active-bg: none;
+        background: none;
+        outline: 1px solid #80848e;
+        color: #fff;
+    }
 }
 
 .game-note {
     resize: vertical;
-    margin: 20px 40px;
     flex-shrink: 1;
     background: none;
     border: 1px solid var(--pf-fg-100);
@@ -134,15 +149,8 @@
     right: 0;
     left: 0;
     width: 100%;
-}
 
-.game-note:focus {
-    outline: 1px solid var(--pf-fg-100);
-}
-
-.modal-sidebar-button:hover {
-    --bs-btn-active-bg: none;
-    background: none;
-    outline: 1px solid #80848e;
-    color: #fff;
+    &:focus {
+        outline: 1px solid var(--pf-fg-100);
+    }
 }

@@ -1,23 +1,11 @@
 import "./App.css";
 import "./GameGrid.css";
-import { Button, Col, Form, Modal, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
+import { Button, Form, Modal, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
 import { useEffect, useRef, useState } from "react";
 import { GameObject } from "./Store.jsx";
 import { dataTypes } from "./DataTypes.jsx";
 import { observer } from "mobx-react-lite";
 import { MdAdd, MdClose } from "react-icons/md";
-
-const GameNoteArea = observer(({ game }) => {
-    const [note, setNote] = useState(game.note);
-    const handleNoteChange = (e) => {
-        game.setNote(e.target.value);
-        setNote(game.note);
-    };
-    return (
-        <textarea className="game-note" placeholder="Note" rows={5}
-                  value={note} onChange={handleNoteChange} />
-    );
-});
 
 const ModalSidebarGroup = observer(({ game, dataType }) => {
     const title = dataType.plural.toUpperCase();
@@ -30,7 +18,7 @@ const ModalSidebarGroup = observer(({ game, dataType }) => {
     };
     const selectRef = useRef(null);
     return (
-        <Row className="sidebar-group">
+        <Row className="sidebar-group pfm-shadow">
             <div className="sidebar-top-panel">
                 <p className="sidebar-title">{title}</p>
                 <div className="ms-auto">
@@ -67,7 +55,7 @@ const ModalSidebarGroup = observer(({ game, dataType }) => {
                         </Tooltip>)}>
                         <Button
                             value={item}
-                            className="sidebar-button modal-sidebar-button"
+                            className="sidebar-button pfm-sidebar-button"
                             draggable="true"
                             onClick={() => handleRemove(item)}>
                             {item}
@@ -81,59 +69,32 @@ const ModalSidebarGroup = observer(({ game, dataType }) => {
 
 const GameModal = observer(({ game, show, handleHide }) => {
     return (
-        <Modal className={"pf-modal"} show={show} onHide={handleHide} centered>
-            <div className="modal-sidebar">
+        <Modal className={"playfrens-modal pfm-shadow"} show={show} onHide={handleHide} centered>
+            <div className="pfm-sidebar">
                 <ModalSidebarGroup dataType={dataTypes.friend} game={game} />
             </div>
-            <div className="modal-card">
+
+            <div className="pfm-card" style={{ "--bg-url": `url("${game.imageCoverPath}")` }}>
                 {/* need two background images to handle transparent border blurring */}
-                <div className="modal-card-bg" style={{
-                    "--bg-url": `url("${game.imageCoverPath}")`,
-                    zIndex: -2,
-                    filter: "blur(4px)",
-                    transform: "scale(1.01)"
-                }} />
-                <div className="modal-card-bg" style={{
-                    "--bg-url": `url("${game.imageCoverPath}")`,
-                    zIndex: -1,
-                    filter: "blur(8px)"
-                }} />
-                <Modal.Header style={{ padding: "14px" }}>
-                    <Modal.Title
-                        style={{
-                            textAlign: "center",
-                            fontWeight: "bold",
-                            position: "absolute",
-                            left: "50%",
-                            transform: "translateX(-50%)"
-                        }}
-                    >
+                <div className="pfm-card-bg layer1" />
+                <div className="pfm-card-bg layer2" />
+                <div className="pfm-header">
+                    <p className="pfm-title">
                         {game.title}
-                    </Modal.Title>
+                    </p>
                     <button className="icon-button ms-auto" onClick={handleHide}>
                         <MdClose />
                     </button>
-                </Modal.Header>
-                <Modal.Body
-                    style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "end",
-                        padding: 0,
-                        overflow: "auto"
-                    }}>
+                </div>
+                <div className="pfm-body">
                     <div className="w-100 d-flex overflow-auto">
-                        <GameNoteArea game={game} />
+                        <textarea className="game-note" placeholder="Note" rows={5} value={game.note}
+                                  onChange={(e) => game.setNote(e.target.value)} />
                     </div>
-                </Modal.Body>
-                {/*footer needs to be sticky*/}
-                <Modal.Footer style={{ position: "sticky", bottom: 0 }}>
-                    <Button variant="primary" onClick={handleHide}>
-                        Save
-                    </Button>
-                </Modal.Footer>
+                </div>
             </div>
-            <div className="modal-sidebar">
+
+            <div className="pfm-sidebar">
                 <ModalSidebarGroup dataType={dataTypes.category} game={game} />
                 <ModalSidebarGroup dataType={dataTypes.status} game={game} />
             </div>

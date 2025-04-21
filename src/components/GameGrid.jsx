@@ -125,6 +125,7 @@ function GameCard({ game, onClick }) {
                 src={gameCover}
                 alt={game.title + " Card"}
             />
+            <span className="game-card-title-overlay">{game.title}</span>
         </button>
     );
 }

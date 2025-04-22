@@ -1,6 +1,7 @@
 import "../App.css";
 import "./GameGrid.css";
-import { Button, Form, Modal, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
+import { Button, Modal, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
+import Form from "react-bootstrap/Form";
 import { useEffect, useRef, useState } from "react";
 import { GameObject } from "../models/GameObject.jsx";
 import { dataTypes } from "../models/DataTypes.jsx";

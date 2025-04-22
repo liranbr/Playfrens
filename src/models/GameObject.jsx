@@ -9,6 +9,7 @@ import { action, makeObservable, observable } from "mobx";
  * @property {Array<string>} categories - The list of categories for this game.
  * @property {Array<string>} statuses - The list of statuses for this game.
  * @property {string} note - A custom note for this game.
+ * @property {{ friends: Array<string>, categories: Array<string>, statuses: Array<string> }} dataSortOrder - The order to sort data by, usually the full lists
  */
 export class GameObject {
     constructor(title, coverImagePath = "/missing_game_cover.png", friends = [], categories = [], statuses = [], note = "", dataSortOrder = {}) {

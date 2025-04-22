@@ -1,6 +1,9 @@
 import "./App.css";
 import "react-toastify/dist/ReactToastify.css";
-import { Form, Nav, Navbar, NavDropdown } from "react-bootstrap";
+import Navbar from "react-bootstrap/Navbar";
+import Form from "react-bootstrap/Form";
+import Nav from "react-bootstrap/Nav";
+import NavDropdown from "react-bootstrap/NavDropdown";
 import { ToastContainer } from "react-toastify";
 import { useMemo, useState } from "react";
 import { GamesGrid } from "./components/GameGrid.jsx";

@@ -1,25 +1,19 @@
-#root {
-    margin: 0 auto;
-    text-align: center;
-}
-
 .app-header {
     background-color: var(--pf-bg-900);
-    padding-right: 1rem;
-    padding-left: 1rem;
+    padding-right: 12px;
+    padding-left: 12px;
+    height: 56px;
 }
 
 #main-content {
-    background-color: var(--pf-bg-500);
-    padding: 56px 0 0 0; /* 56px compensates for navbar height */
     height: 100vh;
-    width: 100vw;
+    padding-top: 56px; /* compensates for navbar height, included in 100vh */
     display: flex;
 }
 
 .app-sidebar {
-    max-width: 300px;
-    min-width: 300px;
+    max-width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
     display: flex;
     flex-direction: column;
     /*0 margin on the sidebar-right, for an exact gap with the grid*/

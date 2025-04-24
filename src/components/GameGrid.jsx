@@ -1,6 +1,6 @@
 import "../App.css";
 import "./GameGrid.css";
-import { Button, Modal, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
+import { Button, Modal, OverlayTrigger, Row, ToggleButton, Tooltip } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
 import { useEffect, useRef, useState } from "react";
 import { GameObject } from "../models/GameObject.jsx";
@@ -8,6 +8,32 @@ import { dataTypes } from "../models/DataTypes.jsx";
 import { observer } from "mobx-react-lite";
 import { MdAdd, MdClose } from "react-icons/md";
 import { useValidatedImage } from "../hooks/useValidatedImage.js";
+
+function ModalSidebarButton({ value, dataTypeKey }) {
+    const [checked, setChecked] = useState(true);
+    const handleChange = (e) => {
+        const isChecked = e.currentTarget.checked;
+        setChecked(isChecked); // set button state
+    };
+
+    return (
+        <ToggleButton
+            id={"btn-modal-sidebar-" + dataTypeKey + "-" + value}
+            value={value}
+            className="sidebar-button"
+            type="checkbox"
+            checked={checked}
+            draggable="true"
+            onChange={handleChange}
+            onDragStart={(e) => {
+                e.dataTransfer.setData("item", value);
+                e.dataTransfer.setData("dataTypeKey", dataTypeKey);
+            }}
+        >
+            {value}
+        </ToggleButton>
+    );
+}
 
 const ModalSidebarGroup = observer(({ game, dataType }) => {
     const title = dataType.plural.toUpperCase();
@@ -50,20 +76,12 @@ const ModalSidebarGroup = observer(({ game, dataType }) => {
             </div>
             <div className="sidebar-buttons-list">
                 {gameDataList.map((item, index) =>
-                    <OverlayTrigger
+                    <ModalSidebarButton
                         key={"btn-modal-" + dataType.key + "-" + item + "-" + index}
-                        placement={"right"}
-                        overlay={<Tooltip style={{ transition: "none" }}>
-                            Remove
-                        </Tooltip>}>
-                        <Button
-                            value={item}
-                            className="sidebar-button pfm-sidebar-button"
-                            draggable="true"
-                            onClick={() => handleRemove(item)}>
-                            {item}
-                        </Button>
-                    </OverlayTrigger>
+                        value={item}
+                        dataTypeKey={dataType.key}
+                        className="sidebar-button pfm-sidebar-button"
+                        checked={true} />
                 )}
             </div>
         </Row>

@@ -4,8 +4,8 @@ import "./Components.css";
 import { Row, ToggleButton } from "react-bootstrap";
 import { useState } from "react";
 
-export function SidebarButton({ value, dataTypeKey, setSelection }) {
-    const [checked, setChecked] = useState(false);
+export function SidebarButton({ value, dataTypeKey, setSelection, isChecked }) {
+    const [checked, setChecked] = useState(isChecked);
     const handleChange = (e) => {
         const isChecked = e.currentTarget.checked;
         setChecked(isChecked); // set button state

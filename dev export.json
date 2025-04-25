@@ -28,7 +28,7 @@
     "allStatuses": [
         "Playing",
         "Paused",
-        "LFM",
+        "LFG",
         "Later",
         "Abandoned",
         "Finished"
@@ -92,7 +92,9 @@
                 "Playthrough",
                 "Round-based"
             ],
-            "statuses": [],
+            "statuses": [
+                "Finished"
+            ],
             "note": ""
         },
         {
@@ -131,7 +133,10 @@
             "categories": [
                 "Round-based"
             ],
-            "statuses": [],
+            "statuses": [
+                "Playing",
+                "Finished"
+            ],
             "note": ""
         },
         {

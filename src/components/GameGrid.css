@@ -53,8 +53,11 @@
 
 /* is implemented as a separate element from the modal itself */
 .modal-backdrop {
-    --bs-backdrop-opacity: 0.7;
     transition: 0.2s opacity;
+
+    &.show {
+        opacity: 0.7;
+    }
 }
 
 /* Playfrens Modal - shortened to PFM */

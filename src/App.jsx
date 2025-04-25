@@ -4,14 +4,16 @@ import Navbar from "react-bootstrap/Navbar";
 import Form from "react-bootstrap/Form";
 import Nav from "react-bootstrap/Nav";
 import NavDropdown from "react-bootstrap/NavDropdown";
+import Modal from "react-bootstrap/Modal";
 import { ToastContainer } from "react-toastify";
 import { useMemo, useState } from "react";
 import { GamesGrid } from "./components/GameGrid.jsx";
 import { allGames, loadDataFromFile, saveDataToFile } from "./Store.jsx";
 import { dataTypes } from "./models/DataTypes.jsx";
 import { SidebarGroup } from "./components/Components.jsx";
-import { setForceFilterUpdateCallback } from "./Utils.jsx";
+import { setForceFilterUpdateCallback, toastDataChangeSuccess, toastError } from "./Utils.jsx";
 import { MdClose } from "react-icons/md";
+import { Button } from "react-bootstrap";
 
 function AppHeader({ searchState }) {
     const [search, setSearch] = searchState;
@@ -77,23 +79,88 @@ function AppHeader({ searchState }) {
     );
 }
 
+function SidebarModal({ dataType, show, setShow }) {
+    const handleClose = () => setShow(false);
+    const handleSave = () => {
+        const dataName = document.getElementById("dataNameInput").value;
+        if (dataName) {
+            dataType.allDataList.push(dataName);
+            if (dataType.key === "friend") {
+                dataType.allDataList.sort((a, b) => a.localeCompare(b.toLowerCase()));
+            }
+            toastDataChangeSuccess("Added " + dataName + " to " + dataType.plural + " list");
+            setShow(false);
+        } else {
+            toastError("Can't save a " + dataType.single + " with an empty name");
+        }
+    };
+    const placeholder = dataType.placeholder;
+    return (
+        <Modal show={show} onHide={handleClose} size={"sm"} centered>
+            <Modal.Header closeButton>
+                <h4 style={{ margin: 0, color: "#dee2e6" }}>Add {dataType.single}</h4>
+            </Modal.Header>
+            <Modal.Body>
+                <Form>
+                    <p style={{ color: "#dee2e6" }}>Name</p>
+                    <Form.Group className="mb-3" controlId="dataNameInput">
+                        <Form.Control
+                            type="text"
+                            placeholder={placeholder}
+                            autoFocus
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    handleSave();
+                                    return e.preventDefault();
+                                }
+                                return null;
+                            }}
+                        />
+                    </Form.Group>
+                </Form>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="secondary" onClick={handleClose}>
+                    Close
+                </Button>
+                <Button variant="primary" onClick={handleSave}>
+                    Save
+                </Button>
+            </Modal.Footer>
+        </Modal>
+    );
+}
+
 function AppSidebar({ setSelectedFriends, setSelectedCategories, setSelectedStatuses }) {
+    const [showModal, setShowModal] = useState(false);
+    const [modalDataType, setModalDataType] = useState(dataTypes.friend);
+    const handleShowModal = (dataType) => {
+        setModalDataType(dataType);
+        setShowModal(true);
+    };
     // 50% height to friend bar, 50% to categories + status
     return (
         <div className="app-sidebar">
+            <SidebarModal
+                dataType={modalDataType}
+                show={showModal}
+                setShow={setShowModal} />
             <SidebarGroup
                 dataType={dataTypes.friend}
                 dataList={dataTypes.friend.allDataList}
-                setSelection={setSelectedFriends} />
+                setSelection={setSelectedFriends}
+                handleShowModal={handleShowModal} />
             <div className="sidebar-subgroup">
                 <SidebarGroup
                     dataType={dataTypes.category}
                     dataList={dataTypes.category.allDataList}
-                    setSelection={setSelectedCategories} />
+                    setSelection={setSelectedCategories}
+                    handleShowModal={handleShowModal} />
                 <SidebarGroup
                     dataType={dataTypes.status}
                     dataList={dataTypes.status.allDataList}
-                    setSelection={setSelectedStatuses} />
+                    setSelection={setSelectedStatuses}
+                    handleShowModal={handleShowModal} />
             </div>
         </div>
     );

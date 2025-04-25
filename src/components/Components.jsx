@@ -35,14 +35,14 @@ export function SidebarButton({ value, dataTypeKey, setSelection }) {
     );
 }
 
-export function SidebarGroup({ dataType, dataList, setSelection }) {
+export function SidebarGroup({ dataType, dataList, setSelection, handleShowModal }) {
     const title = dataType.plural.toUpperCase();
     return (
         <Row className="sidebar-group">
             <div className="sidebar-header">
                 <div />
                 <p className="sidebar-title">{title}</p>
-                <button className="icon-button">
+                <button className="icon-button" onClick={() => handleShowModal(dataType)}>
                     <MdAdd />
                 </button>
             </div>

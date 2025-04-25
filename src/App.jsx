@@ -77,13 +77,24 @@ function AppHeader({ searchState }) {
     );
 }
 
-function AppSidebar(props) {
-    const { dataTypes, selectionSetters } = props;
+function AppSidebar({ selectionSetters: { friendSelection, categorySelection, statusSelection } }) {
+    // 50% height to friend bar, 50% to categories + status
     return (
         <div className="app-sidebar">
-            {dataTypes.map((dataType, index) =>
-                <SidebarGroup key={dataType.key} dataType={dataType} dataList={dataType.allDataList}
-                              setSelection={selectionSetters[index]} />)}
+            <SidebarGroup
+                dataType={dataTypes.friend}
+                dataList={dataTypes.friend.allDataList}
+                setSelection={friendSelection} />
+            <div className="sidebar-subgroup">
+                <SidebarGroup
+                    dataType={dataTypes.category}
+                    dataList={dataTypes.category.allDataList}
+                    setSelection={categorySelection} />
+                <SidebarGroup
+                    dataType={dataTypes.status}
+                    dataList={dataTypes.status.allDataList}
+                    setSelection={statusSelection} />
+            </div>
         </div>
     );
 }
@@ -115,8 +126,7 @@ export default function App() {
         <>
             <AppHeader searchState={[search, setSearch]} />
             <div id="main-content">
-                <AppSidebar dataTypes={[dataTypes.friend, dataTypes.category, dataTypes.status]}
-                            selectionSetters={[setSelectedFriends, setSelectedCategories, setSelectedStatuses]} />
+                <AppSidebar selectionSetters={[setSelectedFriends, setSelectedCategories, setSelectedStatuses]} />
                 <GamesGrid filteredGames={filteredGames} />
             </div>
             <ToastContainer />

@@ -21,8 +21,9 @@ const ModalSidebarGroup = observer(({ game, dataType }) => {
     const selectRef = useRef(null);
     return (
         <Row className="sidebar-group pfm-shadow">
-            <div className="sidebar-header">
-                <p className="sidebar-title">{title}</p>
+            <div className="sidebar-header position-relative">
+                <div />
+                <h4 className="sidebar-title">{title}</h4>
                 <div className="ms-auto">
                     <button className={"icon-button"}>
                         <MdAdd />
@@ -84,6 +85,7 @@ const GameModal = observer(({ game, show, handleHide }) => {
                 <div className="pfm-card-bg layer1" />
                 <div className="pfm-card-bg layer2" />
                 <div className="pfm-header">
+                    <div />
                     <p className="pfm-title">
                         {game.title}
                     </p>

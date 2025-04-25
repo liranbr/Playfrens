@@ -40,12 +40,11 @@ export function SidebarGroup({ dataType, dataList, setSelection }) {
     return (
         <Row className="sidebar-group">
             <div className="sidebar-header">
+                <div />
                 <p className="sidebar-title">{title}</p>
-                <div className="ms-auto">
-                    <button className="icon-button">
-                        <MdAdd />
-                    </button>
-                </div>
+                <button className="icon-button">
+                    <MdAdd />
+                </button>
             </div>
             <div className="sidebar-buttons-list">
                 {dataList.map((item, index) =>

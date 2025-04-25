@@ -11,11 +11,14 @@
 
     --sidebar-width: 275px;
     --game-card-width: 250px;
+    --icon-size: 30px;
 }
 
 *, *::before, *::after {
     margin: 0;
     padding: 0;
+    --bs-gutter-x: 0;
+    --bs-gutter-y: 0;
     box-sizing: border-box;
 }
 

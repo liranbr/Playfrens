@@ -1,4 +1,4 @@
-import { MdAdd } from "react-icons/md";
+import { MdAdd, MdMoreVert } from "react-icons/md";
 import "../App.css";
 import "./Components.css";
 import { Row, ToggleButton } from "react-bootstrap";
@@ -31,6 +31,9 @@ export function SidebarButton({ value, dataTypeKey, setSelection }) {
             }}
         >
             {value}
+            <button className="icon-button">
+                <MdMoreVert />
+            </button>
         </ToggleButton>
     );
 }

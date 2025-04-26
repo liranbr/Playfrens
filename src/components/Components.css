@@ -62,8 +62,21 @@
     font-size: 18px;
     border: none;
     margin: 2px 12px;
+    padding: 4px 12px;
     border-radius: 15px;
     transition: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .icon-button {
+        color: #fff;
+        visibility: hidden;
+    }
+
+    &.active .icon-button, &:hover .icon-button {
+        visibility: visible;
+    }
 }
 
 .btn-check:checked + .sidebar-button {

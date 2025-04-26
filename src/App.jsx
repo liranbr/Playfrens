@@ -40,11 +40,11 @@ function AppHeader({ searchState }) {
             <Nav className="me-auto">
                 {/* temp links for dev */}
                 <NavDropdown title="File" id="basic-nav-dropdown">
-                    <NavDropdown.Item onClick={() => {
+                    <NavDropdown.Item draggable="false" onClick={() => {
                         document.getElementById("json-selector").click();
                     }}>
                         Import Data</NavDropdown.Item>
-                    <NavDropdown.Item onClick={saveDataToFile}>
+                    <NavDropdown.Item draggable="false" onClick={saveDataToFile}>
                         Export Data</NavDropdown.Item>
                 </NavDropdown>
                 <Nav.Link href="https://trello.com/b/H9Cln6UD/playfrens">Kanban</Nav.Link>

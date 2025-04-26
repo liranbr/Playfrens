@@ -1,11 +1,13 @@
-import { MdAdd, MdMoreVert } from "react-icons/md";
+import { MdAdd, MdDelete, MdEdit, MdMoreVert, MdPersonOff } from "react-icons/md";
 import "../App.css";
 import "./Components.css";
 import { Row, ToggleButton } from "react-bootstrap";
 import { useState } from "react";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 
 export function SidebarButton({ value, dataTypeKey, setSelection }) {
     const [checked, setChecked] = useState(false);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
     const handleChange = (e) => {
         const isChecked = e.currentTarget.checked;
         setChecked(isChecked); // set button state
@@ -23,6 +25,7 @@ export function SidebarButton({ value, dataTypeKey, setSelection }) {
             className="sidebar-button"
             type="checkbox"
             checked={checked}
+            active={dropdownOpen}
             draggable="true"
             onChange={handleChange}
             onDragStart={(e) => {
@@ -31,9 +34,30 @@ export function SidebarButton({ value, dataTypeKey, setSelection }) {
             }}
         >
             {value}
-            <button className="icon-button">
-                <MdMoreVert />
-            </button>
+            <DropdownMenu.Root onOpenChange={setDropdownOpen}>
+                <DropdownMenu.Trigger asChild>
+                    <button className="icon-button">
+                        <MdMoreVert />
+                    </button>
+                </DropdownMenu.Trigger>
+
+                <DropdownMenu.Portal>
+                    <DropdownMenu.Content align={"start"} sideOffset={5} className="dropdown-menu show">
+                        <DropdownMenu.Item className="dropdown-item">
+                            <MdPersonOff className="dropdown-item-icon" />
+                            Exclude
+                        </DropdownMenu.Item>
+                        <DropdownMenu.Item className="dropdown-item">
+                            <MdEdit className="dropdown-item-icon" />
+                            Edit
+                        </DropdownMenu.Item>
+                        <DropdownMenu.Item className="dropdown-item danger-item">
+                            <MdDelete className="dropdown-item-icon danger-item" />
+                            Delete
+                        </DropdownMenu.Item>
+                    </DropdownMenu.Content>
+                </DropdownMenu.Portal>
+            </DropdownMenu.Root>
         </ToggleButton>
     );
 }

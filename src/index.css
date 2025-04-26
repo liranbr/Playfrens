@@ -34,3 +34,58 @@ html, body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
+
+.dropdown-menu {
+    background-color: var(--pf-bg-700);
+    border-radius: 12px;
+    padding: 6px 0;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    height: 36px;
+    padding: 6px 14px;
+    border-radius: 4px;
+    outline: none;
+    border: none;
+    user-select: none;
+    cursor: pointer;
+
+    &[data-disabled] {
+        color: grey;
+        cursor: inherit;
+
+        &:hover {
+            background-color: transparent;
+        }
+    }
+
+    &:hover {
+        background-color: var(--pf-bg-300);
+    }
+
+    &:active {
+        background-color: var(--bs-dropdown-link-active-bg);
+    }
+
+    & .dropdown-item-icon {
+        font-size: 20px;
+        margin-right: 8px;
+        margin-left: -6px;
+    }
+
+    &.danger-item {
+        color: #fc7975;
+
+        &:hover {
+            background-color: #39292d;
+        }
+
+        &:active {
+            background-color: #ad3c3c;
+            color: #dee2e6;
+        }
+    }
+}

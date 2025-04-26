@@ -69,13 +69,23 @@
     align-items: center;
     justify-content: space-between;
 
-    .icon-button {
+    .icon-button { /* menu button */
         color: #fff;
         visibility: hidden;
+        border-radius: 6px;
+
+        &:hover {
+            background-color: #1a1a1e33;
+        }
     }
 
-    &.active .icon-button, &:hover .icon-button {
+    &:hover .icon-button {
         visibility: visible;
+    }
+
+    &.active .icon-button {
+        visibility: visible;
+        background-color: #1a1a1e33;
     }
 }
 

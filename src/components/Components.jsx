@@ -1,9 +1,11 @@
-import { MdAdd, MdDelete, MdEdit, MdMoreVert, MdPersonOff } from "react-icons/md";
+import { useState } from "react";
+import { Row, ToggleButton } from "react-bootstrap";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import {
+    MdAdd, MdDeleteOutline, MdEdit, MdMoreVert, MdOutlineSearchOff
+} from "react-icons/md";
 import "../App.css";
 import "./Components.css";
-import { Row, ToggleButton } from "react-bootstrap";
-import { useState } from "react";
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 
 export function SidebarButton({ value, dataTypeKey, setSelection }) {
     const [checked, setChecked] = useState(false);
@@ -42,9 +44,10 @@ export function SidebarButton({ value, dataTypeKey, setSelection }) {
                 </DropdownMenu.Trigger>
 
                 <DropdownMenu.Portal>
-                    <DropdownMenu.Content align={"start"} sideOffset={5} className="dropdown-menu show">
+                    <DropdownMenu.Content className="dropdown-menu show"
+                                          align={"start"} side={"bottom"} sideOffset={5}>
                         <DropdownMenu.Item className="dropdown-item">
-                            <MdPersonOff className="dropdown-item-icon" />
+                            <MdOutlineSearchOff className="dropdown-item-icon" />
                             Exclude
                         </DropdownMenu.Item>
                         <DropdownMenu.Item className="dropdown-item">
@@ -52,7 +55,7 @@ export function SidebarButton({ value, dataTypeKey, setSelection }) {
                             Edit
                         </DropdownMenu.Item>
                         <DropdownMenu.Item className="dropdown-item danger-item">
-                            <MdDelete className="dropdown-item-icon danger-item" />
+                            <MdDeleteOutline className="dropdown-item-icon danger-item" />
                             Delete
                         </DropdownMenu.Item>
                     </DropdownMenu.Content>

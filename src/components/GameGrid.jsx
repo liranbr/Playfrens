@@ -1,13 +1,13 @@
-import "../App.css";
-import "./GameGrid.css";
+import { useEffect, useRef, useState } from "react";
+import { observer } from "mobx-react-lite";
 import { Button, Modal, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
-import { useEffect, useRef, useState } from "react";
 import { GameObject } from "../models/GameObject.jsx";
 import { dataTypes } from "../models/DataTypes.jsx";
-import { observer } from "mobx-react-lite";
 import { MdAdd, MdClose } from "react-icons/md";
 import { useValidatedImage } from "../hooks/useValidatedImage.js";
+import "../App.css";
+import "./GameGrid.css";
 
 const ModalSidebarGroup = observer(({ game, dataType }) => {
     const title = dataType.plural.toUpperCase();

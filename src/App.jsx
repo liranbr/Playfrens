@@ -1,19 +1,19 @@
-import "./App.css";
-import "react-toastify/dist/ReactToastify.css";
+import { useMemo, useState } from "react";
 import Navbar from "react-bootstrap/Navbar";
 import Form from "react-bootstrap/Form";
 import Nav from "react-bootstrap/Nav";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
 import { ToastContainer } from "react-toastify";
-import { useMemo, useState } from "react";
-import { GamesGrid } from "./components/GameGrid.jsx";
+import { MdClose, MdOutlineFileDownload, MdOutlineFileUpload } from "react-icons/md";
 import { allGames, loadDataFromFile, saveDataToFile } from "./Store.jsx";
 import { dataTypes } from "./models/DataTypes.jsx";
-import { SidebarGroup } from "./components/Components.jsx";
+import { GamesGrid } from "./components/GameGrid.jsx";
 import { setForceFilterUpdateCallback, toastDataChangeSuccess, toastError } from "./Utils.jsx";
-import { MdClose } from "react-icons/md";
-import { Button } from "react-bootstrap";
+import { SidebarGroup } from "./components/Components.jsx";
+import "./App.css";
+import "react-toastify/dist/ReactToastify.css";
 
 function AppHeader({ searchState }) {
     const [search, setSearch] = searchState;
@@ -43,8 +43,10 @@ function AppHeader({ searchState }) {
                     <NavDropdown.Item draggable="false" onClick={() => {
                         document.getElementById("json-selector").click();
                     }}>
+                        <MdOutlineFileUpload className="dropdown-item-icon" />
                         Import Data</NavDropdown.Item>
                     <NavDropdown.Item draggable="false" onClick={saveDataToFile}>
+                        <MdOutlineFileDownload className="dropdown-item-icon" />
                         Export Data</NavDropdown.Item>
                 </NavDropdown>
                 <Nav.Link href="https://trello.com/b/H9Cln6UD/playfrens">Kanban</Nav.Link>
@@ -94,7 +96,6 @@ function SidebarModal({ dataType, show, setShow }) {
             toastError("Can't save a " + dataType.single + " with an empty name");
         }
     };
-    const placeholder = dataType.placeholder;
     return (
         <Modal show={show} onHide={handleClose} size={"sm"} centered>
             <Modal.Header closeButton>
@@ -106,7 +107,6 @@ function SidebarModal({ dataType, show, setShow }) {
                     <Form.Group className="mb-3" controlId="dataNameInput">
                         <Form.Control
                             type="text"
-                            placeholder={placeholder}
                             autoFocus
                             onKeyDown={(e) => {
                                 if (e.key === "Enter") {

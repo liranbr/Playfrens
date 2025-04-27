@@ -172,7 +172,7 @@
     background: none;
     right: 0;
     left: 0;
-    padding: 2px;
+    padding: 5px;
     border: 1px solid var(--pf-fg-100);
     border-radius: 8px;
     resize: vertical;

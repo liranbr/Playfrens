@@ -13,14 +13,20 @@ const toastOptions = {
     transition: Bounce
 };
 
+let silentToasts = false;
+
+export function setToastSilence(silence) {
+    silentToasts = silence;
+}
+
 export function toastError(message) {
-    toast.error(message, toastOptions);
+    if (!silentToasts) toast.error(message, toastOptions);
 }
 
 export function toastDataChangeSuccess(message) {
     // game data changes don't cause a game grid filter update, this triggers it
     forceFilterUpdate();
-    toast.success(message, toastOptions);
+    if (!silentToasts) toast.success(message, toastOptions);
 }
 
 export function insertSortedByOrder(item, array, orderArray) {

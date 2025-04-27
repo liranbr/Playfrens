@@ -4,10 +4,12 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import {
     MdAdd, MdDeleteOutline, MdEdit, MdMoreVert, MdOutlineSearchOff
 } from "react-icons/md";
+import { removeData } from "../Store.jsx";
+import { toastError } from "../Utils.jsx";
 import "../App.css";
 import "./Components.css";
 
-export function SidebarButton({ value, dataTypeKey, setSelection }) {
+export function SidebarButton({ value, dataType, setSelection, handleShowModal }) {
     const [checked, setChecked] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const handleChange = (e) => {
@@ -22,7 +24,7 @@ export function SidebarButton({ value, dataTypeKey, setSelection }) {
 
     return (
         <ToggleButton
-            id={"btn-sidebar-" + dataTypeKey + "-" + value}
+            id={"btn-sidebar-" + dataType.key + "-" + value}
             value={value}
             className="sidebar-button"
             type="checkbox"
@@ -32,7 +34,7 @@ export function SidebarButton({ value, dataTypeKey, setSelection }) {
             onChange={handleChange}
             onDragStart={(e) => {
                 e.dataTransfer.setData("item", value);
-                e.dataTransfer.setData("dataTypeKey", dataTypeKey);
+                e.dataTransfer.setData("dataTypeKey", dataType.key);
             }}
         >
             {value}
@@ -46,15 +48,24 @@ export function SidebarButton({ value, dataTypeKey, setSelection }) {
                 <DropdownMenu.Portal>
                     <DropdownMenu.Content className="dropdown-menu show"
                                           align={"start"} side={"bottom"} sideOffset={5}>
-                        <DropdownMenu.Item className="dropdown-item">
+                        <DropdownMenu.Item className="dropdown-item" onClick={() => {
+                            toastError("Exclude function not yet implemented");
+                        }}>
                             <MdOutlineSearchOff className="dropdown-item-icon" />
                             Exclude
                         </DropdownMenu.Item>
-                        <DropdownMenu.Item className="dropdown-item">
+                        <DropdownMenu.Item className="dropdown-item" onClick={() => {
+                            handleShowModal(dataType, value);
+                            // TODO: Handle selection state on Edit
+                        }}>
                             <MdEdit className="dropdown-item-icon" />
                             Edit
                         </DropdownMenu.Item>
-                        <DropdownMenu.Item className="dropdown-item danger-item">
+                        <DropdownMenu.Item className="dropdown-item danger-item" onClick={() => {
+                            setChecked(false);
+                            setSelection(prevSelection => prevSelection.filter(item => item !== value));
+                            removeData(dataType, value);
+                        }}>
                             <MdDeleteOutline className="dropdown-item-icon danger-item" />
                             Delete
                         </DropdownMenu.Item>
@@ -81,8 +92,9 @@ export function SidebarGroup({ dataType, dataList, setSelection, handleShowModal
                     <SidebarButton
                         key={index}
                         value={item}
-                        dataTypeKey={dataType.key}
+                        dataType={dataType}
                         setSelection={setSelection}
+                        handleShowModal={handleShowModal}
                     />
                 )}
             </div>

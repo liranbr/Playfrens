@@ -7,10 +7,10 @@ import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import { ToastContainer } from "react-toastify";
 import { MdClose, MdOutlineFileDownload, MdOutlineFileUpload } from "react-icons/md";
-import { allGames, loadDataFromFile, saveDataToFile } from "./Store.jsx";
+import { addData, allGames, editData, loadDataFromFile, saveDataToFile } from "./Store.jsx";
 import { dataTypes } from "./models/DataTypes.jsx";
 import { GamesGrid } from "./components/GameGrid.jsx";
-import { setForceFilterUpdateCallback, toastDataChangeSuccess, toastError } from "./Utils.jsx";
+import { setForceFilterUpdateCallback } from "./Utils.jsx";
 import { SidebarGroup } from "./components/Components.jsx";
 import "./App.css";
 import "react-toastify/dist/ReactToastify.css";
@@ -38,8 +38,7 @@ function AppHeader({ searchState }) {
                 onChange={(e) => loadDataFromFile(e.target.files[0])}
             />
             <Nav className="me-auto">
-                {/* temp links for dev */}
-                <NavDropdown title="File" id="basic-nav-dropdown">
+                <NavDropdown draggable="false" title="File">
                     <NavDropdown.Item draggable="false" onClick={() => {
                         document.getElementById("json-selector").click();
                     }}>
@@ -49,9 +48,7 @@ function AppHeader({ searchState }) {
                         <MdOutlineFileDownload className="dropdown-item-icon" />
                         Export Data</NavDropdown.Item>
                 </NavDropdown>
-                <Nav.Link href="https://trello.com/b/H9Cln6UD/playfrens">Kanban</Nav.Link>
-                <Nav.Link href="https://github.com/liranbr/Playfrens">GitHub</Nav.Link>
-                <Nav.Link href="https://react-bootstrap.netlify.app/docs/components/cards">Bootstrap</Nav.Link>
+                <Nav.Link draggable="false" href="https://github.com/liranbr/Playfrens">GitHub</Nav.Link>
             </Nav>
             <Form inline="true" className="d-flex">
                 <Form.Control
@@ -81,25 +78,21 @@ function AppHeader({ searchState }) {
     );
 }
 
-function SidebarModal({ dataType, show, setShow }) {
+function SidebarModal({ show, setShow, dataType, editedDataName = "" }) {
+    const title = (editedDataName ? "Edit " : "Add ") + dataType.single;
     const handleClose = () => setShow(false);
     const handleSave = () => {
         const dataName = document.getElementById("dataNameInput").value;
-        if (dataName) {
-            dataType.allDataList.push(dataName);
-            if (dataType.key === "friend") {
-                dataType.allDataList.sort((a, b) => a.localeCompare(b.toLowerCase()));
-            }
-            toastDataChangeSuccess("Added " + dataName + " to " + dataType.plural + " list");
+        const doneFunction = editedDataName ?
+            editData(dataType, editedDataName, dataName) :
+            addData(dataType, dataName);
+        if (doneFunction)
             setShow(false);
-        } else {
-            toastError("Can't save a " + dataType.single + " with an empty name");
-        }
     };
     return (
         <Modal show={show} onHide={handleClose} size={"sm"} centered>
             <Modal.Header closeButton>
-                <h4 style={{ margin: 0, color: "#dee2e6" }}>Add {dataType.single}</h4>
+                <h4 style={{ margin: 0, color: "#dee2e6" }}>{title}</h4>
             </Modal.Header>
             <Modal.Body>
                 <Form>
@@ -107,6 +100,7 @@ function SidebarModal({ dataType, show, setShow }) {
                     <Form.Group className="mb-3" controlId="dataNameInput">
                         <Form.Control
                             type="text"
+                            defaultValue={editedDataName}
                             autoFocus
                             onKeyDown={(e) => {
                                 if (e.key === "Enter") {
@@ -131,20 +125,24 @@ function SidebarModal({ dataType, show, setShow }) {
     );
 }
 
+// TODO: Avoid prop drilling, especially for editedDataName in the modal. useContext?
 function AppSidebar({ setSelectedFriends, setSelectedCategories, setSelectedStatuses }) {
     const [showModal, setShowModal] = useState(false);
+    const [editedDataName, setEditedDataName] = useState("");
     const [modalDataType, setModalDataType] = useState(dataTypes.friend);
-    const handleShowModal = (dataType) => {
+    const handleShowModal = (dataType, dataName = "") => {
+        setEditedDataName(dataName);
         setModalDataType(dataType);
         setShowModal(true);
     };
-    // 50% height to friend bar, 50% to categories + status
+    // 50% height for friend bar, 50% for categories and statuses
     return (
         <div className="app-sidebar">
             <SidebarModal
                 dataType={modalDataType}
                 show={showModal}
-                setShow={setShowModal} />
+                setShow={setShowModal}
+                editedDataName={editedDataName} />
             <SidebarGroup
                 dataType={dataTypes.friend}
                 dataList={dataTypes.friend.allDataList}

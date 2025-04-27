@@ -1,5 +1,7 @@
 import { autorun, observable } from "mobx";
 import { GameObject } from "./models/GameObject.jsx";
+import { dataTypes } from "./models/DataTypes.jsx";
+import { setToastSilence, toastDataChangeSuccess, toastError } from "./Utils.jsx";
 
 function loadObsArray(key) {
     return observable.array(JSON.parse(localStorage.getItem(key) || "[]"));
@@ -18,6 +20,9 @@ const dataSortOrder = {
     categories: allCategories,
     statuses: allStatuses
 };
+dataTypes.friend.allDataList = allFriends;
+dataTypes.category.allDataList = allCategories;
+dataTypes.status.allDataList = allStatuses;
 
 export const allGames = observable.array(loadObsArray("allGames").map(game => {
     if (!game) {
@@ -63,4 +68,51 @@ export function loadDataFromFile(file) {
         window.location.reload();
     };
     reader.readAsText(file);
+}
+
+export function addData(dataType, value) {
+    if (!value) {
+        toastError("Cannot save a " + dataType.single + " without a name");
+        return false;
+    }
+    if (dataType.allDataList.includes(value)) {
+        toastError(`${value} already exists in ${dataType.plural} list`);
+        return false;
+    }
+    dataType.allDataList.push(value);
+    if (dataType.key === "friend") {
+        dataType.allDataList.sort((a, b) => a.localeCompare(b.toLowerCase()));
+    }
+    toastDataChangeSuccess("Added " + value + " to " + dataType.plural + " list");
+    return true;
+}
+
+export function removeData(dataType, value) {
+    if (!dataType.allDataList.includes(value)) {
+        toastError(`${value} does not exist in ${dataType.plural} list`);
+        return false;
+    }
+    // TODO: Add Modal Confirmation
+    setToastSilence(true);
+    allGames.forEach(game => {
+        dataType.remove(game, value);
+    });
+    dataType.allDataList.remove(value);
+    setToastSilence(false);
+    toastDataChangeSuccess("Removed " + value + " from " + dataType.plural + " list");
+    return true;
+}
+
+export function editData(dataType, oldValue, newValue) {
+    if (!newValue) {
+        toastError("Cannot save a " + dataType.single + " without a name");
+        return false;
+    }
+    if (!dataType.allDataList.includes(oldValue)) {
+        toastError(`${oldValue} does not exist in ${dataType.plural} list`);
+        return false;
+    }
+    // TODO: Write function
+    toastError("Edit function not yet implemented");
+    return true;
 }

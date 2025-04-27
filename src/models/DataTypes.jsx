@@ -1,5 +1,3 @@
-import { allFriends, allCategories, allStatuses } from "../Store.jsx";
-
 /**
  * @typedef {Object} dataType
  * @property {string} key - e.g. "friend", "category", "status".
@@ -26,7 +24,7 @@ const friend = new dataType(
     "friend",
     "Friend",
     "Friends",
-    allFriends,
+    [],
     (game) => game.friends,
     (game, value) => game.addFriend(value),
     (game, value) => game.removeFriend(value)
@@ -35,7 +33,7 @@ const category = new dataType(
     "category",
     "Category",
     "Categories",
-    allCategories,
+    [],
     (game) => game.categories,
     (game, value) => game.addCategory(value),
     (game, value) => game.removeCategory(value)
@@ -44,7 +42,7 @@ const status = new dataType(
     "status",
     "Status",
     "Status",
-    allStatuses,
+    [],
     (game) => game.statuses,
     (game, value) => game.addStatus(value),
     (game, value) => game.removeStatus(value)

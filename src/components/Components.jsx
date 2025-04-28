@@ -12,14 +12,18 @@ import "./Components.css";
 export function SidebarButton({ value, dataType, setSelection, handleShowModal }) {
     const [checked, setChecked] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
-    const handleChange = (e) => {
-        const isChecked = e.currentTarget.checked;
-        setChecked(isChecked); // set button state
+
+    function updateSelection(isChecked) {
+        setChecked(isChecked);
         setSelection(prevSelection => {
             return isChecked
-                ? [...prevSelection, value] // select filter
-                : prevSelection.filter(item => item !== value); // deselect filter
+                ? [...prevSelection, value]
+                : prevSelection.filter(item => item !== value);
         });
+    }
+
+    const handleChange = (e) => {
+        updateSelection(e.currentTarget.checked);
     };
 
     return (
@@ -55,15 +59,14 @@ export function SidebarButton({ value, dataType, setSelection, handleShowModal }
                             Exclude
                         </DropdownMenu.Item>
                         <DropdownMenu.Item className="dropdown-item" onClick={() => {
+                            updateSelection(false); //TODO: temporary solution to bug
                             handleShowModal(dataType, value);
-                            // TODO: Handle selection state on Edit
                         }}>
                             <MdEdit className="dropdown-item-icon" />
                             Edit
                         </DropdownMenu.Item>
                         <DropdownMenu.Item className="dropdown-item danger-item" onClick={() => {
-                            setChecked(false);
-                            setSelection(prevSelection => prevSelection.filter(item => item !== value));
+                            updateSelection(false);
                             removeData(dataType, value);
                         }}>
                             <MdDeleteOutline className="dropdown-item-icon danger-item" />

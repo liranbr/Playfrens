@@ -1,4 +1,4 @@
-import { autorun, observable } from "mobx";
+import { action, autorun, observable } from "mobx";
 import { GameObject } from "./models/GameObject.jsx";
 import { dataTypes } from "./models/DataTypes.jsx";
 import { setToastSilence, toastDataChangeSuccess, toastError } from "./Utils.jsx";
@@ -31,7 +31,6 @@ export const allGames = observable.array(loadObsArray("allGames").map(game => {
     }
     return new GameObject(game.title, game.coverImagePath, game.friends, game.categories, game.statuses, game.note, dataSortOrder);
 }).filter(game => game !== null));
-// TODO: can the new GameObject skip specifying the properties, if they have the same name in the input?
 
 // when a change is made to an array, it is saved to localstorage
 autorun(() => saveObsArray("allFriends", allFriends));
@@ -58,7 +57,7 @@ export function saveDataToFile() {
 export function loadDataFromFile(file) {
     console.log("Reading file...");
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = action(function(e) {
         const data = JSON.parse(e.target.result.toString());
         allFriends.replace(data["allFriends"]);
         allCategories.replace(data["allCategories"]);
@@ -66,11 +65,11 @@ export function loadDataFromFile(file) {
         allGames.replace(data["allGames"].map(game =>
             new GameObject(game.title, game.coverImagePath, game.friends, game.categories, game.statuses, game.note, dataSortOrder)));
         window.location.reload();
-    };
+    });
     reader.readAsText(file);
 }
 
-export function addData(dataType, value) {
+export const addData = action((dataType, value) => {
     if (!value) {
         toastError("Cannot save a " + dataType.single + " without a name");
         return false;
@@ -85,9 +84,9 @@ export function addData(dataType, value) {
     }
     toastDataChangeSuccess("Added " + value + " to " + dataType.plural + " list");
     return true;
-}
+});
 
-export function removeData(dataType, value) {
+export const removeData = action((dataType, value) => {
     if (!dataType.allDataList.includes(value)) {
         toastError(`${value} does not exist in ${dataType.plural} list`);
         return false;
@@ -101,18 +100,33 @@ export function removeData(dataType, value) {
     setToastSilence(false);
     toastDataChangeSuccess("Removed " + value + " from " + dataType.plural + " list");
     return true;
-}
+});
 
-export function editData(dataType, oldValue, newValue) {
+export const editData = action((dataType, oldValue, newValue) => {
+    // TODO: Fix Editing a data that's an active filter
+    const fullList = dataType.allDataList;
     if (!newValue) {
         toastError("Cannot save a " + dataType.single + " without a name");
         return false;
     }
-    if (!dataType.allDataList.includes(oldValue)) {
+    const oldValueIndex = fullList.indexOf(oldValue);
+    if (oldValueIndex === -1) {
         toastError(`${oldValue} does not exist in ${dataType.plural} list`);
         return false;
     }
-    // TODO: Write function
-    toastError("Edit function not yet implemented");
+    setToastSilence(true);
+    fullList[oldValueIndex] = newValue;
+    if (dataType.key === "friend") {
+        fullList.sort((a, b) => a.localeCompare(b.toLowerCase()));
+    }
+    allGames.forEach(game => {
+        if (dataType.gameDataList(game).includes(oldValue)) {
+            dataType.remove(game, oldValue);
+            dataType.add(game, newValue);
+            toastDataChangeSuccess(`Updated ${oldValue} to ${newValue} in ${game.title}`);
+        }
+    });
+    setToastSilence(false);
+    toastDataChangeSuccess(`Updated ${oldValue} to ${newValue} in ${dataType.plural} list`);
     return true;
-}
+});

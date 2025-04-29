@@ -11,6 +11,7 @@ import { toastError } from "../Utils.jsx";
 import { EditGameModal } from "./EditGameModal.jsx";
 import "../App.css";
 import "./GameGrid.css";
+import { removeGame } from "../Store.jsx";
 
 const CardModalSidebarGroup = observer(({ game, dataType }) => {
     const title = dataType.plural.toUpperCase();
@@ -74,7 +75,7 @@ const CardModalSidebarGroup = observer(({ game, dataType }) => {
     );
 });
 
-function GameOptionsButton({ setShowCardModal, setShowEditGameModal }) {
+function GameOptionsButton({ game, setShowCardModal, setShowEditGameModal }) {
     const buttonRef = useRef(null);
     return (
         <DropdownMenu.Root>
@@ -96,7 +97,8 @@ function GameOptionsButton({ setShowCardModal, setShowEditGameModal }) {
                         Edit
                     </DropdownMenu.Item>
                     <DropdownMenu.Item className="dropdown-item danger-item" onClick={() => {
-                        toastError("Delete Game function not yet implemented");
+                        setShowCardModal(false);
+                        removeGame(game);
                     }}>
                         <MdDeleteOutline className="dropdown-item-icon danger-item" />
                         Delete
@@ -124,7 +126,9 @@ const CardModal = observer(({ game, show, setShow, setShowEditGameModal }) => {
                 <div className="pfm-card-bg layer1" />
                 <div className="pfm-card-bg layer2" />
                 <div className="pfm-header">
-                    <GameOptionsButton setShowCardModal={setShow} setShowEditGameModal={setShowEditGameModal} />
+                    <GameOptionsButton game={game}
+                                       setShowCardModal={setShow}
+                                       setShowEditGameModal={setShowEditGameModal} />
                     <p className="pfm-title">
                         {game.title}
                     </p>

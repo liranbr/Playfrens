@@ -148,3 +148,13 @@ export const addGame = action((title, coverImagePath) => {
     toastDataChangeSuccess("Added " + title + " to games list");
     return true;
 });
+
+export const removeGame = action((game) => {
+    if (!allGames.includes(game)) {
+        toastError(`${game.title} does not exist in games list`);
+        return false;
+    }
+    allGames.remove(game);
+    toastDataChangeSuccess("Removed " + game.title + " from games list");
+    return true;
+});

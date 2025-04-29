@@ -8,12 +8,12 @@
     color: var(--pf-fg-100);
     background: none;
     border: none;
-}
 
-.icon-button:hover {
-    background: none;
-    color: #fff;
-    cursor: pointer;
+    &:hover {
+        background: none;
+        color: #fff;
+        cursor: pointer;
+    }
 }
 
 .sidebar-group {

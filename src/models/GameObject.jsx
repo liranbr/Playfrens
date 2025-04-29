@@ -92,6 +92,21 @@ export class GameObject {
         }
     }
 
+    editGame(title, coverImagePath) {
+        if (!title) {
+            toastError("Cannot save a game without a title");
+            return false;
+        }
+        if (!coverImagePath) {
+            toastError("Cannot save a game without a cover image");
+            return false;
+        }
+        this.title = title;
+        this.coverImagePath = coverImagePath;
+        toastDataChangeSuccess(`Updated ${this.title} to ${title}`);
+        return true;
+    }
+
     setNote(note) {
         this.note = note;
     }

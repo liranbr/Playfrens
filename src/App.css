@@ -27,3 +27,22 @@
     flex-direction: column;
     gap: 10px;
 }
+
+.new-game-button {
+    margin: 0 18px;
+    height: 36px;
+    width: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    color: var(--pf-fg-100);
+    background-color: var(--pf-bg-500);
+    border-radius: 15px;
+    border: none;
+
+    &:hover {
+        color: #fff;
+        background-color: var(--pf-bg-300);
+    }
+}

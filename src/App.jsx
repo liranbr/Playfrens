@@ -3,23 +3,65 @@ import Navbar from "react-bootstrap/Navbar";
 import Form from "react-bootstrap/Form";
 import Nav from "react-bootstrap/Nav";
 import NavDropdown from "react-bootstrap/NavDropdown";
-import Modal from "react-bootstrap/Modal";
-import Button from "react-bootstrap/Button";
 import { ToastContainer } from "react-toastify";
-import { MdClose, MdOutlineFileDownload, MdOutlineFileUpload } from "react-icons/md";
-import { addData, allGames, editData, loadDataFromFile, saveDataToFile } from "./Store.jsx";
+import {
+    MdAdd,
+    MdClose,
+    MdGamepad,
+    MdOutlineFileDownload,
+    MdOutlineFileUpload,
+    MdOutlineGamepad
+} from "react-icons/md";
+import { allGames, loadDataFromFile, saveDataToFile } from "./Store.jsx";
 import { dataTypes } from "./models/DataTypes.jsx";
 import { GamesGrid } from "./components/GameGrid.jsx";
 import { setForceFilterUpdateCallback } from "./Utils.jsx";
 import { SidebarGroup } from "./components/Components.jsx";
+import { EditGameModal } from "./components/EditGameModal.jsx";
+import { EditDataModal } from "./components/EditDataModal.jsx";
 import "./App.css";
 import "react-toastify/dist/ReactToastify.css";
 
 function AppHeader({ searchState }) {
     const [search, setSearch] = searchState;
+    const [showGameModal, setShowGameModal] = useState(false);
     const updateSearch = (e) => setSearch(e.target.value || "");
     return (
         <Navbar className="app-header" fixed="top">
+            <Form inline="true" style={{
+                position: "absolute",
+                right: "50%",
+                transform: "translateX(50%)"
+            }}>
+                <Form.Control
+                    type="text"
+                    placeholder="Search"
+                    value={search}
+                    onChange={updateSearch}
+                    style={{
+                        background: "none",
+                        borderRadius: "15px",
+                        height: "36px",
+                        boxSizing: "border-box"
+                    }}
+                    onKeyDown={(e) => e.key === "Enter" ? e.preventDefault() : null}
+                    onSubmit={(e) => e.preventDefault()}
+                />
+                <button type="reset" className="icon-button" onClick={updateSearch} style={{
+                    display: search ? "flex" : "none",
+                    position: "absolute",
+                    fontSize: "20px",
+                    right: "0",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    border: "none",
+                    background: "none",
+                    alignItems: "center"
+                }}>
+                    <MdClose />
+                </button>
+            </Form>
+            <EditGameModal show={showGameModal} setShow={setShowGameModal} />
             <Navbar.Brand>
                 <img
                     src="/Playfrens_Logo.png"
@@ -50,98 +92,30 @@ function AppHeader({ searchState }) {
                 </NavDropdown>
                 <Nav.Link draggable="false" href="https://github.com/liranbr/Playfrens">GitHub</Nav.Link>
             </Nav>
-            <Form inline="true" className="d-flex">
-                <Form.Control
-                    type="text"
-                    placeholder="Search"
-                    value={search}
-                    onChange={updateSearch}
-                    style={{ background: "none" }}
-                    onKeyDown={(e) => e.key === "Enter" ? e.preventDefault() : null}
-                    onSubmit={(e) => e.preventDefault()}
-                />
-                <button type="reset" className="icon-button" onClick={updateSearch} style={{
-                    display: search ? "flex" : "none",
-                    position: "absolute",
-                    fontSize: "20px",
-                    right: "16px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    border: "none",
-                    background: "none",
-                    alignItems: "center"
-                }}>
-                    <MdClose />
-                </button>
-            </Form>
+            <button className="new-game-button" onClick={() => setShowGameModal(true)}>
+                <MdOutlineGamepad />
+            </button>
         </Navbar>
-    );
-}
-
-function SidebarModal({ show, setShow, dataType, editedDataName = "" }) {
-    const title = (editedDataName ? "Edit " : "Add ") + dataType.single;
-    const handleClose = () => setShow(false);
-    const handleSave = () => {
-        const dataName = document.getElementById("dataNameInput").value;
-        const doneFunction = editedDataName ?
-            editData(dataType, editedDataName, dataName) :
-            addData(dataType, dataName);
-        if (doneFunction)
-            setShow(false);
-    };
-    return (
-        <Modal show={show} onHide={handleClose} size={"sm"} centered>
-            <Modal.Header closeButton>
-                <h4 style={{ margin: 0, color: "#dee2e6" }}>{title}</h4>
-            </Modal.Header>
-            <Modal.Body>
-                <Form>
-                    <p style={{ color: "#dee2e6" }}>Name</p>
-                    <Form.Group className="mb-3" controlId="dataNameInput">
-                        <Form.Control
-                            type="text"
-                            defaultValue={editedDataName}
-                            autoFocus
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                    handleSave();
-                                    return e.preventDefault();
-                                }
-                                return null;
-                            }}
-                        />
-                    </Form.Group>
-                </Form>
-            </Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={handleClose}>
-                    Close
-                </Button>
-                <Button variant="primary" onClick={handleSave}>
-                    Save
-                </Button>
-            </Modal.Footer>
-        </Modal>
     );
 }
 
 // TODO: Avoid prop drilling, especially for editedDataName in the modal. useContext?
 function AppSidebar({ setSelectedFriends, setSelectedCategories, setSelectedStatuses }) {
-    const [showModal, setShowModal] = useState(false);
+    const [showDataModal, setShowDataModal] = useState(false);
     const [editedDataName, setEditedDataName] = useState("");
     const [modalDataType, setModalDataType] = useState(dataTypes.friend);
     const handleShowModal = (dataType, dataName = "") => {
         setEditedDataName(dataName);
         setModalDataType(dataType);
-        setShowModal(true);
+        setShowDataModal(true);
     };
     // 50% height for friend bar, 50% for categories and statuses
     return (
         <div className="app-sidebar">
-            <SidebarModal
+            <EditDataModal
                 dataType={modalDataType}
-                show={showModal}
-                setShow={setShowModal}
+                show={showDataModal}
+                setShow={setShowDataModal}
                 editedDataName={editedDataName} />
             <SidebarGroup
                 dataType={dataTypes.friend}

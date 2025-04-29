@@ -5,9 +5,7 @@ import Nav from "react-bootstrap/Nav";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import { ToastContainer } from "react-toastify";
 import {
-    MdAdd,
     MdClose,
-    MdGamepad,
     MdOutlineFileDownload,
     MdOutlineFileUpload,
     MdOutlineGamepad
@@ -42,6 +40,7 @@ function AppHeader({ searchState }) {
                         background: "none",
                         borderRadius: "15px",
                         height: "36px",
+                        width: "300px",
                         boxSizing: "border-box"
                     }}
                     onKeyDown={(e) => e.key === "Enter" ? e.preventDefault() : null}

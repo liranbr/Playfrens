@@ -2,14 +2,17 @@ import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { Button, Modal, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { GameObject } from "../models/GameObject.jsx";
 import { dataTypes } from "../models/DataTypes.jsx";
-import { MdAdd, MdClose } from "react-icons/md";
+import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert } from "react-icons/md";
 import { useValidatedImage } from "../hooks/useValidatedImage.js";
+import { toastError } from "../Utils.jsx";
+import { EditGameModal } from "./EditGameModal.jsx";
 import "../App.css";
 import "./GameGrid.css";
 
-const ModalSidebarGroup = observer(({ game, dataType }) => {
+const CardModalSidebarGroup = observer(({ game, dataType }) => {
     const title = dataType.plural.toUpperCase();
     const gameDataList = dataType.gameDataList(game);
     const handleRemove = (item) => {
@@ -71,13 +74,49 @@ const ModalSidebarGroup = observer(({ game, dataType }) => {
     );
 });
 
-const GameModal = observer(({ game, show, handleHide }) => {
+function GameOptionsButton({ setShowCardModal, setShowEditGameModal }) {
+    const buttonRef = useRef(null);
+    return (
+        <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+                <button className="icon-button" ref={buttonRef}>
+                    <MdMoreVert />
+                </button>
+            </DropdownMenu.Trigger>
+
+            <DropdownMenu.Portal>
+                <DropdownMenu.Content className="dropdown-menu show"
+                                      align={"start"} side={"bottom"} sideOffset={5}
+                                      style={{ zIndex: 1111 }}>
+                    <DropdownMenu.Item className="dropdown-item" onClick={() => {
+                        setShowCardModal(false);
+                        setShowEditGameModal(true);
+                    }}>
+                        <MdEdit className="dropdown-item-icon" />
+                        Edit
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item className="dropdown-item danger-item" onClick={() => {
+                        toastError("Delete Game function not yet implemented");
+                    }}>
+                        <MdDeleteOutline className="dropdown-item-icon danger-item" />
+                        Delete
+                    </DropdownMenu.Item>
+                </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+        </DropdownMenu.Root>
+    );
+}
+
+const CardModal = observer(({ game, show, setShow, setShowEditGameModal }) => {
     const gameCover = useValidatedImage(game.coverImagePath);
+    const handleHide = () => {
+        setShow(false);
+    };
 
     return (
         <Modal className={"playfrens-modal pfm-shadow"} show={show} onHide={handleHide} centered>
             <div className="pfm-sidebar">
-                <ModalSidebarGroup dataType={dataTypes.friend} game={game} />
+                <CardModalSidebarGroup dataType={dataTypes.friend} game={game} />
             </div>
 
             <div className="pfm-card" style={{ "--bg-url": `url("${gameCover}")` }}>
@@ -85,7 +124,7 @@ const GameModal = observer(({ game, show, handleHide }) => {
                 <div className="pfm-card-bg layer1" />
                 <div className="pfm-card-bg layer2" />
                 <div className="pfm-header">
-                    <div />
+                    <GameOptionsButton setShowCardModal={setShow} setShowEditGameModal={setShowEditGameModal} />
                     <p className="pfm-title">
                         {game.title}
                     </p>
@@ -102,8 +141,8 @@ const GameModal = observer(({ game, show, handleHide }) => {
             </div>
 
             <div className="pfm-sidebar">
-                <ModalSidebarGroup dataType={dataTypes.category} game={game} />
-                <ModalSidebarGroup dataType={dataTypes.status} game={game} />
+                <CardModalSidebarGroup dataType={dataTypes.category} game={game} />
+                <CardModalSidebarGroup dataType={dataTypes.status} game={game} />
             </div>
         </Modal>
     );
@@ -134,12 +173,12 @@ function GameCard({ game, onClick }) {
 }
 
 export function GamesGrid({ filteredGames }) {
-    const [showModal, setShowModal] = useState(false);
+    const [showCardModal, setShowCardModal] = useState(false);
+    const [showEditGameModal, setShowEditGameModal] = useState(false);
     const [modalGame, setModalGame] = useState(new GameObject("[no game]"));
-    const handleHideModal = () => setShowModal(false);
-    const handleShowModal = (game) => {
+    const handleShowCardModal = (game) => {
         setModalGame(game);
-        setShowModal(true);
+        setShowCardModal(true);
     };
 
     // useEffect to update the grid justification if there aren't enough items to fill the row
@@ -166,8 +205,12 @@ export function GamesGrid({ filteredGames }) {
                 {filteredGames.map((game, index) => (<GameCard
                     key={index}
                     game={game}
-                    onClick={handleShowModal} />))}
-                <GameModal game={modalGame} show={showModal} handleHide={handleHideModal} />
+                    onClick={handleShowCardModal} />))}
+                {/* the modals can activate each other, when using the Edit functionality */}
+                <CardModal game={modalGame} show={showCardModal} setShow={setShowCardModal}
+                           setShowEditGameModal={setShowEditGameModal} />
+                <EditGameModal game={modalGame} show={showEditGameModal} setShow={setShowEditGameModal}
+                               setShowCardModal={setShowCardModal} />
             </div>
         </div>
     );

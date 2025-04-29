@@ -3,17 +3,22 @@ import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import { addGame } from "../Store.jsx";
 
-export function EditGameModal({ show, setShow, game = null }) {
-    const handleClose = () => setShow(false);
+export function EditGameModal({ show, setShow, game = null, setShowCardModal = null }) {
+    const handleClose = () => {
+        setShow(false);
+        if (setShowCardModal) {
+            setShowCardModal(true);
+        }
+    };
     const handleSave = () => {
         const gameTitle = document.getElementById("gameTitleInput").value;
         const gameCoverPath = document.getElementById("gameCoverInput").value;
         if (game) {
             if (game.editGame(gameTitle, gameCoverPath))
-                setShow(false);
+                handleClose();
         } else {
             if (addGame(gameTitle, gameCoverPath))
-                setShow(false);
+                handleClose();
         }
     };
     return (

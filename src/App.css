@@ -22,7 +22,7 @@
 }
 
 .sidebar-subgroup {
-    max-height: 50%;
+    max-height: 66%;
     display: flex;
     flex-direction: column;
     gap: 10px;

@@ -28,7 +28,7 @@ export function EditGameModal({ show, setShow, game = null, setShowCardModal = n
             </Modal.Header>
             <Modal.Body>
                 <Form>
-                    <p style={{ color: "#dee2e6" }}>Game Title</p>
+                    <p style={{ color: "#dee2e6", marginBottom: "5px" }}>Game Title</p>
                     <Form.Group className="mb-3" controlId="gameTitleInput">
                         <Form.Control
                             type="text"
@@ -43,8 +43,8 @@ export function EditGameModal({ show, setShow, game = null, setShowCardModal = n
                             }}
                         />
                     </Form.Group>
-                    <p style={{ color: "#dee2e6" }}>Game Cover URL</p>
-                    <Form.Group className="mb-3" controlId="gameCoverInput">
+                    <p style={{ color: "#dee2e6", marginBottom: "5px" }}>Game Cover URL</p>
+                    <Form.Group controlId="gameCoverInput">
                         <Form.Control
                             type="text"
                             defaultValue={game ? game.coverImagePath : ""}
@@ -57,6 +57,10 @@ export function EditGameModal({ show, setShow, game = null, setShowCardModal = n
                             }}
                         />
                     </Form.Group>
+                    <p style={{ color: "#dee2e6", fontSize: "14px" }}>
+                        <a href="https://www.steamgriddb.com/" target="_blank"
+                           rel="noopener noreferrer">SteamGridDB</a> (ideally 600x900)
+                    </p>
                 </Form>
             </Modal.Body>
             <Modal.Footer>

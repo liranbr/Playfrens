@@ -11,6 +11,15 @@ function saveObsArray(key, value) {
     localStorage.setItem(key, JSON.stringify(value, null, 4));
 }
 
+const firstVisit = localStorage.getItem("Visited") === null;
+if (firstVisit) {
+    const defaultCategories = ["Playthrough", "Round-based", "Persistent World"];
+    const defaultStatuses = ["Playing", "Paused", "LFG", "Later", "Abandoned", "Finished"];
+    localStorage.setItem("allCategories", JSON.stringify(defaultCategories, null, 4));
+    localStorage.setItem("allStatuses", JSON.stringify(defaultStatuses, null, 4));
+    localStorage.setItem("Visited", "true");
+}
+
 // load data from localstorage as observables
 export const allFriends = loadObsArray("allFriends").sort((a, b) => a.localeCompare(b.toLowerCase()));
 export const allCategories = loadObsArray("allCategories");

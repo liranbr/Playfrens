@@ -7,11 +7,10 @@ import { GameObject } from "../models/GameObject.jsx";
 import { dataTypes } from "../models/DataTypes.jsx";
 import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert } from "react-icons/md";
 import { useValidatedImage } from "../hooks/useValidatedImage.js";
-import { toastError } from "../Utils.jsx";
 import { EditGameModal } from "./EditGameModal.jsx";
+import { removeGame } from "../Store.jsx";
 import "../App.css";
 import "./GameGrid.css";
-import { removeGame } from "../Store.jsx";
 
 const CardModalSidebarGroup = observer(({ game, dataType }) => {
     const title = dataType.plural.toUpperCase();

@@ -89,7 +89,8 @@ function AppHeader({ searchState }) {
                         <MdOutlineFileDownload className="dropdown-item-icon" />
                         Export Data</NavDropdown.Item>
                 </NavDropdown>
-                <Nav.Link draggable="false" href="https://github.com/liranbr/Playfrens">GitHub</Nav.Link>
+                <Nav.Link draggable="false" href="https://github.com/liranbr/Playfrens" target="_blank"
+                          rel="noopener noreferrer">GitHub</Nav.Link>
             </Nav>
             <button className="new-game-button" onClick={() => setShowGameModal(true)}>
                 <MdOutlineGamepad />

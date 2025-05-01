@@ -13,11 +13,12 @@ export function EditGameModal({ show, setShow, game = null, setShowCardModal = n
     const handleSave = () => {
         const gameTitle = document.getElementById("gameTitleInput").value;
         const gameCoverPath = document.getElementById("gameCoverInput").value;
+        const gameSortingTitle = document.getElementById("gameSortingTitleInput").value;
         if (game) {
-            if (game.editGame(gameTitle, gameCoverPath))
+            if (game.editGame(gameTitle, gameCoverPath, gameSortingTitle))
                 handleClose();
         } else {
-            if (addGame(gameTitle, gameCoverPath))
+            if (addGame(gameTitle, gameCoverPath, gameSortingTitle))
                 handleClose();
         }
     };
@@ -61,6 +62,20 @@ export function EditGameModal({ show, setShow, game = null, setShowCardModal = n
                         <a href="https://www.steamgriddb.com/" target="_blank"
                            rel="noopener noreferrer">SteamGridDB</a> (ideally 600x900)
                     </p>
+                    <p style={{ color: "#dee2e6", marginBottom: "5px" }}>Sorting Title (optional)</p>
+                    <Form.Group className="mb-3" controlId="gameSortingTitleInput">
+                        <Form.Control
+                            type="text"
+                            defaultValue={game ? game.sortingTitle : ""}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    handleSave();
+                                    return e.preventDefault();
+                                }
+                                return null;
+                            }}
+                        />
+                    </Form.Group>
                 </Form>
             </Modal.Body>
             <Modal.Footer>

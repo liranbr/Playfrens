@@ -38,8 +38,13 @@ export const allGames = observable.array(loadObsArray("allGames").map(game => {
         console.warn("Skipping invalid game data:", game);
         return null;
     }
-    return new GameObject(game.title, game.coverImagePath, game.friends, game.categories, game.statuses, game.note, dataSortOrder);
-}).filter(game => game !== null));
+    return new GameObject(
+        game.title, game.coverImagePath, game.sortingTitle,
+        game.friends, game.categories, game.statuses,
+        game.note,
+        dataSortOrder);
+}).filter(game => game !== null)
+    .sort((a, b) => (a.sortingTitle || a.title).localeCompare((b.sortingTitle || b.title).toLowerCase())));
 
 // when a change is made to an array, it is saved to localstorage
 autorun(() => saveObsArray("allFriends", allFriends));
@@ -140,7 +145,7 @@ export const editData = action((dataType, oldValue, newValue) => {
     return true;
 });
 
-export const addGame = action((title, coverImagePath) => {
+export const addGame = action((title, coverImagePath, gameSortingTitle = "") => {
     if (!title) {
         toastError("Cannot save a game without a title");
         return false;
@@ -153,7 +158,7 @@ export const addGame = action((title, coverImagePath) => {
         toastError("Cannot save a game without a cover image");
         return false;
     }
-    allGames.push(new GameObject(title, coverImagePath, [], [], [], "", dataSortOrder));
+    allGames.push(new GameObject(title, coverImagePath, gameSortingTitle, [], [], [], "", dataSortOrder));
     toastDataChangeSuccess("Added " + title + " to games list");
     return true;
 });

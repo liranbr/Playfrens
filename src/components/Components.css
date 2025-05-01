@@ -8,6 +8,7 @@
     color: var(--pf-fg-100);
     background: none;
     border: none;
+    outline: none;
 
     &:hover {
         background: none;

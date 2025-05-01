@@ -12,45 +12,44 @@ import { removeGame } from "../Store.jsx";
 import "../App.css";
 import "./GameGrid.css";
 
+const AddDataDropdown = ({ dataType, game }) => {
+    return (
+        <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+                <button className="icon-button">
+                    <MdAdd />
+                </button>
+            </DropdownMenu.Trigger>
+
+            <DropdownMenu.Portal>
+                <DropdownMenu.Content className="dropdown-menu show"
+                                      align={"start"} side={"bottom"} sideOffset={5}
+                                      style={{ zIndex: 1111, pointerEvents: "auto" }}>
+                    {dataType.allDataList.filter(item => !dataType.gameDataList(game).includes(item)).map(item => (
+                        <DropdownMenu.Item key={item} className="dropdown-item" onClick={() => {
+                            dataType.add(game, item);
+                        }}>
+                            {item}
+                        </DropdownMenu.Item>
+                    ))}
+                </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+        </DropdownMenu.Root>
+    );
+};
+
 const CardModalSidebarGroup = observer(({ game, dataType }) => {
     const title = dataType.plural.toUpperCase();
     const gameDataList = dataType.gameDataList(game);
     const handleRemove = (item) => {
         dataType.remove(game, item);
     };
-    const handleAdd = (item) => {
-        dataType.add(game, item.target.value);
-    };
-    const selectRef = useRef(null);
     return (
         <Row className="sidebar-group pfm-shadow">
             <div className="sidebar-header position-relative">
                 <div />
                 <h4 className="sidebar-title">{title}</h4>
-                <div className="ms-auto">
-                    <button className={"icon-button"}>
-                        <MdAdd />
-                        <Form.Select
-                            ref={selectRef}
-                            onChange={handleAdd}
-                            style={{
-                                position: "absolute",
-                                opacity: 0, // Invisible but clickable, positioned in the button
-                                cursor: "pointer",
-                                height: "100%",
-                                width: "30px",
-                                top: 0,
-                                right: 0,
-                                padding: 0
-                            }}
-                        >
-                            <option value="" hidden>Add a {dataType.single}</option>
-                            {dataType.allDataList.filter(item => !gameDataList.includes(item)).map(item => (
-                                <option key={String(item)} value={String(item)}>{item}</option>
-                            ))}
-                        </Form.Select>
-                    </button>
-                </div>
+                <AddDataDropdown dataType={dataType} game={game} />
             </div>
             <div className="sidebar-buttons-list">
                 {gameDataList.map((item, index) =>
@@ -75,11 +74,10 @@ const CardModalSidebarGroup = observer(({ game, dataType }) => {
 });
 
 function GameOptionsButton({ game, setShowCardModal, setShowEditGameModal }) {
-    const buttonRef = useRef(null);
     return (
         <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
-                <button className="icon-button" ref={buttonRef}>
+                <button className="icon-button">
                     <MdMoreVert />
                 </button>
             </DropdownMenu.Trigger>
@@ -115,7 +113,7 @@ const CardModal = observer(({ game, show, setShow, setShowEditGameModal }) => {
     };
 
     return (
-        <Modal className={"playfrens-modal pfm-shadow"} show={show} onHide={handleHide} centered>
+        <Modal className={"playfrens-modal pfm-shadow"} show={show} onHide={handleHide} centered enforceFocus={false}>
             <div className="pfm-sidebar">
                 <CardModalSidebarGroup dataType={dataTypes.friend} game={game} />
             </div>

@@ -36,6 +36,8 @@ html, body {
 }
 
 .dropdown-menu {
+    max-height: 495px;
+    overflow-y: auto;
     background-color: var(--pf-bg-700);
     border-radius: 12px;
     padding: 6px 0;

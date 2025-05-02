@@ -44,7 +44,7 @@ export const allGames = observable.array(loadObsArray("allGames").map(game => {
         game.note,
         dataSortOrder);
 }).filter(game => game !== null)
-    .sort((a, b) => (a.sortingTitle || a.title).localeCompare((b.sortingTitle || b.title).toLowerCase())));
+    .sort((a, b) => (a.sortingTitle || a.title).toLowerCase().localeCompare((b.sortingTitle || b.title).toLowerCase())));
 
 // when a change is made to an array, it is saved to localstorage
 autorun(() => saveObsArray("allFriends", allFriends));
@@ -77,7 +77,7 @@ export function loadDataFromFile(file) {
         allCategories.replace(data["allCategories"]);
         allStatuses.replace(data["allStatuses"]);
         allGames.replace(data["allGames"].map(game =>
-            new GameObject(game.title, game.coverImagePath, game.friends, game.categories, game.statuses, game.note, dataSortOrder)));
+            new GameObject(game.title, game.coverImagePath, game.sortingTitle, game.friends, game.categories, game.statuses, game.note, dataSortOrder)));
         window.location.reload();
     });
     reader.readAsText(file);

@@ -62,8 +62,13 @@ export function backupToFile() {
     const blob = new Blob([JSON.stringify(data, null, 4)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
+    const timestamp = new Date()
+        .toISOString()
+        .split(".")[0]
+        .replace("T", " ")
+        .replaceAll(":", "-");
     a.href = url;
-    a.download = "PlayfrensData.json";
+    a.download = `Playfrens ${timestamp}.json`;
     a.click();
     URL.revokeObjectURL(url);
 }

@@ -40,6 +40,7 @@ export class GameObject {
             removeCategory: action,
             addStatus: action,
             removeStatus: action,
+            editGame: action,
             setNote: action
         });
     }

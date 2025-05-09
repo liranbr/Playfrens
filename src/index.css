@@ -9,8 +9,9 @@
     --pf-bg-300: #2e2e33;
     --pf-fg-100: #aeaeb4;
 
-    --sidebar-width: 275px;
-    --game-card-width: 250px;
+    --sidebar-width: 250px;
+    --game-card-width: 210px;
+    --pfm-card-width: 500px;
     --icon-size: 30px;
 }
 
@@ -94,4 +95,20 @@ html, body {
 
 input {
     box-shadow: none !important;
+}
+
+.text-stroke-1px {
+    --stroke-color: #000;
+    text-shadow: -1px -1px 0 var(--stroke-color),
+    1px -1px 0 var(--stroke-color),
+    -1px 1px 0 var(--stroke-color),
+    1px 1px 0 var(--stroke-color);
+}
+
+.text-stroke-2px {
+    --stroke-color: #000;
+    text-shadow: -2px -2px 0 var(--stroke-color),
+    2px -2px 0 var(--stroke-color),
+    -2px 2px 0 var(--stroke-color),
+    2px 2px 0 var(--stroke-color);
 }

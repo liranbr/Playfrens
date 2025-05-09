@@ -39,7 +39,7 @@ export const allGames = observable.array(loadObsArray("allGames").map(game => {
         return null;
     }
     return new GameObject(
-        game.title, game.coverImagePath, game.sortingTitle,
+        game.title, (game.coverImageURL || game.coverImagePath), game.sortingTitle,
         game.friends, game.categories, game.statuses,
         game.note,
         dataSortOrder);
@@ -52,7 +52,7 @@ autorun(() => saveObsArray("allCategories", allCategories));
 autorun(() => saveObsArray("allStatuses", allStatuses));
 autorun(() => saveObsArray("allGames", allGames));
 
-export function saveDataToFile() {
+export function backupToFile() {
     const data = {
         allFriends: allFriends,
         allCategories: allCategories,
@@ -68,7 +68,7 @@ export function saveDataToFile() {
     URL.revokeObjectURL(url);
 }
 
-export function loadDataFromFile(file) {
+export function restoreFromFile(file) {
     console.log("Reading file...");
     const reader = new FileReader();
     reader.onload = action(function(e) {
@@ -77,7 +77,7 @@ export function loadDataFromFile(file) {
         allCategories.replace(data["allCategories"]);
         allStatuses.replace(data["allStatuses"]);
         allGames.replace(data["allGames"].map(game =>
-            new GameObject(game.title, game.coverImagePath, game.sortingTitle, game.friends, game.categories, game.statuses, game.note, dataSortOrder)));
+            new GameObject(game.title, (game.coverImageURL || game.coverImagePath), game.sortingTitle, game.friends, game.categories, game.statuses, game.note, dataSortOrder)));
         window.location.reload();
     });
     reader.readAsText(file);
@@ -108,7 +108,7 @@ export const removeData = action((dataType, value) => {
     // TODO: Add Modal Confirmation
     setToastSilence(true);
     allGames.forEach(game => {
-        dataType.remove(game, value);
+        dataType.removeFromGame(game, value);
     });
     dataType.allDataList.remove(value);
     setToastSilence(false);
@@ -135,8 +135,8 @@ export const editData = action((dataType, oldValue, newValue) => {
     }
     allGames.forEach(game => {
         if (dataType.gameDataList(game).includes(oldValue)) {
-            dataType.remove(game, oldValue);
-            dataType.add(game, newValue);
+            dataType.removeFromGame(game, oldValue);
+            dataType.addToGame(game, newValue);
             toastDataChangeSuccess(`Updated ${oldValue} to ${newValue} in ${game.title}`);
         }
     });
@@ -145,7 +145,7 @@ export const editData = action((dataType, oldValue, newValue) => {
     return true;
 });
 
-export const addGame = action((title, coverImagePath, gameSortingTitle = "") => {
+export const addGame = action((title, coverImageURL, gameSortingTitle = "") => {
     if (!title) {
         toastError("Cannot save a game without a title");
         return false;
@@ -154,11 +154,11 @@ export const addGame = action((title, coverImagePath, gameSortingTitle = "") => 
         toastError(`${title} already exists in games list`);
         return false;
     }
-    if (!coverImagePath) {
+    if (!coverImageURL) {
         toastError("Cannot save a game without a cover image");
         return false;
     }
-    allGames.push(new GameObject(title, coverImagePath, gameSortingTitle, [], [], [], "", dataSortOrder));
+    allGames.push(new GameObject(title, coverImageURL, gameSortingTitle, [], [], [], "", dataSortOrder));
     toastDataChangeSuccess("Added " + title + " to games list");
     return true;
 });

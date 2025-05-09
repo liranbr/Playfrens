@@ -4,7 +4,7 @@ import { toastError, toastDataChangeSuccess, insertSortedByOrder } from "../Util
 /**
  * @typedef {Object} GameObject
  * @property {string} title - The title of the game.
- * @property {string} coverImagePath - The path to the game's cover image file.
+ * @property {string} coverImageURL - The path to the game's cover image file.
  * @property {string} sortingTitle - The (optional) title used for sorting the game.
  * @property {Array<string>} friends - The list of friends for this game.
  * @property {Array<string>} categories - The list of categories for this game.
@@ -13,12 +13,12 @@ import { toastError, toastDataChangeSuccess, insertSortedByOrder } from "../Util
  * @property {{ friends: Array<string>, categories: Array<string>, statuses: Array<string> }} dataSortOrder - The order to sort data by, usually the full lists
  */
 export class GameObject {
-    constructor(title, coverImagePath = "/missing_game_cover.png", sortingTitle = "",
+    constructor(title, coverImageURL = "/missing_game_cover.png", sortingTitle = "",
                 friends = [], categories = [], statuses = [],
                 note = "",
                 dataSortOrder = {}) {
         this.title = title;
-        this.coverImagePath = coverImagePath;
+        this.coverImageURL = coverImageURL;
         this.sortingTitle = sortingTitle;
         this.friends = friends;
         this.categories = categories;
@@ -27,7 +27,7 @@ export class GameObject {
         this.dataSortOrder = dataSortOrder;
         makeObservable(this, {
             title: observable,
-            coverImagePath: observable,
+            coverImageURL: observable,
             sortingTitle: observable,
             friends: observable,
             categories: observable,
@@ -98,17 +98,17 @@ export class GameObject {
         }
     }
 
-    editGame(title, coverImagePath, sortingTitle) {
+    editGame(title, coverImageURL, sortingTitle) {
         if (!title) {
             toastError("Cannot save a game without a title");
             return false;
         }
-        if (!coverImagePath) {
+        if (!coverImageURL) {
             toastError("Cannot save a game without a cover image");
             return false;
         }
         this.title = title;
-        this.coverImagePath = coverImagePath;
+        this.coverImageURL = coverImageURL;
         this.sortingTitle = sortingTitle;
         toastDataChangeSuccess(`Updated ${this.title} to ${title}`);
         return true;
@@ -121,7 +121,7 @@ export class GameObject {
     toJSON() {
         return {
             title: this.title,
-            coverImagePath: this.coverImagePath,
+            coverImageURL: this.coverImageURL,
             sortingTitle: this.sortingTitle,
             friends: this.friends,
             categories: this.categories,
@@ -131,6 +131,6 @@ export class GameObject {
     }
 
     toString() {
-        return `Game Title: ${this.title}, sorting title: ${this.sortingTitle}, game cover URL: ${this.coverImagePath}, \nfriends: ${this.friends}, categories: ${this.categories}, statuses: ${this.statuses}, \nnote: ${this.note}`;
+        return `Game Title: ${this.title}, sorting title: ${this.sortingTitle}, cover image URL: ${this.coverImageURL}, \nfriends: ${this.friends}, categories: ${this.categories}, statuses: ${this.statuses}, \nnote: ${this.note}`;
     }
 }

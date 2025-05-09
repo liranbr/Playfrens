@@ -10,7 +10,7 @@ import {
     MdOutlineFileUpload,
     MdOutlineGamepad
 } from "react-icons/md";
-import { allGames, loadDataFromFile, saveDataToFile } from "./Store.jsx";
+import { allGames, restoreFromFile, backupToFile } from "./Store.jsx";
 import { dataTypes } from "./models/DataTypes.jsx";
 import { GamesGrid } from "./components/GameGrid.jsx";
 import { setForceFilterUpdateCallback } from "./Utils.jsx";
@@ -76,7 +76,7 @@ function AppHeader({ searchState }) {
                 id="json-selector"
                 accept=".json"
                 style={{ display: "none" }}
-                onChange={(e) => loadDataFromFile(e.target.files[0])}
+                onChange={(e) => restoreFromFile(e.target.files[0])}
             />
             <Nav className="me-auto">
                 <NavDropdown draggable="false" title="File">
@@ -84,10 +84,10 @@ function AppHeader({ searchState }) {
                         document.getElementById("json-selector").click();
                     }}>
                         <MdOutlineFileUpload className="dropdown-item-icon" />
-                        Import Data</NavDropdown.Item>
-                    <NavDropdown.Item draggable="false" onClick={saveDataToFile}>
+                        Restore</NavDropdown.Item>
+                    <NavDropdown.Item draggable="false" onClick={backupToFile}>
                         <MdOutlineFileDownload className="dropdown-item-icon" />
-                        Export Data</NavDropdown.Item>
+                        Backup</NavDropdown.Item>
                 </NavDropdown>
                 <Nav.Link draggable="false" href="https://github.com/liranbr/Playfrens" target="_blank"
                           rel="noopener noreferrer">GitHub</Nav.Link>

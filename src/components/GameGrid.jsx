@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { Button, Modal, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
-import Form from "react-bootstrap/Form";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { GameObject } from "../models/GameObject.jsx";
 import { dataTypes } from "../models/DataTypes.jsx";
@@ -11,6 +10,7 @@ import { EditGameModal } from "./EditGameModal.jsx";
 import { removeGame } from "../Store.jsx";
 import "../App.css";
 import "./GameGrid.css";
+import { OutlinedIcon } from "../Utils.jsx";
 
 const AddDataDropdown = ({ dataType, game }) => {
     return (
@@ -27,7 +27,7 @@ const AddDataDropdown = ({ dataType, game }) => {
                                       style={{ zIndex: 1111, pointerEvents: "auto" }}>
                     {dataType.allDataList.filter(item => !dataType.gameDataList(game).includes(item)).map(item => (
                         <DropdownMenu.Item key={item} className="dropdown-item" onClick={() => {
-                            dataType.add(game, item);
+                            dataType.addToGame(game, item);
                         }}>
                             {item}
                         </DropdownMenu.Item>
@@ -41,14 +41,16 @@ const AddDataDropdown = ({ dataType, game }) => {
 const CardModalSidebarGroup = observer(({ game, dataType }) => {
     const title = dataType.plural.toUpperCase();
     const gameDataList = dataType.gameDataList(game);
+    // log the game title, data type, and gamedatalist
+    console.log(`Game: ${game.title}, Data Type: ${dataType.key}, Game Data List: ${gameDataList}`);
     const handleRemove = (item) => {
-        dataType.remove(game, item);
+        dataType.removeFromGame(game, item);
     };
     return (
         <Row className="sidebar-group pfm-shadow">
             <div className="sidebar-header position-relative">
                 <div />
-                <h4 className="sidebar-title">{title}</h4>
+                <h4 className="sidebar-title text-stroke-1px">{title}</h4>
                 <AddDataDropdown dataType={dataType} game={game} />
             </div>
             <div className="sidebar-buttons-list">
@@ -78,7 +80,9 @@ function GameOptionsButton({ game, setShowCardModal, setShowEditGameModal }) {
         <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
                 <button className="icon-button">
-                    <MdMoreVert />
+                    <OutlinedIcon>
+                        <MdMoreVert />
+                    </OutlinedIcon>
                 </button>
             </DropdownMenu.Trigger>
 
@@ -107,7 +111,7 @@ function GameOptionsButton({ game, setShowCardModal, setShowEditGameModal }) {
 }
 
 const CardModal = observer(({ game, show, setShow, setShowEditGameModal }) => {
-    const gameCover = useValidatedImage(game.coverImagePath);
+    const gameCover = useValidatedImage(game.coverImageURL);
     const handleHide = () => {
         setShow(false);
     };
@@ -126,16 +130,18 @@ const CardModal = observer(({ game, show, setShow, setShowEditGameModal }) => {
                     <GameOptionsButton game={game}
                                        setShowCardModal={setShow}
                                        setShowEditGameModal={setShowEditGameModal} />
-                    <p className="pfm-title">
+                    <p className="pfm-title text-stroke-1px" style={{ "--stroke-color": "#333" }}>
                         {game.title}
                     </p>
                     <button className="icon-button ms-auto" onClick={handleHide}>
-                        <MdClose />
+                        <OutlinedIcon>
+                            <MdClose />
+                        </OutlinedIcon>
                     </button>
                 </div>
                 <div className="pfm-body">
                     <div className="w-100 d-flex overflow-auto">
-                        <textarea className="game-note" placeholder="Note" rows={5} value={game.note}
+                        <textarea className="game-note" placeholder="Note" rows={4} spellCheck={false} value={game.note}
                                   onChange={(e) => game.setNote(e.target.value)} />
                     </div>
                 </div>
@@ -150,11 +156,11 @@ const CardModal = observer(({ game, show, setShow, setShowEditGameModal }) => {
 });
 
 function GameCard({ game, onClick }) {
-    const gameCover = useValidatedImage(game.coverImagePath);
+    const gameCover = useValidatedImage(game.coverImageURL);
     const handleDrop = (e) => {
         const item = e.dataTransfer.getData("item");
         const dataTypeKey = e.dataTransfer.getData("dataTypeKey");
-        dataTypes[dataTypeKey].add(game, item);
+        dataTypes[dataTypeKey].addToGame(game, item);
     };
     return (
         <button
@@ -168,7 +174,9 @@ function GameCard({ game, onClick }) {
                 src={gameCover}
                 alt={game.title + " Card"}
             />
-            <span className="game-card-title-overlay">{game.title}</span>
+            <span className="game-card-title-overlay text-stroke-1px" style={{
+                "--stroke-color": "#000000aa"
+            }}>{game.title}</span>
         </button>
     );
 }
@@ -201,7 +209,7 @@ export function GamesGrid({ filteredGames }) {
 
     // need the empty div to contain the grid correctly
     return (
-        <div style={{ width: "100%", overflowY: "auto" }}>
+        <div style={{ width: "100%", overflowY: "overlay", scrollbarWidth: "thin" }}>
             <div className="games-grid" ref={gridRef}>
                 {filteredGames.map((game, index) => (<GameCard
                     key={index}

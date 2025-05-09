@@ -85,7 +85,7 @@ export function SidebarGroup({ dataType, dataList, setSelection, handleShowModal
         <Row className="sidebar-group">
             <div className="sidebar-header">
                 <div />
-                <p className="sidebar-title">{title}</p>
+                <p className="sidebar-title text-stroke-1px">{title}</p>
                 <button className="icon-button" onClick={() => handleShowModal(dataType)}>
                     <MdAdd />
                 </button>

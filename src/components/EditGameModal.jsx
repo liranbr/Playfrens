@@ -48,7 +48,7 @@ export function EditGameModal({ show, setShow, game = null, setShowCardModal = n
                     <Form.Group controlId="gameCoverInput">
                         <Form.Control
                             type="text"
-                            defaultValue={game ? game.coverImagePath : ""}
+                            defaultValue={game ? game.coverImageURL : ""}
                             onKeyDown={(e) => {
                                 if (e.key === "Enter") {
                                     handleSave();

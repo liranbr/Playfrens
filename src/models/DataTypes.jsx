@@ -5,18 +5,18 @@
  * @property {string} plural - e.g. "Friends", "Categories", "Status".
  * @property {Array} allDataList - The list of all data of this type.
  * @property {function} gameDataList - A function that returns the game's list of data of this type.
- * @property {function} add - A function to add a value to the game's list of data of this type.
- * @property {function} remove - A function to remove a value from the game's list of data of this type.
+ * @property {function} addToGame - A function to add a value to the game's list of data of this type.
+ * @property {function} removeFromGame - A function to remove a value from the game's list of data of this type.
  */
 export class dataType {
-    constructor(key, single, plural, allDataList, gameDataList, add, remove) {
+    constructor(key, single, plural, allDataList, gameDataList, addToGame, removeFromGame) {
         this.key = key;
         this.single = single;
         this.plural = plural;
         this.allDataList = allDataList;
         this.gameDataList = gameDataList;
-        this.add = add;
-        this.remove = remove;
+        this.addToGame = addToGame;
+        this.removeFromGame = removeFromGame;
     }
 }
 

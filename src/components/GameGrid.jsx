@@ -209,7 +209,7 @@ export function GamesGrid({ filteredGames }) {
 
     // need the empty div to contain the grid correctly
     return (
-        <div style={{ width: "100%", overflowY: "overlay", scrollbarWidth: "thin" }}>
+        <div style={{ width: "100%", overflowY: "overlay", scrollbarGutter: "stable" }}>
             <div className="games-grid" ref={gridRef}>
                 {filteredGames.map((game, index) => (<GameCard
                     key={index}

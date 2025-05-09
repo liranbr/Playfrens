@@ -20,7 +20,9 @@
     padding: 0;
     --bs-gutter-x: 0;
     --bs-gutter-y: 0;
+    --bs-modal-bg: var(--pf-bg-700);
     box-sizing: border-box;
+    scrollbar-width: thin;
 }
 
 html, body {
@@ -95,6 +97,7 @@ html, body {
 
 input {
     box-shadow: none !important;
+    --bs-body-bg: var(--pf-bg-700);
 }
 
 .text-stroke-1px {

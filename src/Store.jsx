@@ -14,7 +14,7 @@ function saveObsArray(key, value) {
 const firstVisit = localStorage.getItem("Visited") === null;
 if (firstVisit) {
     const defaultCategories = ["Playthrough", "Round-based", "Persistent World"];
-    const defaultStatuses = ["Playing", "Paused", "LFG", "Later", "Abandoned", "Finished"];
+    const defaultStatuses = ["Playing", "LFG", "Paused", "Backlog", "Abandoned", "Finished"];
     localStorage.setItem("allCategories", JSON.stringify(defaultCategories, null, 4));
     localStorage.setItem("allStatuses", JSON.stringify(defaultStatuses, null, 4));
     localStorage.setItem("Visited", "true");

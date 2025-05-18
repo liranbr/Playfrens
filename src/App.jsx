@@ -39,6 +39,7 @@ function AppHeader({ searchState }) {
                     style={{
                         background: "none",
                         borderRadius: "15px",
+                        ...(search && { border: "2px solid royalblue" }),
                         height: "36px",
                         width: "300px",
                         boxSizing: "border-box"

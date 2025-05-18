@@ -1,0 +1,36 @@
+.sidebar-button {
+    background: none;
+    text-align: start;
+    font-size: 18px;
+    border: none;
+    margin: 2px 12px;
+    padding: 4px 12px;
+    border-radius: 15px;
+    transition: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .icon-button { /* menu button */
+        color: #fff;
+        visibility: hidden;
+        border-radius: 6px;
+
+        &:hover {
+            background-color: #1a1a1e33;
+        }
+    }
+
+    &:hover .icon-button {
+        visibility: visible;
+    }
+
+    &.active .icon-button {
+        visibility: visible;
+        background-color: #1a1a1e33;
+    }
+}
+
+.btn-check:checked + .sidebar-button {
+    font-weight: 500;
+}

@@ -40,6 +40,7 @@
         text-align: center;
         opacity: 0;
         transition: 0.3s ease;
+        --stroke-color: #000000aa; /* for text-stroke */
     }
 
     &:hover {
@@ -135,6 +136,7 @@
             line-height: 1;
             text-align: center;
             font-weight: bold;
+            --stroke-color: #333; /* for text-stroke */
         }
     }
 

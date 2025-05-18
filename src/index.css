@@ -100,18 +100,42 @@ input {
     --bs-body-bg: var(--pf-bg-700);
 }
 
+.icon-button {
+    height: var(--icon-size);
+    width: var(--icon-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: var(--pf-fg-100);
+    background: none;
+    border: none;
+    outline: none;
+
+    &:hover, &:active, &:focus {
+        background: none;
+        color: #fff;
+        cursor: pointer;
+    }
+
+    svg path:first-of-type {
+        /* hides the outer edge outline made when applying a stroke to MdIcons */
+        opacity: 0;
+    }
+}
+
 .text-stroke-1px {
-    --stroke-color: #000;
-    text-shadow: -1px -1px 0 var(--stroke-color),
-    1px -1px 0 var(--stroke-color),
-    -1px 1px 0 var(--stroke-color),
-    1px 1px 0 var(--stroke-color);
+    --stroke-color_: var(--stroke-color, #000);
+    text-shadow: -1px -1px 0 var(--stroke-color_),
+    1px -1px 0 var(--stroke-color_),
+    -1px 1px 0 var(--stroke-color_),
+    1px 1px 0 var(--stroke-color_);
 }
 
 .text-stroke-2px {
-    --stroke-color: #000;
-    text-shadow: -2px -2px 0 var(--stroke-color),
-    2px -2px 0 var(--stroke-color),
-    -2px 2px 0 var(--stroke-color),
-    2px 2px 0 var(--stroke-color);
+    --stroke-color_: var(--stroke-color, #000);
+    text-shadow: -2px -2px 0 var(--stroke-color_),
+    2px -2px 0 var(--stroke-color_),
+    -2px 2px 0 var(--stroke-color_),
+    2px 2px 0 var(--stroke-color_);
 }

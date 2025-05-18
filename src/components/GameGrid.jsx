@@ -10,7 +10,7 @@ import { EditGameModal } from "./EditGameModal.jsx";
 import { removeGame } from "../Store.jsx";
 import "../App.css";
 import "./GameGrid.css";
-import { OutlinedIcon } from "../Utils.jsx";
+import { OutlinedIcon } from "./Components.jsx";
 
 const AddDataDropdown = ({ dataType, game }) => {
     return (
@@ -41,8 +41,6 @@ const AddDataDropdown = ({ dataType, game }) => {
 const CardModalSidebarGroup = observer(({ game, dataType }) => {
     const title = dataType.plural.toUpperCase();
     const gameDataList = dataType.gameDataList(game);
-    // log the game title, data type, and gamedatalist
-    console.log(`Game: ${game.title}, Data Type: ${dataType.key}, Game Data List: ${gameDataList}`);
     const handleRemove = (item) => {
         dataType.removeFromGame(game, item);
     };
@@ -117,7 +115,7 @@ const CardModal = observer(({ game, show, setShow, setShowEditGameModal }) => {
     };
 
     return (
-        <Modal className={"playfrens-modal pfm-shadow"} show={show} onHide={handleHide} centered enforceFocus={false}>
+        <Modal className={"playfrens-modal pfm-shadow"} show={show} onHide={handleHide} centered>
             <div className="pfm-sidebar">
                 <CardModalSidebarGroup dataType={dataTypes.friend} game={game} />
             </div>
@@ -130,7 +128,7 @@ const CardModal = observer(({ game, show, setShow, setShowEditGameModal }) => {
                     <GameOptionsButton game={game}
                                        setShowCardModal={setShow}
                                        setShowEditGameModal={setShowEditGameModal} />
-                    <p className="pfm-title text-stroke-1px" style={{ "--stroke-color": "#333" }}>
+                    <p className="pfm-title text-stroke-1px">
                         {game.title}
                     </p>
                     <button className="icon-button ms-auto" onClick={handleHide}>
@@ -174,9 +172,7 @@ function GameCard({ game, onClick }) {
                 src={gameCover}
                 alt={game.title + " Card"}
             />
-            <span className="game-card-title-overlay text-stroke-1px" style={{
-                "--stroke-color": "#000000aa"
-            }}>{game.title}</span>
+            <span className="game-card-title-overlay text-stroke-1px">{game.title}</span>
         </button>
     );
 }
@@ -209,7 +205,7 @@ export function GamesGrid({ filteredGames }) {
 
     // need the empty div to contain the grid correctly
     return (
-        <div style={{ width: "100%", overflowY: "overlay", scrollbarGutter: "stable" }}>
+        <div style={{ width: "100%", overflowY: "auto", scrollbarGutter: "stable" }}>
             <div className="games-grid" ref={gridRef}>
                 {filteredGames.map((game, index) => (<GameCard
                     key={index}

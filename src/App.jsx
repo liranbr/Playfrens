@@ -14,7 +14,7 @@ import { allGames, restoreFromFile, backupToFile } from "./Store.jsx";
 import { dataTypes } from "./models/DataTypes.jsx";
 import { GamesGrid } from "./components/GameGrid.jsx";
 import { setForceFilterUpdateCallback } from "./Utils.jsx";
-import { SidebarGroup } from "./components/Components.jsx";
+import { SidebarGroup } from "./components/SidebarGroup.jsx";
 import { EditGameModal } from "./components/EditGameModal.jsx";
 import { EditDataModal } from "./components/EditDataModal.jsx";
 import "./App.css";

@@ -171,6 +171,7 @@ function GameCard({ game, onClick }) {
                 draggable="false"
                 src={gameCover}
                 alt={game.title + " Card"}
+                referrerPolicy="no-referrer"
             />
             <span className="game-card-title-overlay text-stroke-1px">{game.title}</span>
         </button>

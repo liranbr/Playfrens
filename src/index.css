@@ -109,6 +109,7 @@ input {
     font-size: 24px;
     color: var(--pf-fg-100);
     background: none;
+    border-radius: 50%;
     border: none;
     outline: none;
 

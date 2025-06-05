@@ -1,0 +1,179 @@
+.DialogOverlay {
+    background-color: rgba(0, 0, 0, 0.7);
+    position: fixed;
+    inset: 0;
+    animation: overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes overlayShow {
+    from {
+        opacity: 0
+    }
+    to {
+        opacity: 1
+    }
+}
+
+@keyframes overlayHide {
+    from {
+        opacity: 1
+    }
+    to {
+        opacity: 0
+    }
+}
+
+@keyframes contentShow {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -48%) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+@keyframes contentHide {
+    from {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translate(-50%, -48%) scale(0.96);
+    }
+}
+
+.playfrens-modal[data-state="open"] {
+    animation: contentShow 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.playfrens-modal[data-state="closed"] {
+    animation: contentHide 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.DialogOverlay[data-state="open"] {
+    animation: overlayShow 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.DialogOverlay[data-state="closed"] {
+    animation: overlayHide 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.playfrens-modal {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    background: none;
+    border: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: fit-content;
+    height: fit-content;
+    animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+
+    .pfm-card {
+        width: var(--pfm-card-width);
+        height: calc(var(--pfm-card-width) * 1.5);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 1);
+        border: none;
+        border-radius: 20px;
+        --bg-url: url('/public/missing_game_cover.png');
+
+        .pfm-card-bg {
+            position: absolute;
+            width: var(--pfm-card-width);
+            height: calc(var(--pfm-card-width) * 1.5);
+            background-size: cover;
+            background-position: center;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), var(--bg-url);
+
+
+            &.layer1 {
+                z-index: -2;
+                filter: blur(5px);
+                transform: scale(1.01);
+            }
+
+            &.layer2 {
+                z-index: -1;
+                filter: blur(10px);
+            }
+        }
+    }
+
+    .pfm-header {
+        width: 100%;
+        display: grid;
+        grid-template-columns: var(--icon-size) 1fr var(--icon-size);
+        align-items: center;
+        border: 1px solid transparent;
+        padding: 16px;
+
+        .pfm-title {
+            font-size: 24px;
+            padding: 0 10px;
+            color: #fff;
+            margin: 0;
+            line-height: 1;
+            text-align: center;
+            font-weight: bold;
+            --stroke-color: #333; /* for text-stroke */
+        }
+    }
+
+    .pfm-body {
+        display: flex;
+        flex-direction: column;
+        margin: 42px;
+        height: 100%;
+        justify-content: end;
+    }
+
+    .pfm-sidebar {
+        width: var(--sidebar-width);
+        height: calc(var(--pfm-card-width) * 1.5);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin: 0 10px;
+        z-index: 2;
+    }
+
+    .pfm-shadow {
+        box-shadow: 0 0 20px rgba(0, 0, 0, 1);
+    }
+
+    .pfm-sidebar-button:hover {
+        --bs-btn-active-bg: none;
+        background: none;
+        outline: 1px solid #80848e;
+        color: #fff;
+    }
+}
+
+.game-note {
+    width: 100%;
+    flex-shrink: 1;
+    background-color: var(--pf-bg-900);
+    right: 0;
+    left: 0;
+    padding: 10px;
+    border: 1px solid #333;
+    border-radius: 20px;
+    resize: vertical;
+
+    &:focus {
+        outline: 1px solid #666;
+        outline-offset: -1px;
+    }
+}

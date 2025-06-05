@@ -4,13 +4,8 @@ import Form from "react-bootstrap/Form";
 import Nav from "react-bootstrap/Nav";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import { ToastContainer } from "react-toastify";
-import {
-    MdClose,
-    MdOutlineFileDownload,
-    MdOutlineFileUpload,
-    MdOutlineGamepad
-} from "react-icons/md";
-import { allGames, restoreFromFile, backupToFile } from "./Store.jsx";
+import { MdClose, MdOutlineFileDownload, MdOutlineFileUpload, MdOutlineGamepad } from "react-icons/md";
+import { allGames, backupToFile, restoreFromFile } from "./Store.jsx";
 import { dataTypes } from "./models/DataTypes.jsx";
 import { GamesGrid } from "./components/GameGrid.jsx";
 import { setForceFilterUpdateCallback } from "./Utils.jsx";
@@ -25,7 +20,7 @@ function AppHeader({ searchState }) {
     const [showGameModal, setShowGameModal] = useState(false);
     const updateSearch = (e) => setSearch(e.target.value || "");
     return (
-        <Navbar className="app-header" fixed="top">
+        <Navbar className="app-header">
             <Form inline="true" style={{
                 position: "absolute",
                 right: "50%",

@@ -148,3 +148,7 @@ input {
     -2px 2px 0 var(--stroke-color_),
     2px 2px 0 var(--stroke-color_);
 }
+
+.toast-notification {
+    border: 1px solid #333;
+}

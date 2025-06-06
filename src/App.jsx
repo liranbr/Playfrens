@@ -173,7 +173,7 @@ export default function App() {
                             setSelectedStatuses={setSelectedStatuses} />
                 <GamesGrid filteredGames={filteredGames} />
             </div>
-            <ToastContainer />
+            <ToastContainer toastClassName="toast-notification" />
         </>
     );
 };

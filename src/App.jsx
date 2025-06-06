@@ -14,6 +14,7 @@ import { EditGameModal } from "./components/EditGameModal.jsx";
 import { EditDataModal } from "./components/EditDataModal.jsx";
 import "./App.css";
 import "react-toastify/dist/ReactToastify.css";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 
 function AppHeader({ searchState }) {
     const [search, setSearch] = searchState;
@@ -75,16 +76,22 @@ function AppHeader({ searchState }) {
                 onChange={(e) => restoreFromFile(e.target.files[0])}
             />
             <Nav className="me-auto">
-                <NavDropdown draggable="false" title="File">
-                    <NavDropdown.Item draggable="false" onClick={() => {
-                        document.getElementById("json-selector").click();
-                    }}>
-                        <MdOutlineFileUpload className="dropdown-item-icon" />
-                        Restore</NavDropdown.Item>
-                    <NavDropdown.Item draggable="false" onClick={backupToFile}>
-                        <MdOutlineFileDownload className="dropdown-item-icon" />
-                        Backup</NavDropdown.Item>
-                </NavDropdown>
+                <DropdownMenu.Root>
+                    <DropdownMenu.Trigger asChild>
+                        <span className="dropdown-toggle nav-link">File</span>
+                    </DropdownMenu.Trigger>
+                    <DropdownMenu.Content align={"start"} side={"bottom"} sideOffset={5}>
+                        <DropdownMenu.Item onClick={() => {
+                            document.getElementById("json-selector").click();
+                        }}>
+                            <MdOutlineFileUpload /> Restore
+                        </DropdownMenu.Item>
+                        <DropdownMenu.Item onClick={backupToFile}>
+                            <MdOutlineFileDownload /> Backup
+                        </DropdownMenu.Item>
+                    </DropdownMenu.Content>
+                </DropdownMenu.Root>
+
                 <Nav.Link draggable="false" href="https://github.com/liranbr/Playfrens" target="_blank"
                           rel="noopener noreferrer">GitHub</Nav.Link>
             </Nav>

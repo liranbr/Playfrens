@@ -20,11 +20,11 @@ const AddDataDropdown = ({ dataType, game }) => {
             </DropdownMenu.Trigger>
 
             <DropdownMenu.Portal>
-                <DropdownMenu.Content className="dropdown-menu show"
-                                      align={"start"} side={"bottom"} sideOffset={5}
-                                      style={{ zIndex: 1111, pointerEvents: "auto" }}>
+                <DropdownMenu.Content
+                    align={"start"} side={"bottom"} sideOffset={5}
+                    style={{ zIndex: 1111, pointerEvents: "auto" }}>
                     {dataType.allDataList.filter(item => !dataType.gameDataList(game).includes(item)).map(item => (
-                        <DropdownMenu.Item key={item} className="dropdown-item" onClick={() => {
+                        <DropdownMenu.Item key={item} onClick={() => {
                             dataType.addToGame(game, item);
                         }}>
                             {item}
@@ -83,22 +83,20 @@ function GameOptionsButton({ game, setShowCardModal, setShowEditGameModal }) {
             </DropdownMenu.Trigger>
 
             <DropdownMenu.Portal>
-                <DropdownMenu.Content className="dropdown-menu show"
-                                      align={"start"} side={"bottom"} sideOffset={5}
-                                      style={{ zIndex: 1111 }}>
-                    <DropdownMenu.Item className="dropdown-item" onClick={() => {
+                <DropdownMenu.Content
+                    align={"start"} side={"bottom"} sideOffset={5}
+                    style={{ zIndex: 1111 }}>
+                    <DropdownMenu.Item onClick={() => {
                         setShowCardModal(false);
                         setShowEditGameModal(true);
                     }}>
-                        <MdEdit className="dropdown-item-icon" />
-                        Edit
+                        <MdEdit /> Edit
                     </DropdownMenu.Item>
-                    <DropdownMenu.Item className="dropdown-item danger-item" onClick={() => {
+                    <DropdownMenu.Item data-danger onClick={() => {
                         setShowCardModal(false);
                         removeGame(game);
                     }}>
-                        <MdDeleteOutline className="dropdown-item-icon danger-item" />
-                        Delete
+                        <MdDeleteOutline /> Delete
                     </DropdownMenu.Item>
                 </DropdownMenu.Content>
             </DropdownMenu.Portal>

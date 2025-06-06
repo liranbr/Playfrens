@@ -47,27 +47,23 @@ export function SidebarButton({ value, dataType, setSelection, handleShowModal }
                 </DropdownMenu.Trigger>
 
                 <DropdownMenu.Portal>
-                    <DropdownMenu.Content className="dropdown-menu show"
-                                          align={"start"} side={"bottom"} sideOffset={5}>
-                        <DropdownMenu.Item className="dropdown-item" onClick={() => {
+                    <DropdownMenu.Content align={"start"} side={"bottom"} sideOffset={5}>
+                        <DropdownMenu.Item onClick={() => {
                             toastError("Exclude function not yet implemented");
                         }}>
-                            <MdOutlineSearchOff className="dropdown-item-icon" />
-                            Exclude
+                            <MdOutlineSearchOff /> Exclude
                         </DropdownMenu.Item>
-                        <DropdownMenu.Item className="dropdown-item" onClick={() => {
+                        <DropdownMenu.Item onClick={() => {
                             updateSelection(false); //TODO: temporary solution to bug
                             handleShowModal(dataType, value);
                         }}>
-                            <MdEdit className="dropdown-item-icon" />
-                            Edit
+                            <MdEdit /> Edit
                         </DropdownMenu.Item>
-                        <DropdownMenu.Item className="dropdown-item danger-item" onClick={() => {
+                        <DropdownMenu.Item data-danger onClick={() => {
                             updateSelection(false);
                             removeData(dataType, value);
                         }}>
-                            <MdDeleteOutline className="dropdown-item-icon danger-item" />
-                            Delete
+                            <MdDeleteOutline /> Delete
                         </DropdownMenu.Item>
                     </DropdownMenu.Content>
                 </DropdownMenu.Portal>

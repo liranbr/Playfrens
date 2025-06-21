@@ -22,7 +22,7 @@ const AddDataDropdown = ({ dataType, game }) => {
             <DropdownMenu.Portal>
                 <DropdownMenu.Content
                     align={"start"} side={"bottom"} sideOffset={5}
-                    style={{ zIndex: 1111, pointerEvents: "auto" }}>
+                    style={{ pointerEvents: "auto" }}>
                     {dataType.allDataList.filter(item => !dataType.gameDataList(game).includes(item)).map(item => (
                         <DropdownMenu.Item key={item} onClick={() => {
                             dataType.addToGame(game, item);
@@ -84,8 +84,7 @@ function GameOptionsButton({ game, setShowCardModal, setShowEditGameModal }) {
 
             <DropdownMenu.Portal>
                 <DropdownMenu.Content
-                    align={"start"} side={"bottom"} sideOffset={5}
-                    style={{ zIndex: 1111 }}>
+                    align={"start"} side={"bottom"} sideOffset={5}>
                     <DropdownMenu.Item onClick={() => {
                         setShowCardModal(false);
                         setShowEditGameModal(true);
@@ -127,7 +126,7 @@ export const PlayfrensModal = observer(({ game, show, setShow, setShowEditGameMo
                         <PFModalSidebarGroup dataType={dataTypes.friend} game={game} />
                     </div>
 
-                    <div className="pfm-card" style={{ "--bg-url": `url("${gameCover}")` }}>
+                    <div className="pfm-card pfm-shadow" style={{ "--bg-url": `url("${gameCover}")` }}>
                         {/* need two background images to handle transparent border blurring */}
                         <div className="pfm-card-bg layer1" />
                         <div className="pfm-card-bg layer2" />

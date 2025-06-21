@@ -25,3 +25,5 @@ dist-ssr
 
 # My additions from here
 desktop.ini
+# Temporary for Linux/Win compatibility, will probably switch to pnpm later
+package-lock.json

@@ -47,7 +47,7 @@ export function SidebarButton({ value, dataType, setSelection, handleShowModal }
                 </DropdownMenu.Trigger>
 
                 <DropdownMenu.Portal>
-                    <DropdownMenu.Content align={"start"} side={"bottom"} sideOffset={5}>
+                    <DropdownMenu.Content className="rx-dropdown-menu" align={"start"} side={"bottom"} sideOffset={5}>
                         <DropdownMenu.Item onClick={() => {
                             toastError("Exclude function not yet implemented");
                         }}>

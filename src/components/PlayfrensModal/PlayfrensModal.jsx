@@ -21,6 +21,7 @@ const AddDataDropdown = ({ dataType, game }) => {
 
             <DropdownMenu.Portal>
                 <DropdownMenu.Content
+                    className="rx-dropdown-menu"
                     align={"start"} side={"bottom"} sideOffset={5}
                     style={{ pointerEvents: "auto" }}>
                     {dataType.allDataList.filter(item => !dataType.gameDataList(game).includes(item)).map(item => (
@@ -83,8 +84,8 @@ function GameOptionsButton({ game, setShowCardModal, setShowEditGameModal }) {
             </DropdownMenu.Trigger>
 
             <DropdownMenu.Portal>
-                <DropdownMenu.Content
-                    align={"start"} side={"bottom"} sideOffset={5}>
+                <DropdownMenu.Content className="rx-dropdown-menu"
+                                      align={"start"} side={"bottom"} sideOffset={5}>
                     <DropdownMenu.Item onClick={() => {
                         setShowCardModal(false);
                         setShowEditGameModal(true);

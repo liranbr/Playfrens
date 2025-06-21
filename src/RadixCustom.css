@@ -1,0 +1,64 @@
+/* radix dropdown menu */
+.rx-dropdown-menu {
+    display: block;
+    max-height: 495px;
+    min-width: 125px;
+    overflow-y: auto;
+    background-color: var(--pf-bg-700);
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 6px 0;
+
+    div[role="menuitem"] {
+        display: flex;
+        align-items: center;
+        font-size: 16px;
+        height: 36px;
+        padding: 6px 14px;
+        border-radius: 4px;
+        outline: none;
+        border: none;
+        user-select: none;
+        cursor: pointer;
+
+        &[data-disabled] {
+            color: grey;
+            cursor: inherit;
+
+            &:hover, &:focus {
+                background-color: transparent;
+            }
+        }
+
+        &:hover, &:focus {
+            background-color: var(--pf-bg-300);
+        }
+
+        &:active {
+            background-color: #0d6efd;
+        }
+
+        & svg {
+            font-size: 20px;
+            margin-right: 8px;
+            margin-left: -6px;
+        }
+
+        &[data-danger] {
+            color: #fc7975;
+
+            &:hover, &:focus {
+                background-color: #39292d;
+            }
+
+            &:active {
+                background-color: #ad3c3c;
+                color: #dee2e6;
+            }
+
+            & svg {
+                color: #fc7975;
+            }
+        }
+    }
+}

@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import Navbar from "react-bootstrap/Navbar";
 import Form from "react-bootstrap/Form";
 import Nav from "react-bootstrap/Nav";
-import NavDropdown from "react-bootstrap/NavDropdown";
 import { ToastContainer } from "react-toastify";
 import { MdClose, MdOutlineFileDownload, MdOutlineFileUpload, MdOutlineGamepad } from "react-icons/md";
 import { allGames, backupToFile, restoreFromFile } from "./Store.jsx";
@@ -80,7 +79,7 @@ function AppHeader({ searchState }) {
                     <DropdownMenu.Trigger asChild>
                         <span className="dropdown-toggle nav-link">File</span>
                     </DropdownMenu.Trigger>
-                    <DropdownMenu.Content align={"start"} side={"bottom"} sideOffset={5}>
+                    <DropdownMenu.Content className="rx-dropdown-menu" align={"start"} side={"bottom"} sideOffset={5}>
                         <DropdownMenu.Item onClick={() => {
                             document.getElementById("json-selector").click();
                         }}>

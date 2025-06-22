@@ -118,8 +118,8 @@ export const PlayfrensModal = observer(({ game, show, setShow, setShowEditGameMo
     return (
         <Dialog.Root open={show} onOpenChange={handleHide}>
             <Dialog.Portal>
-                <Dialog.Overlay className="DialogOverlay" />
-                <Dialog.Content className="playfrens-modal" onClick={handleClickBackground}>
+                <Dialog.Overlay className="rx-dialog-overlay" />
+                <Dialog.Content className="rx-dialog playfrens-modal" onClick={handleClickBackground}>
                     <VisuallyHidden><Dialog.Title>{game.title}</Dialog.Title></VisuallyHidden>
                     <VisuallyHidden><Dialog.Description>{"Expanded game card of " + game.title}</Dialog.Description></VisuallyHidden>
 

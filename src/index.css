@@ -40,7 +40,14 @@ html, body {
 
 input {
     box-shadow: none !important;
-    --bs-body-bg: var(--pf-bg-700);
+    --bs-body-bg: none;
+    background: none;
+}
+
+button {
+    border-radius: 8px;
+    width: 80px;
+    font-size: 16px;
 }
 
 .icon-button {

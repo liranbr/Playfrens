@@ -63,44 +63,17 @@
     }
 }
 
-/* TODO: try using a css class instead of keyframes for less clutter */
-@keyframes overlayShow {
-    from {
-        opacity: 0
-    }
-}
-
-@keyframes overlayHide {
-    to {
-        opacity: 0
-    }
-}
-
 .rx-dialog-overlay {
     background-color: rgba(0, 0, 0, 0.7);
     position: fixed;
     inset: 0;
 
     &[data-state="closed"] {
-        animation: overlayHide 250ms;
+        animation: fadeOut 250ms;
     }
 
     &[data-state="open"] {
-        animation: overlayShow 250ms;
-    }
-}
-
-@keyframes contentShow {
-    from {
-        opacity: 0;
-        transform: translate(-50%, -50%) translateY(-50px);
-    }
-}
-
-@keyframes contentHide {
-    to {
-        opacity: 0;
-        transform: translate(-50%, -50%) translateY(-50px);
+        animation: fadeIn 250ms;
     }
 }
 
@@ -115,17 +88,18 @@
     max-height: 85vh;
     border: 1px solid #333;
     border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 1);
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
 
     &[data-state="open"] {
-        animation: contentShow 250ms;
+        animation: modalShow 250ms;
     }
 
     &[data-state="closed"] {
-        animation: contentHide 250ms;
+        animation: modalHide 250ms;
     }
 
     h2 {
@@ -166,5 +140,46 @@
         margin-top: 16px;
         justify-content: flex-end;
         gap: 16px;
+    }
+}
+
+
+@keyframes fadeIn {
+    from {
+        opacity: 0
+    }
+    to {
+        opacity: 1
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1
+    }
+    to {
+        opacity: 0
+    }
+}
+
+@keyframes modalShow {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+@keyframes modalHide {
+    from {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+    to {
+        opacity: 0;
+        transform: translate(-50%, -50%) translateY(-50px);
     }
 }

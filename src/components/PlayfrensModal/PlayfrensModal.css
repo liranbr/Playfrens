@@ -2,6 +2,8 @@
     flex-direction: row;
     background: none;
     border: none;
+    outline: none;
+    box-shadow: none;
     width: fit-content;
     height: fit-content;
 

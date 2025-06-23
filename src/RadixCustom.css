@@ -105,10 +105,7 @@
     h2 {
         font-size: 18px;
         margin-bottom: 12px;
-    }
-
-    h2 + p {
-        color: #ddd;
+        text-align: center;
     }
 
     fieldset {
@@ -123,8 +120,12 @@
             margin-bottom: 4px;
         }
 
-        text {
-            color: #fff;
+        p {
+            margin: 0;
+        }
+
+        small {
+            color: #ddd;
             font-size: 12px;
         }
 

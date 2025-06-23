@@ -19,10 +19,9 @@ export function EditDataModal({ show, setShow, dataType, editedDataName = "" }) 
     };
     const saveOnEnter = (e) => {
         if (e.key === "Enter") {
+            e.preventDefault();
             handleSave();
-            return e.preventDefault();
         }
-        return null;
     };
 
     return (
@@ -32,18 +31,16 @@ export function EditDataModal({ show, setShow, dataType, editedDataName = "" }) 
                 <Dialog.Content className="rx-dialog">
                     <Dialog.Title>{title}</Dialog.Title>
                     <VisuallyHidden><Dialog.Description>{description}</Dialog.Description></VisuallyHidden>
+
                     <fieldset>
                         <label>Name</label>
-                        <input
-                            id="dataNameInput"
-                            type="text"
-                            defaultValue={editedDataName}
-                            autoFocus
-                            onKeyDown={saveOnEnter} />
+                        <input id="dataNameInput" onKeyDown={saveOnEnter}
+                               defaultValue={editedDataName} autoFocus />
                     </fieldset>
+
                     <div className="rx-dialog-footer">
                         <Button variant="secondary" onClick={handleHide}>
-                            Close
+                            Cancel
                         </Button>
                         <Button variant="primary" onClick={handleSave}>
                             Save

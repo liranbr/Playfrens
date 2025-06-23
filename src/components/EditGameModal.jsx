@@ -46,19 +46,19 @@ export function EditGameModal({ show, setShow, game = null, setShowCardModal = n
                         <label>Game Cover URL</label>
                         <input id="gameCoverInput" onKeyDown={saveOnEnter}
                                defaultValue={game ? game.coverImageURL : ""} />
-                        <text>
+                        <small>
                             <a href="https://www.steamgriddb.com/" target="_blank" rel="noopener noreferrer">
                                 SteamGridDB</a> (ideally 600x900)
-                        </text>
+                        </small>
 
-                        <text><label>Sorting Title</label> (optional)</text>
+                        <p><label>Sorting Title</label><small> (optional)</small></p>
                         <input id="gameSortingTitleInput" onKeyDown={saveOnEnter}
                                defaultValue={game ? game.sortingTitle : ""} />
                     </fieldset>
 
                     <div className="rx-dialog-footer">
                         <Button variant="secondary" onClick={handleHide}>
-                            Close
+                            Cancel
                         </Button>
                         <Button variant="primary" onClick={handleSave}>
                             Save

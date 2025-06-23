@@ -3,6 +3,7 @@ import { Bounce, toast } from "react-toastify";
 const toastOptions = {
     position: "bottom-center",
     autoClose: 3000,
+    closeButton: false,
     hideProgressBar: true,
     closeOnClick: true,
     pauseOnHover: true,

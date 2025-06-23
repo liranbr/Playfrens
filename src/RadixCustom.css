@@ -68,12 +68,12 @@
     position: fixed;
     inset: 0;
 
-    &[data-state="closed"] {
-        animation: fadeOut 250ms;
+    &[data-state="open"] {
+        animation: fadeIn 400ms;
     }
 
-    &[data-state="open"] {
-        animation: fadeIn 250ms;
+    &[data-state="closed"] {
+        animation: fadeOut 250ms;
     }
 }
 
@@ -95,7 +95,7 @@
     transform: translate(-50%, -50%);
 
     &[data-state="open"] {
-        animation: modalShow 250ms;
+        animation: modalShow 400ms;
     }
 
     &[data-state="closed"] {
@@ -114,11 +114,18 @@
     fieldset {
         display: flex;
         flex-direction: column;
-        gap: 4px;
 
         label {
+            color: #fff;
             font-size: 14px;
             font-weight: bold;
+            margin-top: 16px;
+            margin-bottom: 4px;
+        }
+
+        text {
+            color: #fff;
+            font-size: 12px;
         }
 
         input, select {

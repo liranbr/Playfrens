@@ -1,91 +1,71 @@
-import Modal from "react-bootstrap/Modal";
-import Form from "react-bootstrap/Form";
+import * as Dialog from "@radix-ui/react-dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import Button from "react-bootstrap/Button";
 import { addGame } from "../Store.jsx";
 
 export function EditGameModal({ show, setShow, game = null, setShowCardModal = null }) {
-    const handleClose = () => {
+    const dialogTitle = game ? "Edit Game Details" : "Add Game";
+    const dialogDescription = game ? `Editing ${game.title}` : "Adding a new game";
+
+    const handleHide = () => {
         setShow(false);
         if (setShowCardModal) {
             setShowCardModal(true);
         }
     };
     const handleSave = () => {
-        const gameTitle = document.getElementById("gameTitleInput").value;
-        const gameCoverPath = document.getElementById("gameCoverInput").value;
-        const gameSortingTitle = document.getElementById("gameSortingTitleInput").value;
-        if (game) {
-            if (game.editGame(gameTitle, gameCoverPath, gameSortingTitle))
-                handleClose();
-        } else {
-            if (addGame(gameTitle, gameCoverPath, gameSortingTitle))
-                handleClose();
+        const getVal = id => document.getElementById(id).value;
+        const gameTitle = getVal("gameTitleInput");
+        const gameCoverPath = getVal("gameCoverInput");
+        const gameSortingTitle = getVal("gameSortingTitleInput");
+
+        const success = game
+            ? game.editGame(gameTitle, gameCoverPath, gameSortingTitle)
+            : addGame(gameTitle, gameCoverPath, gameSortingTitle);
+        if (success) handleHide();
+    };
+    const saveOnEnter = (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            handleSave();
         }
     };
+
     return (
-        <Modal show={show} onHide={handleClose} size={"sm"} centered>
-            <Modal.Header closeButton>
-                <h4 style={{ margin: 0, color: "#dee2e6" }}>{game ? "Edit Game" : "Add Game"}</h4>
-            </Modal.Header>
-            <Modal.Body>
-                <Form>
-                    <p style={{ color: "#dee2e6", marginBottom: "5px" }}>Game Title</p>
-                    <Form.Group className="mb-3" controlId="gameTitleInput">
-                        <Form.Control
-                            type="text"
-                            defaultValue={game ? game.title : ""}
-                            autoFocus
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                    handleSave();
-                                    return e.preventDefault();
-                                }
-                                return null;
-                            }}
-                        />
-                    </Form.Group>
-                    <p style={{ color: "#dee2e6", marginBottom: "5px" }}>Game Cover URL</p>
-                    <Form.Group controlId="gameCoverInput">
-                        <Form.Control
-                            type="text"
-                            defaultValue={game ? game.coverImageURL : ""}
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                    handleSave();
-                                    return e.preventDefault();
-                                }
-                                return null;
-                            }}
-                        />
-                    </Form.Group>
-                    <p style={{ color: "#dee2e6", fontSize: "14px" }}>
-                        <a href="https://www.steamgriddb.com/" target="_blank"
-                           rel="noopener noreferrer">SteamGridDB</a> (ideally 600x900)
-                    </p>
-                    <p style={{ color: "#dee2e6", marginBottom: "5px" }}>Sorting Title (optional)</p>
-                    <Form.Group className="mb-3" controlId="gameSortingTitleInput">
-                        <Form.Control
-                            type="text"
-                            defaultValue={game ? game.sortingTitle : ""}
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                    handleSave();
-                                    return e.preventDefault();
-                                }
-                                return null;
-                            }}
-                        />
-                    </Form.Group>
-                </Form>
-            </Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={handleClose}>
-                    Close
-                </Button>
-                <Button variant="primary" onClick={handleSave}>
-                    Save
-                </Button>
-            </Modal.Footer>
-        </Modal>
+        <Dialog.Root open={show} onOpenChange={handleHide}>
+            <Dialog.Portal>
+                <Dialog.Overlay className="rx-dialog-overlay" />
+                <Dialog.Content className="rx-dialog">
+                    <Dialog.Title>{dialogTitle}</Dialog.Title>
+                    <VisuallyHidden><Dialog.Description>{dialogDescription}</Dialog.Description></VisuallyHidden>
+                    <fieldset>
+                        <label>Game Title</label>
+                        <input id="gameTitleInput" onKeyDown={saveOnEnter}
+                               defaultValue={game ? game.title : ""} autoFocus />
+
+                        <label>Game Cover URL</label>
+                        <input id="gameCoverInput" onKeyDown={saveOnEnter}
+                               defaultValue={game ? game.coverImageURL : ""} />
+                        <text>
+                            <a href="https://www.steamgriddb.com/" target="_blank" rel="noopener noreferrer">
+                                SteamGridDB</a> (ideally 600x900)
+                        </text>
+
+                        <text><label>Sorting Title</label> (optional)</text>
+                        <input id="gameSortingTitleInput" onKeyDown={saveOnEnter}
+                               defaultValue={game ? game.sortingTitle : ""} />
+                    </fieldset>
+
+                    <div className="rx-dialog-footer">
+                        <Button variant="secondary" onClick={handleHide}>
+                            Close
+                        </Button>
+                        <Button variant="primary" onClick={handleSave}>
+                            Save
+                        </Button>
+                    </div>
+                </Dialog.Content>
+            </Dialog.Portal>
+        </Dialog.Root>
     );
 }

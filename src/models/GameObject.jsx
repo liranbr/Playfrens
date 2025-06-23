@@ -111,7 +111,7 @@ export class GameObject {
         this.title = title;
         this.coverImageURL = coverImageURL;
         this.sortingTitle = sortingTitle;
-        toastDataChangeSuccess(`Updated ${this.title} to ${title}`);
+        toastDataChangeSuccess(`Updated ${this.title}`);
         return true;
     }
 

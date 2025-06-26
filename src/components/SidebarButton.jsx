@@ -5,6 +5,7 @@ import { MdDeleteOutline, MdEdit, MdMoreVert, MdOutlineSearchOff } from "react-i
 import { toastError } from "../Utils.jsx";
 import { removeData } from "../Store.jsx";
 import "./SidebarButton.css";
+import { modalStore } from "./Modals/ModalStore.jsx";
 
 export function SidebarButton({ value, dataType, setSelection, handleShowModal }) {
     const [checked, setChecked] = useState(false);
@@ -60,8 +61,14 @@ export function SidebarButton({ value, dataType, setSelection, handleShowModal }
                             <MdEdit /> Edit
                         </DropdownMenu.Item>
                         <DropdownMenu.Item data-danger onClick={() => {
-                            updateSelection(false);
-                            removeData(dataType, value);
+                            const deleteFunction = () => {
+                                updateSelection(false);
+                                removeData(dataType, value);
+                            };
+                            modalStore.open("DeleteWarning", {
+                                itemName: value,
+                                deleteFunction: deleteFunction
+                            });
                         }}>
                             <MdDeleteOutline /> Delete
                         </DropdownMenu.Item>

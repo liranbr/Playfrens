@@ -11,6 +11,7 @@ import { setForceFilterUpdateCallback } from "./Utils.jsx";
 import { SidebarGroup } from "./components/SidebarGroup.jsx";
 import { EditGameModal } from "./components/EditGameModal.jsx";
 import { EditDataModal } from "./components/EditDataModal.jsx";
+import { ModalRoot } from "./components/Modals/ModalRoot.jsx";
 import "./App.css";
 import "react-toastify/dist/ReactToastify.css";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
@@ -172,6 +173,7 @@ export default function App() {
                             setSelectedStatuses={setSelectedStatuses} />
                 <GamesGrid filteredGames={filteredGames} />
             </div>
+            <ModalRoot />
             <ToastContainer toastClassName="toast-notification" />
         </>
     );

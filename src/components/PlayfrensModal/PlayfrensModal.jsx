@@ -9,6 +9,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { dataTypes } from "../../models/DataTypes.jsx";
 import "./PlayfrensModal.css";
+import { modalStore } from "../Modals/ModalStore.jsx";
 
 const AddDataDropdown = ({ dataType, game }) => {
     return (
@@ -72,7 +73,7 @@ const PFModalSidebarGroup = observer(({ game, dataType }) => {
     );
 });
 
-function GameOptionsButton({ game, setShowCardModal, setShowEditGameModal }) {
+function GameOptionsButton({ game }) {
     return (
         <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
@@ -87,14 +88,18 @@ function GameOptionsButton({ game, setShowCardModal, setShowEditGameModal }) {
                 <DropdownMenu.Content className="rx-dropdown-menu"
                                       align={"start"} side={"bottom"} sideOffset={5}>
                     <DropdownMenu.Item onClick={() => {
-                        setShowCardModal(false);
-                        setShowEditGameModal(true);
+                        modalStore.open("EditGame", { game });
                     }}>
                         <MdEdit /> Edit
                     </DropdownMenu.Item>
                     <DropdownMenu.Item data-danger onClick={() => {
-                        setShowCardModal(false);
-                        removeGame(game);
+                        modalStore.open("DeleteWarning", {
+                            itemName: game.title,
+                            deleteFunction: () => {
+                                removeGame(game);
+                                modalStore.closeTwo();
+                            }
+                        });
                     }}>
                         <MdDeleteOutline /> Delete
                     </DropdownMenu.Item>
@@ -104,10 +109,10 @@ function GameOptionsButton({ game, setShowCardModal, setShowEditGameModal }) {
     );
 }
 
-export const PlayfrensModal = observer(({ game, show, setShow, setShowEditGameModal }) => {
+export const PlayfrensModal = observer(({ open, closeModal, game }) => {
     const gameCover = useValidatedImage(game.coverImageURL);
     const handleHide = () => {
-        setShow(false);
+        closeModal();
     };
     const handleClickBackground = (e) => {
         if (e.target === e.currentTarget) {
@@ -116,7 +121,7 @@ export const PlayfrensModal = observer(({ game, show, setShow, setShowEditGameMo
     };
 
     return (
-        <Dialog.Root open={show} onOpenChange={handleHide}>
+        <Dialog.Root open={open} onOpenChange={handleHide}>
             <Dialog.Portal>
                 <Dialog.Overlay className="rx-dialog-overlay" />
                 <Dialog.Content className="rx-dialog playfrens-modal" onClick={handleClickBackground}>
@@ -132,9 +137,7 @@ export const PlayfrensModal = observer(({ game, show, setShow, setShowEditGameMo
                         <div className="pfm-card-bg layer1" />
                         <div className="pfm-card-bg layer2" />
                         <div className="pfm-header">
-                            <GameOptionsButton game={game}
-                                               setShowCardModal={setShow}
-                                               setShowEditGameModal={setShowEditGameModal} />
+                            <GameOptionsButton game={game} />
                             <p className="pfm-title text-stroke-1px">
                                 {game.title}
                             </p>

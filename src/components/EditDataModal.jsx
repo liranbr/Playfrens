@@ -3,19 +3,19 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import Button from "react-bootstrap/Button";
 import { addData, editData } from "../Store.jsx";
 
-export function EditDataModal({ show, setShow, dataType, editedDataName = "" }) {
-    const mode = editedDataName ? "Edit" : "Add";
+export function EditDataModal({ open, closeModal, dataType, dataName = "" }) {
+    const mode = dataName ? "Edit" : "Add";
     const title = mode + " " + dataType.single;
-    const description = mode === "Edit" ? "Editing " + editedDataName : "Adding a new " + dataType.single;
+    const description = mode === "Edit" ? "Editing " + dataName : "Adding a new " + dataType.single;
 
-    const handleHide = () => setShow(false);
+    const handleHide = () => closeModal();
     const handleSave = () => {
-        const dataName = document.getElementById("dataNameInput").value;
+        const newDataName = document.getElementById("dataNameInput").value;
         const doneFunction = mode === "Edit" ?
-            editData(dataType, editedDataName, dataName) :
-            addData(dataType, dataName);
+            editData(dataType, dataName, newDataName) :
+            addData(dataType, newDataName);
         if (doneFunction)
-            setShow(false);
+            handleHide();
     };
     const saveOnEnter = (e) => {
         if (e.key === "Enter") {
@@ -25,7 +25,7 @@ export function EditDataModal({ show, setShow, dataType, editedDataName = "" }) 
     };
 
     return (
-        <Dialog.Root open={show} onOpenChange={handleHide}>
+        <Dialog.Root open={open} onOpenChange={handleHide}>
             <Dialog.Portal>
                 <Dialog.Overlay className="rx-dialog-overlay" />
                 <Dialog.Content className="rx-dialog">
@@ -35,7 +35,7 @@ export function EditDataModal({ show, setShow, dataType, editedDataName = "" }) 
                     <fieldset>
                         <label>Name</label>
                         <input id="dataNameInput" onKeyDown={saveOnEnter}
-                               defaultValue={editedDataName} autoFocus />
+                               defaultValue={dataName} autoFocus />
                     </fieldset>
 
                     <div className="rx-dialog-footer">

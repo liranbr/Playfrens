@@ -3,15 +3,12 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import Button from "react-bootstrap/Button";
 import { addGame } from "../Store.jsx";
 
-export function EditGameModal({ show, setShow, game = null, setShowCardModal = null }) {
+export function EditGameModal({ open, closeModal, game = null }) {
     const dialogTitle = game ? "Edit Game Details" : "Add Game";
     const dialogDescription = game ? `Editing ${game.title}` : "Adding a new game";
 
     const handleHide = () => {
-        setShow(false);
-        if (setShowCardModal) {
-            setShowCardModal(true);
-        }
+        closeModal();
     };
     const handleSave = () => {
         const getVal = id => document.getElementById(id).value;
@@ -32,7 +29,7 @@ export function EditGameModal({ show, setShow, game = null, setShowCardModal = n
     };
 
     return (
-        <Dialog.Root open={show} onOpenChange={handleHide}>
+        <Dialog.Root open={open} onOpenChange={handleHide}>
             <Dialog.Portal>
                 <Dialog.Overlay className="rx-dialog-overlay" />
                 <Dialog.Content className="rx-dialog">

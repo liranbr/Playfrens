@@ -9,16 +9,14 @@ import { dataTypes } from "./models/DataTypes.jsx";
 import { GamesGrid } from "./components/GameGrid.jsx";
 import { setForceFilterUpdateCallback } from "./Utils.jsx";
 import { SidebarGroup } from "./components/SidebarGroup.jsx";
-import { EditGameModal } from "./components/EditGameModal.jsx";
-import { EditDataModal } from "./components/EditDataModal.jsx";
 import { ModalRoot } from "./components/Modals/ModalRoot.jsx";
 import "./App.css";
 import "react-toastify/dist/ReactToastify.css";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import { modalStore } from "./components/Modals/ModalStore.jsx";
 
 function AppHeader({ searchState }) {
     const [search, setSearch] = searchState;
-    const [showGameModal, setShowGameModal] = useState(false);
     const updateSearch = (e) => setSearch(e.target.value || "");
     return (
         <Navbar className="app-header">
@@ -57,7 +55,6 @@ function AppHeader({ searchState }) {
                     <MdClose />
                 </button>
             </Form>
-            <EditGameModal show={showGameModal} setShow={setShowGameModal} />
             <Navbar.Brand>
                 <img
                     src="/Playfrens_Logo.png"
@@ -95,47 +92,30 @@ function AppHeader({ searchState }) {
                 <Nav.Link draggable="false" href="https://github.com/liranbr/Playfrens" target="_blank"
                           rel="noopener noreferrer">GitHub</Nav.Link>
             </Nav>
-            <button className="new-game-button" onClick={() => setShowGameModal(true)}>
+            <button className="new-game-button" onClick={() => modalStore.open("EditGame")}>
                 <MdOutlineGamepad />
             </button>
         </Navbar>
     );
 }
 
-// TODO: Avoid prop drilling, especially for editedDataName in the modal. useContext?
 function AppSidebar({ setSelectedFriends, setSelectedCategories, setSelectedStatuses }) {
-    const [showDataModal, setShowDataModal] = useState(false);
-    const [editedDataName, setEditedDataName] = useState("");
-    const [modalDataType, setModalDataType] = useState(dataTypes.friend);
-    const handleShowModal = (dataType, dataName = "") => {
-        setEditedDataName(dataName);
-        setModalDataType(dataType);
-        setShowDataModal(true);
-    };
     // 50% height for friend bar, 50% for categories and statuses
     return (
         <div className="app-sidebar">
-            <EditDataModal
-                dataType={modalDataType}
-                show={showDataModal}
-                setShow={setShowDataModal}
-                editedDataName={editedDataName} />
             <SidebarGroup
                 dataType={dataTypes.friend}
                 dataList={dataTypes.friend.allDataList}
-                setSelection={setSelectedFriends}
-                handleShowModal={handleShowModal} />
+                setSelection={setSelectedFriends} />
             <div className="sidebar-subgroup">
                 <SidebarGroup
                     dataType={dataTypes.category}
                     dataList={dataTypes.category.allDataList}
-                    setSelection={setSelectedCategories}
-                    handleShowModal={handleShowModal} />
+                    setSelection={setSelectedCategories} />
                 <SidebarGroup
                     dataType={dataTypes.status}
                     dataList={dataTypes.status.allDataList}
-                    setSelection={setSelectedStatuses}
-                    handleShowModal={handleShowModal} />
+                    setSelection={setSelectedStatuses} />
             </div>
         </div>
     );

@@ -1,23 +1,24 @@
-import { useEffect, useRef, useState } from "react";
-import { GameObject } from "../models/GameObject.jsx";
+import { useEffect, useRef } from "react";
 import { dataTypes } from "../models/DataTypes.jsx";
 import { useValidatedImage } from "../hooks/useValidatedImage.js";
-import { EditGameModal } from "./EditGameModal.jsx";
-import { PlayfrensModal } from "./PlayfrensModal";
 import "../App.css";
 import "./GameGrid.css";
+import { modalStore } from "./Modals/ModalStore.jsx";
 
-function GameCard({ game, onClick }) {
+function GameCard({ game }) {
     const gameCover = useValidatedImage(game.coverImageURL);
     const handleDrop = (e) => {
         const item = e.dataTransfer.getData("item");
         const dataTypeKey = e.dataTransfer.getData("dataTypeKey");
         dataTypes[dataTypeKey].addToGame(game, item);
     };
+    const openPlayfrensModal = () => {
+        modalStore.open("Playfrens", { game });
+    };
     return (
         <button
             className="game-card"
-            onClick={() => onClick(game)}
+            onClick={openPlayfrensModal}
             onDrop={handleDrop}
             onDragOver={e => e.preventDefault()}
         >
@@ -33,14 +34,6 @@ function GameCard({ game, onClick }) {
 }
 
 export function GamesGrid({ filteredGames }) {
-    const [showPlayfrensModal, setShowPlayfrensModal] = useState(false);
-    const [showEditGameModal, setShowEditGameModal] = useState(false);
-    const [modalGame, setModalGame] = useState(new GameObject("[no game]"));
-    const handleShowCardModal = (game) => {
-        setModalGame(game);
-        setShowPlayfrensModal(true);
-    };
-
     // useEffect to update the grid justification if there aren't enough items to fill the row
     const gridRef = useRef(null);
     useEffect(() => {
@@ -62,15 +55,7 @@ export function GamesGrid({ filteredGames }) {
     return (
         <div style={{ width: "100%", overflowY: "auto", scrollbarGutter: "stable" }}>
             <div className="games-grid" ref={gridRef}>
-                {filteredGames.map((game, index) => (<GameCard
-                    key={index}
-                    game={game}
-                    onClick={handleShowCardModal} />))}
-                {/* the modals can activate each other, when using the Edit functionality */}
-                <PlayfrensModal game={modalGame} show={showPlayfrensModal} setShow={setShowPlayfrensModal}
-                                setShowEditGameModal={setShowEditGameModal} />
-                <EditGameModal game={modalGame} show={showEditGameModal} setShow={setShowEditGameModal}
-                               setShowCardModal={setShowPlayfrensModal} />
+                {filteredGames.map((game, index) => (<GameCard key={index} game={game} />))}
             </div>
         </div>
     );

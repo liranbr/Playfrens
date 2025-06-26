@@ -7,7 +7,7 @@ import { removeData } from "../Store.jsx";
 import "./SidebarButton.css";
 import { modalStore } from "./Modals/ModalStore.jsx";
 
-export function SidebarButton({ value, dataType, setSelection, handleShowModal }) {
+export function SidebarButton({ value, dataType, setSelection }) {
     const [checked, setChecked] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -56,18 +56,18 @@ export function SidebarButton({ value, dataType, setSelection, handleShowModal }
                         </DropdownMenu.Item>
                         <DropdownMenu.Item onClick={() => {
                             updateSelection(false); //TODO: temporary solution to bug
-                            handleShowModal(dataType, value);
+                            // handleShowModal(dataType, value);
+                            modalStore.open("EditData", { dataType: dataType, dataName: value });
                         }}>
                             <MdEdit /> Edit
                         </DropdownMenu.Item>
                         <DropdownMenu.Item data-danger onClick={() => {
-                            const deleteFunction = () => {
-                                updateSelection(false);
-                                removeData(dataType, value);
-                            };
                             modalStore.open("DeleteWarning", {
                                 itemName: value,
-                                deleteFunction: deleteFunction
+                                deleteFunction: () => {
+                                    updateSelection(false);
+                                    removeData(dataType, value);
+                                }
                             });
                         }}>
                             <MdDeleteOutline /> Delete

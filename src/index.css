@@ -13,6 +13,7 @@
     --game-card-width: 210px;
     --pfm-card-width: 500px;
     --icon-size: 30px;
+    --modal-fade-duration: 250ms;
 }
 
 *, *::before, *::after {

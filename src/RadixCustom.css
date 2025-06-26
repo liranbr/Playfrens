@@ -69,11 +69,11 @@
     inset: 0;
 
     &[data-state="open"] {
-        animation: fadeIn 400ms;
+        animation: fadeIn var(--modal-fade-duration);
     }
 
     &[data-state="closed"] {
-        animation: fadeOut 250ms;
+        animation: fadeOut var(--modal-fade-duration);
     }
 }
 
@@ -95,11 +95,11 @@
     transform: translate(-50%, -50%);
 
     &[data-state="open"] {
-        animation: modalShow 400ms;
+        animation: modalShow var(--modal-fade-duration);
     }
 
     &[data-state="closed"] {
-        animation: modalHide 250ms;
+        animation: modalHide var(--modal-fade-duration);
     }
 
     h2 {
@@ -116,7 +116,7 @@
             color: #fff;
             font-size: 14px;
             font-weight: bold;
-            margin-top: 16px;
+            margin-top: 24px;
             margin-bottom: 4px;
         }
 
@@ -125,7 +125,7 @@
         }
 
         small {
-            color: #ddd;
+            color: #aaa;
             font-size: 12px;
         }
 
@@ -173,21 +173,21 @@
 @keyframes modalShow {
     from {
         opacity: 0;
-        transform: translate(-50%, -50%) translateY(-50px);
+        transform: translate(-50%, -50%) scale(0.8);
     }
     to {
         opacity: 1;
-        transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%) scale(1);
     }
 }
 
 @keyframes modalHide {
     from {
         opacity: 1;
-        transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%) scale(1);
     }
     to {
         opacity: 0;
-        transform: translate(-50%, -50%) translateY(-50px);
+        transform: translate(-50%, -50%) scale(0.8);
     }
 }

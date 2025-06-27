@@ -55,3 +55,12 @@ export function forceFilterUpdate() {
     }
 }
 
+export function compareAlphaIgnoreCase(a, b) {
+    return a.toLowerCase().localeCompare(b.toLowerCase());
+}
+
+export function compareGameTitles(a, b) {
+    const titleA = a.sortingTitle || a.title;
+    const titleB = b.sortingTitle || b.title;
+    return compareAlphaIgnoreCase(titleA, titleB);
+}

@@ -1,5 +1,6 @@
 import { action, makeObservable, observable } from "mobx";
-import { toastError, toastDataChangeSuccess, insertSortedByOrder } from "../Utils.jsx";
+import { toastError, toastDataChangeSuccess, insertSortedByOrder, compareGameTitles } from "../Utils.jsx";
+import { allGames } from "../Store.jsx";
 
 /**
  * @typedef {Object} GameObject
@@ -111,6 +112,7 @@ export class GameObject {
         this.title = title;
         this.coverImageURL = coverImageURL;
         this.sortingTitle = sortingTitle;
+        allGames.sort(compareGameTitles);
         toastDataChangeSuccess(`Updated ${this.title}`);
         return true;
     }

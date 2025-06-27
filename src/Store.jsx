@@ -1,7 +1,13 @@
 import { action, autorun, observable } from "mobx";
 import { GameObject } from "./models/GameObject.jsx";
 import { dataTypes } from "./models/DataTypes.jsx";
-import { setToastSilence, toastDataChangeSuccess, toastError } from "./Utils.jsx";
+import {
+    compareAlphaIgnoreCase,
+    compareGameTitles,
+    setToastSilence,
+    toastDataChangeSuccess,
+    toastError
+} from "./Utils.jsx";
 
 function loadObsArray(key) {
     return observable.array(JSON.parse(localStorage.getItem(key) || "[]"));
@@ -21,7 +27,7 @@ if (firstVisit) {
 }
 
 // load data from localstorage as observables
-export const allFriends = loadObsArray("allFriends").sort((a, b) => a.localeCompare(b.toLowerCase()));
+export const allFriends = loadObsArray("allFriends").sort(compareAlphaIgnoreCase);
 export const allCategories = loadObsArray("allCategories");
 export const allStatuses = loadObsArray("allStatuses");
 const dataSortOrder = {
@@ -44,7 +50,7 @@ export const allGames = observable.array(loadObsArray("allGames").map(game => {
         game.note,
         dataSortOrder);
 }).filter(game => game !== null)
-    .sort((a, b) => (a.sortingTitle || a.title).toLowerCase().localeCompare((b.sortingTitle || b.title).toLowerCase())));
+    .sort(compareGameTitles));
 
 // when a change is made to an array, it is saved to localstorage
 autorun(() => saveObsArray("allFriends", allFriends));
@@ -99,7 +105,7 @@ export const addData = action((dataType, value) => {
     }
     dataType.allDataList.push(value);
     if (dataType.key === "friend") {
-        dataType.allDataList.sort((a, b) => a.localeCompare(b.toLowerCase()));
+        dataType.allDataList.sort(compareAlphaIgnoreCase);
     }
     toastDataChangeSuccess("Added " + value + " to " + dataType.plural + " list");
     return true;
@@ -136,7 +142,7 @@ export const editData = action((dataType, oldValue, newValue) => {
     setToastSilence(true);
     fullList[oldValueIndex] = newValue;
     if (dataType.key === "friend") {
-        fullList.sort((a, b) => a.localeCompare(b.toLowerCase()));
+        fullList.sort(compareAlphaIgnoreCase);
     }
     allGames.forEach(game => {
         if (dataType.gameDataList(game).includes(oldValue)) {
@@ -164,6 +170,7 @@ export const addGame = action((title, coverImageURL, gameSortingTitle = "") => {
         return false;
     }
     allGames.push(new GameObject(title, coverImageURL, gameSortingTitle, [], [], [], "", dataSortOrder));
+    allGames.sort(compareGameTitles);
     toastDataChangeSuccess("Added " + title + " to games list");
     return true;
 });

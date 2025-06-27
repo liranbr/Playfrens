@@ -1,5 +1,12 @@
 import { action, makeAutoObservable } from "mobx";
 
+export const Modals = {
+    EditData: "EditData",
+    EditGame: "EditGame",
+    Playfrens: "Playfrens",
+    DeleteWarning: "DeleteWarning"
+};
+
 class ModalStore {
     modalStack = [];
 
@@ -13,12 +20,14 @@ class ModalStore {
     }
 
     open = (name, props = {}) => {
+        if (!Modals.hasOwnProperty(name))
+            return console.warn(`Unknown modal type: ${name}`);
         if (this.currentModal) this.currentModal.open = false;
         this.modalStack.push({ name, props, open: true });
-        console.log("just opened, Modal stack size: " + this.modalStack.length);
     };
 
     close = () => {
+        if (!this.currentModal) return console.warn("No modal to close.");
         if (this.previousModal) this.previousModal.open = true;
         this.currentModal.open = false;
         this.afterCloseAnimation(() => this.modalStack.pop());
@@ -27,7 +36,7 @@ class ModalStore {
     // Useful when you don't want the previous one to open when closing current,
     // e.g., after deleting a game, close the confirmation modal and the game modal
     closeTwo = () => {
-        if (!this.previousModal) {
+        if (!(this.previousModal && this.currentModal)) {
             return console.warn("No two modals to close.");
         }
         this.currentModal.open = false;
@@ -41,12 +50,10 @@ class ModalStore {
     afterCloseAnimation = (callback) => {
         setTimeout(action(() => {
             callback();
-            console.log("just closed, Modal stack size: " + this.modalStack.length);
         }), +this.modalFadeDuration);
     };
 
     get currentModal() {
-        console.log("currentModal, Modal stack size: " + this.modalStack.length);
         return this.modalStack[this.modalStack.length - 1] || null;
     }
 

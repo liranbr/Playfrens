@@ -1,7 +1,7 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import Button from "react-bootstrap/Button";
-import { addData, editData } from "../Store.jsx";
+import { addData, editData } from "../../Store.jsx";
 
 export function EditDataModal({ open, closeModal, dataType, dataName = "" }) {
     const mode = dataName ? "Edit" : "Add";

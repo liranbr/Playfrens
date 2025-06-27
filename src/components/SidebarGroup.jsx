@@ -2,12 +2,12 @@ import { Row } from "react-bootstrap";
 import { MdAdd } from "react-icons/md";
 import { SidebarButton } from "./SidebarButton.jsx";
 import "./SidebarGroup.css";
-import { modalStore } from "./Modals/ModalStore.jsx";
+import { Modals, modalStore } from "./Modals/ModalStore.jsx";
 
 export function SidebarGroup({ dataType, dataList, setSelection }) {
     const title = dataType.plural.toUpperCase();
     const handleAddButtonClick = () => {
-        modalStore.open("EditData", { dataType: dataType });
+        modalStore.open(Modals.EditData, { dataType: dataType });
     };
     return (
         <Row className="sidebar-group">

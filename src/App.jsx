@@ -13,7 +13,7 @@ import { ModalRoot } from "./components/Modals/ModalRoot.jsx";
 import "./App.css";
 import "react-toastify/dist/ReactToastify.css";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { modalStore } from "./components/Modals/ModalStore.jsx";
+import { Modals, modalStore } from "./components/Modals/ModalStore.jsx";
 
 function AppHeader({ searchState }) {
     const [search, setSearch] = searchState;
@@ -92,7 +92,7 @@ function AppHeader({ searchState }) {
                 <Nav.Link draggable="false" href="https://github.com/liranbr/Playfrens" target="_blank"
                           rel="noopener noreferrer">GitHub</Nav.Link>
             </Nav>
-            <button className="new-game-button" onClick={() => modalStore.open("EditGame")}>
+            <button className="new-game-button" onClick={() => modalStore.open(Modals.EditGame)}>
                 <MdOutlineGamepad />
             </button>
         </Navbar>

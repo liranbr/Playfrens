@@ -1,7 +1,7 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import Button from "react-bootstrap/Button";
-import { addGame } from "../Store.jsx";
+import { addGame } from "../../Store.jsx";
 
 export function EditGameModal({ open, closeModal, game = null }) {
     const dialogTitle = game ? "Edit Game Details" : "Add Game";

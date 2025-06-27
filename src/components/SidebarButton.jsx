@@ -5,7 +5,7 @@ import { MdDeleteOutline, MdEdit, MdMoreVert, MdOutlineSearchOff } from "react-i
 import { toastError } from "../Utils.jsx";
 import { removeData } from "../Store.jsx";
 import "./SidebarButton.css";
-import { modalStore } from "./Modals/ModalStore.jsx";
+import { Modals, modalStore } from "./Modals/ModalStore.jsx";
 
 export function SidebarButton({ value, dataType, setSelection }) {
     const [checked, setChecked] = useState(false);
@@ -57,12 +57,12 @@ export function SidebarButton({ value, dataType, setSelection }) {
                         <DropdownMenu.Item onClick={() => {
                             updateSelection(false); //TODO: temporary solution to bug
                             // handleShowModal(dataType, value);
-                            modalStore.open("EditData", { dataType: dataType, dataName: value });
+                            modalStore.open(Modals.EditData, { dataType: dataType, dataName: value });
                         }}>
                             <MdEdit /> Edit
                         </DropdownMenu.Item>
                         <DropdownMenu.Item data-danger onClick={() => {
-                            modalStore.open("DeleteWarning", {
+                            modalStore.open(Modals.DeleteWarning, {
                                 itemName: value,
                                 deleteFunction: () => {
                                     updateSelection(false);

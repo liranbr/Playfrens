@@ -9,7 +9,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { dataTypes } from "../../models/DataTypes.jsx";
 import "./PlayfrensModal.css";
-import { modalStore } from "../Modals/ModalStore.jsx";
+import { Modals, modalStore } from "./ModalStore.jsx";
 
 const AddDataDropdown = ({ dataType, game }) => {
     return (
@@ -88,12 +88,12 @@ function GameOptionsButton({ game }) {
                 <DropdownMenu.Content className="rx-dropdown-menu"
                                       align={"start"} side={"bottom"} sideOffset={5}>
                     <DropdownMenu.Item onClick={() => {
-                        modalStore.open("EditGame", { game });
+                        modalStore.open(Modals.EditGame, { game });
                     }}>
                         <MdEdit /> Edit
                     </DropdownMenu.Item>
                     <DropdownMenu.Item data-danger onClick={() => {
-                        modalStore.open("DeleteWarning", {
+                        modalStore.open(Modals.DeleteWarning, {
                             itemName: game.title,
                             deleteFunction: () => {
                                 removeGame(game);

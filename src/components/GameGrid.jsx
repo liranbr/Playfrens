@@ -3,7 +3,7 @@ import { dataTypes } from "../models/DataTypes.jsx";
 import { useValidatedImage } from "../hooks/useValidatedImage.js";
 import "../App.css";
 import "./GameGrid.css";
-import { modalStore } from "./Modals/ModalStore.jsx";
+import { Modals, modalStore } from "./Modals/ModalStore.jsx";
 
 function GameCard({ game }) {
     const gameCover = useValidatedImage(game.coverImageURL);
@@ -13,21 +13,15 @@ function GameCard({ game }) {
         dataTypes[dataTypeKey].addToGame(game, item);
     };
     const openPlayfrensModal = () => {
-        modalStore.open("Playfrens", { game });
+        modalStore.open(Modals.Playfrens, { game });
     };
     return (
-        <button
-            className="game-card"
-            onClick={openPlayfrensModal}
-            onDrop={handleDrop}
-            onDragOver={e => e.preventDefault()}
-        >
-            <img
-                draggable="false"
-                src={gameCover}
-                alt={game.title + " Card"}
-                referrerPolicy="no-referrer"
-            />
+        <button className="game-card"
+                onClick={openPlayfrensModal}
+                onDrop={handleDrop}
+                onDragOver={e => e.preventDefault()}>
+            <img draggable="false" alt={game.title + " Card"} referrerPolicy="no-referrer"
+                 src={gameCover} />
             <span className="game-card-title-overlay text-stroke-1px">{game.title}</span>
         </button>
     );

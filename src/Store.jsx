@@ -159,20 +159,21 @@ export const editData = action((dataType, oldValue, newValue) => {
 export const addGame = action((title, coverImageURL, gameSortingTitle = "") => {
     if (!title) {
         toastError("Cannot save a game without a title");
-        return false;
+        return null;
     }
     if (allGames.some(game => game.title === title)) {
         toastError(`${title} already exists in games list`);
-        return false;
+        return null;
     }
     if (!coverImageURL) {
         toastError("Cannot save a game without a cover image");
-        return false;
+        return null;
     }
-    allGames.push(new GameObject(title, coverImageURL, gameSortingTitle, [], [], [], "", dataSortOrder));
+    const newGame = new GameObject(title, coverImageURL, gameSortingTitle, [], [], [], "", dataSortOrder);
+    allGames.push(newGame);
     allGames.sort(compareGameTitles);
     toastDataChangeSuccess("Added " + title + " to games list");
-    return true;
+    return newGame;
 });
 
 export const removeGame = action((game) => {

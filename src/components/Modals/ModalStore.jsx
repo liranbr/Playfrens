@@ -33,6 +33,14 @@ class ModalStore {
         this.afterCloseAnimation(() => this.modalStack.pop());
     };
 
+    insertPrevious = (name, props = {}) => {
+        if (!Modals.hasOwnProperty(name))
+            return console.warn(`Unknown modal type: ${name}`);
+        if (!this.currentModal)
+            return console.warn("No current modal to insert behind.");
+        this.modalStack.splice(-1, 0, { name, props, open: false });
+    };
+
     // Useful when you don't want the previous one to open when closing current,
     // e.g., after deleting a game, close the confirmation modal and the game modal
     closeTwo = () => {

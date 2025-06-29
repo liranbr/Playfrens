@@ -19,7 +19,7 @@
     border: 0;
     cursor: pointer;
     background-color: transparent;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.8);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.9);
     transition: 0.3s ease;
 
     img {

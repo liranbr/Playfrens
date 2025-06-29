@@ -11,7 +11,7 @@
 
     --sidebar-width: 250px;
     --game-card-width: 210px;
-    --pfm-card-width: 500px;
+    --pfm-card-width: 400px;
     --icon-size: 30px;
     --modal-fade-duration: 250ms;
 }
@@ -28,7 +28,7 @@
 
 html, body {
     height: 100%;
-    background-color: var(--pf-bg-500);
+    background-color: var(--pf-bg-700);
     color: #fff;
 
     font-family: "Roboto", sans-serif;

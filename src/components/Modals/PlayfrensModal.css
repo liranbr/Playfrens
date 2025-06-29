@@ -1,25 +1,34 @@
 .rx-dialog.playfrens-modal {
-    flex-direction: row;
-    background: none;
-    border: none;
+    flex-direction: column;
+    background-color: var(--pf-bg-700);
+    border: 1px solid #333;
+    border-radius: 20px;
+    padding: 0;
     outline: none;
-    box-shadow: none;
     width: fit-content;
     height: fit-content;
 
-    .pfm-card {
-        width: var(--pfm-card-width);
-        height: calc(var(--pfm-card-width) * 1.5);
+    .pfm-content {
         display: flex;
-        flex-direction: column;
-        justify-content: space-between;
+        flex-direction: row;
+        width: 100%;
+        height: calc(var(--pfm-card-width) * 1.5 + 20px); /* 20px for padding top + bottom */
         position: relative;
         overflow: hidden;
-        z-index: 1;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 1);
-        border: none;
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .pfm-card {
+        width: var(--pfm-card-width);
+        min-width: var(--pfm-card-width);
+        height: calc(var(--pfm-card-width) * 1.5);
+        border: 1px solid #242428;
         border-radius: 20px;
         --bg-url: url('/public/missing_game_cover.png');
+        background-image: var(--bg-url);
+        background-size: cover;
+        background-position: center;
 
         .pfm-card-bg {
             position: absolute;
@@ -27,19 +36,7 @@
             height: calc(var(--pfm-card-width) * 1.5);
             background-size: cover;
             background-position: center;
-            background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), var(--bg-url);
-
-
-            &.layer1 {
-                z-index: -2;
-                filter: blur(5px);
-                transform: scale(1.01);
-            }
-
-            &.layer2 {
-                z-index: -1;
-                filter: blur(10px);
-            }
+            background-image: var(--bg-url);
         }
     }
 
@@ -48,8 +45,23 @@
         display: grid;
         grid-template-columns: var(--icon-size) 1fr var(--icon-size);
         align-items: center;
-        border: 1px solid transparent;
-        padding: 16px;
+        padding: 10px;
+        background-color: var(--pf-bg-700);
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+        border-bottom: 1px solid #333;
+
+        &:before {
+            content: "";
+            width: 100%;
+            height: 1px;
+            display: block;
+            position: absolute;
+            left: 0;
+            top: 50px;
+            z-index: -1;
+            box-shadow: 0 0 4px #000;
+        }
 
         .pfm-title {
             font-size: 24px;
@@ -73,12 +85,14 @@
 
     .pfm-sidebar {
         width: var(--sidebar-width);
-        height: calc(var(--pfm-card-width) * 1.5);
         display: flex;
         flex-direction: column;
         gap: 10px;
-        margin: 0 10px;
         z-index: 1;
+
+        .sidebar-group {
+            border: solid 1px #242428;
+        }
     }
 
     .pfm-shadow {
@@ -94,13 +108,14 @@
 }
 
 .game-note {
-    width: 100%;
+    width: var(--sidebar-width);
+    height: fit-content;
     flex-shrink: 1;
     background-color: var(--pf-bg-900);
     right: 0;
     left: 0;
     padding: 10px;
-    border: 1px solid #333;
+    border: solid 1px #242428;
     border-radius: 20px;
     resize: vertical;
 

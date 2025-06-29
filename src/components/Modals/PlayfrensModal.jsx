@@ -45,7 +45,7 @@ const PFModalSidebarGroup = observer(({ game, dataType }) => {
         dataType.removeFromGame(game, item);
     };
     return (
-        <Row className="sidebar-group pfm-shadow">
+        <Row className="sidebar-group">
             <div className="sidebar-header position-relative">
                 <div />
                 <h4 className="sidebar-title text-stroke-1px">{title}</h4>
@@ -124,40 +124,38 @@ export const PlayfrensModal = observer(({ open, closeModal, game }) => {
         <Dialog.Root open={open} onOpenChange={handleHide}>
             <Dialog.Portal>
                 <Dialog.Overlay className="rx-dialog-overlay" />
-                <Dialog.Content className="rx-dialog playfrens-modal" onClick={handleClickBackground}>
+                <Dialog.Content className="rx-dialog playfrens-modal">
                     <VisuallyHidden><Dialog.Title>{game.title}</Dialog.Title></VisuallyHidden>
                     <VisuallyHidden><Dialog.Description>{"Expanded game card of " + game.title}</Dialog.Description></VisuallyHidden>
 
-                    <div className="pfm-sidebar" onClick={handleClickBackground}>
-                        <PFModalSidebarGroup dataType={dataTypes.friend} game={game} />
+                    <div className="pfm-header">
+                        <GameOptionsButton game={game} />
+                        <p className="pfm-title text-stroke-1px">
+                            {game.title}
+                        </p>
+                        <button className="icon-button ms-auto" onClick={handleHide}>
+                            <OutlinedIcon>
+                                <MdClose />
+                            </OutlinedIcon>
+                        </button>
                     </div>
 
-                    <div className="pfm-card pfm-shadow" style={{ "--bg-url": `url("${gameCover}")` }}>
-                        {/* need two background images to handle transparent border blurring */}
-                        <div className="pfm-card-bg layer1" />
-                        <div className="pfm-card-bg layer2" />
-                        <div className="pfm-header">
-                            <GameOptionsButton game={game} />
-                            <p className="pfm-title text-stroke-1px">
-                                {game.title}
-                            </p>
-                            <button className="icon-button ms-auto" onClick={handleHide}>
-                                <OutlinedIcon>
-                                    <MdClose />
-                                </OutlinedIcon>
-                            </button>
-                        </div>
-                        <div className="pfm-body">
-                            <div className="w-100 d-flex overflow-auto">
-                        <textarea className="game-note" placeholder="Note" rows={4} spellCheck={false} value={game.note}
-                                  onChange={(e) => game.setNote(e.target.value)} />
+                    <div className="pfm-content">
+                        <div className="pfm-card" style={{ "--bg-url": `url("${gameCover}")` }} />
+
+                        <div className="pfm-sidebar">
+                            <PFModalSidebarGroup dataType={dataTypes.friend} game={game} />
+                            <div className="pfm-sidebar">
+                                <PFModalSidebarGroup dataType={dataTypes.category} game={game} />
+                                <PFModalSidebarGroup dataType={dataTypes.status} game={game} />
                             </div>
                         </div>
-                    </div>
 
-                    <div className="pfm-sidebar" onClick={handleClickBackground}>
-                        <PFModalSidebarGroup dataType={dataTypes.category} game={game} />
-                        <PFModalSidebarGroup dataType={dataTypes.status} game={game} />
+                        <div className="w-100 d-flex overflow-auto">
+                            <textarea className="game-note" placeholder="Note" rows={5} spellCheck={false}
+                                      value={game.note}
+                                      onChange={(e) => game.setNote(e.target.value)} />
+                        </div>
                     </div>
 
                 </Dialog.Content>

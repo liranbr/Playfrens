@@ -6,12 +6,13 @@
     --pf-bg-900: #121214;
     --pf-bg-700: #1a1a1e;
     --pf-bg-500: #202024;
+    --pf-bg-400: #28282c;
     --pf-bg-300: #2e2e33;
     --pf-fg-100: #aeaeb4;
 
     --sidebar-width: 250px;
     --game-card-width: 210px;
-    --pfm-card-width: 400px;
+    --pfm-card-width: 450px;
     --icon-size: 30px;
     --modal-fade-duration: 250ms;
 }

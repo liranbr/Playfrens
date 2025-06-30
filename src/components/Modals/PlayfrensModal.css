@@ -1,30 +1,47 @@
 .rx-dialog.playfrens-modal {
-    flex-direction: column;
-    background-color: var(--pf-bg-700);
-    border: 1px solid #333;
-    border-radius: 20px;
-    padding: 0;
-    outline: none;
+    display: grid;
+    grid-template-columns: var(--icon-size) 1fr var(--icon-size);
+    align-items: center;
     width: fit-content;
     height: fit-content;
+    background: none;
+    padding: 0;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    gap: 24px;
+
+    .pfm-container {
+        flex-direction: column;
+        background-color: var(--pf-bg-700);
+        outline: 1px solid #333;
+        border: none;
+        border-radius: 20px;
+        padding: 0;
+        width: fit-content;
+        height: calc(var(--pfm-card-width) * 1.5);
+        box-shadow: 0 0 20px rgba(0, 0, 0, 1);
+    }
 
     .pfm-content {
         display: flex;
         flex-direction: row;
         width: 100%;
-        height: calc(var(--pfm-card-width) * 1.5 + 20px); /* 20px for padding top + bottom */
+        height: calc(var(--pfm-card-width) * 1.5 - 54px); /* 54px for header height */
         position: relative;
         overflow: hidden;
-        gap: 10px;
-        padding: 10px;
+        gap: 12px;
+        padding: 12px;
     }
 
     .pfm-card {
         width: var(--pfm-card-width);
         min-width: var(--pfm-card-width);
         height: calc(var(--pfm-card-width) * 1.5);
-        border: 1px solid #242428;
+        outline: 1px solid #333;
+        border: none;
         border-radius: 20px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 1);
         --bg-url: url('/public/missing_game_cover.png');
         background-image: var(--bg-url);
         background-size: cover;
@@ -41,31 +58,21 @@
     }
 
     .pfm-header {
+        position: relative; /* needed for separator shadow */
         width: 100%;
+        height: calc(var(--icon-size) + 24px); /* 24px for padding */
         display: grid;
         grid-template-columns: var(--icon-size) 1fr var(--icon-size);
         align-items: center;
-        padding: 10px;
+        padding: 12px;
         background-color: var(--pf-bg-700);
         border-top-left-radius: 20px;
         border-top-right-radius: 20px;
-        border-bottom: 1px solid #333;
-
-        &:before {
-            content: "";
-            width: 100%;
-            height: 1px;
-            display: block;
-            position: absolute;
-            left: 0;
-            top: 50px;
-            z-index: -1;
-            box-shadow: 0 0 4px #000;
-        }
+        z-index: 1;
 
         .pfm-title {
             font-size: 24px;
-            padding: 0 10px;
+            padding: 0 12px;
             color: #fff;
             margin: 0;
             line-height: 1;
@@ -73,6 +80,13 @@
             font-weight: bold;
             --stroke-color: #333; /* for text-stroke */
         }
+    }
+
+    .pfm-header-separator {
+        position: relative;
+        height: 1px;
+        background-color: #333;
+        box-shadow: 0 0 4px 2px rgba(0, 0, 0, 0.2);
     }
 
     .pfm-body {
@@ -87,16 +101,13 @@
         width: var(--sidebar-width);
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 12px;
         z-index: 1;
-
-        .sidebar-group {
-            border: solid 1px #242428;
-        }
     }
 
-    .pfm-shadow {
-        box-shadow: 0 0 20px rgba(0, 0, 0, 1);
+    .pfm-element {
+        /*box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);*/
+        border: solid 1px var(--pf-bg-400);
     }
 
     .pfm-sidebar-button:hover {
@@ -105,22 +116,36 @@
         outline: 1px solid #80848e;
         color: #fff;
     }
+
+    .pfm-column {
+        width: var(--pfm-card-width);
+        display: flex;
+        flex-direction: column;
+        overflow: auto;
+        gap: 12px;
+    }
 }
 
-.game-note {
-    width: var(--sidebar-width);
-    height: fit-content;
-    flex-shrink: 1;
+.game-note-container {
     background-color: var(--pf-bg-900);
-    right: 0;
-    left: 0;
-    padding: 10px;
-    border: solid 1px #242428;
     border-radius: 20px;
-    resize: vertical;
+    padding-top: 20px;
 
-    &:focus {
-        outline: 1px solid #666;
-        outline-offset: -1px;
+    .game-note {
+        width: 100%;
+        height: fit-content;
+        flex-shrink: 1;
+        background: none;
+        right: 0;
+        left: 0;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 20px;
+        resize: vertical;
+
+        &:focus {
+            outline: none;
+            outline-offset: -1px;
+        }
     }
 }

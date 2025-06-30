@@ -45,7 +45,7 @@ const PFModalSidebarGroup = observer(({ game, dataType }) => {
         dataType.removeFromGame(game, item);
     };
     return (
-        <Row className="sidebar-group">
+        <Row className="sidebar-group pfm-element">
             <div className="sidebar-header position-relative">
                 <div />
                 <h4 className="sidebar-title text-stroke-1px">{title}</h4>
@@ -68,6 +68,22 @@ const PFModalSidebarGroup = observer(({ game, dataType }) => {
                         </Button>
                     </OverlayTrigger>
                 )}
+            </div>
+        </Row>
+    );
+});
+
+const PlaythroughsSidebarGroup = observer(({ game }) => {
+    // Placeholder for Playthroughs, will rename and fill later
+    return (
+        <Row className="sidebar-group pfm-element">
+            <div className="sidebar-header position-relative">
+                <div />
+                <h4 className="sidebar-title text-stroke-1px">PLAYTHROUGHS</h4>
+                <AddDataDropdown dataType={dataTypes.status} game={game} />
+            </div>
+            <div>
+                {/* Playthroughs Go Here */}
             </div>
         </Row>
     );
@@ -127,37 +143,50 @@ export const PlayfrensModal = observer(({ open, closeModal, game }) => {
                 <Dialog.Content className="rx-dialog playfrens-modal">
                     <VisuallyHidden><Dialog.Title>{game.title}</Dialog.Title></VisuallyHidden>
                     <VisuallyHidden><Dialog.Description>{"Expanded game card of " + game.title}</Dialog.Description></VisuallyHidden>
+                    <div />
+                    {/* Empty div center the pfm-container, div|container|cover */}
+                    <div className="pfm-container">
 
-                    <div className="pfm-header">
-                        <GameOptionsButton game={game} />
-                        <p className="pfm-title text-stroke-1px">
-                            {game.title}
-                        </p>
-                        <button className="icon-button ms-auto" onClick={handleHide}>
-                            <OutlinedIcon>
-                                <MdClose />
-                            </OutlinedIcon>
-                        </button>
-                    </div>
+                        <div className="pfm-header">
+                            <GameOptionsButton game={game} />
+                            <p className="pfm-title text-stroke-1px">
+                                {game.title}
+                            </p>
+                            <button className="icon-button ms-auto" onClick={handleHide}>
+                                <OutlinedIcon>
+                                    <MdClose />
+                                </OutlinedIcon>
+                            </button>
+                        </div>
+                        <div className="pfm-header-separator" />
 
-                    <div className="pfm-content">
-                        <div className="pfm-card" style={{ "--bg-url": `url("${gameCover}")` }} />
-
-                        <div className="pfm-sidebar">
-                            <PFModalSidebarGroup dataType={dataTypes.friend} game={game} />
+                        <div className="pfm-content">
                             <div className="pfm-sidebar">
-                                <PFModalSidebarGroup dataType={dataTypes.category} game={game} />
-                                <PFModalSidebarGroup dataType={dataTypes.status} game={game} />
+                                <PFModalSidebarGroup dataType={dataTypes.friend} game={game} />
+                                <div className="pfm-sidebar">
+                                    <PFModalSidebarGroup dataType={dataTypes.category} game={game} />
+                                    <PFModalSidebarGroup dataType={dataTypes.status} game={game} />
+                                </div>
                             </div>
-                        </div>
 
-                        <div className="w-100 d-flex overflow-auto">
-                            <textarea className="game-note" placeholder="Note" rows={5} spellCheck={false}
-                                      value={game.note}
-                                      onChange={(e) => game.setNote(e.target.value)} />
+                            <div className="pfm-column">
+                                <div className="game-note-container pfm-element">
+                                    <div className="sidebar-header position-relative">
+                                        <div />
+                                        <h4 className="sidebar-title text-stroke-1px">NOTE</h4>
+                                        <div />
+                                    </div>
+                                    <textarea className="game-note" rows={3}
+                                              spellCheck={false}
+                                              value={game.note}
+                                              onChange={(e) => game.setNote(e.target.value)} />
+                                </div>
+                                <PlaythroughsSidebarGroup game={game} />
+                            </div>
+
                         </div>
                     </div>
-
+                    <div className="pfm-card" style={{ "--bg-url": `url("${gameCover}")` }} />
                 </Dialog.Content>
             </Dialog.Portal>
         </Dialog.Root>

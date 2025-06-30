@@ -43,7 +43,7 @@
     color: var(--pf-fg-100);
     background-color: var(--pf-bg-500);
     border-radius: 15px;
-    border: none;
+    border: 1px solid #333;
 
     &:hover {
         color: #fff;

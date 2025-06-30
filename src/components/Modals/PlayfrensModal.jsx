@@ -143,8 +143,7 @@ export const PlayfrensModal = observer(({ open, closeModal, game }) => {
                 <Dialog.Content className="rx-dialog playfrens-modal">
                     <VisuallyHidden><Dialog.Title>{game.title}</Dialog.Title></VisuallyHidden>
                     <VisuallyHidden><Dialog.Description>{"Expanded game card of " + game.title}</Dialog.Description></VisuallyHidden>
-                    <div />
-                    {/* Empty div center the pfm-container, div|container|cover */}
+                    <div className="pfm-card" style={{ "--bg-url": `url("${gameCover}")` }} />
                     <div className="pfm-container">
 
                         <div className="pfm-header">
@@ -186,7 +185,6 @@ export const PlayfrensModal = observer(({ open, closeModal, game }) => {
 
                         </div>
                     </div>
-                    <div className="pfm-card" style={{ "--bg-url": `url("${gameCover}")` }} />
                 </Dialog.Content>
             </Dialog.Portal>
         </Dialog.Root>

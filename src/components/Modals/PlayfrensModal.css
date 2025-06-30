@@ -1,7 +1,6 @@
 .rx-dialog.playfrens-modal {
-    display: grid;
-    grid-template-columns: var(--icon-size) 1fr var(--icon-size);
-    align-items: center;
+    display: flex;
+    flex-direction: row;
     width: fit-content;
     height: fit-content;
     background: none;
@@ -9,7 +8,7 @@
     border: none;
     outline: none;
     box-shadow: none;
-    gap: 24px;
+    gap: 14px; /* 12px gap + 1px outlines on container and card */
 
     .pfm-container {
         flex-direction: column;
@@ -118,7 +117,7 @@
     }
 
     .pfm-column {
-        width: var(--pfm-card-width);
+        width: var(--sidebar-width);
         display: flex;
         flex-direction: column;
         overflow: auto;

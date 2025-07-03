@@ -4,6 +4,7 @@
     color-scheme: dark;
 
     --pf-bg-900: #121214;
+    --pf-bg-800: #161619;
     --pf-bg-700: #1a1a1e;
     --pf-bg-500: #202024;
     --pf-bg-400: #28282c;
@@ -22,14 +23,13 @@
     padding: 0;
     --bs-gutter-x: 0;
     --bs-gutter-y: 0;
-    --bs-modal-bg: var(--pf-bg-700);
     box-sizing: border-box;
     scrollbar-width: thin;
 }
 
 html, body {
     height: 100%;
-    background-color: var(--pf-bg-700);
+    background-color: var(--pf-bg-900);
     color: #fff;
 
     font-family: "Roboto", sans-serif;

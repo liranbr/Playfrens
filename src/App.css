@@ -1,5 +1,5 @@
 .app-header {
-    background-color: var(--pf-bg-900);
+    background-color: var(--pf-bg-700);
     padding-right: 12px;
     padding-left: 12px;
     height: 56px;
@@ -7,6 +7,7 @@
     top: 0;
     left: 0;
     right: 0;
+    border-bottom: 1px solid var(--pf-bg-400);
 }
 
 #main-content {
@@ -23,6 +24,19 @@
     /*0 margin on the sidebar-right, for an exact gap with the grid*/
     margin: 10px 0 10px 10px;
     gap: 10px;
+}
+
+.game-search {
+    background: var(--pf-bg-900);
+    border-radius: 15px;
+    border: 1px solid var(--pf-bg-300);
+    height: 36px;
+    width: 300px;
+    box-sizing: border-box;
+
+    &::placeholder {
+        color: #999;
+    }
 }
 
 .sidebar-subgroup {

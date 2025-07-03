@@ -30,14 +30,8 @@ function AppHeader({ searchState }) {
                     placeholder="Search"
                     value={search}
                     onChange={updateSearch}
-                    style={{
-                        background: "none",
-                        borderRadius: "15px",
-                        ...(search && { border: "2px solid royalblue" }),
-                        height: "36px",
-                        width: "300px",
-                        boxSizing: "border-box"
-                    }}
+                    className="game-search"
+                    style={{ ...(search && { border: "2px solid royalblue" }) }}
                     onKeyDown={(e) => e.key === "Enter" ? e.preventDefault() : null}
                     onSubmit={(e) => e.preventDefault()}
                 />

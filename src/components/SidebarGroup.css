@@ -4,9 +4,9 @@
     flex-direction: column;
     margin: 0;
     padding: 16px;
-    border: 1px solid #333;
+    border: 1px solid var(--pf-bg-400);
     border-radius: 20px;
-    background-color: var(--pf-bg-900);
+    background-color: var(--pf-bg-700);
     overflow: hidden;
 }
 

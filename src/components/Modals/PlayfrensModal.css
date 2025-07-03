@@ -12,7 +12,7 @@
 
     .pfm-container {
         flex-direction: column;
-        background-color: var(--pf-bg-700);
+        background-color: var(--pf-bg-900);
         outline: 1px solid #333;
         border: none;
         border-radius: 20px;
@@ -63,10 +63,11 @@
         display: grid;
         grid-template-columns: var(--icon-size) 1fr var(--icon-size);
         align-items: center;
-        padding: 12px;
-        background-color: var(--pf-bg-700);
+        padding: 12px 12px 11px 12px;
+        background-color: inherit;
         border-top-left-radius: 20px;
         border-top-right-radius: 20px;
+        border-bottom: 1px solid #333;
         z-index: 1;
 
         .pfm-title {
@@ -81,11 +82,10 @@
         }
     }
 
-    .pfm-header-separator {
-        position: relative;
-        height: 1px;
-        background-color: #333;
-        box-shadow: 0 0 4px 2px rgba(0, 0, 0, 0.2);
+    .pfm-header-shadow {
+        width: 100%;
+        height: 0;
+        box-shadow: 0 0 4px 2px rgba(0, 0, 0, 0.25);
     }
 
     .pfm-body {
@@ -107,6 +107,7 @@
     .pfm-element {
         /*box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);*/
         border: solid 1px var(--pf-bg-400);
+        background-color: var(--pf-bg-700);
     }
 
     .pfm-sidebar-button:hover {
@@ -126,7 +127,6 @@
 }
 
 .game-note-container {
-    background-color: var(--pf-bg-900);
     border-radius: 20px;
     padding-top: 20px;
 

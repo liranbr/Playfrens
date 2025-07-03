@@ -157,7 +157,7 @@ export const PlayfrensModal = observer(({ open, closeModal, game }) => {
                                 </OutlinedIcon>
                             </button>
                         </div>
-                        <div className="pfm-header-separator" />
+                        <div className="pfm-header-shadow" />
 
                         <div className="pfm-content">
                             <div className="pfm-sidebar">

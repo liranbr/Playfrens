@@ -7,7 +7,9 @@
     top: 0;
     left: 0;
     right: 0;
-    border-bottom: 1px solid var(--pf-bg-400);
+    border-bottom: 1px solid var(--pf-bg-300);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+    z-index: 2;
 }
 
 #main-content {
@@ -24,6 +26,7 @@
     /*0 margin on the sidebar-right, for an exact gap with the grid*/
     margin: 10px 0 10px 10px;
     gap: 10px;
+    z-index: 3;
 }
 
 .game-search {

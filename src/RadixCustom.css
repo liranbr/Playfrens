@@ -8,6 +8,7 @@
     border: 1px solid #333;
     border-radius: 12px;
     padding: 6px 0;
+    z-index: 103;
 
     div[role="menuitem"] {
         display: flex;
@@ -67,6 +68,7 @@
     background-color: rgba(0, 0, 0, 0.7);
     position: fixed;
     inset: 0;
+    z-index: 100;
 
     &[data-state="open"] {
         animation: fadeIn var(--modal-fade-duration);
@@ -93,6 +95,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    z-index: 101;
 
     &[data-state="open"] {
         animation: modalShow var(--modal-fade-duration);

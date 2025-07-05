@@ -4,10 +4,11 @@
     flex-direction: column;
     margin: 0;
     padding: 16px;
-    border: 1px solid var(--pf-bg-400);
+    border: 1px solid var(--pf-bg-300);
     border-radius: 20px;
     background-color: var(--pf-bg-700);
     overflow: hidden;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
 }
 
 .sidebar-header {

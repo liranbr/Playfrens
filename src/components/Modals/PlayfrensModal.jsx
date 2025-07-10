@@ -38,17 +38,17 @@ const AddDataDropdown = ({ dataType, game }) => {
     );
 };
 
-const PFModalSidebarGroup = observer(({ game, dataType }) => {
+const PFMSidebarGroup = observer(({ game, dataType }) => {
     const title = dataType.plural.toUpperCase();
     const gameDataList = dataType.gameDataList(game);
     const handleRemove = (item) => {
         dataType.removeFromGame(game, item);
     };
     return (
-        <Row className="sidebar-group pfm-element">
-            <div className="sidebar-header position-relative">
+        <div className="sidebar-group">
+            <div className="sidebar-header">
                 <div />
-                <h4 className="sidebar-title text-stroke-1px">{title}</h4>
+                <h4>{title}</h4>
                 <AddDataDropdown dataType={dataType} game={game} />
             </div>
             <div className="sidebar-buttons-list">
@@ -69,23 +69,7 @@ const PFModalSidebarGroup = observer(({ game, dataType }) => {
                     </OverlayTrigger>
                 )}
             </div>
-        </Row>
-    );
-});
-
-const PlaythroughsSidebarGroup = observer(({ game }) => {
-    // Placeholder for Playthroughs, will rename and fill later
-    return (
-        <Row className="sidebar-group pfm-element">
-            <div className="sidebar-header position-relative">
-                <div />
-                <h4 className="sidebar-title text-stroke-1px">PLAYTHROUGHS</h4>
-                <AddDataDropdown dataType={dataTypes.status} game={game} />
-            </div>
-            <div>
-                {/* Playthroughs Go Here */}
-            </div>
-        </Row>
+        </div>
     );
 });
 
@@ -148,7 +132,7 @@ export const PlayfrensModal = observer(({ open, closeModal, game }) => {
 
                         <div className="pfm-header">
                             <GameOptionsButton game={game} />
-                            <p className="pfm-title text-stroke-1px">
+                            <p className="pfm-title">
                                 {game.title}
                             </p>
                             <button className="icon-button ms-auto" onClick={handleHide}>
@@ -157,22 +141,22 @@ export const PlayfrensModal = observer(({ open, closeModal, game }) => {
                                 </OutlinedIcon>
                             </button>
                         </div>
-                        <div className="pfm-header-shadow" />
+                        <div className="sidebar-header-shadow" />
 
                         <div className="pfm-content">
-                            <div className="pfm-sidebar">
-                                <PFModalSidebarGroup dataType={dataTypes.friend} game={game} />
-                                <div className="pfm-sidebar">
-                                    <PFModalSidebarGroup dataType={dataTypes.category} game={game} />
-                                    <PFModalSidebarGroup dataType={dataTypes.status} game={game} />
-                                </div>
+                            <div className="sidebar pfm-element">
+                                <PFMSidebarGroup dataType={dataTypes.friend} game={game} />
+                                <div className="sidebar-separator" />
+                                <PFMSidebarGroup dataType={dataTypes.category} game={game} />
+                                <div className="sidebar-separator" />
+                                <PFMSidebarGroup dataType={dataTypes.status} game={game} />
                             </div>
 
                             <div className="pfm-column">
                                 <div className="game-note-container pfm-element">
-                                    <div className="sidebar-header position-relative">
+                                    <div className="sidebar-header">
                                         <div />
-                                        <h4 className="sidebar-title text-stroke-1px">NOTE</h4>
+                                        <h4>NOTE</h4>
                                         <div />
                                     </div>
                                     <textarea className="game-note" rows={3}
@@ -180,7 +164,16 @@ export const PlayfrensModal = observer(({ open, closeModal, game }) => {
                                               value={game.note}
                                               onChange={(e) => game.setNote(e.target.value)} />
                                 </div>
-                                <PlaythroughsSidebarGroup game={game} />
+
+                                <div className="playthroughs-container pfm-element">
+                                    <div className="sidebar-header">
+                                        <div />
+                                        <h4>PLAYTHROUGHS</h4>
+                                        <button className="icon-button">
+                                            <MdAdd />
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
 
                         </div>

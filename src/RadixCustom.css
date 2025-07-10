@@ -3,7 +3,7 @@
     display: block;
     max-height: 495px;
     min-width: 125px;
-    overflow-y: auto;
+    overflow-y: scroll;
     background-color: var(--pf-bg-700);
     border: 1px solid #333;
     border-radius: 12px;
@@ -109,6 +109,14 @@
         font-size: 18px;
         margin-bottom: 12px;
         text-align: center;
+        overflow: hidden;
+        text-wrap: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    p {
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     fieldset {

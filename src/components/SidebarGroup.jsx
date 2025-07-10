@@ -1,7 +1,6 @@
-import { Row } from "react-bootstrap";
 import { MdAdd } from "react-icons/md";
 import { SidebarButton } from "./SidebarButton.jsx";
-import "./SidebarGroup.css";
+import "./Sidebar.css";
 import { Modals, modalStore } from "./Modals/ModalStore.jsx";
 
 export function SidebarGroup({ dataType, dataList, setSelection }) {
@@ -10,10 +9,10 @@ export function SidebarGroup({ dataType, dataList, setSelection }) {
         modalStore.open(Modals.EditData, { dataType: dataType });
     };
     return (
-        <Row className="sidebar-group">
+        <div className="sidebar-group">
             <div className="sidebar-header">
                 <div />
-                <p className="sidebar-title text-stroke-1px">{title}</p>
+                <h4>{title}</h4>
                 <button className="icon-button" onClick={handleAddButtonClick}>
                     <MdAdd />
                 </button>
@@ -28,6 +27,6 @@ export function SidebarGroup({ dataType, dataList, setSelection }) {
                     />
                 )}
             </div>
-        </Row>
+        </div>
     );
 }

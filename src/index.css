@@ -10,9 +10,11 @@
     --pf-bg-500: #202026;
     --pf-bg-400: #28282c;
     --pf-bg-300: #2e2e33;
+    --pf-bg-200: #34343a;
+    --pf-bg-100: #3c3c46;
     --pf-fg-100: #aeaeb4;
 
-    --sidebar-width: 250px;
+    --sidebar-width: 275px;
     --game-card-width: 210px;
     --pfm-card-width: 450px;
     --icon-size: 30px;
@@ -30,7 +32,7 @@
 
 html, body {
     height: 100%;
-    background-color: var(--pf-bg-900);
+    background-color: var(--pf-bg-500);
     color: #fff;
 
     font-family: "Roboto", sans-serif;

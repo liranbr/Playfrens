@@ -18,6 +18,7 @@
         border-radius: 20px;
         padding: 0;
         width: fit-content;
+        max-width: calc(var(--sidebar-width) * 2 + 24px + 12px); /* two columns, padding and gap */
         height: calc(var(--pfm-card-width) * 1.5);
         box-shadow: 0 0 20px rgba(0, 0, 0, 1);
     }
@@ -59,6 +60,7 @@
     .pfm-header {
         position: relative; /* needed for separator shadow */
         width: 100%;
+        max-width: 100%;
         height: calc(var(--icon-size) + 24px); /* 24px for padding */
         display: grid;
         grid-template-columns: var(--icon-size) 1fr var(--icon-size);
@@ -79,13 +81,10 @@
             text-align: center;
             font-weight: bold;
             --stroke-color: #333; /* for text-stroke */
+            overflow: hidden;
+            text-wrap: nowrap;
+            text-overflow: ellipsis;
         }
-    }
-
-    .pfm-header-shadow {
-        width: 100%;
-        height: 0;
-        box-shadow: 0 0 6px 2px rgba(0, 0, 0, 0.5);
     }
 
     .pfm-body {
@@ -96,17 +95,22 @@
         justify-content: end;
     }
 
-    .pfm-sidebar {
-        width: var(--sidebar-width);
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
+    .sidebar {
+        height: fit-content;
+        max-height: 100%;
+        margin: 0;
+
+        .sidebar-group {
+            min-height: fit-content;
+        }
     }
 
     .pfm-element {
-        /*box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);*/
-        border: solid 1px var(--pf-bg-300);
         background-color: var(--pf-bg-700);
+        border: solid 1px var(--pf-bg-300);
+        border-radius: 20px;
+        padding: 12px;
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
     }
 
     .pfm-sidebar-button:hover {
@@ -136,7 +140,7 @@
         background: none;
         right: 0;
         left: 0;
-        padding: 12px 20px;
+        padding: 12px 8px;
         border: none;
         border-radius: 20px;
         resize: vertical;
@@ -146,4 +150,8 @@
             outline-offset: -1px;
         }
     }
+}
+
+.playthroughs-container {
+    padding: 12px;
 }

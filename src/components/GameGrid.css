@@ -19,7 +19,7 @@
     border: 0;
     cursor: pointer;
     background-color: transparent;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.9);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.9);
     transition: 0.3s ease;
 
     img {
@@ -42,11 +42,14 @@
         opacity: 0;
         transition: 0.3s ease;
         --stroke-color: #000000aa; /* for text-stroke */
+        overflow: hidden;
+        text-wrap: nowrap;
+        text-overflow: ellipsis;
     }
 
     &:hover {
         transform: scale(1.05);
-        box-shadow: 0 15px 22px rgba(0, 0, 0, 0.6);
+        box-shadow: 0 12px 16px rgba(0, 0, 0, 0.6);
         z-index: 1;
 
         .game-card-title-overlay {

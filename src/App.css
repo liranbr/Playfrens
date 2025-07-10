@@ -1,5 +1,5 @@
 .app-header {
-    background-color: var(--pf-bg-700);
+    background-color: var(--pf-bg-900);
     padding-right: 12px;
     padding-left: 12px;
     height: 56px;
@@ -7,8 +7,7 @@
     top: 0;
     left: 0;
     right: 0;
-    border-bottom: 1px solid var(--pf-bg-300);
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+    border-bottom: 1px solid var(--pf-bg-100);
     z-index: 2;
 }
 
@@ -18,19 +17,7 @@
     display: flex;
 }
 
-.app-sidebar {
-    max-width: var(--sidebar-width);
-    min-width: var(--sidebar-width);
-    display: flex;
-    flex-direction: column;
-    /*0 margin on the sidebar-right, for an exact gap with the grid*/
-    margin: 10px 0 10px 10px;
-    gap: 10px;
-    z-index: 3;
-}
-
 .game-search {
-    background: var(--pf-bg-900);
     border-radius: 15px;
     border: 1px solid var(--pf-bg-300);
     height: 36px;
@@ -40,13 +27,10 @@
     &::placeholder {
         color: #999;
     }
-}
 
-.sidebar-subgroup {
-    max-height: 66%;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    &:focus {
+        border-color: #0d6efd;
+    }
 }
 
 .new-game-button {

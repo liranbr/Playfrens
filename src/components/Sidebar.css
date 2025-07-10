@@ -1,0 +1,67 @@
+.sidebar {
+    max-width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
+    height: fit-content;
+    max-height: calc(100% - 24px); /* margins */
+    display: flex;
+    flex-direction: column;
+    background-color: var(--pf-bg-900);
+    border: 1px solid var(--pf-bg-100);
+    border-radius: 20px;
+    margin: 12px 0 12px 12px; /* right gap comes from the grid */
+    padding: 12px;
+    overflow: hidden;
+
+    .sidebar-separator {
+        height: 0;
+        flex-shrink: 0;
+        margin: 12px;
+        border-top: 1px solid var(--pf-bg-100);
+    }
+}
+
+.sidebar-group {
+    width: 100%;
+    min-height: 164px; /* meant to fit 3 buttons */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex-shrink: 1;
+    flex-grow: 1;
+    flex-basis: auto;
+
+    &:first-child {
+        flex-shrink: 1000;
+        flex-grow: 1000;
+    }
+
+    .sidebar-buttons-list {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow-x: hidden;
+        overflow-y: scroll;
+        scrollbar-gutter: stable both-edges;
+    }
+}
+
+.sidebar-header {
+    width: 100%;
+    display: grid;
+    grid-template-columns: var(--icon-size) 1fr var(--icon-size);
+    align-items: center;
+    background-color: inherit;
+    margin-bottom: 8px;
+
+    h4 {
+        font-size: 20px;
+        font-weight: bold;
+        color: var(--pf-fg-100);
+        text-align: center;
+        margin: 0;
+        line-height: 1;
+        overflow: hidden;
+        text-wrap: nowrap;
+        text-overflow: ellipsis;
+    }
+}

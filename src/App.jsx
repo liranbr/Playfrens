@@ -31,7 +31,7 @@ function AppHeader({ searchState }) {
                     value={search}
                     onChange={updateSearch}
                     className="game-search"
-                    style={{ ...(search && { border: "2px solid royalblue" }) }}
+                    style={{ ...(search && { border: "2px solid #0a58ca" }) }}
                     onKeyDown={(e) => e.key === "Enter" ? e.preventDefault() : null}
                     onSubmit={(e) => e.preventDefault()}
                 />
@@ -96,21 +96,21 @@ function AppHeader({ searchState }) {
 function AppSidebar({ setSelectedFriends, setSelectedCategories, setSelectedStatuses }) {
     // 50% height for friend bar, 50% for categories and statuses
     return (
-        <div className="app-sidebar">
+        <div className="sidebar">
             <SidebarGroup
                 dataType={dataTypes.friend}
                 dataList={dataTypes.friend.allDataList}
                 setSelection={setSelectedFriends} />
-            <div className="sidebar-subgroup">
-                <SidebarGroup
-                    dataType={dataTypes.category}
-                    dataList={dataTypes.category.allDataList}
-                    setSelection={setSelectedCategories} />
-                <SidebarGroup
-                    dataType={dataTypes.status}
-                    dataList={dataTypes.status.allDataList}
-                    setSelection={setSelectedStatuses} />
-            </div>
+            <div className="sidebar-separator" />
+            <SidebarGroup
+                dataType={dataTypes.category}
+                dataList={dataTypes.category.allDataList}
+                setSelection={setSelectedCategories} />
+            <div className="sidebar-separator" />
+            <SidebarGroup
+                dataType={dataTypes.status}
+                dataList={dataTypes.status.allDataList}
+                setSelection={setSelectedStatuses} />
         </div>
     );
 }

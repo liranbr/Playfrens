@@ -12,11 +12,13 @@
 
 .game-card {
     position: relative;
+    overflow: hidden; /* for the overlay */
     width: 100%;
     aspect-ratio: 1 / 1.5;
     margin: 0;
     padding: 0;
     border: 0;
+    border-radius: var(--game-card-border-radius);
     cursor: pointer;
     background-color: transparent;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.9);
@@ -26,6 +28,7 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
+        border-radius: inherit;
     }
 
     .game-card-title-overlay {
@@ -53,6 +56,7 @@
         z-index: 1;
 
         .game-card-title-overlay {
+            transform: scale(1.01); /* fixes flicker on scale end */
             opacity: 1;
         }
     }

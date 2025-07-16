@@ -159,13 +159,13 @@ export const PlayfrensModal = observer(({ open, closeModal, game }) => {
                                         <h4>NOTE</h4>
                                         <div />
                                     </div>
-                                    <textarea className="game-note" rows={3}
+                                    <textarea className="game-note" rows={5}
                                               spellCheck={false}
                                               value={game.note}
                                               onChange={(e) => game.setNote(e.target.value)} />
                                 </div>
 
-                                <div className="playthroughs-container pfm-element">
+                                {/*<div className="playthroughs-container pfm-element">
                                     <div className="sidebar-header">
                                         <div />
                                         <h4>PLAYTHROUGHS</h4>
@@ -173,7 +173,7 @@ export const PlayfrensModal = observer(({ open, closeModal, game }) => {
                                             <MdAdd />
                                         </button>
                                     </div>
-                                </div>
+                                </div>*/}
                             </div>
 
                         </div>

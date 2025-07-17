@@ -87,7 +87,7 @@ function AppHeader({ searchState }) {
                           rel="noopener noreferrer">GitHub</Nav.Link>
             </Nav>
             <button className="new-game-button" onClick={() => modalStore.open(Modals.EditGame)}>
-                <MdOutlineGamepad />
+                <MdOutlineGamepad />Add Game
             </button>
         </Navbar>
     );

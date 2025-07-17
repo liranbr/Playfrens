@@ -36,15 +36,20 @@
 .new-game-button {
     margin: 0 18px;
     height: 36px;
-    width: 72px;
+    width: fit-content;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 26px;
     color: var(--pf-fg-100);
     background-color: var(--pf-bg-500);
     border-radius: 15px;
     border: 1px solid #333;
+    gap: 4px;
+    padding: 0 8px;
+
+    svg {
+        font-size: 26px;
+    }
 
     &:hover {
         color: #fff;

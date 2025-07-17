@@ -22,7 +22,7 @@ function GameCard({ game }) {
                 onDragOver={e => e.preventDefault()}>
             <img draggable="false" alt={game.title + " Card"} referrerPolicy="no-referrer"
                  src={gameCover} />
-            <p className="game-card-title-overlay text-stroke-1px">{game.title}</p>
+            <p className="game-card-title-overlay">{game.title}</p>
         </button>
     );
 }

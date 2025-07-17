@@ -81,22 +81,6 @@ button {
     }
 }
 
-.text-stroke-1px {
-    --stroke-color_: var(--stroke-color, #000);
-    text-shadow: -1px -1px 0 var(--stroke-color_),
-    1px -1px 0 var(--stroke-color_),
-    -1px 1px 0 var(--stroke-color_),
-    1px 1px 0 var(--stroke-color_);
-}
-
-.text-stroke-2px {
-    --stroke-color_: var(--stroke-color, #000);
-    text-shadow: -2px -2px 0 var(--stroke-color_),
-    2px -2px 0 var(--stroke-color_),
-    -2px 2px 0 var(--stroke-color_),
-    2px 2px 0 var(--stroke-color_);
-}
-
 .toast-notification {
     border: 1px solid #333;
 }

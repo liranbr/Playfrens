@@ -14,13 +14,33 @@ export function useValidatedImage(src, fallback = "/missing_game_cover.png") {
 
     useEffect(() => {
         let cancelled = false;
-        validateImage(src).then((isValid) => {
-            if (!cancelled) {
-                setValidSrc(isValid ? src : fallback);
+
+        const sources = [];
+        if (src.includes("cdn2.steamgriddb.com/thumb/")) { // try to find the actual image rather than the thumbnail
+            const gridSrc = src.replace("/thumb/", "/grid/");
+            sources.push(gridSrc.replace(".jpg", ".png"));
+            sources.push(gridSrc.replace(".jpg", ".webp"));
+            sources.push(gridSrc.replace(".webm", ".webp")); // also leaves .jpg as .jpg
+        }
+        sources.push(src);
+
+        // trying to validate the sources as they are ordered until one is valid
+        (async () => {
+            for (const source of sources) {
+                if (cancelled) return;
+                const isValid = await validateImage(source);
+                if (cancelled) return;
+                if (isValid) {
+                    setValidSrc(source);
+                    return;
+                }
             }
-        });
+            if (!cancelled) {
+                setValidSrc(fallback);
+            }
+        })();
         return () => {
-            cancelled = true;
+            cancelled = true; // operation was cancelled before image validation completed
         };
     }, [src, fallback]);
 

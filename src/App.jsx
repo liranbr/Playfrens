@@ -3,7 +3,12 @@ import Navbar from "react-bootstrap/Navbar";
 import Form from "react-bootstrap/Form";
 import Nav from "react-bootstrap/Nav";
 import { ToastContainer } from "react-toastify";
-import { MdClose, MdOutlineFileDownload, MdOutlineFileUpload, MdOutlineGamepad } from "react-icons/md";
+import {
+    MdClose,
+    MdOutlineFileDownload,
+    MdOutlineFileUpload,
+    MdOutlineGamepad, MdPerson
+} from "react-icons/md";
 import { allGames, backupToFile, restoreFromFile } from "./Store.jsx";
 import { dataTypes } from "./models/DataTypes.jsx";
 import { GamesGrid } from "./components/GameGrid.jsx";
@@ -13,6 +18,7 @@ import { ModalRoot } from "./components/Modals/ModalRoot.jsx";
 import "./App.css";
 import "react-toastify/dist/ReactToastify.css";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import * as Avatar from "@radix-ui/react-avatar";
 import { Modals, modalStore } from "./components/Modals/ModalStore.jsx";
 
 function AppHeader({ searchState }) {
@@ -20,11 +26,46 @@ function AppHeader({ searchState }) {
     const updateSearch = (e) => setSearch(e.target.value || "");
     return (
         <Navbar className="app-header">
-            <Form inline="true" style={{
-                position: "absolute",
-                right: "50%",
-                transform: "translateX(50%)"
-            }}>
+            <Navbar.Brand>
+                <img
+                    src="/Playfrens_Logo.png"
+                    alt="Playfrens Logo"
+                    width={30}
+                    height={30}
+                    className="d-inline-block align-top"
+                />
+                <b> Playfrens</b>
+            </Navbar.Brand>
+
+            <Nav className="me-auto">
+                <input
+                    type="file"
+                    id="json-selector"
+                    accept=".json"
+                    style={{ display: "none" }}
+                    onChange={(e) => restoreFromFile(e.target.files[0])}
+                />
+                <DropdownMenu.Root>
+                    <DropdownMenu.Trigger asChild>
+                        <span className="dropdown-toggle nav-link">File</span>
+                    </DropdownMenu.Trigger>
+                    <DropdownMenu.Content className="rx-dropdown-menu" align={"start"} side={"bottom"} sideOffset={5}>
+                        <DropdownMenu.Item onClick={() => {
+                            document.getElementById("json-selector").click();
+                        }}>
+                            <MdOutlineFileUpload /> Restore
+                        </DropdownMenu.Item>
+                        <DropdownMenu.Item onClick={backupToFile}>
+                            <MdOutlineFileDownload /> Backup
+                        </DropdownMenu.Item>
+                    </DropdownMenu.Content>
+                </DropdownMenu.Root>
+
+                <Nav.Link draggable="false" href="https://github.com/liranbr/Playfrens" target="_blank"
+                          rel="noopener noreferrer">GitHub</Nav.Link>
+            </Nav>
+
+            <Form inline="true" style={{ position: "absolute", right: "50%", transform: "translateX(50%)" }}>
                 <Form.Control
                     type="text"
                     placeholder="Search"
@@ -49,46 +90,15 @@ function AppHeader({ searchState }) {
                     <MdClose />
                 </button>
             </Form>
-            <Navbar.Brand>
-                <img
-                    src="/Playfrens_Logo.png"
-                    alt="Playfrens Logo"
-                    width={30}
-                    height={30}
-                    className="d-inline-block align-top"
-                />
-                <b> Playfrens</b>
-            </Navbar.Brand>
-            <input
-                type="file"
-                id="json-selector"
-                accept=".json"
-                style={{ display: "none" }}
-                onChange={(e) => restoreFromFile(e.target.files[0])}
-            />
-            <Nav className="me-auto">
-                <DropdownMenu.Root>
-                    <DropdownMenu.Trigger asChild>
-                        <span className="dropdown-toggle nav-link">File</span>
-                    </DropdownMenu.Trigger>
-                    <DropdownMenu.Content className="rx-dropdown-menu" align={"start"} side={"bottom"} sideOffset={5}>
-                        <DropdownMenu.Item onClick={() => {
-                            document.getElementById("json-selector").click();
-                        }}>
-                            <MdOutlineFileUpload /> Restore
-                        </DropdownMenu.Item>
-                        <DropdownMenu.Item onClick={backupToFile}>
-                            <MdOutlineFileDownload /> Backup
-                        </DropdownMenu.Item>
-                    </DropdownMenu.Content>
-                </DropdownMenu.Root>
 
-                <Nav.Link draggable="false" href="https://github.com/liranbr/Playfrens" target="_blank"
-                          rel="noopener noreferrer">GitHub</Nav.Link>
-            </Nav>
             <button className="new-game-button" onClick={() => modalStore.open(Modals.EditGame)}>
                 <MdOutlineGamepad />Add Game
             </button>
+
+            <Avatar.Root className="rx-avatar">
+                <Avatar.Image />
+                <Avatar.Fallback><MdPerson /></Avatar.Fallback>
+            </Avatar.Root>
         </Navbar>
     );
 }

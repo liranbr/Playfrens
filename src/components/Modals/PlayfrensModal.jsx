@@ -124,7 +124,13 @@ export const PlayfrensModal = observer(({ open, closeModal, game }) => {
         <Dialog.Root open={open} onOpenChange={handleHide}>
             <Dialog.Portal>
                 <Dialog.Overlay className="rx-dialog-overlay" />
-                <Dialog.Content className="rx-dialog playfrens-modal">
+                <Dialog.Content
+                    // Focuses the dialog content instead of the first interactable element
+                    onOpenAutoFocus={(e) => {
+                        e.preventDefault();
+                        e.target.focus();
+                    }}
+className="rx-dialog playfrens-modal">
                     <VisuallyHidden><Dialog.Title>{game.title}</Dialog.Title></VisuallyHidden>
                     <VisuallyHidden><Dialog.Description>{"Expanded game card of " + game.title}</Dialog.Description></VisuallyHidden>
                     <div className="pfm-card" style={{ "--bg-url": `url("${gameCover}")` }} />

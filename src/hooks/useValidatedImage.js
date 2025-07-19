@@ -18,9 +18,11 @@ export function useValidatedImage(src, fallback = "/missing_game_cover.png") {
         const sources = [];
         if (src.includes("cdn2.steamgriddb.com/thumb/")) { // try to find the actual image rather than the thumbnail
             const gridSrc = src.replace("/thumb/", "/grid/");
+            sources.push(gridSrc);
             sources.push(gridSrc.replace(".jpg", ".png"));
             sources.push(gridSrc.replace(".jpg", ".webp"));
-            sources.push(gridSrc.replace(".webm", ".webp")); // also leaves .jpg as .jpg
+            sources.push(gridSrc.replace(".webm", ".webp"));
+            sources.push(gridSrc.replace(".webm", ".png"));
         }
         sources.push(src);
 

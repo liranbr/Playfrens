@@ -112,13 +112,7 @@ function GameOptionsButton({ game }) {
 export const PlayfrensModal = observer(({ open, closeModal, game }) => {
 
     const gameCover = useValidatedImage(game.coverImageURL);
-    const handleHide = () =>         closeModal();
-    };
-    const handleClickBackground = (e) => {
-        if (e.target === e.currentTarget) {
-            handleHide();
-        }
-    };
+    const handleHide = () => closeModal();
 
     return (
         <Dialog.Root open={open} onOpenChange={handleHide}>

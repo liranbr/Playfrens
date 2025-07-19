@@ -86,7 +86,7 @@ function GameOptionsButton({ game }) {
 
             <DropdownMenu.Portal>
                 <DropdownMenu.Content className="rx-dropdown-menu"
-                                      align={"start"} side={"bottom"} sideOffset={5}>
+                    align={"start"} side={"bottom"} sideOffset={5}>
                     <DropdownMenu.Item onClick={() => {
                         modalStore.open(Modals.EditGame, { game });
                     }}>
@@ -124,17 +124,13 @@ export const PlayfrensModal = observer(({ open, closeModal, game }) => {
                         e.preventDefault();
                         e.target.focus();
                     }}
-className="rx-dialog playfrens-modal">
-                    <VisuallyHidden><Dialog.Title>{game.title}</Dialog.Title></VisuallyHidden>
+                    className="rx-dialog playfrens-modal">
                     <VisuallyHidden><Dialog.Description>{"Expanded game card of " + game.title}</Dialog.Description></VisuallyHidden>
                     <div className="pfm-card" style={{ "--bg-url": `url("${gameCover}")` }} />
                     <div className="pfm-container">
-
                         <div className="pfm-header">
                             <GameOptionsButton game={game} />
-                            <p className="pfm-title">
-                                {game.title}
-                            </p>
+                            <Dialog.Title autoFocus className="pfm-title">{game.title}</Dialog.Title>
                             <button className="icon-button ms-auto" onClick={handleHide}>
                                 <OutlinedIcon>
                                     <MdClose />
@@ -142,7 +138,6 @@ className="rx-dialog playfrens-modal">
                             </button>
                         </div>
                         <div className="sidebar-header-shadow" />
-
                         <div className="pfm-content">
                             <div className="sidebar pfm-element">
                                 <PFMSidebarGroup dataType={dataTypes.friend} game={game} />
@@ -160,20 +155,10 @@ className="rx-dialog playfrens-modal">
                                         <div />
                                     </div>
                                     <textarea className="game-note" rows={5}
-                                              spellCheck={false}
-                                              value={game.note}
-                                              onChange={(e) => game.setNote(e.target.value)} />
+                                        spellCheck={false}
+                                        value={game.note}
+                                        onChange={(e) => game.setNote(e.target.value)} />
                                 </div>
-
-                                {/*<div className="playthroughs-container pfm-element">
-                                    <div className="sidebar-header">
-                                        <div />
-                                        <h4>PLAYTHROUGHS</h4>
-                                        <button className="icon-button">
-                                            <MdAdd />
-                                        </button>
-                                    </div>
-                                </div>*/}
                             </div>
 
                         </div>

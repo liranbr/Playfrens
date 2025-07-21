@@ -23,12 +23,12 @@
         cursor: pointer;
 
         &[data-disabled] {
-            color: grey; /* TODO: try to match to theme */
+            color: var(--pf-fg-300);
             cursor: inherit;
 
             &:hover,
             &:focus {
-                background-color: transparent;
+                background-color: inherit;
             }
         }
 

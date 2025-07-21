@@ -11,6 +11,7 @@
 
     --pf-fg-700: hsl(var(--hsl-base-bg) 75%);
     --pf-fg-500: hsl(var(--hsl-base-bg) 60%);
+    --pf-fg-300: hsl(var(--hsl-base-bg) 50%);
 
     --pf-border-700: 1px solid hsl(var(--hsl-base-bg) 20%);
     --pf-border-500: 1px solid hsl(var(--hsl-base-bg) 24%);

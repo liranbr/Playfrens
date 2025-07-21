@@ -1,12 +1,7 @@
 import { useState } from "react";
 import { ToggleButton } from "react-bootstrap";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import {
-    MdDeleteOutline,
-    MdEdit,
-    MdMoreVert,
-    MdOutlineSearchOff,
-} from "react-icons/md";
+import { MdDeleteOutline, MdEdit, MdMoreVert, MdOutlineSearchOff } from "react-icons/md";
 import { toastError } from "../Utils.jsx";
 import { removeTag } from "../Store.jsx";
 import "./SidebarButton.css";
@@ -60,10 +55,9 @@ export function SidebarButton({ value, tagType, setSelection }) {
                         sideOffset={5}
                     >
                         <DropdownMenu.Item
+                            data-disabled
                             onClick={() => {
-                                toastError(
-                                    "Exclude function not yet implemented",
-                                );
+                                toastError("Exclude function not yet implemented");
                             }}
                         >
                             <MdOutlineSearchOff /> Exclude

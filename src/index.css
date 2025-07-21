@@ -3,16 +3,41 @@
 :root {
     color-scheme: dark;
 
-    --pf-bg-900: #121214;
-    --pf-bg-800: #161619;
-    --pf-bg-700: #1a1a1e;
-    --pf-bg-600: #1d1d23;
-    --pf-bg-500: #202026;
-    --pf-bg-400: #28282c;
-    --pf-bg-300: #2e2e33;
-    --pf-bg-200: #34343a;
-    --pf-bg-100: #3c3c46;
-    --pf-fg-100: #aeaeb4;
+    --hsl-base-bg: 240 7%;
+    --pf-bg-900: hsl(var(--hsl-base-bg) 6%);
+    --pf-bg-700: hsl(var(--hsl-base-bg) 9%);
+    --pf-bg-500: hsl(var(--hsl-base-bg) 12%);
+    --pf-bg-300: hsl(var(--hsl-base-bg) 18%);
+
+    --pf-fg-700: hsl(var(--hsl-base-bg) 75%);
+    --pf-fg-500: hsl(var(--hsl-base-bg) 60%);
+
+    --pf-border-700: 1px solid hsl(var(--hsl-base-bg) 20%);
+    --pf-border-500: 1px solid hsl(var(--hsl-base-bg) 24%);
+    --pf-border-100: 1px solid hsl(var(--hsl-base-bg) 48%);
+
+    --hsl-base-btn-primary: 215 98%;
+    --pf-btn-primary: hsl(var(--hsl-base-btn-primary) 52%);
+    --pf-btn-primary-hover: hsl(var(--hsl-base-btn-primary) 44%);
+    --pf-btn-primary-active: hsl(var(--hsl-base-btn-primary) 40%);
+    --pf-btn-primary-darker: hsl(var(--hsl-base-btn-primary) 36%);
+    --pf-btn-primary-lighter: hsl(var(--hsl-base-btn-primary) 60%);
+
+    --hsl-base-btn-secondary: 215 16%;
+    --pf-btn-secondary: hsl(var(--hsl-base-btn-secondary) 20%);
+    --pf-btn-secondary-hover: hsl(var(--hsl-base-btn-secondary) 26%);
+    --pf-btn-secondary-active: hsl(var(--hsl-base-btn-secondary) 30%);
+
+    --hsl-base-btn-danger: 354 70%;
+    --pf-btn-danger: hsl(var(--hsl-base-btn-danger) 53%);
+    --pf-btn-danger-hover: hsl(var(--hsl-base-btn-danger) 44%);
+    --pf-btn-danger-active: hsl(var(--hsl-base-btn-danger) 40%);
+
+    --hsl-hue-dd-danger: 354;
+    --pf-dd-danger-hover: hsl(var(--hsl-hue-dd-danger) 24% 18%);
+    --pf-dd-danger-active: hsl(var(--hsl-hue-dd-danger) 48% 45%);
+    --pf-dd-danger-fg: hsl(var(--hsl-hue-dd-danger) 96% 72%);
+    --pf-dd-danger-fg-active: hsl(var(--hsl-hue-dd-danger) 12% 88%);
 
     --sidebar-width: 275px;
     --game-card-width: 210px;
@@ -54,19 +79,59 @@ input {
 }
 
 button {
-    border-radius: 8px;
-    width: 80px;
+    min-width: 80px;
+    width: fit-content;
+    min-height: 36px;
+    height: fit-content;
+    border-radius: 6px;
+    border: none;
     font-size: 16px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: 0.15s ease-in-out;
+
+    --pf-btn: var(--pf-btn-primary);
+    --pf-btn-hover: var(--pf-btn-primary-hover);
+    --pf-btn-active: var(--pf-btn-primary-active);
+    background-color: var(--pf-btn);
+
+    &:hover {
+        background-color: var(--pf-btn-hover);
+    }
+
+    &:active {
+        background-color: var(--pf-btn-active);
+    }
+
+    &.button-primary {
+        --pf-btn: var(--pf-btn-primary);
+        --pf-btn-hover: var(--pf-btn-primary-hover);
+        --pf-btn-active: var(--pf-btn-primary-active);
+    }
+
+    &.button-secondary {
+        --pf-btn: var(--pf-btn-secondary);
+        --pf-btn-hover: var(--pf-btn-secondary-hover);
+        --pf-btn-active: var(--pf-btn-secondary-active);
+    }
+
+    &.button-danger {
+        --pf-btn: var(--pf-btn-danger);
+        --pf-btn-hover: var(--pf-btn-danger-hover);
+        --pf-btn-active: var(--pf-btn-danger-active);
+    }
 }
 
 .icon-button {
     height: var(--icon-size);
+    min-height: var(--icon-size);
     width: var(--icon-size);
+    min-width: var(--icon-size);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 24px;
-    color: var(--pf-fg-100);
+    color: var(--pf-fg-500);
     background: none;
     border-radius: 50%;
     border: none;
@@ -87,5 +152,5 @@ button {
 }
 
 .toast-notification {
-    border: 1px solid #333;
+    border: var(--pf-border-500);
 }

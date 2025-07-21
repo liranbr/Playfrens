@@ -6,18 +6,13 @@ import { addTag, EditTag } from "../../Store.jsx";
 export function EditTagModal({ open, closeModal, tagType, tagName = "" }) {
     const mode = tagName ? "Edit" : "Add";
     const title = mode + " " + tagType.single;
-    const description =
-        mode === "Edit"
-            ? "Editing " + tagName
-            : "Adding a new " + tagType.single;
+    const description = mode === "Edit" ? "Editing " + tagName : "Adding a new " + tagType.single;
 
     const handleHide = () => closeModal();
     const handleSave = () => {
-        const newtagName = document.getElementById("tagNameInput").value;
+        const newTagName = document.getElementById("tagNameInput").value;
         const doneFunction =
-            mode === "Edit"
-                ? EditTag(tagType, tagName, newtagName)
-                : addTag(tagType, newtagName);
+            mode === "Edit" ? EditTag(tagType, tagName, newTagName) : addTag(tagType, newTagName);
         if (doneFunction) handleHide();
     };
     const saveOnEnter = (e) => {
@@ -48,12 +43,12 @@ export function EditTagModal({ open, closeModal, tagType, tagName = "" }) {
                     </fieldset>
 
                     <div className="rx-dialog-footer">
-                        <Button variant="secondary" onClick={handleHide}>
+                        <button className="button-secondary" onClick={handleHide}>
                             Cancel
-                        </Button>
-                        <Button variant="primary" onClick={handleSave}>
+                        </button>
+                        <button className="button-primary" onClick={handleSave}>
                             Save
-                        </Button>
+                        </button>
                     </div>
                 </Dialog.Content>
             </Dialog.Portal>

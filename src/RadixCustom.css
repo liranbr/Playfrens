@@ -5,7 +5,7 @@
     min-width: 125px;
     overflow-y: auto;
     background-color: var(--pf-bg-700);
-    border: 1px solid #333;
+    border: var(--pf-border-700);
     border-radius: 12px;
     padding: 6px 0;
     z-index: 103;
@@ -23,7 +23,7 @@
         cursor: pointer;
 
         &[data-disabled] {
-            color: grey;
+            color: grey; /* TODO: try to match to theme */
             cursor: inherit;
 
             &:hover,
@@ -38,7 +38,7 @@
         }
 
         &:active {
-            background-color: #0d6efd;
+            background-color: var(--pf-btn-primary);
         }
 
         & svg {
@@ -48,20 +48,20 @@
         }
 
         &[data-danger] {
-            color: #fc7975;
+            color: var(--pf-dd-danger-fg);
 
             &:hover,
             &:focus {
-                background-color: #39292d;
+                background-color: var(--pf-dd-danger-hover);
             }
 
             &:active {
-                background-color: #ad3c3c;
-                color: #dee2e6;
+                background-color: var(--pf-dd-danger-active);
+                color: var(--pf-dd-danger-fg-active);
             }
 
             & svg {
-                color: #fc7975;
+                color: inherit;
             }
         }
     }
@@ -91,7 +91,7 @@
     padding: 20px;
     height: fit-content;
     max-height: 85vh;
-    border: 1px solid #333;
+    border: var(--pf-border-700);
     border-radius: 12px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 1);
     position: fixed;
@@ -139,20 +139,20 @@
         }
 
         small {
-            color: #aaa;
+            color: var(--pf-fg-500);
             font-size: 12px;
         }
 
         input,
         select {
             border-radius: 6px;
-            border: 1px solid #333;
+            border: var(--pf-border-700);
             padding: 8px;
             font-size: 16px;
 
             &:focus {
                 outline: none;
-                border-color: #69f;
+                border-color: var(--pf-btn-primary-lighter);
                 transition-duration: 0.2s;
             }
         }
@@ -177,7 +177,7 @@
     width: 36px;
     height: 36px;
     border-radius: 100%;
-    border: 1px solid #333;
+    border: var(--pf-border-700);
 
     & span {
         width: 100%;
@@ -186,7 +186,7 @@
         align-items: center;
         justify-content: center;
         background-color: var(--pf-bg-500);
-        color: var(--pf-fg-100);
+        color: var(--pf-fg-500);
         font-size: 28px;
         padding: 0;
         line-height: 1;

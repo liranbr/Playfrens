@@ -9,7 +9,15 @@
  * @property {function} removeFromGame - A function to remove a value from the game's list of data of this type.
  */
 export class dataType {
-    constructor(key, single, plural, allDataList, gameDataList, addToGame, removeFromGame) {
+    constructor(
+        key,
+        single,
+        plural,
+        allDataList,
+        gameDataList,
+        addToGame,
+        removeFromGame,
+    ) {
         this.key = key;
         this.single = single;
         this.plural = plural;
@@ -27,7 +35,7 @@ const friend = new dataType(
     [],
     (game) => game.friends,
     (game, value) => game.addFriend(value),
-    (game, value) => game.removeFriend(value)
+    (game, value) => game.removeFriend(value),
 );
 const category = new dataType(
     "category",
@@ -36,7 +44,7 @@ const category = new dataType(
     [],
     (game) => game.categories,
     (game, value) => game.addCategory(value),
-    (game, value) => game.removeCategory(value)
+    (game, value) => game.removeCategory(value),
 );
 const status = new dataType(
     "status",
@@ -45,11 +53,11 @@ const status = new dataType(
     [],
     (game) => game.statuses,
     (game, value) => game.addStatus(value),
-    (game, value) => game.removeStatus(value)
+    (game, value) => game.removeStatus(value),
 );
 
 export const dataTypes = {
     friend,
     category,
-    status
+    status,
 };

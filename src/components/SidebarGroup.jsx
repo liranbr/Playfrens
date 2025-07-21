@@ -18,14 +18,14 @@ export function SidebarGroup({ dataType, dataList, setSelection }) {
                 </button>
             </div>
             <div className="sidebar-buttons-list">
-                {dataList.map((item, index) =>
+                {dataList.map((item, index) => (
                     <SidebarButton
                         key={index}
                         value={item}
                         dataType={dataType}
                         setSelection={setSelection}
                     />
-                )}
+                ))}
             </div>
         </div>
     );

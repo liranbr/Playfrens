@@ -1,5 +1,10 @@
 import { action, makeObservable, observable } from "mobx";
-import { toastError, toastDataChangeSuccess, insertSortedByOrder, compareGameTitles } from "../Utils.jsx";
+import {
+    compareGameTitles,
+    insertSortedByOrder,
+    toastDataChangeSuccess,
+    toastError,
+} from "../Utils.jsx";
 import { allGames } from "../Store.jsx";
 
 /**
@@ -14,10 +19,16 @@ import { allGames } from "../Store.jsx";
  * @property {{ friends: Array<string>, categories: Array<string>, statuses: Array<string> }} dataSortOrder - The order to sort data by, usually the full lists
  */
 export class GameObject {
-    constructor(title, coverImageURL = "/missing_game_cover.png", sortingTitle = "",
-                friends = [], categories = [], statuses = [],
-                note = "",
-                dataSortOrder = {}) {
+    constructor(
+        title,
+        coverImageURL = "/missing_game_cover.png",
+        sortingTitle = "",
+        friends = [],
+        categories = [],
+        statuses = [],
+        note = "",
+        dataSortOrder = {},
+    ) {
         this.title = title;
         this.coverImageURL = coverImageURL;
         this.sortingTitle = sortingTitle;
@@ -42,14 +53,20 @@ export class GameObject {
             addStatus: action,
             removeStatus: action,
             editGame: action,
-            setNote: action
+            setNote: action,
         });
     }
 
     addFriend(friend) {
         if (!this.friends.includes(friend)) {
-            this.friends = insertSortedByOrder(friend, this.friends, this.dataSortOrder.friends);
-            toastDataChangeSuccess(`Added ${friend} as a friend for ${this.title}`);
+            this.friends = insertSortedByOrder(
+                friend,
+                this.friends,
+                this.dataSortOrder.friends,
+            );
+            toastDataChangeSuccess(
+                `Added ${friend} as a friend for ${this.title}`,
+            );
         } else {
             toastError(`${friend} is already a friend for ${this.title}`);
         }
@@ -57,8 +74,10 @@ export class GameObject {
 
     removeFriend(friend) {
         if (this.friends.includes(friend)) {
-            this.friends = this.friends.filter(f => f !== friend);
-            toastDataChangeSuccess(`Removed ${friend} from the ${this.title} friendslist`);
+            this.friends = this.friends.filter((f) => f !== friend);
+            toastDataChangeSuccess(
+                `Removed ${friend} from the ${this.title} friendslist`,
+            );
         } else {
             toastError(`${friend} is not a friend for ${this.title}`);
         }
@@ -66,8 +85,14 @@ export class GameObject {
 
     addCategory(category) {
         if (!this.categories.includes(category)) {
-            this.categories = insertSortedByOrder(category, this.categories, this.dataSortOrder.categories);
-            toastDataChangeSuccess(`Added ${category} as a category for ${this.title}`);
+            this.categories = insertSortedByOrder(
+                category,
+                this.categories,
+                this.dataSortOrder.categories,
+            );
+            toastDataChangeSuccess(
+                `Added ${category} as a category for ${this.title}`,
+            );
         } else {
             toastError(`${category} is already a category for ${this.title}`);
         }
@@ -75,8 +100,10 @@ export class GameObject {
 
     removeCategory(category) {
         if (this.categories.includes(category)) {
-            this.categories = this.categories.filter(c => c !== category);
-            toastDataChangeSuccess(`Removed ${category} from ${this.title}'s categories`);
+            this.categories = this.categories.filter((c) => c !== category);
+            toastDataChangeSuccess(
+                `Removed ${category} from ${this.title}'s categories`,
+            );
         } else {
             toastError(`${category} is not a category for ${this.title}`);
         }
@@ -84,8 +111,14 @@ export class GameObject {
 
     addStatus(status) {
         if (!this.statuses.includes(status)) {
-            this.statuses = insertSortedByOrder(status, this.statuses, this.dataSortOrder.statuses);
-            toastDataChangeSuccess(`Added ${status} as a status for ${this.title}`);
+            this.statuses = insertSortedByOrder(
+                status,
+                this.statuses,
+                this.dataSortOrder.statuses,
+            );
+            toastDataChangeSuccess(
+                `Added ${status} as a status for ${this.title}`,
+            );
         } else {
             toastError(`${status} is already a status for ${this.title}`);
         }
@@ -93,8 +126,10 @@ export class GameObject {
 
     removeStatus(status) {
         if (this.statuses.includes(status)) {
-            this.statuses = this.statuses.filter(s => s !== status);
-            toastDataChangeSuccess(`Removed ${status} from ${this.title}'s statuses`);
+            this.statuses = this.statuses.filter((s) => s !== status);
+            toastDataChangeSuccess(
+                `Removed ${status} from ${this.title}'s statuses`,
+            );
         } else {
             toastError(`${status} is not a status for ${this.title}`);
         }
@@ -129,7 +164,7 @@ export class GameObject {
             friends: this.friends,
             categories: this.categories,
             statuses: this.statuses,
-            note: this.note
+            note: this.note,
         };
     }
 

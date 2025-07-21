@@ -7,7 +7,8 @@ import {
     MdClose,
     MdOutlineFileDownload,
     MdOutlineFileUpload,
-    MdOutlineGamepad, MdPerson
+    MdOutlineGamepad,
+    MdPerson,
 } from "react-icons/md";
 import { allGames, backupToFile, restoreFromFile } from "./Store.jsx";
 import { dataTypes } from "./models/DataTypes.jsx";
@@ -49,10 +50,19 @@ function AppHeader({ searchState }) {
                     <DropdownMenu.Trigger asChild>
                         <span className="dropdown-toggle nav-link">File</span>
                     </DropdownMenu.Trigger>
-                    <DropdownMenu.Content className="rx-dropdown-menu" align={"start"} side={"bottom"} sideOffset={5}>
-                        <DropdownMenu.Item onClick={() => {
-                            document.getElementById("json-selector").click();
-                        }}>
+                    <DropdownMenu.Content
+                        className="rx-dropdown-menu"
+                        align={"start"}
+                        side={"bottom"}
+                        sideOffset={5}
+                    >
+                        <DropdownMenu.Item
+                            onClick={() => {
+                                document
+                                    .getElementById("json-selector")
+                                    .click();
+                            }}
+                        >
                             <MdOutlineFileUpload /> Restore
                         </DropdownMenu.Item>
                         <DropdownMenu.Item onClick={backupToFile}>
@@ -61,11 +71,24 @@ function AppHeader({ searchState }) {
                     </DropdownMenu.Content>
                 </DropdownMenu.Root>
 
-                <Nav.Link draggable="false" href="https://github.com/liranbr/Playfrens" target="_blank"
-                          rel="noopener noreferrer">GitHub</Nav.Link>
+                <Nav.Link
+                    draggable="false"
+                    href="https://github.com/liranbr/Playfrens"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    GitHub
+                </Nav.Link>
             </Nav>
 
-            <Form inline="true" style={{ position: "absolute", right: "50%", transform: "translateX(50%)" }}>
+            <Form
+                inline="true"
+                style={{
+                    position: "absolute",
+                    right: "50%",
+                    transform: "translateX(50%)",
+                }}
+            >
                 <Form.Control
                     type="text"
                     placeholder="Search"
@@ -73,54 +96,74 @@ function AppHeader({ searchState }) {
                     onChange={updateSearch}
                     className="game-search"
                     style={{ ...(search && { border: "2px solid #0a58ca" }) }}
-                    onKeyDown={(e) => e.key === "Enter" ? e.preventDefault() : null}
+                    onKeyDown={(e) =>
+                        e.key === "Enter" ? e.preventDefault() : null
+                    }
                     onSubmit={(e) => e.preventDefault()}
                 />
-                <button type="reset" className="icon-button" onClick={updateSearch} style={{
-                    display: search ? "flex" : "none",
-                    position: "absolute",
-                    fontSize: "20px",
-                    right: "0",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    border: "none",
-                    background: "none",
-                    alignItems: "center"
-                }}>
+                <button
+                    type="reset"
+                    className="icon-button"
+                    onClick={updateSearch}
+                    style={{
+                        display: search ? "flex" : "none",
+                        position: "absolute",
+                        fontSize: "20px",
+                        right: "0",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        border: "none",
+                        background: "none",
+                        alignItems: "center",
+                    }}
+                >
                     <MdClose />
                 </button>
             </Form>
 
-            <button className="new-game-button" onClick={() => modalStore.open(Modals.EditGame)}>
-                <MdOutlineGamepad />Add Game
+            <button
+                className="new-game-button"
+                onClick={() => modalStore.open(Modals.EditGame)}
+            >
+                <MdOutlineGamepad />
+                Add Game
             </button>
 
             <Avatar.Root className="rx-avatar">
                 <Avatar.Image />
-                <Avatar.Fallback><MdPerson /></Avatar.Fallback>
+                <Avatar.Fallback>
+                    <MdPerson />
+                </Avatar.Fallback>
             </Avatar.Root>
         </Navbar>
     );
 }
 
-function AppSidebar({ setSelectedFriends, setSelectedCategories, setSelectedStatuses }) {
+function AppSidebar({
+    setSelectedFriends,
+    setSelectedCategories,
+    setSelectedStatuses,
+}) {
     // 50% height for friend bar, 50% for categories and statuses
     return (
         <div className="sidebar">
             <SidebarGroup
                 dataType={dataTypes.friend}
                 dataList={dataTypes.friend.allDataList}
-                setSelection={setSelectedFriends} />
+                setSelection={setSelectedFriends}
+            />
             <div className="sidebar-separator" />
             <SidebarGroup
                 dataType={dataTypes.category}
                 dataList={dataTypes.category.allDataList}
-                setSelection={setSelectedCategories} />
+                setSelection={setSelectedCategories}
+            />
             <div className="sidebar-separator" />
             <SidebarGroup
                 dataType={dataTypes.status}
                 dataList={dataTypes.status.allDataList}
-                setSelection={setSelectedStatuses} />
+                setSelection={setSelectedStatuses}
+            />
         </div>
     );
 }
@@ -132,33 +175,52 @@ export default function App() {
     const [selectedStatuses, setSelectedStatuses] = useState([]);
     const [forceFilterUpdate, setForceFilterUpdate] = useState(0);
     setForceFilterUpdateCallback(() => {
-        setForceFilterUpdate(prev => prev + 1); // used in Utils to trigger a filter update
+        setForceFilterUpdate((prev) => prev + 1); // used in Utils to trigger a filter update
     });
 
     // Game Title includes the search value
     // If friends selected, all friends are in the game
     // If categories selected, game belongs to at least one of them
     // If statuses selected, game has at least one of them
-    const filteredGames = useMemo(() =>
-            allGames.filter((game) =>
-                game.title.toLowerCase().includes(search.toLowerCase()) &&
-                selectedFriends.every(friend => game.friends.includes(friend)) &&
-                (!selectedCategories.length || selectedCategories.some(category => game.categories.includes(category))) &&
-                (!selectedStatuses.length || selectedStatuses.some(status => game.statuses.includes(status)))
-            )
-        , [search, selectedFriends, selectedCategories, selectedStatuses, forceFilterUpdate]);
+    const filteredGames = useMemo(
+        () =>
+            allGames.filter(
+                (game) =>
+                    game.title.toLowerCase().includes(search.toLowerCase()) &&
+                    selectedFriends.every((friend) =>
+                        game.friends.includes(friend),
+                    ) &&
+                    (!selectedCategories.length ||
+                        selectedCategories.some((category) =>
+                            game.categories.includes(category),
+                        )) &&
+                    (!selectedStatuses.length ||
+                        selectedStatuses.some((status) =>
+                            game.statuses.includes(status),
+                        )),
+            ),
+        [
+            search,
+            selectedFriends,
+            selectedCategories,
+            selectedStatuses,
+            forceFilterUpdate,
+        ],
+    );
 
     return (
         <>
             <AppHeader searchState={[search, setSearch]} />
             <div id="main-content">
-                <AppSidebar setSelectedFriends={setSelectedFriends}
-                            setSelectedCategories={setSelectedCategories}
-                            setSelectedStatuses={setSelectedStatuses} />
+                <AppSidebar
+                    setSelectedFriends={setSelectedFriends}
+                    setSelectedCategories={setSelectedCategories}
+                    setSelectedStatuses={setSelectedStatuses}
+                />
                 <GamesGrid filteredGames={filteredGames} />
             </div>
             <ModalRoot />
             <ToastContainer toastClassName="toast-notification" />
         </>
     );
-};
+}

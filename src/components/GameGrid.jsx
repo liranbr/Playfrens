@@ -16,12 +16,18 @@ function GameCard({ game }) {
         modalStore.open(Modals.Playfrens, { game });
     };
     return (
-        <button className="game-card"
-                onClick={openPlayfrensModal}
-                onDrop={handleDrop}
-                onDragOver={e => e.preventDefault()}>
-            <img draggable="false" alt={game.title + " Card"} referrerPolicy="no-referrer"
-                 src={gameCover} />
+        <button
+            className="game-card"
+            onClick={openPlayfrensModal}
+            onDrop={handleDrop}
+            onDragOver={(e) => e.preventDefault()}
+        >
+            <img
+                draggable="false"
+                alt={game.title + " Card"}
+                referrerPolicy="no-referrer"
+                src={gameCover}
+            />
             <p className="game-card-title-overlay">{game.title}</p>
         </button>
     );
@@ -36,7 +42,10 @@ export function GamesGrid({ filteredGames }) {
 
         const updateGridJustification = () => {
             const styles = getComputedStyle(grid);
-            const rows = styles.getPropertyValue("grid-template-rows").trim().split(" ");
+            const rows = styles
+                .getPropertyValue("grid-template-rows")
+                .trim()
+                .split(" ");
             const isSingleRow = rows.length === 1;
             grid.style.justifyContent = isSingleRow ? "left" : "space-between";
         };
@@ -47,9 +56,17 @@ export function GamesGrid({ filteredGames }) {
 
     // need the empty div to contain the grid correctly
     return (
-        <div style={{ width: "100%", overflowY: "auto", scrollbarGutter: "stable" }}>
+        <div
+            style={{
+                width: "100%",
+                overflowY: "auto",
+                scrollbarGutter: "stable",
+            }}
+        >
             <div className="games-grid" ref={gridRef}>
-                {filteredGames.map((game, index) => (<GameCard key={index} game={game} />))}
+                {filteredGames.map((game, index) => (
+                    <GameCard key={index} game={game} />
+                ))}
             </div>
         </div>
     );

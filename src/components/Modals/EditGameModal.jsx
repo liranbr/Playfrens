@@ -6,9 +6,7 @@ import { Modals, modalStore } from "./ModalStore.jsx";
 
 export function EditGameModal({ open, closeModal, game = null }) {
     const dialogTitle = game ? "Edit Game Details" : "Add Game";
-    const dialogDescription = game
-        ? `Editing ${game.title}`
-        : "Adding a new game";
+    const dialogDescription = game ? `Editing ${game.title}` : "Adding a new game";
 
     const handleHide = () => {
         closeModal();
@@ -20,11 +18,7 @@ export function EditGameModal({ open, closeModal, game = null }) {
         const gameSortingTitle = getVal("gameSortingTitleInput");
 
         if (game) {
-            const success = game.editGame(
-                gameTitle,
-                gameCoverPath,
-                gameSortingTitle,
-            );
+            const success = game.editGame(gameTitle, gameCoverPath, gameSortingTitle);
             if (success) {
                 handleHide();
             }
@@ -50,9 +44,7 @@ export function EditGameModal({ open, closeModal, game = null }) {
                 <Dialog.Content className="rx-dialog">
                     <Dialog.Title>{dialogTitle}</Dialog.Title>
                     <VisuallyHidden>
-                        <Dialog.Description>
-                            {dialogDescription}
-                        </Dialog.Description>
+                        <Dialog.Description>{dialogDescription}</Dialog.Description>
                     </VisuallyHidden>
                     <fieldset>
                         <label>Game Title</label>
@@ -92,12 +84,12 @@ export function EditGameModal({ open, closeModal, game = null }) {
                     </fieldset>
 
                     <div className="rx-dialog-footer">
-                        <Button variant="secondary" onClick={handleHide}>
+                        <button className="button-secondary" onClick={handleHide}>
                             Cancel
-                        </Button>
-                        <Button variant="primary" onClick={handleSave}>
+                        </button>
+                        <button className="button-primary" onClick={handleSave}>
                             Save
-                        </Button>
+                        </button>
                     </div>
                 </Dialog.Content>
             </Dialog.Portal>

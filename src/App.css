@@ -7,7 +7,7 @@
     top: 0;
     left: 0;
     right: 0;
-    border-bottom: 1px solid var(--pf-bg-100);
+    border-bottom: var(--pf-border-500);
     z-index: 2;
 }
 
@@ -18,32 +18,32 @@
 }
 
 .game-search {
-    border-radius: 15px;
-    border: 1px solid var(--pf-bg-300);
+    border-radius: 16px;
+    border: var(--pf-border-500);
     height: 36px;
     width: 300px;
     box-sizing: border-box;
 
     &::placeholder {
-        color: #999;
+        color: var(--pf-fg-500);
     }
 
     &:focus {
-        border-color: #0d6efd;
+        border-color: var(--pf-btn-primary-lighter);
     }
 }
 
 .new-game-button {
-    margin: 0 18px;
+    margin: 0 16px;
     height: 36px;
     width: fit-content;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--pf-fg-100);
+    color: var(--pf-fg-700);
     background-color: var(--pf-bg-500);
-    border-radius: 15px;
-    border: 1px solid #333;
+    border-radius: 16px;
+    border: var(--pf-border-700);
     gap: 4px;
     padding: 0 8px;
     font-size: 14px;

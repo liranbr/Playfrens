@@ -6,7 +6,7 @@
     border: none;
     margin: 2px 12px;
     padding: 4px 12px;
-    border-radius: 15px;
+    border-radius: 16px;
     transition: none;
     display: flex;
     align-items: center;
@@ -18,17 +18,16 @@
         visibility: hidden;
 
         &:hover {
-            background-color: #1a1a1e33;
+            background-color: var(--pf-btn-primary-darker);
         }
     }
-
     &:hover .icon-button {
         visibility: visible;
     }
 
     &.active .icon-button {
         visibility: visible;
-        background-color: #1a1a1e33;
+        background-color: var(--pf-btn-primary-darker);
     }
 }
 

@@ -58,9 +58,7 @@ function AppHeader({ searchState }) {
                     >
                         <DropdownMenu.Item
                             onClick={() => {
-                                document
-                                    .getElementById("json-selector")
-                                    .click();
+                                document.getElementById("json-selector").click();
                             }}
                         >
                             <MdOutlineFileUpload /> Restore
@@ -95,10 +93,8 @@ function AppHeader({ searchState }) {
                     value={search}
                     onChange={updateSearch}
                     className="game-search"
-                    style={{ ...(search && { border: "2px solid #0a58ca" }) }}
-                    onKeyDown={(e) =>
-                        e.key === "Enter" ? e.preventDefault() : null
-                    }
+                    style={{ ...(search && { border: "2px solid var(--pf-btn-primary)" }) }}
+                    onKeyDown={(e) => (e.key === "Enter" ? e.preventDefault() : null)}
                     onSubmit={(e) => e.preventDefault()}
                 />
                 <button
@@ -121,10 +117,7 @@ function AppHeader({ searchState }) {
                 </button>
             </Form>
 
-            <button
-                className="new-game-button"
-                onClick={() => modalStore.open(Modals.EditGame)}
-            >
+            <button className="new-game-button" onClick={() => modalStore.open(Modals.EditGame)}>
                 <MdOutlineGamepad />
                 Add Game
             </button>
@@ -139,11 +132,7 @@ function AppHeader({ searchState }) {
     );
 }
 
-function AppSidebar({
-    setSelectedFriends,
-    setSelectedCategories,
-    setSelectedStatuses,
-}) {
+function AppSidebar({ setSelectedFriends, setSelectedCategories, setSelectedStatuses }) {
     // 50% height for friend bar, 50% for categories and statuses
     return (
         <div className="sidebar">
@@ -187,25 +176,15 @@ export default function App() {
             allGames.filter(
                 (game) =>
                     game.title.toLowerCase().includes(search.toLowerCase()) &&
-                    selectedFriends.every((friend) =>
-                        game.friends.includes(friend),
-                    ) &&
+                    selectedFriends.every((friend) => game.friends.includes(friend)) &&
                     (!selectedCategories.length ||
                         selectedCategories.some((category) =>
                             game.categories.includes(category),
                         )) &&
                     (!selectedStatuses.length ||
-                        selectedStatuses.some((status) =>
-                            game.statuses.includes(status),
-                        )),
+                        selectedStatuses.some((status) => game.statuses.includes(status))),
             ),
-        [
-            search,
-            selectedFriends,
-            selectedCategories,
-            selectedStatuses,
-            forceFilterUpdate,
-        ],
+        [search, selectedFriends, selectedCategories, selectedStatuses, forceFilterUpdate],
     );
 
     return (

@@ -13,14 +13,12 @@
     .pfm-container {
         flex-direction: column;
         background-color: var(--pf-bg-900);
-        outline: 1px solid #333;
+        outline: var(--pf-border-700);
         border: none;
         border-radius: 20px;
         padding: 0;
         width: fit-content;
-        max-width: calc(
-            var(--sidebar-width) * 2 + 24px + 12px
-        ); /* two columns, padding and gap */
+        max-width: calc(var(--sidebar-width) * 2 + 24px + 12px); /* two columns, padding and gap */
         height: calc(var(--pfm-card-width) * 1.5);
         box-shadow: 0 0 20px rgba(0, 0, 0, 1);
     }
@@ -29,9 +27,7 @@
         display: flex;
         flex-direction: row;
         width: 100%;
-        height: calc(
-            var(--pfm-card-width) * 1.5 - 54px
-        ); /* 54px for header height */
+        height: calc(var(--pfm-card-width) * 1.5 - 54px); /* 54px for header height */
         position: relative;
         overflow: hidden;
         gap: 12px;
@@ -42,7 +38,7 @@
         width: var(--pfm-card-width);
         min-width: var(--pfm-card-width);
         height: calc(var(--pfm-card-width) * 1.5);
-        outline: 1px solid #333;
+        outline: var(--pf-border-700);
         border: none;
         border-radius: 20px;
         box-shadow: 0 0 20px rgba(0, 0, 0, 1);
@@ -73,7 +69,7 @@
         background-color: inherit;
         border-top-left-radius: 20px;
         border-top-right-radius: 20px;
-        border-bottom: 1px solid #333;
+        border-bottom: var(--pf-border-700);
         z-index: 1;
 
         .pfm-title {
@@ -84,7 +80,6 @@
             line-height: 1;
             text-align: center;
             font-weight: bold;
-            --stroke-color: #333; /* for text-stroke */
             overflow: hidden;
             text-wrap: nowrap;
             text-overflow: ellipsis;
@@ -107,11 +102,14 @@
         .sidebar-group {
             min-height: fit-content;
         }
+        .sidebar-separator {
+            border-top: var(--pf-border-700);
+        }
     }
 
     .pfm-element {
         background-color: var(--pf-bg-700);
-        border: solid 1px var(--pf-bg-300);
+        border: var(--pf-border-700);
         border-radius: 20px;
         padding: 12px;
         box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
@@ -120,7 +118,7 @@
     .pfm-sidebar-button:hover {
         --bs-btn-active-bg: none;
         background: none;
-        outline: 1px solid #80848e;
+        outline: var(--pf-border-100);
         color: #fff;
     }
 

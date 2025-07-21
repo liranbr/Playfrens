@@ -174,7 +174,7 @@ export const removeTag = action((tagType, value) => {
     return true;
 });
 
-export const EditData = action((tagType, oldValue, newValue) => {
+export const EditTag = action((tagType, oldValue, newValue) => {
     // TODO: Fix Editing a data that's an active filter
     const fullList = tagType.allTagsList;
     if (!newValue) {

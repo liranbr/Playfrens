@@ -1,7 +1,7 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import Button from "react-bootstrap/Button";
-import { addTag, EditData } from "../../Store.jsx";
+import { addTag, EditTag } from "../../Store.jsx";
 
 export function EditDataModal({ open, closeModal, tagType, tagName = "" }) {
     const mode = tagName ? "Edit" : "Add";
@@ -16,7 +16,7 @@ export function EditDataModal({ open, closeModal, tagType, tagName = "" }) {
         const newtagName = document.getElementById("tagNameInput").value;
         const doneFunction =
             mode === "Edit"
-                ? EditData(tagType, tagName, newtagName)
+                ? EditTag(tagType, tagName, newtagName)
                 : addTag(tagType, newtagName);
         if (doneFunction) handleHide();
     };

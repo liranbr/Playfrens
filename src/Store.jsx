@@ -1,6 +1,6 @@
 import { action, autorun, observable } from "mobx";
 import { GameObject } from "./models/GameObject.jsx";
-import { dataTypes } from "./models/DataTypes.jsx";
+import { tagTypes } from "./models/TagTypes.jsx";
 import {
     compareAlphaIgnoreCase,
     compareGameTitles,
@@ -43,20 +43,20 @@ if (firstVisit) {
     localStorage.setItem("Visited", "true");
 }
 
-// load data from localstorage as observables
+// load tags from localstorage as observables
 export const allFriends = loadObsArray("allFriends").sort(
     compareAlphaIgnoreCase,
 );
 export const allCategories = loadObsArray("allCategories");
 export const allStatuses = loadObsArray("allStatuses");
-const dataSortOrder = {
+const tagsSortOrder = {
     friends: allFriends,
     categories: allCategories,
     statuses: allStatuses,
 };
-dataTypes.friend.allDataList = allFriends;
-dataTypes.category.allDataList = allCategories;
-dataTypes.status.allDataList = allStatuses;
+tagTypes.friend.allTagsList = allFriends;
+tagTypes.category.allTagsList = allCategories;
+tagTypes.status.allTagsList = allStatuses;
 
 export const allGames = observable.array(
     loadObsArray("allGames")
@@ -73,7 +73,7 @@ export const allGames = observable.array(
                 game.categories,
                 game.statuses,
                 game.note,
-                dataSortOrder,
+                tagsSortOrder,
             );
         })
         .filter((game) => game !== null)
@@ -128,7 +128,7 @@ export function restoreFromFile(file) {
                         game.categories,
                         game.statuses,
                         game.note,
-                        dataSortOrder,
+                        tagsSortOrder,
                     ),
             ),
         );
@@ -137,64 +137,64 @@ export function restoreFromFile(file) {
     reader.readAsText(file);
 }
 
-export const addData = action((dataType, value) => {
+export const addTag = action((tagType, value) => {
     if (!value) {
-        toastError("Cannot save a " + dataType.single + " without a name");
+        toastError("Cannot save a " + tagType.single + " without a name");
         return false;
     }
-    if (dataType.allDataList.includes(value)) {
-        toastError(`${value} already exists in ${dataType.plural} list`);
+    if (tagType.allTagsList.includes(value)) {
+        toastError(`${value} already exists in ${tagType.plural} list`);
         return false;
     }
-    dataType.allDataList.push(value);
-    if (dataType.key === "friend") {
-        dataType.allDataList.sort(compareAlphaIgnoreCase);
+    tagType.allTagsList.push(value);
+    if (tagType.key === "friend") {
+        tagType.allTagsList.sort(compareAlphaIgnoreCase);
     }
     toastDataChangeSuccess(
-        "Added " + value + " to " + dataType.plural + " list",
+        "Added " + value + " to " + tagType.plural + " list",
     );
     return true;
 });
 
-export const removeData = action((dataType, value) => {
-    if (!dataType.allDataList.includes(value)) {
-        toastError(`${value} does not exist in ${dataType.plural} list`);
+export const removeTag = action((tagType, value) => {
+    if (!tagType.allTagsList.includes(value)) {
+        toastError(`${value} does not exist in ${tagType.plural} list`);
         return false;
     }
     // TODO: Add Modal Confirmation
     setToastSilence(true);
     allGames.forEach((game) => {
-        dataType.removeFromGame(game, value);
+        tagType.removeFromGame(game, value);
     });
-    dataType.allDataList.remove(value);
+    tagType.allTagsList.remove(value);
     setToastSilence(false);
     toastDataChangeSuccess(
-        "Removed " + value + " from " + dataType.plural + " list",
+        "Removed " + value + " from " + tagType.plural + " list",
     );
     return true;
 });
 
-export const editData = action((dataType, oldValue, newValue) => {
+export const EditData = action((tagType, oldValue, newValue) => {
     // TODO: Fix Editing a data that's an active filter
-    const fullList = dataType.allDataList;
+    const fullList = tagType.allTagsList;
     if (!newValue) {
-        toastError("Cannot save a " + dataType.single + " without a name");
+        toastError("Cannot save a " + tagType.single + " without a name");
         return false;
     }
     const oldValueIndex = fullList.indexOf(oldValue);
     if (oldValueIndex === -1) {
-        toastError(`${oldValue} does not exist in ${dataType.plural} list`);
+        toastError(`${oldValue} does not exist in ${tagType.plural} list`);
         return false;
     }
     setToastSilence(true);
     fullList[oldValueIndex] = newValue;
-    if (dataType.key === "friend") {
+    if (tagType.key === "friend") {
         fullList.sort(compareAlphaIgnoreCase);
     }
     allGames.forEach((game) => {
-        if (dataType.gameDataList(game).includes(oldValue)) {
-            dataType.removeFromGame(game, oldValue);
-            dataType.addToGame(game, newValue);
+        if (tagType.gameTagsList(game).includes(oldValue)) {
+            tagType.removeFromGame(game, oldValue);
+            tagType.addToGame(game, newValue);
             toastDataChangeSuccess(
                 `Updated ${oldValue} to ${newValue} in ${game.title}`,
             );
@@ -202,7 +202,7 @@ export const editData = action((dataType, oldValue, newValue) => {
     });
     setToastSilence(false);
     toastDataChangeSuccess(
-        `Updated ${oldValue} to ${newValue} in ${dataType.plural} list`,
+        `Updated ${oldValue} to ${newValue} in ${tagType.plural} list`,
     );
     return true;
 });
@@ -228,7 +228,7 @@ export const addGame = action((title, coverImageURL, gameSortingTitle = "") => {
         [],
         [],
         "",
-        dataSortOrder,
+        tagsSortOrder,
     );
     allGames.push(newGame);
     allGames.sort(compareGameTitles);

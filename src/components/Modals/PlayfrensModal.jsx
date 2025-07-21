@@ -13,11 +13,11 @@ import { removeGame } from "../../Store.jsx";
 import { useValidatedImage } from "../../hooks/useValidatedImage.js";
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { dataTypes } from "../../models/DataTypes.jsx";
+import { tagTypes } from "../../models/TagTypes.jsx";
 import "./PlayfrensModal.css";
 import { Modals, modalStore } from "./ModalStore.jsx";
 
-const AddDataDropdown = ({ dataType, game }) => {
+const AddDataDropdown = ({ tagType, game }) => {
     return (
         <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
@@ -34,16 +34,16 @@ const AddDataDropdown = ({ dataType, game }) => {
                     sideOffset={5}
                     style={{ pointerEvents: "auto" }}
                 >
-                    {dataType.allDataList
+                    {tagType.allTagsList
                         .filter(
                             (item) =>
-                                !dataType.gameDataList(game).includes(item),
+                                !tagType.gameTagsList(game).includes(item),
                         )
                         .map((item) => (
                             <DropdownMenu.Item
                                 key={item}
                                 onClick={() => {
-                                    dataType.addToGame(game, item);
+                                    tagType.addToGame(game, item);
                                 }}
                             >
                                 {item}
@@ -55,25 +55,25 @@ const AddDataDropdown = ({ dataType, game }) => {
     );
 };
 
-const PFMSidebarGroup = observer(({ game, dataType }) => {
-    const title = dataType.plural.toUpperCase();
-    const gameDataList = dataType.gameDataList(game);
+const PFMSidebarGroup = observer(({ game, tagType }) => {
+    const title = tagType.plural.toUpperCase();
+    const gameTagsList = tagType.gameTagsList(game);
     const handleRemove = (item) => {
-        dataType.removeFromGame(game, item);
+        tagType.removeFromGame(game, item);
     };
     return (
         <div className="sidebar-group">
             <div className="sidebar-header">
                 <div />
                 <h4>{title}</h4>
-                <AddDataDropdown dataType={dataType} game={game} />
+                <AddDataDropdown tagType={tagType} game={game} />
             </div>
             <div className="sidebar-buttons-list">
-                {gameDataList.map((item, index) => (
+                {gameTagsList.map((item, index) => (
                     <OverlayTrigger
                         key={
                             "btn-modal-" +
-                            dataType.key +
+                            tagType.key +
                             "-" +
                             item +
                             "-" +
@@ -190,17 +190,17 @@ export const PlayfrensModal = observer(({ open, closeModal, game }) => {
                         <div className="pfm-content">
                             <div className="sidebar pfm-element">
                                 <PFMSidebarGroup
-                                    dataType={dataTypes.friend}
+                                    tagType={tagTypes.friend}
                                     game={game}
                                 />
                                 <div className="sidebar-separator" />
                                 <PFMSidebarGroup
-                                    dataType={dataTypes.category}
+                                    tagType={tagTypes.category}
                                     game={game}
                                 />
                                 <div className="sidebar-separator" />
                                 <PFMSidebarGroup
-                                    dataType={dataTypes.status}
+                                    tagType={tagTypes.status}
                                     game={game}
                                 />
                             </div>

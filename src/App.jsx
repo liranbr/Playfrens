@@ -11,7 +11,7 @@ import {
     MdPerson,
 } from "react-icons/md";
 import { allGames, backupToFile, restoreFromFile } from "./Store.jsx";
-import { dataTypes } from "./models/DataTypes.jsx";
+import { tagTypes } from "./models/TagTypes.jsx";
 import { GamesGrid } from "./components/GameGrid.jsx";
 import { setForceFilterUpdateCallback } from "./Utils.jsx";
 import { SidebarGroup } from "./components/SidebarGroup.jsx";
@@ -148,20 +148,20 @@ function AppSidebar({
     return (
         <div className="sidebar">
             <SidebarGroup
-                dataType={dataTypes.friend}
-                dataList={dataTypes.friend.allDataList}
+                tagType={tagTypes.friend}
+                tagsList={tagTypes.friend.allTagsList}
                 setSelection={setSelectedFriends}
             />
             <div className="sidebar-separator" />
             <SidebarGroup
-                dataType={dataTypes.category}
-                dataList={dataTypes.category.allDataList}
+                tagType={tagTypes.category}
+                tagsList={tagTypes.category.allTagsList}
                 setSelection={setSelectedCategories}
             />
             <div className="sidebar-separator" />
             <SidebarGroup
-                dataType={dataTypes.status}
-                dataList={dataTypes.status.allDataList}
+                tagType={tagTypes.status}
+                tagsList={tagTypes.status.allTagsList}
                 setSelection={setSelectedStatuses}
             />
         </div>

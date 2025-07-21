@@ -3,10 +3,10 @@ import { SidebarButton } from "./SidebarButton.jsx";
 import "./Sidebar.css";
 import { Modals, modalStore } from "./Modals/ModalStore.jsx";
 
-export function SidebarGroup({ dataType, dataList, setSelection }) {
-    const title = dataType.plural.toUpperCase();
+export function SidebarGroup({ tagType, tagsList, setSelection }) {
+    const title = tagType.plural.toUpperCase();
     const handleAddButtonClick = () => {
-        modalStore.open(Modals.EditData, { dataType: dataType });
+        modalStore.open(Modals.EditData, { tagType: tagType });
     };
     return (
         <div className="sidebar-group">
@@ -18,11 +18,11 @@ export function SidebarGroup({ dataType, dataList, setSelection }) {
                 </button>
             </div>
             <div className="sidebar-buttons-list">
-                {dataList.map((item, index) => (
+                {tagsList.map((item, index) => (
                     <SidebarButton
                         key={index}
                         value={item}
-                        dataType={dataType}
+                        tagType={tagType}
                         setSelection={setSelection}
                     />
                 ))}

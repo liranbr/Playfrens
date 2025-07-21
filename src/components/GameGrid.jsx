@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { dataTypes } from "../models/DataTypes.jsx";
+import { tagTypes } from "../models/TagTypes.jsx";
 import { useValidatedImage } from "../hooks/useValidatedImage.js";
 import "../App.css";
 import "./GameGrid.css";
@@ -9,8 +9,8 @@ function GameCard({ game }) {
     const gameCover = useValidatedImage(game.coverImageURL);
     const handleDrop = (e) => {
         const item = e.dataTransfer.getData("item");
-        const dataTypeKey = e.dataTransfer.getData("dataTypeKey");
-        dataTypes[dataTypeKey].addToGame(game, item);
+        const tagTypeKey = e.dataTransfer.getData("tagTypeKey");
+        tagTypes[tagTypeKey].addToGame(game, item);
     };
     const openPlayfrensModal = () => {
         modalStore.open(Modals.Playfrens, { game });

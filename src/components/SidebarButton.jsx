@@ -8,11 +8,11 @@ import {
     MdOutlineSearchOff,
 } from "react-icons/md";
 import { toastError } from "../Utils.jsx";
-import { removeData } from "../Store.jsx";
+import { removeTag } from "../Store.jsx";
 import "./SidebarButton.css";
 import { Modals, modalStore } from "./Modals/ModalStore.jsx";
 
-export function SidebarButton({ value, dataType, setSelection }) {
+export function SidebarButton({ value, tagType, setSelection }) {
     const [checked, setChecked] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -31,7 +31,7 @@ export function SidebarButton({ value, dataType, setSelection }) {
 
     return (
         <ToggleButton
-            id={"btn-sidebar-" + dataType.key + "-" + value}
+            id={"btn-sidebar-" + tagType.key + "-" + value}
             value={value}
             className="sidebar-button"
             type="checkbox"
@@ -41,7 +41,7 @@ export function SidebarButton({ value, dataType, setSelection }) {
             onChange={handleChange}
             onDragStart={(e) => {
                 e.dataTransfer.setData("item", value);
-                e.dataTransfer.setData("dataTypeKey", dataType.key);
+                e.dataTransfer.setData("tagTypeKey", tagType.key);
             }}
         >
             {value}
@@ -71,10 +71,9 @@ export function SidebarButton({ value, dataType, setSelection }) {
                         <DropdownMenu.Item
                             onClick={() => {
                                 updateSelection(false); //TODO: temporary solution to bug
-                                // handleShowModal(dataType, value);
-                                modalStore.open(Modals.EditData, {
-                                    dataType: dataType,
-                                    dataName: value,
+                                modalStore.open(Modals.EditTag, {
+                                    tagType: tagType,
+                                    tagName: value,
                                 });
                             }}
                         >
@@ -87,7 +86,7 @@ export function SidebarButton({ value, dataType, setSelection }) {
                                     itemName: value,
                                     deleteFunction: () => {
                                         updateSelection(false);
-                                        removeData(dataType, value);
+                                        removeTag(tagType, value);
                                     },
                                 });
                             }}

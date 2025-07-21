@@ -1,7 +1,7 @@
 import { action, makeAutoObservable } from "mobx";
 
 export const Modals = {
-    EditData: "EditData",
+    EditTag: "EditTag",
     EditGame: "EditGame",
     Playfrens: "Playfrens",
     DeleteWarning: "DeleteWarning",

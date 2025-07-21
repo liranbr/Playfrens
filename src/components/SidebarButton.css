@@ -12,7 +12,8 @@
     align-items: center;
     justify-content: space-between;
 
-    .icon-button { /* menu button */
+    /* menu button */
+    .icon-button {
         color: #fff;
         visibility: hidden;
 

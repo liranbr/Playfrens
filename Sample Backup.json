@@ -1,59 +1,5 @@
 {
-  "allFriends": [
-    "Aaron",
-    "Blake",
-    "Denise",
-    "Garvey",
-    "Jacqueline",
-    "O'Shaughnessy",
-    "Tymohthee"
-  ],
-  "allCategories": [
-    "Playthrough",
-    "Round-based",
-    "Persistent World"
-  ],
-  "allStatuses": [
-    "Playing",
-    "LFG",
-    "Paused",
-    "Backlog",
-    "Abandoned",
-    "Finished"
-  ],
-  "allGames": [
-    {
-      "title": "Baldur's Gate 3",
-      "coverImageURL": "https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/library_600x900_2x.jpg",
-      "sortingTitle": "",
-      "friends": [
-        "Jacqueline"
-      ],
-      "categories": [
-        "Playthrough"
-      ],
-      "statuses": [],
-      "note": ""
-    },
-    {
-      "title": "Dark Souls I Remastered",
-      "coverImageURL": "https://cdn2.steamgriddb.com/grid/0b6b193b8b26ae5875b6d4e4f69a4103.png",
-      "sortingTitle": "",
-      "friends": [
-        "Jacqueline",
-        "O'Shaughnessy"
-      ],
-      "categories": [
-        "Playthrough"
-      ],
-      "statuses": [],
-      "note": ""
-    },
-    {
-      "title": "Heroes of the Storm",
-      "coverImageURL": "https://cdn2.steamgriddb.com/grid/9946800209f33bce8ba0dd67bf724ce5.png",
-      "sortingTitle": "",
-      "friends": [
+    "allFriends": [
         "Aaron",
         "Blake",
         "Denise",
@@ -61,141 +7,141 @@
         "Jacqueline",
         "O'Shaughnessy",
         "Tymohthee"
-      ],
-      "categories": [
-        "Round-based"
-      ],
-      "statuses": [
+    ],
+    "allCategories": ["Playthrough", "Round-based", "Persistent World"],
+    "allStatuses": [
         "Playing",
+        "LFG",
+        "Paused",
+        "Backlog",
+        "Abandoned",
         "Finished"
-      ],
-      "note": ""
-    },
-    {
-      "title": "Terraria",
-      "coverImageURL": "https://cdn2.steamgriddb.com/grid/9bc661e8362657d8cbbe4bb41d17c7f3.png",
-      "sortingTitle": "",
-      "friends": [
-        "Aaron",
-        "Blake",
-        "Denise"
-      ],
-      "categories": [
-        "Playthrough",
-        "Persistent World"
-      ],
-      "statuses": [],
-      "note": ""
-    },
-    {
-      "title": "V Rising",
-      "coverImageURL": "https://cdn2.steamgriddb.com/grid/bce13d4914a906527ba4098eeb929767.png",
-      "sortingTitle": "",
-      "friends": [
-        "Blake",
-        "Garvey",
-        "Jacqueline"
-      ],
-      "categories": [
-        "Playthrough",
-        "Persistent World"
-      ],
-      "statuses": [],
-      "note": ""
-    },
-    {
-      "title": "Minecraft",
-      "coverImageURL": "https://cdn2.steamgriddb.com/grid/0ed5055450adbd836945761a6fa43ee0.jpg",
-      "sortingTitle": "",
-      "friends": [],
-      "categories": [],
-      "statuses": [],
-      "note": ""
-    },
-    {
-      "title": "Portal 2",
-      "coverImageURL": "https://cdn2.steamgriddb.com/grid/9ebc0e97da8e0e5083fea7203f194d2b.png",
-      "sortingTitle": "",
-      "friends": [
-        "Garvey"
-      ],
-      "categories": [],
-      "statuses": [],
-      "note": ""
-    },
-    {
-      "title": "Cuphead",
-      "coverImageURL": "https://cdn2.steamgriddb.com/grid/9a54a33bda21279ea4f263e567096ba1.png",
-      "sortingTitle": "",
-      "friends": [
-        "O'Shaughnessy"
-      ],
-      "categories": [],
-      "statuses": [],
-      "note": ""
-    },
-    {
-      "title": "Stardew Valley",
-      "coverImageURL": "https://shared.steamstatic.com/store_item_assets/steam/apps/413150/library_600x900_2x.jpg?t=1710874357",
-      "sortingTitle": "",
-      "friends": [
-        "Denise"
-      ],
-      "categories": [],
-      "statuses": [],
-      "note": ""
-    },
-    {
-      "title": "Left 4 Dead 2",
-      "coverImageURL": "https://shared.steamstatic.com/store_item_assets/steam/apps/550/library_600x900_2x.jpg?t=1745368559",
-      "sortingTitle": "",
-      "friends": [
-        "Blake",
-        "Garvey"
-      ],
-      "categories": [],
-      "statuses": [],
-      "note": ""
-    },
-    {
-      "title": "Overwatch 2",
-      "coverImageURL": "https://cdn2.steamgriddb.com/grid/088a6e0dad311bdba7c65a890e63f65e.png",
-      "sortingTitle": "",
-      "friends": [
-        "Aaron",
-        "Denise",
-        "Jacqueline",
-        "Tymohthee"
-      ],
-      "categories": [],
-      "statuses": [],
-      "note": ""
-    },
-    {
-      "title": "Rocket League",
-      "coverImageURL": "https://cdn2.steamgriddb.com/grid/e4e4005042cf598805d581754fe9256f.png",
-      "sortingTitle": "",
-      "friends": [
-        "Aaron",
-        "Blake"
-      ],
-      "categories": [],
-      "statuses": [],
-      "note": ""
-    },
-    {
-      "title": "Marvel Rivals",
-      "coverImageURL": "https://cdn2.steamgriddb.com/grid/d6e1af49e1871637d201f972fe3de10e.jpg",
-      "sortingTitle": "",
-      "friends": [
-        "Aaron",
-        "Denise",
-        "Jacqueline",
-        "Tymohthee"
-      ],
-      "categories": [],
-      "statuses": [],
-      "note": ""
-    }
-  ]
+    ],
+    "allGames": [
+        {
+            "title": "Baldur's Gate 3",
+            "coverImageURL": "https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/library_600x900_2x.jpg",
+            "sortingTitle": "",
+            "friends": ["Jacqueline"],
+            "categories": ["Playthrough"],
+            "statuses": [],
+            "note": ""
+        },
+        {
+            "title": "Dark Souls I Remastered",
+            "coverImageURL": "https://cdn2.steamgriddb.com/grid/0b6b193b8b26ae5875b6d4e4f69a4103.png",
+            "sortingTitle": "",
+            "friends": ["Jacqueline", "O'Shaughnessy"],
+            "categories": ["Playthrough"],
+            "statuses": [],
+            "note": ""
+        },
+        {
+            "title": "Heroes of the Storm",
+            "coverImageURL": "https://cdn2.steamgriddb.com/grid/9946800209f33bce8ba0dd67bf724ce5.png",
+            "sortingTitle": "",
+            "friends": [
+                "Aaron",
+                "Blake",
+                "Denise",
+                "Garvey",
+                "Jacqueline",
+                "O'Shaughnessy",
+                "Tymohthee"
+            ],
+            "categories": ["Round-based"],
+            "statuses": ["Playing", "Finished"],
+            "note": ""
+        },
+        {
+            "title": "Terraria",
+            "coverImageURL": "https://cdn2.steamgriddb.com/grid/9bc661e8362657d8cbbe4bb41d17c7f3.png",
+            "sortingTitle": "",
+            "friends": ["Aaron", "Blake", "Denise"],
+            "categories": ["Playthrough", "Persistent World"],
+            "statuses": [],
+            "note": ""
+        },
+        {
+            "title": "V Rising",
+            "coverImageURL": "https://cdn2.steamgriddb.com/grid/bce13d4914a906527ba4098eeb929767.png",
+            "sortingTitle": "",
+            "friends": ["Blake", "Garvey", "Jacqueline"],
+            "categories": ["Playthrough", "Persistent World"],
+            "statuses": [],
+            "note": ""
+        },
+        {
+            "title": "Minecraft",
+            "coverImageURL": "https://cdn2.steamgriddb.com/grid/0ed5055450adbd836945761a6fa43ee0.jpg",
+            "sortingTitle": "",
+            "friends": [],
+            "categories": [],
+            "statuses": [],
+            "note": ""
+        },
+        {
+            "title": "Portal 2",
+            "coverImageURL": "https://cdn2.steamgriddb.com/grid/9ebc0e97da8e0e5083fea7203f194d2b.png",
+            "sortingTitle": "",
+            "friends": ["Garvey"],
+            "categories": [],
+            "statuses": [],
+            "note": ""
+        },
+        {
+            "title": "Cuphead",
+            "coverImageURL": "https://cdn2.steamgriddb.com/grid/9a54a33bda21279ea4f263e567096ba1.png",
+            "sortingTitle": "",
+            "friends": ["O'Shaughnessy"],
+            "categories": [],
+            "statuses": [],
+            "note": ""
+        },
+        {
+            "title": "Stardew Valley",
+            "coverImageURL": "https://shared.steamstatic.com/store_item_assets/steam/apps/413150/library_600x900_2x.jpg?t=1710874357",
+            "sortingTitle": "",
+            "friends": ["Denise"],
+            "categories": [],
+            "statuses": [],
+            "note": ""
+        },
+        {
+            "title": "Left 4 Dead 2",
+            "coverImageURL": "https://shared.steamstatic.com/store_item_assets/steam/apps/550/library_600x900_2x.jpg?t=1745368559",
+            "sortingTitle": "",
+            "friends": ["Blake", "Garvey"],
+            "categories": [],
+            "statuses": [],
+            "note": ""
+        },
+        {
+            "title": "Overwatch 2",
+            "coverImageURL": "https://cdn2.steamgriddb.com/grid/088a6e0dad311bdba7c65a890e63f65e.png",
+            "sortingTitle": "",
+            "friends": ["Aaron", "Denise", "Jacqueline", "Tymohthee"],
+            "categories": [],
+            "statuses": [],
+            "note": ""
+        },
+        {
+            "title": "Rocket League",
+            "coverImageURL": "https://cdn2.steamgriddb.com/grid/e4e4005042cf598805d581754fe9256f.png",
+            "sortingTitle": "",
+            "friends": ["Aaron", "Blake"],
+            "categories": [],
+            "statuses": [],
+            "note": ""
+        },
+        {
+            "title": "Marvel Rivals",
+            "coverImageURL": "https://cdn2.steamgriddb.com/grid/d6e1af49e1871637d201f972fe3de10e.jpg",
+            "sortingTitle": "",
+            "friends": ["Aaron", "Denise", "Jacqueline", "Tymohthee"],
+            "categories": [],
+            "statuses": [],
+            "note": ""
+        }
+    ]
 }

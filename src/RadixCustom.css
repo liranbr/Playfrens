@@ -26,12 +26,14 @@
             color: grey;
             cursor: inherit;
 
-            &:hover, &:focus {
+            &:hover,
+            &:focus {
                 background-color: transparent;
             }
         }
 
-        &:hover, &:focus {
+        &:hover,
+        &:focus {
             background-color: var(--pf-bg-300);
         }
 
@@ -48,7 +50,8 @@
         &[data-danger] {
             color: #fc7975;
 
-            &:hover, &:focus {
+            &:hover,
+            &:focus {
                 background-color: #39292d;
             }
 
@@ -140,7 +143,8 @@
             font-size: 12px;
         }
 
-        input, select {
+        input,
+        select {
             border-radius: 6px;
             border: 1px solid #333;
             padding: 8px;
@@ -192,19 +196,19 @@
 
 @keyframes fadeIn {
     from {
-        opacity: 0
+        opacity: 0;
     }
     to {
-        opacity: 1
+        opacity: 1;
     }
 }
 
 @keyframes fadeOut {
     from {
-        opacity: 1
+        opacity: 1;
     }
     to {
-        opacity: 0
+        opacity: 0;
     }
 }
 

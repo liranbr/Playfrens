@@ -18,7 +18,9 @@
         border-radius: 20px;
         padding: 0;
         width: fit-content;
-        max-width: calc(var(--sidebar-width) * 2 + 24px + 12px); /* two columns, padding and gap */
+        max-width: calc(
+            var(--sidebar-width) * 2 + 24px + 12px
+        ); /* two columns, padding and gap */
         height: calc(var(--pfm-card-width) * 1.5);
         box-shadow: 0 0 20px rgba(0, 0, 0, 1);
     }
@@ -27,7 +29,9 @@
         display: flex;
         flex-direction: row;
         width: 100%;
-        height: calc(var(--pfm-card-width) * 1.5 - 54px); /* 54px for header height */
+        height: calc(
+            var(--pfm-card-width) * 1.5 - 54px
+        ); /* 54px for header height */
         position: relative;
         overflow: hidden;
         gap: 12px;
@@ -42,7 +46,7 @@
         border: none;
         border-radius: 20px;
         box-shadow: 0 0 20px rgba(0, 0, 0, 1);
-        --bg-url: url('/public/missing_game_cover.png');
+        --bg-url: url("/public/missing_game_cover.png");
         background-image: var(--bg-url);
         background-size: cover;
         background-position: center;

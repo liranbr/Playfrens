@@ -4,7 +4,7 @@ export const Modals = {
     EditData: "EditData",
     EditGame: "EditGame",
     Playfrens: "Playfrens",
-    DeleteWarning: "DeleteWarning"
+    DeleteWarning: "DeleteWarning",
 };
 
 class ModalStore {
@@ -13,9 +13,10 @@ class ModalStore {
     constructor() {
         makeAutoObservable(this);
         window.addEventListener("load", () => {
-            this.modalFadeDuration = getComputedStyle(document.documentElement)
-                .getPropertyValue("--modal-fade-duration")
-                .replace("ms", "") || "0";
+            this.modalFadeDuration =
+                getComputedStyle(document.documentElement)
+                    .getPropertyValue("--modal-fade-duration")
+                    .replace("ms", "") || "0";
         });
     }
 
@@ -56,9 +57,12 @@ class ModalStore {
     };
 
     afterCloseAnimation = (callback) => {
-        setTimeout(action(() => {
-            callback();
-        }), +this.modalFadeDuration);
+        setTimeout(
+            action(() => {
+                callback();
+            }),
+            +this.modalFadeDuration,
+        );
     };
 
     get currentModal() {
@@ -72,7 +76,6 @@ class ModalStore {
     clearAll() {
         this.modalStack = [];
     }
-
 }
 
 export const modalStore = new ModalStore();

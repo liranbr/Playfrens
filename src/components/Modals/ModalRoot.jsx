@@ -8,7 +8,11 @@ import { DeleteWarningModal } from "./DeleteWarningModal.jsx";
 export const ModalRoot = observer(() => (
     <>
         {modalStore.modalStack.map(({ name, props, open }, index) => {
-            const commonProps = { ...props, open, closeModal: modalStore.close };
+            const commonProps = {
+                ...props,
+                open,
+                closeModal: modalStore.close,
+            };
             switch (name) {
                 case Modals.DeleteWarning:
                     return <DeleteWarningModal {...commonProps} key={index} />;

@@ -1,7 +1,12 @@
 import { useState } from "react";
 import { ToggleButton } from "react-bootstrap";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { MdDeleteOutline, MdEdit, MdMoreVert, MdOutlineSearchOff } from "react-icons/md";
+import {
+    MdDeleteOutline,
+    MdEdit,
+    MdMoreVert,
+    MdOutlineSearchOff,
+} from "react-icons/md";
 import { toastError } from "../Utils.jsx";
 import { removeData } from "../Store.jsx";
 import "./SidebarButton.css";
@@ -13,10 +18,10 @@ export function SidebarButton({ value, dataType, setSelection }) {
 
     function updateSelection(isChecked) {
         setChecked(isChecked);
-        setSelection(prevSelection => {
+        setSelection((prevSelection) => {
             return isChecked
                 ? [...prevSelection, value]
-                : prevSelection.filter(item => item !== value);
+                : prevSelection.filter((item) => item !== value);
         });
     }
 
@@ -48,28 +53,45 @@ export function SidebarButton({ value, dataType, setSelection }) {
                 </DropdownMenu.Trigger>
 
                 <DropdownMenu.Portal>
-                    <DropdownMenu.Content className="rx-dropdown-menu" align={"start"} side={"bottom"} sideOffset={5}>
-                        <DropdownMenu.Item onClick={() => {
-                            toastError("Exclude function not yet implemented");
-                        }}>
+                    <DropdownMenu.Content
+                        className="rx-dropdown-menu"
+                        align={"start"}
+                        side={"bottom"}
+                        sideOffset={5}
+                    >
+                        <DropdownMenu.Item
+                            onClick={() => {
+                                toastError(
+                                    "Exclude function not yet implemented",
+                                );
+                            }}
+                        >
                             <MdOutlineSearchOff /> Exclude
                         </DropdownMenu.Item>
-                        <DropdownMenu.Item onClick={() => {
-                            updateSelection(false); //TODO: temporary solution to bug
-                            // handleShowModal(dataType, value);
-                            modalStore.open(Modals.EditData, { dataType: dataType, dataName: value });
-                        }}>
+                        <DropdownMenu.Item
+                            onClick={() => {
+                                updateSelection(false); //TODO: temporary solution to bug
+                                // handleShowModal(dataType, value);
+                                modalStore.open(Modals.EditData, {
+                                    dataType: dataType,
+                                    dataName: value,
+                                });
+                            }}
+                        >
                             <MdEdit /> Edit
                         </DropdownMenu.Item>
-                        <DropdownMenu.Item data-danger onClick={() => {
-                            modalStore.open(Modals.DeleteWarning, {
-                                itemName: value,
-                                deleteFunction: () => {
-                                    updateSelection(false);
-                                    removeData(dataType, value);
-                                }
-                            });
-                        }}>
+                        <DropdownMenu.Item
+                            data-danger
+                            onClick={() => {
+                                modalStore.open(Modals.DeleteWarning, {
+                                    itemName: value,
+                                    deleteFunction: () => {
+                                        updateSelection(false);
+                                        removeData(dataType, value);
+                                    },
+                                });
+                            }}
+                        >
                             <MdDeleteOutline /> Delete
                         </DropdownMenu.Item>
                     </DropdownMenu.Content>

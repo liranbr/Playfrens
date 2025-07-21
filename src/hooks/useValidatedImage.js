@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 function validateImage(url) {
     return new Promise((resolve) => {
         const img = new Image();
-        img.onload = () => resolve(true);      // Valid image
-        img.onerror = () => resolve(false);    // Broken image
+        img.onload = () => resolve(true); // Valid image
+        img.onerror = () => resolve(false); // Broken image
         img.src = url;
     });
 }
@@ -16,7 +16,8 @@ export function useValidatedImage(src, fallback = "/missing_game_cover.png") {
         let cancelled = false;
 
         const sources = [];
-        if (src.includes("cdn2.steamgriddb.com/thumb/")) { // try to find the actual image rather than the thumbnail
+        if (src.includes("cdn2.steamgriddb.com/thumb/")) {
+            // try to find the actual image rather than the thumbnail
             const gridSrc = src.replace("/thumb/", "/grid/");
             sources.push(gridSrc);
             sources.push(gridSrc.replace(".jpg", ".png"));

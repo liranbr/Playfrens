@@ -6,7 +6,7 @@ import {
     compareGameTitles,
     setToastSilence,
     toastDataChangeSuccess,
-    toastError
+    toastError,
 } from "./Utils.jsx";
 
 function loadObsArray(key) {
@@ -19,38 +19,66 @@ function saveObsArray(key, value) {
 
 const firstVisit = localStorage.getItem("Visited") === null;
 if (firstVisit) {
-    const defaultCategories = ["Playthrough", "Round-based", "Persistent World"];
-    const defaultStatuses = ["Playing", "LFG", "Paused", "Backlog", "Abandoned", "Finished"];
-    localStorage.setItem("allCategories", JSON.stringify(defaultCategories, null, 4));
-    localStorage.setItem("allStatuses", JSON.stringify(defaultStatuses, null, 4));
+    const defaultCategories = [
+        "Playthrough",
+        "Round-based",
+        "Persistent World",
+    ];
+    const defaultStatuses = [
+        "Playing",
+        "LFG",
+        "Paused",
+        "Backlog",
+        "Abandoned",
+        "Finished",
+    ];
+    localStorage.setItem(
+        "allCategories",
+        JSON.stringify(defaultCategories, null, 4),
+    );
+    localStorage.setItem(
+        "allStatuses",
+        JSON.stringify(defaultStatuses, null, 4),
+    );
     localStorage.setItem("Visited", "true");
 }
 
 // load data from localstorage as observables
-export const allFriends = loadObsArray("allFriends").sort(compareAlphaIgnoreCase);
+export const allFriends = loadObsArray("allFriends").sort(
+    compareAlphaIgnoreCase,
+);
 export const allCategories = loadObsArray("allCategories");
 export const allStatuses = loadObsArray("allStatuses");
 const dataSortOrder = {
     friends: allFriends,
     categories: allCategories,
-    statuses: allStatuses
+    statuses: allStatuses,
 };
 dataTypes.friend.allDataList = allFriends;
 dataTypes.category.allDataList = allCategories;
 dataTypes.status.allDataList = allStatuses;
 
-export const allGames = observable.array(loadObsArray("allGames").map(game => {
-    if (!game) {
-        console.warn("Skipping invalid game data:", game);
-        return null;
-    }
-    return new GameObject(
-        game.title, (game.coverImageURL || game.coverImagePath), game.sortingTitle,
-        game.friends, game.categories, game.statuses,
-        game.note,
-        dataSortOrder);
-}).filter(game => game !== null)
-    .sort(compareGameTitles));
+export const allGames = observable.array(
+    loadObsArray("allGames")
+        .map((game) => {
+            if (!game) {
+                console.warn("Skipping invalid game data:", game);
+                return null;
+            }
+            return new GameObject(
+                game.title,
+                game.coverImageURL || game.coverImagePath,
+                game.sortingTitle,
+                game.friends,
+                game.categories,
+                game.statuses,
+                game.note,
+                dataSortOrder,
+            );
+        })
+        .filter((game) => game !== null)
+        .sort(compareGameTitles),
+);
 
 // when a change is made to an array, it is saved to localstorage
 autorun(() => saveObsArray("allFriends", allFriends));
@@ -63,9 +91,11 @@ export function backupToFile() {
         allFriends: allFriends,
         allCategories: allCategories,
         allStatuses: allStatuses,
-        allGames: allGames
+        allGames: allGames,
     };
-    const blob = new Blob([JSON.stringify(data, null, 4)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify(data, null, 4)], {
+        type: "application/json",
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     const timestamp = new Date()
@@ -82,13 +112,26 @@ export function backupToFile() {
 export function restoreFromFile(file) {
     console.log("Reading file...");
     const reader = new FileReader();
-    reader.onload = action(function(e) {
+    reader.onload = action(function (e) {
         const data = JSON.parse(e.target.result.toString());
         allFriends.replace(data["allFriends"]);
         allCategories.replace(data["allCategories"]);
         allStatuses.replace(data["allStatuses"]);
-        allGames.replace(data["allGames"].map(game =>
-            new GameObject(game.title, (game.coverImageURL || game.coverImagePath), game.sortingTitle, game.friends, game.categories, game.statuses, game.note, dataSortOrder)));
+        allGames.replace(
+            data["allGames"].map(
+                (game) =>
+                    new GameObject(
+                        game.title,
+                        game.coverImageURL || game.coverImagePath,
+                        game.sortingTitle,
+                        game.friends,
+                        game.categories,
+                        game.statuses,
+                        game.note,
+                        dataSortOrder,
+                    ),
+            ),
+        );
         window.location.reload();
     });
     reader.readAsText(file);
@@ -107,7 +150,9 @@ export const addData = action((dataType, value) => {
     if (dataType.key === "friend") {
         dataType.allDataList.sort(compareAlphaIgnoreCase);
     }
-    toastDataChangeSuccess("Added " + value + " to " + dataType.plural + " list");
+    toastDataChangeSuccess(
+        "Added " + value + " to " + dataType.plural + " list",
+    );
     return true;
 });
 
@@ -118,12 +163,14 @@ export const removeData = action((dataType, value) => {
     }
     // TODO: Add Modal Confirmation
     setToastSilence(true);
-    allGames.forEach(game => {
+    allGames.forEach((game) => {
         dataType.removeFromGame(game, value);
     });
     dataType.allDataList.remove(value);
     setToastSilence(false);
-    toastDataChangeSuccess("Removed " + value + " from " + dataType.plural + " list");
+    toastDataChangeSuccess(
+        "Removed " + value + " from " + dataType.plural + " list",
+    );
     return true;
 });
 
@@ -144,15 +191,19 @@ export const editData = action((dataType, oldValue, newValue) => {
     if (dataType.key === "friend") {
         fullList.sort(compareAlphaIgnoreCase);
     }
-    allGames.forEach(game => {
+    allGames.forEach((game) => {
         if (dataType.gameDataList(game).includes(oldValue)) {
             dataType.removeFromGame(game, oldValue);
             dataType.addToGame(game, newValue);
-            toastDataChangeSuccess(`Updated ${oldValue} to ${newValue} in ${game.title}`);
+            toastDataChangeSuccess(
+                `Updated ${oldValue} to ${newValue} in ${game.title}`,
+            );
         }
     });
     setToastSilence(false);
-    toastDataChangeSuccess(`Updated ${oldValue} to ${newValue} in ${dataType.plural} list`);
+    toastDataChangeSuccess(
+        `Updated ${oldValue} to ${newValue} in ${dataType.plural} list`,
+    );
     return true;
 });
 
@@ -161,7 +212,7 @@ export const addGame = action((title, coverImageURL, gameSortingTitle = "") => {
         toastError("Cannot save a game without a title");
         return null;
     }
-    if (allGames.some(game => game.title === title)) {
+    if (allGames.some((game) => game.title === title)) {
         toastError(`${title} already exists in games list`);
         return null;
     }
@@ -169,7 +220,16 @@ export const addGame = action((title, coverImageURL, gameSortingTitle = "") => {
         toastError("Cannot save a game without a cover image");
         return null;
     }
-    const newGame = new GameObject(title, coverImageURL, gameSortingTitle, [], [], [], "", dataSortOrder);
+    const newGame = new GameObject(
+        title,
+        coverImageURL,
+        gameSortingTitle,
+        [],
+        [],
+        [],
+        "",
+        dataSortOrder,
+    );
     allGames.push(newGame);
     allGames.sort(compareGameTitles);
     toastDataChangeSuccess("Added " + title + " to games list");

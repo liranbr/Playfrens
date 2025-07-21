@@ -6,7 +6,7 @@ import { Modals, modalStore } from "./Modals/ModalStore.jsx";
 export function SidebarGroup({ tagType, tagsList, setSelection }) {
     const title = tagType.plural.toUpperCase();
     const handleAddButtonClick = () => {
-        modalStore.open(Modals.EditData, { tagType: tagType });
+        modalStore.open(Modals.EditTag, { tagType: tagType });
     };
     return (
         <div className="sidebar-group">

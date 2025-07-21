@@ -8,7 +8,7 @@ import { Modals, modalStore } from "./Modals/ModalStore.jsx";
 function GameCard({ game }) {
     const gameCover = useValidatedImage(game.coverImageURL);
     const handleDrop = (e) => {
-        const item = e.dataTransfer.getData("item");
+        const item = e.dataTransfer.get("item");
         const tagTypeKey = e.dataTransfer.getData("tagTypeKey");
         tagTypes[tagTypeKey].addToGame(game, item);
     };

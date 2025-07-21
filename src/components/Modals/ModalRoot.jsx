@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import { Modals, modalStore } from "./ModalStore.jsx";
-import { EditDataModal } from "./EditDataModal.jsx";
+import { EditTagModal } from "./EditTagModal.jsx";
 import { EditGameModal } from "./EditGameModal.jsx";
 import { PlayfrensModal } from "./PlayfrensModal.jsx";
 import { DeleteWarningModal } from "./DeleteWarningModal.jsx";
@@ -16,8 +16,8 @@ export const ModalRoot = observer(() => (
             switch (name) {
                 case Modals.DeleteWarning:
                     return <DeleteWarningModal {...commonProps} key={index} />;
-                case Modals.EditData:
-                    return <EditDataModal {...commonProps} key={index} />;
+                case Modals.EditTag:
+                    return <EditTagModal {...commonProps} key={index} />;
                 case Modals.EditGame:
                     return <EditGameModal {...commonProps} key={index} />;
                 case Modals.Playfrens:

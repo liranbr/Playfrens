@@ -16,7 +16,7 @@ import { allGames } from "../Store.jsx";
  * @property {Array<string>} categories - The list of categories for this game.
  * @property {Array<string>} statuses - The list of statuses for this game.
  * @property {string} note - A custom note for this game.
- * @property {{ friends: Array<string>, categories: Array<string>, statuses: Array<string> }} dataSortOrder - The order to sort data by, usually the full lists
+ * @property {{ friends: Array<string>, categories: Array<string>, statuses: Array<string> }} tagsSortOrder - The order to sort tags by, usually the full lists
  */
 export class GameObject {
     constructor(
@@ -27,7 +27,7 @@ export class GameObject {
         categories = [],
         statuses = [],
         note = "",
-        dataSortOrder = {},
+        tagsSortOrder = {},
     ) {
         this.title = title;
         this.coverImageURL = coverImageURL;
@@ -36,7 +36,7 @@ export class GameObject {
         this.categories = categories;
         this.statuses = statuses;
         this.note = note;
-        this.dataSortOrder = dataSortOrder;
+        this.tagsSortOrder = tagsSortOrder;
         makeObservable(this, {
             title: observable,
             coverImageURL: observable,
@@ -45,7 +45,7 @@ export class GameObject {
             categories: observable,
             statuses: observable,
             note: observable,
-            dataSortOrder: observable,
+            tagsSortOrder: observable,
             addFriend: action,
             removeFriend: action,
             addCategory: action,
@@ -62,7 +62,7 @@ export class GameObject {
             this.friends = insertSortedByOrder(
                 friend,
                 this.friends,
-                this.dataSortOrder.friends,
+                this.tagsSortOrder.friends,
             );
             toastDataChangeSuccess(
                 `Added ${friend} as a friend for ${this.title}`,
@@ -88,7 +88,7 @@ export class GameObject {
             this.categories = insertSortedByOrder(
                 category,
                 this.categories,
-                this.dataSortOrder.categories,
+                this.tagsSortOrder.categories,
             );
             toastDataChangeSuccess(
                 `Added ${category} as a category for ${this.title}`,
@@ -114,7 +114,7 @@ export class GameObject {
             this.statuses = insertSortedByOrder(
                 status,
                 this.statuses,
-                this.dataSortOrder.statuses,
+                this.tagsSortOrder.statuses,
             );
             toastDataChangeSuccess(
                 `Added ${status} as a status for ${this.title}`,

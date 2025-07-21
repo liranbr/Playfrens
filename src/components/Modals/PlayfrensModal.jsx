@@ -17,7 +17,7 @@ import { tagTypes } from "../../models/TagTypes.jsx";
 import "./PlayfrensModal.css";
 import { Modals, modalStore } from "./ModalStore.jsx";
 
-const AddDataDropdown = ({ tagType, game }) => {
+const AddTagDropdown = ({ tagType, game }) => {
     return (
         <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
@@ -66,7 +66,7 @@ const PFMSidebarGroup = observer(({ game, tagType }) => {
             <div className="sidebar-header">
                 <div />
                 <h4>{title}</h4>
-                <AddDataDropdown tagType={tagType} game={game} />
+                <AddTagDropdown tagType={tagType} game={game} />
             </div>
             <div className="sidebar-buttons-list">
                 {gameTagsList.map((item, index) => (

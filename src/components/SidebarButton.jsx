@@ -71,7 +71,7 @@ export function SidebarButton({ value, tagType, setSelection }) {
                         <DropdownMenu.Item
                             onClick={() => {
                                 updateSelection(false); //TODO: temporary solution to bug
-                                modalStore.open(Modals.EditData, {
+                                modalStore.open(Modals.EditTag, {
                                     tagType: tagType,
                                     tagName: value,
                                 });

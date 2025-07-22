@@ -17,6 +17,7 @@
     .icon-button {
         color: #fff;
         visibility: hidden;
+        transition: none;
 
         &:hover {
             background-color: var(--pf-btn-primary-darker);

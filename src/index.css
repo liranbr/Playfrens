@@ -21,7 +21,7 @@
     --pf-btn-primary: hsl(var(--hsl-base-btn-primary) 52%);
     --pf-btn-primary-hover: hsl(var(--hsl-base-btn-primary) 44%);
     --pf-btn-primary-active: hsl(var(--hsl-base-btn-primary) 40%);
-    --pf-btn-primary-darker: hsl(var(--hsl-base-btn-primary) 36%);
+    --pf-btn-primary-darker: hsl(var(--hsl-base-btn-primary) 32%);
     --pf-btn-primary-lighter: hsl(var(--hsl-base-btn-primary) 60%);
 
     --hsl-base-btn-secondary: 215 16%;

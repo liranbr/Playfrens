@@ -2,7 +2,6 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert } from "react-icons/md";
 import { observer } from "mobx-react-lite";
 import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
-import { OutlinedIcon } from "../Components.jsx";
 import { removeGame } from "../../Store.jsx";
 import { useValidatedImage } from "../../hooks/useValidatedImage.js";
 import * as Dialog from "@radix-ui/react-dialog";
@@ -86,9 +85,7 @@ function GameOptionsButton({ game }) {
         <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
                 <button className="icon-button">
-                    <OutlinedIcon>
-                        <MdMoreVert />
-                    </OutlinedIcon>
+                    <MdMoreVert />
                 </button>
             </DropdownMenu.Trigger>
 
@@ -155,9 +152,7 @@ export const PlayfrensDialog = observer(({ open, closeDialog, game }) => {
                                 {game.title}
                             </Dialog.Title>
                             <button className="icon-button ms-auto" onClick={handleHide}>
-                                <OutlinedIcon>
-                                    <MdClose />
-                                </OutlinedIcon>
+                                <MdClose />
                             </button>
                         </div>
                         <div className="sidebar-header-shadow" />

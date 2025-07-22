@@ -2,7 +2,7 @@ import { observer } from "mobx-react-lite";
 import { Dialogs, dialogStore } from "./DialogStore.jsx";
 import { EditTagDialog } from "./EditTagDialog.jsx";
 import { EditGameDialog } from "./EditGameDialog.jsx";
-import { PlayfrensDialog } from "./PlayfrensDialog.jsx";
+import { GamePageDialog } from "./GamePageDialog.jsx";
 import { DeleteWarningDialog } from "./DeleteWarningDialog.jsx";
 
 export const DialogRoot = observer(() => (
@@ -21,7 +21,7 @@ export const DialogRoot = observer(() => (
                 case Dialogs.EditGame:
                     return <EditGameDialog {...commonProps} key={index} />;
                 case Dialogs.Playfrens:
-                    return <PlayfrensDialog {...commonProps} key={index} />;
+                    return <GamePageDialog {...commonProps} key={index} />;
                 default:
                     console.warn(`Unknown dialog type: ${name}`);
                     return null;

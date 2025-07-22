@@ -43,7 +43,7 @@
     --sidebar-width: 275px;
     --game-card-width: 210px;
     --game-card-border-radius: 0;
-    --pfm-card-width: 450px;
+    --gpd-card-width: 450px; /* gpd -> GamePageDialog */
     --icon-size: 30px;
     --dialog-fade-duration: 250ms;
 }

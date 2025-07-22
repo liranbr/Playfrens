@@ -12,13 +12,13 @@ function GameCard({ game }) {
         const tagTypeKey = e.dataTransfer.getData("tagTypeKey");
         tagTypes[tagTypeKey].addToGame(game, item);
     };
-    const openPlayfrensDialog = () => {
+    const openGamePageDialog = () => {
         dialogStore.open(Dialogs.Playfrens, { game });
     };
     return (
         <button
             className="game-card"
-            onClick={openPlayfrensDialog}
+            onClick={openGamePageDialog}
             onDrop={handleDrop}
             onDragOver={(e) => e.preventDefault()}
         >

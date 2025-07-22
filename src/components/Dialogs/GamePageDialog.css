@@ -1,0 +1,161 @@
+.rx-dialog.playfrens-dialog {
+    display: flex;
+    flex-direction: row;
+    width: fit-content;
+    height: fit-content;
+    background: none;
+    padding: 0;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    gap: 14px; /* 12px gap + 1px outlines on container and card */
+
+    /* gpd -> GamePageDialog */
+    .gpd-container {
+        flex-direction: column;
+        background-color: var(--pf-bg-900);
+        outline: var(--pf-border-700);
+        border: none;
+        border-radius: 20px;
+        padding: 0;
+        width: fit-content;
+        max-width: calc(var(--sidebar-width) * 2 + 24px + 12px); /* two columns, padding and gap */
+        height: calc(var(--gpd-card-width) * 1.5);
+        box-shadow: 0 0 20px rgba(0, 0, 0, 1);
+    }
+
+    .gpd-content {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        height: calc(var(--gpd-card-width) * 1.5 - 54px); /* 54px for header height */
+        position: relative;
+        overflow: hidden;
+        gap: 12px;
+        padding: 12px;
+    }
+
+    .gpd-card {
+        width: var(--gpd-card-width);
+        min-width: var(--gpd-card-width);
+        height: calc(var(--gpd-card-width) * 1.5);
+        outline: var(--pf-border-700);
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 1);
+        --bg-url: url("/public/missing_game_cover.png");
+        background-image: var(--bg-url);
+        background-size: cover;
+        background-position: center;
+
+        .gpd-card-bg {
+            position: absolute;
+            width: var(--gpd-card-width);
+            height: calc(var(--gpd-card-width) * 1.5);
+            background-size: cover;
+            background-position: center;
+            background-image: var(--bg-url);
+        }
+    }
+
+    .gpd-header {
+        position: relative; /* needed for separator shadow */
+        width: 100%;
+        max-width: 100%;
+        height: calc(var(--icon-size) + 24px); /* 24px for padding */
+        display: grid;
+        grid-template-columns: var(--icon-size) 1fr var(--icon-size);
+        align-items: center;
+        padding: 12px 12px 11px 12px;
+        background-color: inherit;
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+        border-bottom: var(--pf-border-700);
+        z-index: 1;
+
+        .gpd-title {
+            font-size: 24px;
+            padding: 0 12px;
+            color: #fff;
+            margin: 0;
+            line-height: 1;
+            text-align: center;
+            font-weight: bold;
+            overflow: hidden;
+            text-wrap: nowrap;
+            text-overflow: ellipsis;
+        }
+    }
+
+    .gpd-body {
+        display: flex;
+        flex-direction: column;
+        margin: 42px;
+        height: 100%;
+        justify-content: end;
+    }
+
+    .sidebar {
+        height: fit-content;
+        max-height: 100%;
+        margin: 0;
+
+        .sidebar-group {
+            min-height: fit-content;
+        }
+
+        .sidebar-separator {
+            border-top: var(--pf-border-700);
+        }
+    }
+
+    .gpd-element {
+        background-color: var(--pf-bg-700);
+        border: var(--pf-border-700);
+        border-radius: 20px;
+        padding: 12px;
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .gpd-sidebar-button:hover {
+        --bs-btn-active-bg: none;
+        background: none;
+        outline: var(--pf-border-100);
+        color: #fff;
+    }
+
+    .gpd-column {
+        width: var(--sidebar-width);
+        display: flex;
+        flex-direction: column;
+        overflow: auto;
+        gap: 12px;
+    }
+}
+
+.game-note-container {
+    border-radius: 20px;
+    padding-top: 20px;
+
+    .game-note {
+        width: 100%;
+        height: fit-content;
+        flex-shrink: 1;
+        background: none;
+        right: 0;
+        left: 0;
+        padding: 12px 8px;
+        border: none;
+        border-radius: 20px;
+        resize: vertical;
+
+        &:focus {
+            outline: none;
+            outline-offset: -1px;
+        }
+    }
+}
+
+.playthroughs-container {
+    padding: 12px;
+}

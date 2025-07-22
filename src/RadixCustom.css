@@ -117,11 +117,6 @@
         text-overflow: ellipsis;
     }
 
-    p {
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
     fieldset {
         display: flex;
         flex-direction: column;
@@ -132,15 +127,14 @@
             font-weight: 500;
             margin-top: 20px;
             margin-bottom: 8px;
-        }
-
-        p {
-            margin: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         small {
             color: var(--pf-fg-500);
             font-size: 12px;
+            font-weight: normal;
         }
 
         input,

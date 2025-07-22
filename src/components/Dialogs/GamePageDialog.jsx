@@ -61,13 +61,13 @@ const GPDSidebarGroup = observer(({ game, tagType }) => {
             <div className="sidebar-buttons-list">
                 {gameTagsList.map((item, index) => (
                     <OverlayTrigger
-                        key={"btn-dialog-" + tagType.key + "-" + item + "-" + index}
+                        key={"btn-overlay-" + tagType.key + "-" + item + "-" + index}
                         placement={"right"}
                         overlay={<Tooltip style={{ transition: "none" }}>Remove</Tooltip>}
                     >
                         <Button
                             value={item}
-                            className="sidebar-button gpd-sidebar-button"
+                            className="sidebar-button gp-sidebar-button"
                             draggable="true"
                             onClick={() => handleRemove(item)}
                         >
@@ -137,36 +137,35 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
                         e.preventDefault();
                         e.target.focus();
                     }}
-                    className="rx-dialog playfrens-dialog"
+                    className="rx-dialog game-page-dialog"
                 >
                     <VisuallyHidden>
-                        <Dialog.Description>
-                            {"Expanded game card of " + game.title}
-                        </Dialog.Description>
+                        <Dialog.Description>{"Game Page of " + game.title}</Dialog.Description>
                     </VisuallyHidden>
-                    <div className="gpd-card" style={{ "--bg-url": `url("${gameCover}")` }} />
-                    <div className="gpd-container">
-                        <div className="gpd-header">
+                    <div className="gp-cover-art" style={{ "--bg-url": `url("${gameCover}")` }} />
+                    <div className="gp-container">
+                        <div className="gp-header">
                             <GameOptionsButton game={game} />
-                            <Dialog.Title autoFocus className="gpd-title">
+                            <Dialog.Title autoFocus className="gp-title">
                                 {game.title}
                             </Dialog.Title>
                             <button className="icon-button ms-auto" onClick={handleHide}>
                                 <MdClose />
                             </button>
                         </div>
-                        <div className="sidebar-header-shadow" />
-                        <div className="gpd-content">
-                            <div className="sidebar gpd-element">
-                                <GPDSidebarGroup tagType={tagTypes.friend} game={game} />
-                                <div className="sidebar-separator" />
-                                <GPDSidebarGroup tagType={tagTypes.category} game={game} />
-                                <div className="sidebar-separator" />
-                                <GPDSidebarGroup tagType={tagTypes.status} game={game} />
+                        <div className="gp-header-shadow" />
+                        <div className="gp-body">
+                            <div className="gp-column">
+                                <div className="sidebar gp-element">
+                                    <GPDSidebarGroup tagType={tagTypes.friend} game={game} />
+                                    <div className="sidebar-separator" />
+                                    <GPDSidebarGroup tagType={tagTypes.category} game={game} />
+                                    <div className="sidebar-separator" />
+                                    <GPDSidebarGroup tagType={tagTypes.status} game={game} />
+                                </div>
                             </div>
-
-                            <div className="gpd-column">
-                                <div className="game-note-container gpd-element">
+                            <div className="gp-column">
+                                <div className="game-note-container gp-element">
                                     <div className="sidebar-header">
                                         <div />
                                         <h4>NOTE</h4>

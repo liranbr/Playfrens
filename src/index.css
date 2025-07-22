@@ -41,10 +41,10 @@
     --pf-dd-danger-fg-active: hsl(var(--hsl-hue-dd-danger) 12% 88%);
 
     --sidebar-width: 275px;
-    --game-card-width: 210px;
+    --game-card-width: 210px; /* for the game cards in the grid */
     --game-card-border-radius: 0;
-    --gpd-card-width: 450px; /* gpd -> GamePageDialog */
-    --icon-size: 30px;
+    --gp-cover-art-width: 450px; /* for game page dialog */
+    --icon-size: 30px; /* for icon buttons like ⋮ or + */
     --dialog-fade-duration: 250ms;
 }
 

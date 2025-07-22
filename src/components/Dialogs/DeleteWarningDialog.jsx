@@ -3,9 +3,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 export function DeleteWarningDialog({ open, closeDialog, itemName, deleteFunction }) {
     const handleDelete = () => {
         closeDialog();
-        if (deleteFunction) {
-            deleteFunction();
-        }
+        deleteFunction?.();
     };
 
     return (

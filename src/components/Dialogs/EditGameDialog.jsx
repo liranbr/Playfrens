@@ -67,14 +67,13 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                                 rel="noopener noreferrer"
                             >
                                 SteamGridDB
-                            </a>{" "}
-                            (ideally 600x900)
+                            </a>
+                            {" (ideally 600x900)"}
                         </small>
 
-                        <p>
-                            <label>Sorting Title</label>
-                            <small> (optional)</small>
-                        </p>
+                        <label>
+                            Sorting Title<small> (optional)</small>
+                        </label>
                         <input
                             id="gameSortingTitleInput"
                             onKeyDown={saveOnEnter}

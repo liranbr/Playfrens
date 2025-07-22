@@ -9,16 +9,20 @@
     outline: none;
     box-shadow: none;
     gap: 14px; /* 12px gap + 1px outlines on container and card */
+
     --container-shadow: 0 0 20px rgba(0, 0, 0, 1);
-    --element-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.3);
+    --element-shadow: 0 0 8px 3px rgba(0, 0, 0, 0.3);
     --header-height: 56px;
     --cols-amount: 2;
+    --border: var(--pf-border-700);
+    --container-bg: var(--pf-bg-900);
+    --element-bg: var(--pf-bg-700);
 
     .gp-cover-art {
         width: var(--gp-cover-art-width);
         min-width: var(--gp-cover-art-width);
         height: calc(var(--gp-cover-art-width) * 1.5);
-        outline: var(--pf-border-700);
+        outline: var(--border);
         border: none;
         border-radius: 20px;
         box-shadow: var(--container-shadow);
@@ -40,8 +44,8 @@
     /* gp = Game Page */
     .gp-container {
         flex-direction: column;
-        background-color: var(--pf-bg-900);
-        outline: var(--pf-border-700);
+        background-color: var(--container-bg);
+        outline: var(--border);
         border: none;
         border-radius: 20px;
         padding: 0;
@@ -63,7 +67,7 @@
             background-color: inherit;
             border-top-left-radius: 20px;
             border-top-right-radius: 20px;
-            border-bottom: var(--pf-border-700);
+            border-bottom: var(--border);
             /* below are needed for the shadow */
             position: relative;
             z-index: 1;
@@ -99,8 +103,8 @@
             padding: 12px;
 
             .gp-element {
-                background-color: var(--pf-bg-700);
-                border: var(--pf-border-700);
+                background-color: var(--element-bg);
+                border: var(--border);
                 border-radius: 20px;
                 padding: 12px;
                 box-shadow: var(--element-shadow);
@@ -130,7 +134,7 @@
                 }
 
                 .sidebar-separator {
-                    border-top: var(--pf-border-700);
+                    border-top: var(--border);
                 }
             }
 

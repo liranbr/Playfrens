@@ -1,16 +1,15 @@
 import * as Dialog from "@radix-ui/react-dialog";
-import Button from "react-bootstrap/Button";
 
-export function DeleteWarningModal({ open, closeModal, itemName, deleteFunction }) {
+export function DeleteWarningDialog({ open, closeDialog, itemName, deleteFunction }) {
     const handleDelete = () => {
-        closeModal();
+        closeDialog();
         if (deleteFunction) {
             deleteFunction();
         }
     };
 
     return (
-        <Dialog.Root open={open} onOpenChange={closeModal}>
+        <Dialog.Root open={open} onOpenChange={closeDialog}>
             <Dialog.Portal>
                 <Dialog.Overlay className="rx-dialog-overlay" />
                 <Dialog.Content className="rx-dialog">
@@ -21,7 +20,7 @@ export function DeleteWarningModal({ open, closeModal, itemName, deleteFunction 
                     </Dialog.Description>
 
                     <div className="rx-dialog-footer">
-                        <button className="button-secondary" onClick={closeModal}>
+                        <button className="button-secondary" onClick={closeDialog}>
                             Cancel
                         </button>
                         <button className="button-danger" onClick={handleDelete}>

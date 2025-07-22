@@ -1,15 +1,14 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import Button from "react-bootstrap/Button";
 import { addGame } from "../../Store.jsx";
-import { Modals, modalStore } from "./ModalStore.jsx";
+import { Dialogs, dialogStore } from "./DialogStore.jsx";
 
-export function EditGameModal({ open, closeModal, game = null }) {
+export function EditGameDialog({ open, closeDialog, game = null }) {
     const dialogTitle = game ? "Edit Game Details" : "Add Game";
     const dialogDescription = game ? `Editing ${game.title}` : "Adding a new game";
 
     const handleHide = () => {
-        closeModal();
+        closeDialog();
     };
     const handleSave = () => {
         const getVal = (id) => document.getElementById(id).value;
@@ -25,7 +24,7 @@ export function EditGameModal({ open, closeModal, game = null }) {
         } else {
             const newGame = addGame(gameTitle, gameCoverPath, gameSortingTitle);
             if (newGame) {
-                modalStore.insertPrevious(Modals.Playfrens, { game: newGame });
+                dialogStore.insertPrevious(Dialogs.Playfrens, { game: newGame });
                 handleHide();
             }
         }

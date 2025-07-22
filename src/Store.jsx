@@ -19,34 +19,15 @@ function saveObsArray(key, value) {
 
 const firstVisit = localStorage.getItem("Visited") === null;
 if (firstVisit) {
-    const defaultCategories = [
-        "Playthrough",
-        "Round-based",
-        "Persistent World",
-    ];
-    const defaultStatuses = [
-        "Playing",
-        "LFG",
-        "Paused",
-        "Backlog",
-        "Abandoned",
-        "Finished",
-    ];
-    localStorage.setItem(
-        "allCategories",
-        JSON.stringify(defaultCategories, null, 4),
-    );
-    localStorage.setItem(
-        "allStatuses",
-        JSON.stringify(defaultStatuses, null, 4),
-    );
+    const defaultCategories = ["Playthrough", "Round-based", "Persistent World"];
+    const defaultStatuses = ["Playing", "LFG", "Paused", "Backlog", "Abandoned", "Finished"];
+    localStorage.setItem("allCategories", JSON.stringify(defaultCategories, null, 4));
+    localStorage.setItem("allStatuses", JSON.stringify(defaultStatuses, null, 4));
     localStorage.setItem("Visited", "true");
 }
 
 // load tags from localstorage as observables
-export const allFriends = loadObsArray("allFriends").sort(
-    compareAlphaIgnoreCase,
-);
+export const allFriends = loadObsArray("allFriends").sort(compareAlphaIgnoreCase);
 export const allCategories = loadObsArray("allCategories");
 export const allStatuses = loadObsArray("allStatuses");
 const tagsSortOrder = {
@@ -98,11 +79,7 @@ export function backupToFile() {
     });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    const timestamp = new Date()
-        .toISOString()
-        .split(".")[0]
-        .replace("T", " ")
-        .replaceAll(":", "-");
+    const timestamp = new Date().toISOString().split(".")[0].replace("T", " ").replaceAll(":", "-");
     a.href = url;
     a.download = `Playfrens ${timestamp}.json`;
     a.click();
@@ -150,9 +127,7 @@ export const addTag = action((tagType, value) => {
     if (tagType.key === "friend") {
         tagType.allTagsList.sort(compareAlphaIgnoreCase);
     }
-    toastDataChangeSuccess(
-        "Added " + value + " to " + tagType.plural + " list",
-    );
+    toastDataChangeSuccess("Added " + value + " to " + tagType.plural + " list");
     return true;
 });
 
@@ -161,16 +136,14 @@ export const removeTag = action((tagType, value) => {
         toastError(`${value} does not exist in ${tagType.plural} list`);
         return false;
     }
-    // TODO: Add Modal Confirmation
+    // TODO: Add Dialog Confirmation
     setToastSilence(true);
     allGames.forEach((game) => {
         tagType.removeFromGame(game, value);
     });
     tagType.allTagsList.remove(value);
     setToastSilence(false);
-    toastDataChangeSuccess(
-        "Removed " + value + " from " + tagType.plural + " list",
-    );
+    toastDataChangeSuccess("Removed " + value + " from " + tagType.plural + " list");
     return true;
 });
 
@@ -195,15 +168,11 @@ export const EditTag = action((tagType, oldValue, newValue) => {
         if (tagType.gameTagsList(game).includes(oldValue)) {
             tagType.removeFromGame(game, oldValue);
             tagType.addToGame(game, newValue);
-            toastDataChangeSuccess(
-                `Updated ${oldValue} to ${newValue} in ${game.title}`,
-            );
+            toastDataChangeSuccess(`Updated ${oldValue} to ${newValue} in ${game.title}`);
         }
     });
     setToastSilence(false);
-    toastDataChangeSuccess(
-        `Updated ${oldValue} to ${newValue} in ${tagType.plural} list`,
-    );
+    toastDataChangeSuccess(`Updated ${oldValue} to ${newValue} in ${tagType.plural} list`);
     return true;
 });
 

@@ -9,15 +9,7 @@
  * @property {function} removeFromGame - A function to remove a value from the game's list of tags of this type.
  */
 export class tagType {
-    constructor(
-        key,
-        single,
-        plural,
-        allTagsList,
-        gameTagsList,
-        addToGame,
-        removeFromGame,
-    ) {
+    constructor(key, single, plural, allTagsList, gameTagsList, addToGame, removeFromGame) {
         this.key = key;
         this.single = single;
         this.plural = plural;

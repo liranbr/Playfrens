@@ -1,12 +1,12 @@
 import { MdAdd } from "react-icons/md";
 import { SidebarButton } from "./SidebarButton.jsx";
 import "./Sidebar.css";
-import { Modals, modalStore } from "./Modals/ModalStore.jsx";
+import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
 
 export function SidebarGroup({ tagType, tagsList, setSelection }) {
     const title = tagType.plural.toUpperCase();
     const handleAddButtonClick = () => {
-        modalStore.open(Modals.EditTag, { tagType: tagType });
+        dialogStore.open(Dialogs.EditTag, { tagType: tagType });
     };
     return (
         <div className="sidebar-group">

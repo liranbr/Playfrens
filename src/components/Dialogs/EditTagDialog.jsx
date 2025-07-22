@@ -1,14 +1,13 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import Button from "react-bootstrap/Button";
 import { addTag, EditTag } from "../../Store.jsx";
 
-export function EditTagModal({ open, closeModal, tagType, tagName = "" }) {
+export function EditTagDialog({ open, closeDialog, tagType, tagName = "" }) {
     const mode = tagName ? "Edit" : "Add";
     const title = mode + " " + tagType.single;
     const description = mode === "Edit" ? "Editing " + tagName : "Adding a new " + tagType.single;
 
-    const handleHide = () => closeModal();
+    const handleHide = () => closeDialog();
     const handleSave = () => {
         const newTagName = document.getElementById("tagNameInput").value;
         const doneFunction =

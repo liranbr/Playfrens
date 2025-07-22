@@ -1,4 +1,4 @@
-.rx-dialog.playfrens-modal {
+.rx-dialog.playfrens-dialog {
     display: flex;
     flex-direction: row;
     width: fit-content;
@@ -102,6 +102,7 @@
         .sidebar-group {
             min-height: fit-content;
         }
+
         .sidebar-separator {
             border-top: var(--pf-border-700);
         }

@@ -1,11 +1,5 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import {
-    MdAdd,
-    MdClose,
-    MdDeleteOutline,
-    MdEdit,
-    MdMoreVert,
-} from "react-icons/md";
+import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert } from "react-icons/md";
 import { observer } from "mobx-react-lite";
 import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { OutlinedIcon } from "../Components.jsx";
@@ -14,8 +8,8 @@ import { useValidatedImage } from "../../hooks/useValidatedImage.js";
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { tagTypes } from "../../models/TagTypes.jsx";
-import "./PlayfrensModal.css";
-import { Modals, modalStore } from "./ModalStore.jsx";
+import "./PlayfrensDialog.css";
+import { Dialogs, dialogStore } from "./DialogStore.jsx";
 
 const AddTagDropdown = ({ tagType, game }) => {
     return (
@@ -35,10 +29,7 @@ const AddTagDropdown = ({ tagType, game }) => {
                     style={{ pointerEvents: "auto" }}
                 >
                     {tagType.allTagsList
-                        .filter(
-                            (item) =>
-                                !tagType.gameTagsList(game).includes(item),
-                        )
+                        .filter((item) => !tagType.gameTagsList(game).includes(item))
                         .map((item) => (
                             <DropdownMenu.Item
                                 key={item}
@@ -71,20 +62,9 @@ const PFMSidebarGroup = observer(({ game, tagType }) => {
             <div className="sidebar-buttons-list">
                 {gameTagsList.map((item, index) => (
                     <OverlayTrigger
-                        key={
-                            "btn-modal-" +
-                            tagType.key +
-                            "-" +
-                            item +
-                            "-" +
-                            index
-                        }
+                        key={"btn-dialog-" + tagType.key + "-" + item + "-" + index}
                         placement={"right"}
-                        overlay={
-                            <Tooltip style={{ transition: "none" }}>
-                                Remove
-                            </Tooltip>
-                        }
+                        overlay={<Tooltip style={{ transition: "none" }}>Remove</Tooltip>}
                     >
                         <Button
                             value={item}
@@ -121,7 +101,7 @@ function GameOptionsButton({ game }) {
                 >
                     <DropdownMenu.Item
                         onClick={() => {
-                            modalStore.open(Modals.EditGame, { game });
+                            dialogStore.open(Dialogs.EditGame, { game });
                         }}
                     >
                         <MdEdit /> Edit
@@ -129,11 +109,11 @@ function GameOptionsButton({ game }) {
                     <DropdownMenu.Item
                         data-danger
                         onClick={() => {
-                            modalStore.open(Modals.DeleteWarning, {
+                            dialogStore.open(Dialogs.DeleteWarning, {
                                 itemName: game.title,
                                 deleteFunction: () => {
                                     removeGame(game);
-                                    modalStore.closeTwo();
+                                    dialogStore.closeTwo();
                                 },
                             });
                         }}
@@ -146,9 +126,9 @@ function GameOptionsButton({ game }) {
     );
 }
 
-export const PlayfrensModal = observer(({ open, closeModal, game }) => {
+export const PlayfrensDialog = observer(({ open, closeDialog, game }) => {
     const gameCover = useValidatedImage(game.coverImageURL);
-    const handleHide = () => closeModal();
+    const handleHide = () => closeDialog();
 
     return (
         <Dialog.Root open={open} onOpenChange={handleHide}>
@@ -160,27 +140,21 @@ export const PlayfrensModal = observer(({ open, closeModal, game }) => {
                         e.preventDefault();
                         e.target.focus();
                     }}
-                    className="rx-dialog playfrens-modal"
+                    className="rx-dialog playfrens-dialog"
                 >
                     <VisuallyHidden>
                         <Dialog.Description>
                             {"Expanded game card of " + game.title}
                         </Dialog.Description>
                     </VisuallyHidden>
-                    <div
-                        className="pfm-card"
-                        style={{ "--bg-url": `url("${gameCover}")` }}
-                    />
+                    <div className="pfm-card" style={{ "--bg-url": `url("${gameCover}")` }} />
                     <div className="pfm-container">
                         <div className="pfm-header">
                             <GameOptionsButton game={game} />
                             <Dialog.Title autoFocus className="pfm-title">
                                 {game.title}
                             </Dialog.Title>
-                            <button
-                                className="icon-button ms-auto"
-                                onClick={handleHide}
-                            >
+                            <button className="icon-button ms-auto" onClick={handleHide}>
                                 <OutlinedIcon>
                                     <MdClose />
                                 </OutlinedIcon>
@@ -189,20 +163,11 @@ export const PlayfrensModal = observer(({ open, closeModal, game }) => {
                         <div className="sidebar-header-shadow" />
                         <div className="pfm-content">
                             <div className="sidebar pfm-element">
-                                <PFMSidebarGroup
-                                    tagType={tagTypes.friend}
-                                    game={game}
-                                />
+                                <PFMSidebarGroup tagType={tagTypes.friend} game={game} />
                                 <div className="sidebar-separator" />
-                                <PFMSidebarGroup
-                                    tagType={tagTypes.category}
-                                    game={game}
-                                />
+                                <PFMSidebarGroup tagType={tagTypes.category} game={game} />
                                 <div className="sidebar-separator" />
-                                <PFMSidebarGroup
-                                    tagType={tagTypes.status}
-                                    game={game}
-                                />
+                                <PFMSidebarGroup tagType={tagTypes.status} game={game} />
                             </div>
 
                             <div className="pfm-column">
@@ -217,9 +182,7 @@ export const PlayfrensModal = observer(({ open, closeModal, game }) => {
                                         rows={5}
                                         spellCheck={false}
                                         value={game.note}
-                                        onChange={(e) =>
-                                            game.setNote(e.target.value)
-                                        }
+                                        onChange={(e) => game.setNote(e.target.value)}
                                     />
                                 </div>
                             </div>

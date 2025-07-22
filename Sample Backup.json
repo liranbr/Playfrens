@@ -9,14 +9,7 @@
         "Tymohthee"
     ],
     "allCategories": ["Playthrough", "Round-based", "Persistent World"],
-    "allStatuses": [
-        "Playing",
-        "LFG",
-        "Paused",
-        "Backlog",
-        "Abandoned",
-        "Finished"
-    ],
+    "allStatuses": ["Playing", "LFG", "Paused", "Backlog", "Abandoned", "Finished"],
     "allGames": [
         {
             "title": "Baldur's Gate 3",

@@ -15,12 +15,12 @@ import { tagTypes } from "./models/TagTypes.jsx";
 import { GamesGrid } from "./components/GameGrid.jsx";
 import { setForceFilterUpdateCallback } from "./Utils.jsx";
 import { SidebarGroup } from "./components/SidebarGroup.jsx";
-import { ModalRoot } from "./components/Modals/ModalRoot.jsx";
+import { DialogRoot } from "./components/Dialogs/DialogRoot.jsx";
 import "./App.css";
 import "react-toastify/dist/ReactToastify.css";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Avatar from "@radix-ui/react-avatar";
-import { Modals, modalStore } from "./components/Modals/ModalStore.jsx";
+import { Dialogs, dialogStore } from "./components/Dialogs/DialogStore.jsx";
 
 function AppHeader({ searchState }) {
     const [search, setSearch] = searchState;
@@ -117,7 +117,7 @@ function AppHeader({ searchState }) {
                 </button>
             </Form>
 
-            <button className="new-game-button" onClick={() => modalStore.open(Modals.EditGame)}>
+            <button className="new-game-button" onClick={() => dialogStore.open(Dialogs.EditGame)}>
                 <MdOutlineGamepad />
                 Add Game
             </button>
@@ -198,7 +198,7 @@ export default function App() {
                 />
                 <GamesGrid filteredGames={filteredGames} />
             </div>
-            <ModalRoot />
+            <DialogRoot />
             <ToastContainer toastClassName="toast-notification" />
         </>
     );

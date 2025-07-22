@@ -59,14 +59,8 @@ export class GameObject {
 
     addFriend(friend) {
         if (!this.friends.includes(friend)) {
-            this.friends = insertSortedByOrder(
-                friend,
-                this.friends,
-                this.tagsSortOrder.friends,
-            );
-            toastDataChangeSuccess(
-                `Added ${friend} as a friend for ${this.title}`,
-            );
+            this.friends = insertSortedByOrder(friend, this.friends, this.tagsSortOrder.friends);
+            toastDataChangeSuccess(`Added ${friend} as a friend for ${this.title}`);
         } else {
             toastError(`${friend} is already a friend for ${this.title}`);
         }
@@ -75,9 +69,7 @@ export class GameObject {
     removeFriend(friend) {
         if (this.friends.includes(friend)) {
             this.friends = this.friends.filter((f) => f !== friend);
-            toastDataChangeSuccess(
-                `Removed ${friend} from the ${this.title} friendslist`,
-            );
+            toastDataChangeSuccess(`Removed ${friend} from the ${this.title} friendslist`);
         } else {
             toastError(`${friend} is not a friend for ${this.title}`);
         }
@@ -90,9 +82,7 @@ export class GameObject {
                 this.categories,
                 this.tagsSortOrder.categories,
             );
-            toastDataChangeSuccess(
-                `Added ${category} as a category for ${this.title}`,
-            );
+            toastDataChangeSuccess(`Added ${category} as a category for ${this.title}`);
         } else {
             toastError(`${category} is already a category for ${this.title}`);
         }
@@ -101,9 +91,7 @@ export class GameObject {
     removeCategory(category) {
         if (this.categories.includes(category)) {
             this.categories = this.categories.filter((c) => c !== category);
-            toastDataChangeSuccess(
-                `Removed ${category} from ${this.title}'s categories`,
-            );
+            toastDataChangeSuccess(`Removed ${category} from ${this.title}'s categories`);
         } else {
             toastError(`${category} is not a category for ${this.title}`);
         }
@@ -111,14 +99,8 @@ export class GameObject {
 
     addStatus(status) {
         if (!this.statuses.includes(status)) {
-            this.statuses = insertSortedByOrder(
-                status,
-                this.statuses,
-                this.tagsSortOrder.statuses,
-            );
-            toastDataChangeSuccess(
-                `Added ${status} as a status for ${this.title}`,
-            );
+            this.statuses = insertSortedByOrder(status, this.statuses, this.tagsSortOrder.statuses);
+            toastDataChangeSuccess(`Added ${status} as a status for ${this.title}`);
         } else {
             toastError(`${status} is already a status for ${this.title}`);
         }
@@ -127,9 +109,7 @@ export class GameObject {
     removeStatus(status) {
         if (this.statuses.includes(status)) {
             this.statuses = this.statuses.filter((s) => s !== status);
-            toastDataChangeSuccess(
-                `Removed ${status} from ${this.title}'s statuses`,
-            );
+            toastDataChangeSuccess(`Removed ${status} from ${this.title}'s statuses`);
         } else {
             toastError(`${status} is not a status for ${this.title}`);
         }

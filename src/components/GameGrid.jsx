@@ -3,7 +3,7 @@ import { tagTypes } from "../models/TagTypes.jsx";
 import { useValidatedImage } from "../hooks/useValidatedImage.js";
 import "../App.css";
 import "./GameGrid.css";
-import { Modals, modalStore } from "./Modals/ModalStore.jsx";
+import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
 
 function GameCard({ game }) {
     const gameCover = useValidatedImage(game.coverImageURL);
@@ -12,13 +12,13 @@ function GameCard({ game }) {
         const tagTypeKey = e.dataTransfer.getData("tagTypeKey");
         tagTypes[tagTypeKey].addToGame(game, item);
     };
-    const openPlayfrensModal = () => {
-        modalStore.open(Modals.Playfrens, { game });
+    const openPlayfrensDialog = () => {
+        dialogStore.open(Dialogs.Playfrens, { game });
     };
     return (
         <button
             className="game-card"
-            onClick={openPlayfrensModal}
+            onClick={openPlayfrensDialog}
             onDrop={handleDrop}
             onDragOver={(e) => e.preventDefault()}
         >
@@ -42,10 +42,7 @@ export function GamesGrid({ filteredGames }) {
 
         const updateGridJustification = () => {
             const styles = getComputedStyle(grid);
-            const rows = styles
-                .getPropertyValue("grid-template-rows")
-                .trim()
-                .split(" ");
+            const rows = styles.getPropertyValue("grid-template-rows").trim().split(" ");
             const isSingleRow = rows.length === 1;
             grid.style.justifyContent = isSingleRow ? "left" : "space-between";
         };

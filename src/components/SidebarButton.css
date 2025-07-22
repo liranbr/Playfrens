@@ -13,6 +13,7 @@
     justify-content: space-between;
 
     /* menu button */
+
     .icon-button {
         color: #fff;
         visibility: hidden;
@@ -21,6 +22,7 @@
             background-color: var(--pf-btn-primary-darker);
         }
     }
+
     &:hover .icon-button {
         visibility: visible;
     }

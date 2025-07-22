@@ -45,7 +45,7 @@
     --game-card-border-radius: 0;
     --pfm-card-width: 450px;
     --icon-size: 30px;
-    --modal-fade-duration: 250ms;
+    --dialog-fade-duration: 250ms;
 }
 
 *,

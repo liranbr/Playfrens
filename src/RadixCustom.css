@@ -74,11 +74,11 @@
     z-index: 100;
 
     &[data-state="open"] {
-        animation: fadeIn var(--modal-fade-duration);
+        animation: fadeIn var(--dialog-fade-duration);
     }
 
     &[data-state="closed"] {
-        animation: fadeOut var(--modal-fade-duration);
+        animation: fadeOut var(--dialog-fade-duration);
     }
 }
 
@@ -101,11 +101,11 @@
     z-index: 101;
 
     &[data-state="open"] {
-        animation: modalShow var(--modal-fade-duration);
+        animation: dialogShow var(--dialog-fade-duration);
     }
 
     &[data-state="closed"] {
-        animation: modalHide var(--modal-fade-duration);
+        animation: dialogHide var(--dialog-fade-duration);
     }
 
     h2 {
@@ -212,7 +212,7 @@
     }
 }
 
-@keyframes modalShow {
+@keyframes dialogShow {
     from {
         opacity: 0;
         transform: translate(-50%, -50%) scale(0.8);
@@ -223,7 +223,7 @@
     }
 }
 
-@keyframes modalHide {
+@keyframes dialogHide {
     from {
         opacity: 1;
         transform: translate(-50%, -50%) scale(1);

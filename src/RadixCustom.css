@@ -146,7 +146,7 @@
 
             &:focus {
                 outline: none;
-                border-color: var(--pf-btn-primary-lighter);
+                border-color: var(--pf-border-color-primary);
                 transition-duration: 0.2s;
             }
         }

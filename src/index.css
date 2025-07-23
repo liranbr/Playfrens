@@ -13,16 +13,11 @@
     --pf-fg-500: hsl(var(--hsl-base-bg) 60%);
     --pf-fg-300: hsl(var(--hsl-base-bg) 50%);
 
-    --pf-border-700: 1px solid hsl(var(--hsl-base-bg) 20%);
-    --pf-border-500: 1px solid hsl(var(--hsl-base-bg) 24%);
-    --pf-border-100: 1px solid hsl(var(--hsl-base-bg) 48%);
-
     --hsl-base-btn-primary: 215 98%;
     --pf-btn-primary: hsl(var(--hsl-base-btn-primary) 52%);
     --pf-btn-primary-hover: hsl(var(--hsl-base-btn-primary) 44%);
     --pf-btn-primary-active: hsl(var(--hsl-base-btn-primary) 40%);
     --pf-btn-primary-darker: hsl(var(--hsl-base-btn-primary) 32%);
-    --pf-btn-primary-lighter: hsl(var(--hsl-base-btn-primary) 60%);
 
     --hsl-base-btn-secondary: 215 16%;
     --pf-btn-secondary: hsl(var(--hsl-base-btn-secondary) 20%);
@@ -40,8 +35,13 @@
     --pf-dd-danger-fg: hsl(var(--hsl-hue-dd-danger) 96% 72%);
     --pf-dd-danger-fg-active: hsl(var(--hsl-hue-dd-danger) 12% 88%);
 
+    --pf-border-700: 1px solid hsl(var(--hsl-base-bg) 20%);
+    --pf-border-500: 1px solid hsl(var(--hsl-base-bg) 24%);
+    --pf-border-100: 1px solid hsl(var(--hsl-base-bg) 48%);
+    --pf-border-color-primary: hsl(var(--hsl-base-btn-primary) 60%);
+
     --sidebar-width: 275px;
-    --game-card-width: 210px; /* for the game cards in the grid */
+    --game-card-width: 180px; /* for the game cards in the grid */
     --game-card-border-radius: 0;
     --gp-cover-art-width: 450px; /* for game page dialog */
     --icon-size: 30px; /* for icon buttons like ⋮ or + */

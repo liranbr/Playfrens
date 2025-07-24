@@ -23,10 +23,11 @@ import * as Avatar from "@radix-ui/react-avatar";
 import { Dialogs, dialogStore } from "./components/Dialogs/DialogStore.jsx";
 
 function AppMenu() {
+    const [open, setOpen] = useState(false);
     return (
-        <DropdownMenu.Root>
+        <DropdownMenu.Root onOpenChange={setOpen}>
             <DropdownMenu.Trigger asChild>
-                <button className="icon-button" style={{ marginRight: 8 }}>
+                <button className={"icon-button" + (open ? " open" : "")}>
                     <MdMenu />
                 </button>
             </DropdownMenu.Trigger>
@@ -44,7 +45,7 @@ function AppMenu() {
                         </div>
                     </DropdownMenu.SubTrigger>
                     <DropdownMenu.Portal>
-                        <DropdownMenu.SubContent className="rx-dropdown-menu">
+                        <DropdownMenu.SubContent className="rx-dropdown-menu" sideOffset={5}>
                             <DropdownMenu.Item
                                 onClick={() => {
                                     document.getElementById("json-selector").click();
@@ -58,9 +59,7 @@ function AppMenu() {
                         </DropdownMenu.SubContent>
                     </DropdownMenu.Portal>
                 </DropdownMenu.Sub>
-                <DropdownMenu.Separator
-                    style={{ borderTop: "1px solid var(--pf-fg-300)", margin: "4px 8px" }}
-                />
+                <DropdownMenu.Separator />
                 <DropdownMenu.Item>
                     <a href="https://github.com/liranbr/Playfrens" target="_blank">
                         GitHub

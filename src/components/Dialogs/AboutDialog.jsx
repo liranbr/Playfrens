@@ -18,6 +18,7 @@ export const AboutDialog = ({ open, closeDialog }) => {
                         style={{ width: "100%" }}
                         src="https://i.imgur.com/tlXb8mI.jpeg"
                         alt="i love my puter, all my friends are inside it"
+                        referrerPolicy="no-referrer"
                     />
                     <div className="rx-dialog-footer">
                         <button className="button-secondary" onClick={handleHide}>

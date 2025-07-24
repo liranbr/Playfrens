@@ -57,6 +57,15 @@
     --bs-gutter-y: 0;
     box-sizing: border-box;
     scrollbar-width: thin;
+
+    &:focus-visible {
+        outline: 2px solid var(--pf-btn-primary);
+        outline-offset: -2px;
+        transition: none;
+    }
+    &:focus:not(:focus-visible) {
+        outline: none;
+    }
 }
 
 html,
@@ -132,11 +141,9 @@ button {
     align-items: center;
     justify-content: center;
     font-size: 24px;
+    border-radius: 8px;
     color: var(--pf-fg-500);
     background: none;
-    border-radius: 50%;
-    border: none;
-    outline: none;
 
     &:hover,
     &:active,
@@ -145,11 +152,6 @@ button {
         background: none;
         color: #fff;
         cursor: pointer;
-    }
-
-    svg path:first-of-type {
-        /* hides the outer edge outline made when applying a stroke to MdIcons */
-        opacity: 0;
     }
 }
 

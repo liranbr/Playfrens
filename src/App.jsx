@@ -23,20 +23,33 @@ import * as Avatar from "@radix-ui/react-avatar";
 import { Dialogs, dialogStore } from "./components/Dialogs/DialogStore.jsx";
 
 function AppMenu() {
-
     return (
         <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
-                <button className="icon-button" style={{ marginRight: 8 }}><MdMenu /></button>
+                <button className="icon-button" style={{ marginRight: 8 }}>
+                    <MdMenu />
+                </button>
             </DropdownMenu.Trigger>
-            <DropdownMenu.Content className="rx-dropdown-menu" align={"start"} side={"bottom"} sideOffset={5}>
+            <DropdownMenu.Content
+                className="rx-dropdown-menu"
+                align={"start"}
+                side={"bottom"}
+                sideOffset={5}
+            >
                 <DropdownMenu.Sub>
                     <DropdownMenu.SubTrigger>
-                        File <div className="rx-dropdown-right-slot"><MdChevronRight /></div>
+                        File{" "}
+                        <div className="rx-dropdown-right-slot">
+                            <MdChevronRight />
+                        </div>
                     </DropdownMenu.SubTrigger>
                     <DropdownMenu.Portal>
                         <DropdownMenu.SubContent className="rx-dropdown-menu">
-                            <DropdownMenu.Item onClick={() => { document.getElementById("json-selector").click(); }}>
+                            <DropdownMenu.Item
+                                onClick={() => {
+                                    document.getElementById("json-selector").click();
+                                }}
+                            >
                                 <MdOutlineFileUpload /> Restore
                             </DropdownMenu.Item>
                             <DropdownMenu.Item onClick={backupToFile}>
@@ -45,15 +58,25 @@ function AppMenu() {
                         </DropdownMenu.SubContent>
                     </DropdownMenu.Portal>
                 </DropdownMenu.Sub>
-                <DropdownMenu.Separator style={{ borderTop: "1px solid var(--pf-fg-300)", margin: "4px 8px" }} />
+                <DropdownMenu.Separator
+                    style={{ borderTop: "1px solid var(--pf-fg-300)", margin: "4px 8px" }}
+                />
                 <DropdownMenu.Item>
-                    <a href="https://github.com/liranbr/Playfrens" target="_blank">GitHub</a>
+                    <a href="https://github.com/liranbr/Playfrens" target="_blank">
+                        GitHub
+                    </a>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item>
-                    <a href="https://trello.com/c/dLSvKuWb/293-app-menu-dropdown" target="_blank">Trello</a>
+                    <a href="https://trello.com/c/dLSvKuWb/293-app-menu-dropdown" target="_blank">
+                        Trello
+                    </a>
                 </DropdownMenu.Item>
-                <DropdownMenu.Item>Settings</DropdownMenu.Item>
-                <DropdownMenu.Item>About</DropdownMenu.Item>
+                <DropdownMenu.Item onClick={() => dialogStore.open(Dialogs.Settings)}>
+                    Settings
+                </DropdownMenu.Item>
+                <DropdownMenu.Item onClick={() => dialogStore.open(Dialogs.About)}>
+                    About
+                </DropdownMenu.Item>
             </DropdownMenu.Content>
         </DropdownMenu.Root>
     );
@@ -84,7 +107,6 @@ function AppHeader({ searchState }) {
                     style={{ display: "none" }}
                     onChange={(e) => restoreFromFile(e.target.files[0])}
                 />
-
 
                 {/* <Nav.Link
                     draggable="false"

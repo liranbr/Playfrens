@@ -5,6 +5,8 @@ export const Dialogs = {
     EditGame: "EditGame",
     Playfrens: "Playfrens",
     DeleteWarning: "DeleteWarning",
+    Settings: "Settings",
+    About: "About"
 };
 
 class DialogStore {

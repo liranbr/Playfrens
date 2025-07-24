@@ -15,7 +15,7 @@
         align-items: center;
         font-size: 16px;
         height: 36px;
-        padding: 6px 14px;
+        padding: 6px 0px 6px 14px;
         border-radius: 4px;
         outline: none;
         border: none;
@@ -35,6 +35,9 @@
         &:hover,
         &:focus {
             background-color: var(--pf-bg-300);
+            & a {
+                text-decoration: underline;
+            }
         }
 
         &:active {
@@ -64,6 +67,13 @@
                 color: inherit;
             }
         }
+        & a {
+            color: inherit;
+            text-decoration: none;
+        }
+    }
+    .rx-dropdown-right-slot {
+        margin-left: auto;
     }
 }
 

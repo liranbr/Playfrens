@@ -41,7 +41,7 @@
     --pf-border-color-primary: hsl(var(--hsl-base-btn-primary) 60%);
 
     --sidebar-width: 275px;
-    --game-card-width: 180px; /* for the game cards in the grid */
+    --game-card-width: 210px; /* for the game cards in the grid */
     --game-card-border-radius: 0;
     --gp-cover-art-width: 450px; /* for game page dialog */
     --icon-size: 30px; /* for icon buttons like ⋮ or + */
@@ -140,7 +140,8 @@ button {
 
     &:hover,
     &:active,
-    &:focus {
+    &:focus,
+    &.open {
         background: none;
         color: #fff;
         cursor: pointer;

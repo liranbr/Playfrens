@@ -9,12 +9,14 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { tagTypes } from "../../models/TagTypes.jsx";
 import "./GamePageDialog.css";
 import { Dialogs, dialogStore } from "./DialogStore.jsx";
+import { useState } from "react";
 
 const AddTagDropdown = ({ tagType, game }) => {
+    const [open, setOpen] = useState(false);
     return (
-        <DropdownMenu.Root>
+        <DropdownMenu.Root onOpenChange={setOpen}>
             <DropdownMenu.Trigger asChild>
-                <button className="icon-button">
+                <button className={"icon-button" + (open ? " open" : "")}>
                     <MdAdd />
                 </button>
             </DropdownMenu.Trigger>
@@ -25,7 +27,6 @@ const AddTagDropdown = ({ tagType, game }) => {
                     align={"start"}
                     side={"bottom"}
                     sideOffset={5}
-                    style={{ pointerEvents: "auto" }}
                 >
                     {tagType.allTagsList
                         .filter((item) => !tagType.gameTagsList(game).includes(item))
@@ -81,10 +82,11 @@ const GPDSidebarGroup = observer(({ game, tagType }) => {
 });
 
 function GameOptionsButton({ game }) {
+    const [open, setOpen] = useState(false);
     return (
-        <DropdownMenu.Root>
+        <DropdownMenu.Root onOpenChange={setOpen}>
             <DropdownMenu.Trigger asChild>
-                <button className="icon-button">
+                <button className={"icon-button" + (open ? " open" : "")}>
                     <MdMoreVert />
                 </button>
             </DropdownMenu.Trigger>

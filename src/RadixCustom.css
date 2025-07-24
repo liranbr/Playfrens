@@ -2,12 +2,12 @@
 .rx-dropdown-menu {
     display: block;
     max-height: 495px;
-    min-width: 125px;
+    min-width: 150px;
     overflow-y: auto;
     background-color: var(--pf-bg-700);
     border: var(--pf-border-700);
-    border-radius: 12px;
-    padding: 6px 0;
+    border-radius: 8px;
+    padding: 4px;
     z-index: 103;
 
     div[role="menuitem"] {
@@ -15,7 +15,7 @@
         align-items: center;
         font-size: 16px;
         height: 36px;
-        padding: 6px 14px;
+        padding-left: 14px;
         border-radius: 4px;
         outline: none;
         border: none;
@@ -23,7 +23,7 @@
         cursor: pointer;
 
         &[data-disabled] {
-            color: var(--pf-fg-300);
+            color: var(--pf-fg-700);
             cursor: inherit;
 
             &:hover,
@@ -35,10 +35,17 @@
         &:hover,
         &:focus {
             background-color: var(--pf-bg-300);
+            & a {
+                text-decoration: underline;
+            }
         }
 
         &:active {
             background-color: var(--pf-btn-primary);
+        }
+
+        .rx-dropdown-right-slot {
+            margin-left: auto;
         }
 
         & svg {
@@ -64,6 +71,17 @@
                 color: inherit;
             }
         }
+        & a {
+            color: inherit;
+            text-decoration: none;
+        }
+    }
+
+    div[role="separator"] {
+        height: 0;
+        flex-shrink: 0;
+        margin: 4px 0;
+        border-top: var(--pf-border-500);
     }
 }
 

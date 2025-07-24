@@ -4,6 +4,8 @@ import { EditTagDialog } from "./EditTagDialog.jsx";
 import { EditGameDialog } from "./EditGameDialog.jsx";
 import { GamePageDialog } from "./GamePageDialog.jsx";
 import { DeleteWarningDialog } from "./DeleteWarningDialog.jsx";
+import { SettingsDialog } from "./SettingsDialog.jsx";
+import { AboutDialog } from "./AboutDialog.jsx";
 
 export const DialogRoot = observer(() => (
     <>
@@ -22,6 +24,10 @@ export const DialogRoot = observer(() => (
                     return <EditGameDialog {...commonProps} key={index} />;
                 case Dialogs.Playfrens:
                     return <GamePageDialog {...commonProps} key={index} />;
+                case Dialogs.Settings:
+                    return <SettingsDialog {...commonProps} key={index} />;
+                case Dialogs.About:
+                    return <AboutDialog {...commonProps} key={index} />;
                 default:
                     console.warn(`Unknown dialog type: ${name}`);
                     return null;

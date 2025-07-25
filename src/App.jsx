@@ -106,15 +106,6 @@ function AppHeader({ searchState }) {
                     style={{ display: "none" }}
                     onChange={(e) => restoreFromFile(e.target.files[0])}
                 />
-
-                {/* <Nav.Link
-                    draggable="false"
-                    href="https://github.com/liranbr/Playfrens"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    GitHub
-                </Nav.Link> */}
             </div>
 
             <Form

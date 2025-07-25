@@ -1,4 +1,4 @@
-import { action, autorun, observable } from "mobx";
+import { action, autorun, observable, makeAutoObservable } from "mobx";
 import { GameObject } from "./models/GameObject.jsx";
 import { tagTypes } from "./models/TagTypes.jsx";
 import {
@@ -214,3 +214,26 @@ export const removeGame = action((game) => {
     toastDataChangeSuccess("Removed " + game.title + " from games list");
     return true;
 });
+
+export class Filters {
+    selectedFriends = [];
+    selectedCategories = [];
+    selectedStatuses = [];
+
+    constructor() {
+        makeAutoObservable(this);
+    }
+
+    toggleSelected = (tag, type) => {
+        let selectedList =
+            type === "friend" ? this.selectedFriends :
+                type === "category" ? this.selectedCategories :
+                    type === "status" ? this.selectedStatuses : undefined;
+
+        selectedList.includes(tag) ? selectedList.remove(tag) : selectedList.push(tag);
+    }
+
+    setSelectedFriends = (friends) => { this.selectedFriends = friends; }
+    setSelectedCategories = (categories) => { this.selectedCategories = categories; }
+    setSelectedStatuses = (statuses) => { this.selectedStatuses = statuses; }
+}

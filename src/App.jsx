@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { createContext, use, useContext, useMemo, useState } from "react";
 import Form from "react-bootstrap/Form";
 import { ToastContainer } from "react-toastify";
 import {
@@ -10,7 +10,7 @@ import {
     MdMenu,
     MdChevronRight,
 } from "react-icons/md";
-import { allGames, backupToFile, restoreFromFile } from "./Store.jsx";
+import { allGames, backupToFile, Filters, restoreFromFile } from "./Store.jsx";
 import { tagTypes } from "./models/TagTypes.jsx";
 import { GamesGrid } from "./components/GameGrid.jsx";
 import { setForceFilterUpdateCallback } from "./Utils.jsx";
@@ -186,15 +186,18 @@ function AppSidebar({ setSelectedFriends, setSelectedCategories, setSelectedStat
     );
 }
 
+const SelectionContext = createContext();
+const useSelection = () => useContext(SelectionContext);
+const filters = new Filters();
+
 export default function App() {
     const [search, setSearch] = useState("");
-    const [selectedFriends, setSelectedFriends] = useState([]);
-    const [selectedCategories, setSelectedCategories] = useState([]);
-    const [selectedStatuses, setSelectedStatuses] = useState([]);
     const [forceFilterUpdate, setForceFilterUpdate] = useState(0);
     setForceFilterUpdateCallback(() => {
         setForceFilterUpdate((prev) => prev + 1); // used in Utils to trigger a filter update
     });
+
+    const { selectedFriends, selectedCategories, selectedStatuses } = filters;
 
     // Game Title includes the search value
     // If friends selected, all friends are in the game
@@ -220,12 +223,14 @@ export default function App() {
         <>
             <AppHeader searchState={[search, setSearch]} />
             <div id="main-content">
-                <AppSidebar
-                    setSelectedFriends={setSelectedFriends}
-                    setSelectedCategories={setSelectedCategories}
-                    setSelectedStatuses={setSelectedStatuses}
-                />
-                <GamesGrid filteredGames={filteredGames} />
+                <SelectionContext.Provider value={filters}>
+                    <AppSidebar
+                        setSelectedFriends={setSelectedFriends}
+                        setSelectedCategories={setSelectedCategories}
+                        setSelectedStatuses={setSelectedStatuses}
+                    />
+                    <GamesGrid filteredGames={filteredGames} />
+                </SelectionContext.Provider>
             </div>
             <DialogRoot />
             <ToastContainer toastClassName="toast-notification" />

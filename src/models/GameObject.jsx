@@ -5,7 +5,7 @@ import {
     toastDataChangeSuccess,
     toastError,
 } from "../Utils.jsx";
-import { allGames } from "../Store.jsx";
+import { allGames } from "../DataStore.jsx";
 
 /**
  * @typedef {Object} GameObject

@@ -3,7 +3,7 @@ import { ToggleButton } from "react-bootstrap";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { MdDeleteOutline, MdEdit, MdMoreVert, MdOutlineSearchOff } from "react-icons/md";
 import { toastError } from "../Utils.jsx";
-import { removeTag } from "../Store.jsx";
+import { removeTag } from "../DataStore.jsx";
 import "./SidebarButton.css";
 import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
 

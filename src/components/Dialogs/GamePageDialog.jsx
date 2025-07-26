@@ -2,7 +2,7 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert } from "react-icons/md";
 import { observer } from "mobx-react-lite";
 import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
-import { removeGame } from "../../Store.jsx";
+import { removeGame } from "../../DataStore.jsx";
 import { useValidatedImage } from "../../hooks/useValidatedImage.js";
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";

@@ -1,6 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { addTag, EditTag } from "../../Store.jsx";
+import { addTag, EditTag } from "../../DataStore.jsx";
 
 export function EditTagDialog({ open, closeDialog, tagType, tagName = "" }) {
     const mode = tagName ? "Edit" : "Add";

@@ -1,6 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { addGame } from "../../Store.jsx";
+import { addGame } from "../../DataStore.jsx";
 import { Dialogs, dialogStore } from "./DialogStore.jsx";
 
 export function EditGameDialog({ open, closeDialog, game = null }) {

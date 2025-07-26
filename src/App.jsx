@@ -10,7 +10,7 @@ import {
     MdMenu,
     MdChevronRight,
 } from "react-icons/md";
-import { allGames, backupToFile, restoreFromFile } from "./Store.jsx";
+import { allGames, backupToFile, restoreFromFile } from "./DataStore.jsx";
 import { tagTypes } from "./models/TagTypes.jsx";
 import { GamesGrid } from "./components/GameGrid.jsx";
 import { setForceFilterUpdateCallback } from "./Utils.jsx";

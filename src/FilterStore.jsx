@@ -36,7 +36,7 @@ class FilterStore {
     }
 
     setSearch(searchValue) {
-        this.search = searchValue;
+        this.search = searchValue || "";
     }
 
     validateTag(tagType, tag) {

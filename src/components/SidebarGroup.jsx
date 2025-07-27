@@ -2,8 +2,9 @@ import { MdAdd } from "react-icons/md";
 import { SidebarButton } from "./SidebarButton.jsx";
 import "./Sidebar.css";
 import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
+import { observer } from "mobx-react-lite";
 
-export function SidebarGroup({ tagType, tagsList }) {
+export const SidebarGroup = observer(({ tagType, tagsList }) => {
     const title = tagType.plural.toUpperCase();
     const handleAddButtonClick = () => {
         dialogStore.open(Dialogs.EditTag, { tagType: tagType });
@@ -24,4 +25,4 @@ export function SidebarGroup({ tagType, tagsList }) {
             </div>
         </div>
     );
-}
+});

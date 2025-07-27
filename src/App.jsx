@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Form from "react-bootstrap/Form";
 import { ToastContainer } from "react-toastify";
 import {
@@ -10,10 +10,9 @@ import {
     MdMenu,
     MdChevronRight,
 } from "react-icons/md";
-import { allGames, backupToFile, restoreFromFile } from "./DataStore.jsx";
+import { backupToFile, restoreFromFile } from "./DataStore.jsx";
 import { tagTypes } from "./models/TagTypes.jsx";
 import { GamesGrid } from "./components/GameGrid.jsx";
-import { setForceFilterUpdateCallback } from "./Utils.jsx";
 import { SidebarGroup } from "./components/SidebarGroup.jsx";
 import { DialogRoot } from "./components/Dialogs/DialogRoot.jsx";
 import "./App.css";

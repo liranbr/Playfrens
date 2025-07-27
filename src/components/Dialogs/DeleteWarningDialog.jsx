@@ -1,4 +1,5 @@
 import * as Dialog from "@radix-ui/react-dialog";
+import { Button } from "../common/Button.jsx";
 
 export function DeleteWarningDialog({ open, closeDialog, itemName, deleteFunction }) {
     const handleDelete = () => {
@@ -18,12 +19,12 @@ export function DeleteWarningDialog({ open, closeDialog, itemName, deleteFunctio
                     </Dialog.Description>
 
                     <div className="rx-dialog-footer">
-                        <button className="button-secondary" onClick={closeDialog}>
+                        <Button variant="secondary" onClick={closeDialog}>
                             Cancel
-                        </button>
-                        <button className="button-danger" onClick={handleDelete}>
+                        </Button>
+                        <Button variant="danger" onClick={handleDelete}>
                             Delete
-                        </button>
+                        </Button>
                     </div>
                 </Dialog.Content>
             </Dialog.Portal>

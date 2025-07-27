@@ -2,6 +2,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { addGame } from "../../DataStore.jsx";
 import { Dialogs, dialogStore } from "./DialogStore.jsx";
+import { Button } from "../common/Button.jsx";
 
 export function EditGameDialog({ open, closeDialog, game = null }) {
     const dialogTitle = game ? "Edit Game Details" : "Add Game";
@@ -82,12 +83,12 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                     </fieldset>
 
                     <div className="rx-dialog-footer">
-                        <button className="button-secondary" onClick={handleHide}>
+                        <Button variant="secondary" onClick={handleHide}>
                             Cancel
-                        </button>
-                        <button className="button-primary" onClick={handleSave}>
+                        </Button>
+                        <Button variant="primary" onClick={handleSave}>
                             Save
-                        </button>
+                        </Button>
                     </div>
                 </Dialog.Content>
             </Dialog.Portal>

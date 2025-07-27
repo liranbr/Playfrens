@@ -68,10 +68,7 @@ function AppMenu() {
                         </a>
                     </DropdownMenu.Item>
                     <DropdownMenu.Item>
-                        <a
-                            href="https://trello.com/c/dLSvKuWb/293-app-menu-dropdown"
-                            target="_blank"
-                        >
+                        <a href="https://trello.com/b/H9Cln6UD/playfrens" target="_blank">
                             Trello
                         </a>
                     </DropdownMenu.Item>

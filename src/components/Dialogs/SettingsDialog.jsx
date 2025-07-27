@@ -1,5 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { Button } from "../common/Button.jsx";
 
 export const SettingsDialog = ({ open, closeDialog }) => {
     const handleHide = () => closeDialog();
@@ -17,9 +18,9 @@ export const SettingsDialog = ({ open, closeDialog }) => {
                     <p>Settings will be implemented here.</p>
 
                     <div className="rx-dialog-footer">
-                        <button className="button-secondary" onClick={handleHide}>
+                        <Button variant="secondary" onClick={handleHide}>
                             Close
-                        </button>
+                        </Button>
                     </div>
                 </Dialog.Content>
             </Dialog.Portal>

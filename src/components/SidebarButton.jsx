@@ -6,34 +6,30 @@ import { toastError } from "../Utils.jsx";
 import { removeTag } from "../DataStore.jsx";
 import "./SidebarButton.css";
 import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
+import { useFilterStore } from "../FilterStore.jsx";
+import { observer } from "mobx-react-lite";
 
-export function SidebarButton({ value, tagType, setSelection }) {
-    const [checked, setChecked] = useState(false);
+export const SidebarButton = observer(({ value, tagType }) => {
+    const filterStore = useFilterStore();
+    const isSelected = filterStore.selectedTags[tagType.key]?.has(value) ?? false;
+    const isExcluded = filterStore.excludedTags[tagType.key]?.has(value) ?? false;
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
-    function updateSelection(isChecked) {
-        setChecked(isChecked);
-        setSelection((prevSelection) => {
-            return isChecked
-                ? [...prevSelection, value]
-                : prevSelection.filter((item) => item !== value);
-        });
-    }
-
-    const handleChange = (e) => {
-        updateSelection(e.currentTarget.checked);
-    };
+    const toggleSelection = () => filterStore.toggleTagSelection(tagType, value);
 
     return (
         <ToggleButton
             id={"btn-sidebar-" + tagType.key + "-" + value}
             value={value}
-            className="sidebar-button"
+            className={
+                "sidebar-button" + (isSelected ? " selected" : "") + (isExcluded ? " excluded" : "")
+            }
             type="checkbox"
-            checked={checked}
+            checked={isSelected}
+            excluded={"" + isExcluded}
             active={dropdownOpen}
             draggable="true"
-            onChange={handleChange}
+            onChange={toggleSelection}
             onDragStart={(e) => {
                 e.dataTransfer.setData("item", value);
                 e.dataTransfer.setData("tagTypeKey", tagType.key);
@@ -55,20 +51,20 @@ export function SidebarButton({ value, tagType, setSelection }) {
                         sideOffset={5}
                     >
                         <DropdownMenu.Item
-                            data-disabled
                             onClick={() => {
-                                toastError("Exclude function not yet implemented");
+                                filterStore.toggleTagExclusion(tagType, value);
                             }}
                         >
-                            <MdOutlineSearchOff /> Exclude
+                            <MdOutlineSearchOff /> {isExcluded ? "Undo Exclude" : "Exclude"}
                         </DropdownMenu.Item>
                         <DropdownMenu.Item
+                            data-disabled
                             onClick={() => {
-                                updateSelection(false); //TODO: temporary solution to bug
-                                dialogStore.open(Dialogs.EditTag, {
-                                    tagType: tagType,
-                                    tagName: value,
-                                });
+                                // dialogStore.open(Dialogs.EditTag, {
+                                //     tagType: tagType,
+                                //     tagName: value,
+                                // });
+                                toastError("Edit function temporarily disabled"); // TODO: Implement Tag UUIDs
                             }}
                         >
                             <MdEdit /> Edit
@@ -79,7 +75,8 @@ export function SidebarButton({ value, tagType, setSelection }) {
                                 dialogStore.open(Dialogs.DeleteWarning, {
                                     itemName: value,
                                     deleteFunction: () => {
-                                        updateSelection(false);
+                                        toggleSelection(false);
+                                        filterStore.removeFiltersOfTag(tagType, value);
                                         removeTag(tagType, value);
                                     },
                                 });
@@ -92,4 +89,4 @@ export function SidebarButton({ value, tagType, setSelection }) {
             </DropdownMenu.Root>
         </ToggleButton>
     );
-}
+});

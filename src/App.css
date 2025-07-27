@@ -44,7 +44,7 @@
 }
 
 .new-game-button {
-    margin: 0 16px;
+    margin: 0 16px 0 auto;
     height: 36px;
     width: fit-content;
     display: flex;

@@ -4,6 +4,8 @@ import { useValidatedImage } from "../hooks/useValidatedImage.js";
 import "../App.css";
 import "./GameGrid.css";
 import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
+import { observer } from "mobx-react-lite";
+import { useFilterStore } from "../FilterStore.jsx";
 
 function GameCard({ game }) {
     const gameCover = useValidatedImage(game.coverImageURL);
@@ -33,7 +35,10 @@ function GameCard({ game }) {
     );
 }
 
-export function GamesGrid({ filteredGames }) {
+export const GamesGrid = observer(() => {
+    const filterStore = useFilterStore();
+    const filteredGames = filterStore.filteredGames;
+
     // useEffect to update the grid justification if there aren't enough items to fill the row
     const gridRef = useRef(null);
     useEffect(() => {
@@ -53,13 +58,7 @@ export function GamesGrid({ filteredGames }) {
 
     // need the empty div to contain the grid correctly
     return (
-        <div
-            style={{
-                width: "100%",
-                overflowY: "auto",
-                scrollbarGutter: "stable",
-            }}
-        >
+        <div className="games-grid-container">
             <div className="games-grid" ref={gridRef}>
                 {filteredGames.map((game, index) => (
                     <GameCard key={index} game={game} />
@@ -67,4 +66,4 @@ export function GamesGrid({ filteredGames }) {
             </div>
         </div>
     );
-}
+});

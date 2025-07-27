@@ -32,6 +32,20 @@
         visibility: visible;
         background-color: var(--pf-btn-primary-darker);
     }
+    &.excluded {
+        outline: 2px dotted var(--pf-fg-700);
+        /*outline: var(--pf-border-500);*/
+        outline-offset: -2px;
+        color: var(--pf-fg-700);
+
+        &:hover,
+        &:active,
+        &:focus {
+            color: var(--pf-fg-500);
+            background-color: var(--pf-bg-500);
+            outline-color: var(--pf-fg-500);
+        }
+    }
 }
 
 .btn-check:checked + .sidebar-button {

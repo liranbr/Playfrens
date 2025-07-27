@@ -21,6 +21,8 @@ import "react-toastify/dist/ReactToastify.css";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Avatar from "@radix-ui/react-avatar";
 import { Dialogs, dialogStore } from "./components/Dialogs/DialogStore.jsx";
+import { useFilterStore } from "./FilterStore.jsx";
+import { observer } from "mobx-react-lite";
 
 function AppMenu() {
     const [open, setOpen] = useState(false);
@@ -37,6 +39,13 @@ function AppMenu() {
                 side={"bottom"}
                 sideOffset={5}
             >
+                <input
+                    type="file"
+                    id="json-selector"
+                    accept=".json"
+                    style={{ display: "none" }}
+                    onChange={(e) => restoreFromFile(e.target.files[0])}
+                />
                 <DropdownMenu.Sub>
                     <DropdownMenu.SubTrigger>
                         File{" "}
@@ -81,9 +90,10 @@ function AppMenu() {
     );
 }
 
-function AppHeader({ searchState }) {
-    const [search, setSearch] = searchState;
-    const updateSearch = (e) => setSearch(e.target.value || "");
+const AppHeader = observer(() => {
+    const filterStore = useFilterStore();
+    const search = filterStore.search;
+    const updateSearch = (e) => filterStore.setSearch(e.target.value || "");
     return (
         <div className="app-header">
             <AppMenu />
@@ -96,16 +106,6 @@ function AppHeader({ searchState }) {
                     className="d-inline-block align-top"
                 />
                 <b> Playfrens</b>
-            </div>
-
-            <div className="me-auto">
-                <input
-                    type="file"
-                    id="json-selector"
-                    accept=".json"
-                    style={{ display: "none" }}
-                    onChange={(e) => restoreFromFile(e.target.files[0])}
-                />
             </div>
 
             <Form
@@ -159,7 +159,7 @@ function AppHeader({ searchState }) {
             </Avatar.Root>
         </div>
     );
-}
+});
 
 function AppSidebar({ setSelectedFriends, setSelectedCategories, setSelectedStatuses }) {
     // 50% height for friend bar, 50% for categories and statuses

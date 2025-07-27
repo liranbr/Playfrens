@@ -34,7 +34,6 @@
     }
     &.excluded {
         outline: 2px dotted var(--pf-fg-700);
-        /*outline: var(--pf-border-500);*/
         outline-offset: -2px;
         color: var(--pf-fg-700);
 

@@ -89,6 +89,17 @@ class FilterStore {
         this.excludedTags[tagType.key].delete(tag);
     }
 
+    // TODO: Temporary like above, until tag UUID implementation
+    UpdateTagBandaid(tagType, oldTag, newTag) {
+        if (this.selectedTags[tagType.key].delete(oldTag)) {
+            this.selectedTags[tagType.key].add(newTag);
+        }
+        if (this.excludedTags[tagType.key].delete(oldTag)) {
+            this.excludedTags[tagType.key].add(newTag);
+        }
+        return true;
+    }
+
     doesGamePassFilters(game) {
         // TODO: add fuzzy search matching
         if (this.search) {

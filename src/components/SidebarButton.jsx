@@ -58,13 +58,11 @@ export const SidebarButton = observer(({ value, tagType }) => {
                             <MdOutlineSearchOff /> {isExcluded ? "Undo Exclude" : "Exclude"}
                         </DropdownMenu.Item>
                         <DropdownMenu.Item
-                            data-disabled
                             onClick={() => {
-                                // dialogStore.open(Dialogs.EditTag, {
-                                //     tagType: tagType,
-                                //     tagName: value,
-                                // });
-                                toastError("Edit function temporarily disabled"); // TODO: Implement Tag UUIDs
+                                dialogStore.open(Dialogs.EditTag, {
+                                    tagType: tagType,
+                                    tagName: value,
+                                });
                             }}
                         >
                             <MdEdit /> Edit

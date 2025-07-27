@@ -166,7 +166,6 @@ const AppHeader = observer(() => {
 });
 
 function AppSidebar() {
-    // 50% height for friend bar, 50% for categories and statuses
     return (
         <div className="sidebar">
             <SidebarGroup tagType={tagTypes.friend} tagsList={tagTypes.friend.allTagsList} />

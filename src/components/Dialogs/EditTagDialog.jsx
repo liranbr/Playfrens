@@ -1,8 +1,10 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { addTag, EditTag } from "../../DataStore.jsx";
+import { useFilterStore } from "../../FilterStore.jsx";
 
 export function EditTagDialog({ open, closeDialog, tagType, tagName = "" }) {
+    const filterStore = useFilterStore();
     const mode = tagName ? "Edit" : "Add";
     const title = mode + " " + tagType.single;
     const description = mode === "Edit" ? "Editing " + tagName : "Adding a new " + tagType.single;
@@ -10,9 +12,18 @@ export function EditTagDialog({ open, closeDialog, tagType, tagName = "" }) {
     const handleHide = () => closeDialog();
     const handleSave = () => {
         const newTagName = document.getElementById("tagNameInput").value;
-        const doneFunction =
-            mode === "Edit" ? EditTag(tagType, tagName, newTagName) : addTag(tagType, newTagName);
-        if (doneFunction) handleHide();
+        if (mode === "Edit") {
+            const success = EditTag(tagType, tagName, newTagName);
+            if (success) {
+                filterStore.UpdateTagBandaid(tagType, tagName, newTagName); // TODO: Temp, remove when tags get UUIDs
+                handleHide();
+            }
+        } else {
+            const success = addTag(tagType, newTagName);
+            if (success) {
+                handleHide();
+            }
+        }
     };
     const saveOnEnter = (e) => {
         if (e.key === "Enter") {

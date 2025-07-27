@@ -99,7 +99,7 @@ function AppMenu() {
 const AppHeader = observer(() => {
     const filterStore = useFilterStore();
     const search = filterStore.search;
-    const updateSearch = (e) => filterStore.setSearch(e.target.value || "");
+    const updateSearch = (e) => filterStore.setSearch(e.target.value);
     return (
         <div className="app-header">
             <AppMenu />
@@ -166,71 +166,26 @@ const AppHeader = observer(() => {
     );
 });
 
-function AppSidebar({ setSelectedFriends, setSelectedCategories, setSelectedStatuses }) {
+function AppSidebar() {
     // 50% height for friend bar, 50% for categories and statuses
     return (
         <div className="sidebar">
-            <SidebarGroup
-                tagType={tagTypes.friend}
-                tagsList={tagTypes.friend.allTagsList}
-                setSelection={setSelectedFriends}
-            />
+            <SidebarGroup tagType={tagTypes.friend} tagsList={tagTypes.friend.allTagsList} />
             <div className="sidebar-separator" />
-            <SidebarGroup
-                tagType={tagTypes.category}
-                tagsList={tagTypes.category.allTagsList}
-                setSelection={setSelectedCategories}
-            />
+            <SidebarGroup tagType={tagTypes.category} tagsList={tagTypes.category.allTagsList} />
             <div className="sidebar-separator" />
-            <SidebarGroup
-                tagType={tagTypes.status}
-                tagsList={tagTypes.status.allTagsList}
-                setSelection={setSelectedStatuses}
-            />
+            <SidebarGroup tagType={tagTypes.status} tagsList={tagTypes.status.allTagsList} />
         </div>
     );
 }
 
 export default function App() {
-    const [search, setSearch] = useState("");
-    const [selectedFriends, setSelectedFriends] = useState([]);
-    const [selectedCategories, setSelectedCategories] = useState([]);
-    const [selectedStatuses, setSelectedStatuses] = useState([]);
-    const [forceFilterUpdate, setForceFilterUpdate] = useState(0);
-    setForceFilterUpdateCallback(() => {
-        setForceFilterUpdate((prev) => prev + 1); // used in Utils to trigger a filter update
-    });
-
-    // Game Title includes the search value
-    // If friends selected, all friends are in the game
-    // If categories selected, game belongs to at least one of them
-    // If statuses selected, game has at least one of them
-    const filteredGames = useMemo(
-        () =>
-            allGames.filter(
-                (game) =>
-                    game.title.toLowerCase().includes(search.toLowerCase()) &&
-                    selectedFriends.every((friend) => game.friends.includes(friend)) &&
-                    (!selectedCategories.length ||
-                        selectedCategories.some((category) =>
-                            game.categories.includes(category),
-                        )) &&
-                    (!selectedStatuses.length ||
-                        selectedStatuses.some((status) => game.statuses.includes(status))),
-            ),
-        [search, selectedFriends, selectedCategories, selectedStatuses, forceFilterUpdate],
-    );
-
     return (
         <>
-            <AppHeader searchState={[search, setSearch]} />
+            <AppHeader />
             <div id="main-content">
-                <AppSidebar
-                    setSelectedFriends={setSelectedFriends}
-                    setSelectedCategories={setSelectedCategories}
-                    setSelectedStatuses={setSelectedStatuses}
-                />
-                <GamesGrid filteredGames={filteredGames} />
+                <AppSidebar />
+                <GamesGrid />
             </div>
             <DialogRoot />
             <ToastContainer toastClassName="toast-notification" />

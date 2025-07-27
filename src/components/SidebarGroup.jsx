@@ -3,7 +3,7 @@ import { SidebarButton } from "./SidebarButton.jsx";
 import "./Sidebar.css";
 import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
 
-export function SidebarGroup({ tagType, tagsList, setSelection }) {
+export function SidebarGroup({ tagType, tagsList }) {
     const title = tagType.plural.toUpperCase();
     const handleAddButtonClick = () => {
         dialogStore.open(Dialogs.EditTag, { tagType: tagType });
@@ -19,12 +19,7 @@ export function SidebarGroup({ tagType, tagsList, setSelection }) {
             </div>
             <div className="sidebar-buttons-list">
                 {tagsList.map((item, index) => (
-                    <SidebarButton
-                        key={index}
-                        value={item}
-                        tagType={tagType}
-                        setSelection={setSelection}
-                    />
+                    <SidebarButton key={index} value={item} tagType={tagType} />
                 ))}
             </div>
         </div>

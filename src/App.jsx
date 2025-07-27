@@ -27,66 +27,72 @@ import { observer } from "mobx-react-lite";
 function AppMenu() {
     const [open, setOpen] = useState(false);
     return (
-        <DropdownMenu.Root onOpenChange={setOpen}>
-            <DropdownMenu.Trigger asChild>
-                <button className={"icon-button" + (open ? " open" : "")}>
-                    <MdMenu />
-                </button>
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Content
-                className="rx-dropdown-menu"
-                align={"start"}
-                side={"bottom"}
-                sideOffset={5}
-            >
-                <input
-                    type="file"
-                    id="json-selector"
-                    accept=".json"
-                    style={{ display: "none" }}
-                    onChange={(e) => restoreFromFile(e.target.files[0])}
-                />
-                <DropdownMenu.Sub>
-                    <DropdownMenu.SubTrigger>
-                        File{" "}
-                        <div className="rx-dropdown-right-slot">
-                            <MdChevronRight />
-                        </div>
-                    </DropdownMenu.SubTrigger>
-                    <DropdownMenu.Portal>
-                        <DropdownMenu.SubContent className="rx-dropdown-menu" sideOffset={5}>
-                            <DropdownMenu.Item
-                                onClick={() => {
-                                    document.getElementById("json-selector").click();
-                                }}
-                            >
-                                <MdOutlineFileUpload /> Restore
-                            </DropdownMenu.Item>
-                            <DropdownMenu.Item onClick={backupToFile}>
-                                <MdOutlineFileDownload /> Backup
-                            </DropdownMenu.Item>
-                        </DropdownMenu.SubContent>
-                    </DropdownMenu.Portal>
-                </DropdownMenu.Sub>
-                <DropdownMenu.Separator />
-                <DropdownMenu.Item>
-                    <a href="https://github.com/liranbr/Playfrens" target="_blank">
-                        GitHub
-                    </a>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item>
-                    <a href="https://trello.com/c/dLSvKuWb/293-app-menu-dropdown" target="_blank">
-                        Trello
-                    </a>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item onClick={() => dialogStore.open(Dialogs.Settings)}>
-                    Settings
-                </DropdownMenu.Item>
-                <DropdownMenu.Item onClick={() => dialogStore.open(Dialogs.About)}>
-                    About
-                </DropdownMenu.Item>
-            </DropdownMenu.Content>
-        </DropdownMenu.Root>
+        <>
+            <DropdownMenu.Root onOpenChange={setOpen}>
+                <DropdownMenu.Trigger asChild>
+                    <button className={"icon-button" + (open ? " open" : "")}>
+                        <MdMenu />
+                    </button>
+                </DropdownMenu.Trigger>
+                <DropdownMenu.Content
+                    className="rx-dropdown-menu"
+                    align={"start"}
+                    side={"bottom"}
+                    sideOffset={5}
+                >
+                    <DropdownMenu.Sub>
+                        <DropdownMenu.SubTrigger>
+                            File{" "}
+                            <div className="rx-dropdown-right-slot">
+                                <MdChevronRight />
+                            </div>
+                        </DropdownMenu.SubTrigger>
+                        <DropdownMenu.Portal>
+                            <DropdownMenu.SubContent className="rx-dropdown-menu" sideOffset={5}>
+                                <DropdownMenu.Item
+                                    onClick={() => {
+                                        document.getElementById("json-selector").click();
+                                    }}
+                                >
+                                    <MdOutlineFileUpload /> Restore
+                                </DropdownMenu.Item>
+                                <DropdownMenu.Item onClick={backupToFile}>
+                                    <MdOutlineFileDownload /> Backup
+                                </DropdownMenu.Item>
+                            </DropdownMenu.SubContent>
+                        </DropdownMenu.Portal>
+                    </DropdownMenu.Sub>
+                    <DropdownMenu.Separator />
+                    <DropdownMenu.Item>
+                        <a href="https://github.com/liranbr/Playfrens" target="_blank">
+                            GitHub
+                        </a>
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item>
+                        <a
+                            href="https://trello.com/c/dLSvKuWb/293-app-menu-dropdown"
+                            target="_blank"
+                        >
+                            Trello
+                        </a>
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item onClick={() => dialogStore.open(Dialogs.Settings)}>
+                        Settings
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item onClick={() => dialogStore.open(Dialogs.About)}>
+                        About
+                    </DropdownMenu.Item>
+                </DropdownMenu.Content>
+            </DropdownMenu.Root>
+
+            <input
+                type="file"
+                id="json-selector"
+                accept=".json"
+                style={{ display: "none" }}
+                onChange={(e) => restoreFromFile(e.target.files[0])}
+            />
+        </>
     );
 }
 
@@ -107,7 +113,6 @@ const AppHeader = observer(() => {
                 />
                 <b> Playfrens</b>
             </div>
-
             <Form
                 inline="true"
                 style={{
@@ -121,8 +126,8 @@ const AppHeader = observer(() => {
                     placeholder="Search"
                     value={search}
                     onChange={updateSearch}
-                    className="game-search"
-                    style={{ ...(search && { border: "2px solid var(--pf-btn-primary)" }) }}
+                    className={"game-search" + (search ? " has-value" : "")}
+                    autoComplete="off"
                     onKeyDown={(e) => (e.key === "Enter" ? e.preventDefault() : null)}
                     onSubmit={(e) => e.preventDefault()}
                 />

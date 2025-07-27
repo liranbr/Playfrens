@@ -68,6 +68,7 @@ autorun(() => saveObsArray("allStatuses", allStatuses));
 autorun(() => saveObsArray("allGames", allGames));
 
 export function backupToFile() {
+    console.log("Backing up data to file...");
     const data = {
         allFriends: allFriends,
         allCategories: allCategories,

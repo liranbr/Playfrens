@@ -41,6 +41,9 @@
     &:focus {
         border-color: var(--pf-border-color-primary);
     }
+    &.has-value {
+        border: 2px solid var(--pf-btn-primary);
+    }
 }
 
 .new-game-button {

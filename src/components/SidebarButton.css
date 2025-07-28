@@ -34,16 +34,21 @@
     }
 
     &.excluded {
-        outline: 2px dotted var(--pf-fg-700);
+        outline: 2px dashed var(--pf-bg-100);
         outline-offset: -2px;
-        color: var(--pf-fg-700);
+        color: var(--pf-fg-900);
 
         &:hover,
         &:active,
-        &:focus {
+        &:focus,
+        &.active {
             color: var(--pf-fg-500);
             background-color: var(--pf-bg-500);
             outline-color: var(--pf-fg-500);
+        }
+        &:hover .icon-button:hover,
+        &.active .icon-button {
+            background-color: var(--pf-bg-200);
         }
     }
 }

@@ -8,8 +8,10 @@
     --pf-bg-700: hsl(var(--hsl-base-bg) 9%);
     --pf-bg-500: hsl(var(--hsl-base-bg) 12%);
     --pf-bg-300: hsl(var(--hsl-base-bg) 18%);
+    --pf-bg-200: hsl(var(--hsl-base-bg) 24%);
     --pf-bg-100: hsl(var(--hsl-base-bg) 30%);
 
+    --pf-fg-900: hsl(var(--hsl-base-bg) 40%);
     --pf-fg-700: hsl(var(--hsl-base-bg) 50%);
     --pf-fg-500: hsl(var(--hsl-base-bg) 60%);
     --pf-fg-300: hsl(var(--hsl-base-bg) 75%);

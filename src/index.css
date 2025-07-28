@@ -64,6 +64,7 @@
         outline-offset: -2px;
         transition: none;
     }
+
     &:focus:not(:focus-visible) {
         outline: none;
     }
@@ -87,29 +88,6 @@ input {
     box-shadow: none !important;
     --bs-body-bg: none;
     background: none;
-}
-
-.icon-button {
-    height: var(--icon-size);
-    min-height: var(--icon-size);
-    width: var(--icon-size);
-    min-width: var(--icon-size);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    border-radius: 8px;
-    color: var(--pf-fg-500);
-    background: none;
-
-    &:hover,
-    &:active,
-    &:focus,
-    &.open {
-        background: none;
-        color: #fff;
-        cursor: pointer;
-    }
 }
 
 .toast-notification {

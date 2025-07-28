@@ -1,0 +1,24 @@
+.icon-button {
+    height: var(--icon-size);
+    min-height: var(--icon-size);
+    width: var(--icon-size);
+    min-width: var(--icon-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    border: none;
+    border-radius: 8px;
+    color: var(--pf-fg-500);
+    background: none;
+    cursor: pointer;
+
+    &:hover,
+    &:active,
+    &:focus,
+    &.activate {
+        background: none;
+        color: #fff;
+        cursor: pointer;
+    }
+}

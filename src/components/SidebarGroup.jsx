@@ -3,6 +3,7 @@ import { SidebarButton } from "./SidebarButton.jsx";
 import "./Sidebar.css";
 import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
 import { observer } from "mobx-react-lite";
+import { IconButton } from "./common/IconButton.jsx";
 
 export const SidebarGroup = observer(({ tagType, tagsList }) => {
     const title = tagType.plural.toUpperCase();
@@ -14,9 +15,7 @@ export const SidebarGroup = observer(({ tagType, tagsList }) => {
             <div className="sidebar-header">
                 <div />
                 <h4>{title}</h4>
-                <button className="icon-button" onClick={handleAddButtonClick}>
-                    <MdAdd />
-                </button>
+                <IconButton icon={<MdAdd />} onClick={handleAddButtonClick} />
             </div>
             <div className="sidebar-buttons-list">
                 {tagsList.map((item, index) => (

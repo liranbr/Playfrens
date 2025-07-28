@@ -2,13 +2,13 @@ import { useState } from "react";
 import Form from "react-bootstrap/Form";
 import { ToastContainer } from "react-toastify";
 import {
+    MdChevronRight,
     MdClose,
+    MdMenu,
     MdOutlineFileDownload,
     MdOutlineFileUpload,
     MdOutlineGamepad,
     MdPerson,
-    MdMenu,
-    MdChevronRight,
 } from "react-icons/md";
 import { backupToFile, restoreFromFile } from "./DataStore.jsx";
 import { tagTypes } from "./models/TagTypes.jsx";
@@ -22,6 +22,7 @@ import * as Avatar from "@radix-ui/react-avatar";
 import { Dialogs, dialogStore } from "./components/Dialogs/DialogStore.jsx";
 import { useFilterStore } from "./FilterStore.jsx";
 import { observer } from "mobx-react-lite";
+import { IconButton } from "./components/common/IconButton.jsx";
 
 function AppMenu() {
     const [open, setOpen] = useState(false);
@@ -29,9 +30,7 @@ function AppMenu() {
         <>
             <DropdownMenu.Root onOpenChange={setOpen}>
                 <DropdownMenu.Trigger asChild>
-                    <button className={"icon-button" + (open ? " open" : "")}>
-                        <MdMenu />
-                    </button>
+                    <IconButton icon={<MdMenu />} activate={open} />
                 </DropdownMenu.Trigger>
                 <DropdownMenu.Content
                     className="rx-dropdown-menu"
@@ -109,6 +108,7 @@ const AppHeader = observer(() => {
                 />
                 <b> Playfrens</b>
             </div>
+            {/*TODO: Replace this whole form + reset button*/}
             <Form
                 inline="true"
                 style={{
@@ -127,10 +127,10 @@ const AppHeader = observer(() => {
                     onKeyDown={(e) => (e.key === "Enter" ? e.preventDefault() : null)}
                     onSubmit={(e) => e.preventDefault()}
                 />
-                <button
-                    type="reset"
-                    className="icon-button"
+                <IconButton
+                    icon={<MdClose />}
                     onClick={updateSearch}
+                    type="reset"
                     style={{
                         display: search ? "flex" : "none",
                         position: "absolute",
@@ -142,9 +142,7 @@ const AppHeader = observer(() => {
                         background: "none",
                         alignItems: "center",
                     }}
-                >
-                    <MdClose />
-                </button>
+                />
             </Form>
 
             <button className="new-game-button" onClick={() => dialogStore.open(Dialogs.EditGame)}>

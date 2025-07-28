@@ -149,7 +149,6 @@ export const removeTag = action((tagType, value) => {
 });
 
 export const EditTag = action((tagType, oldValue, newValue) => {
-    // TODO: Fix Editing a tag that's an active filter
     const fullList = tagType.allTagsList;
     if (!newValue) {
         toastError("Cannot save a " + tagType.single + " without a name");

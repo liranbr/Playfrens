@@ -2,12 +2,12 @@ import { useState } from "react";
 import { ToggleButton } from "react-bootstrap";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { MdDeleteOutline, MdEdit, MdMoreVert, MdOutlineSearchOff } from "react-icons/md";
-import { toastError } from "../Utils.jsx";
 import { removeTag } from "../DataStore.jsx";
 import "./SidebarButton.css";
 import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
 import { useFilterStore } from "../FilterStore.jsx";
 import { observer } from "mobx-react-lite";
+import { IconButton } from "./common/IconButton.jsx";
 
 export const SidebarButton = observer(({ value, tagType }) => {
     const filterStore = useFilterStore();
@@ -38,9 +38,9 @@ export const SidebarButton = observer(({ value, tagType }) => {
             {value}
             <DropdownMenu.Root onOpenChange={setDropdownOpen}>
                 <DropdownMenu.Trigger asChild>
-                    <button className="icon-button">
+                    <IconButton>
                         <MdMoreVert />
-                    </button>
+                    </IconButton>
                 </DropdownMenu.Trigger>
 
                 <DropdownMenu.Portal>

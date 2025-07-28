@@ -6,7 +6,7 @@ export const Dialogs = {
     Playfrens: "Playfrens",
     DeleteWarning: "DeleteWarning",
     Settings: "Settings",
-    About: "About"
+    About: "About",
 };
 
 class DialogStore {

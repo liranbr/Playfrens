@@ -42,6 +42,7 @@
     }
 
     /* gp = Game Page */
+
     .gp-container {
         flex-direction: column;
         background-color: var(--container-bg);
@@ -123,8 +124,10 @@
                 height: fit-content;
                 max-height: 100%;
                 margin: 0;
+
                 .sidebar-group {
                     min-height: fit-content;
+
                     .gp-sidebar-button:hover {
                         --bs-btn-active-bg: none;
                         background: none;

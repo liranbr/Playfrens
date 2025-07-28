@@ -10,15 +10,14 @@ import { tagTypes } from "../../models/TagTypes.jsx";
 import "./GamePageDialog.css";
 import { Dialogs, dialogStore } from "./DialogStore.jsx";
 import { useState } from "react";
+import { IconButton } from "../common/IconButton.jsx";
 
 const AddTagDropdown = ({ tagType, game }) => {
     const [open, setOpen] = useState(false);
     return (
         <DropdownMenu.Root onOpenChange={setOpen}>
             <DropdownMenu.Trigger asChild>
-                <button className={"icon-button" + (open ? " open" : "")}>
-                    <MdAdd />
-                </button>
+                <IconButton icon={<MdAdd />} activate={open} />
             </DropdownMenu.Trigger>
 
             <DropdownMenu.Portal>
@@ -86,9 +85,7 @@ function GameOptionsButton({ game }) {
     return (
         <DropdownMenu.Root onOpenChange={setOpen}>
             <DropdownMenu.Trigger asChild>
-                <button className={"icon-button" + (open ? " open" : "")}>
-                    <MdMoreVert />
-                </button>
+                <IconButton icon={<MdMoreVert />} activate={open} />
             </DropdownMenu.Trigger>
 
             <DropdownMenu.Portal>
@@ -151,9 +148,7 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
                             <Dialog.Title autoFocus className="gp-title">
                                 {game.title}
                             </Dialog.Title>
-                            <button className="icon-button ms-auto" onClick={handleHide}>
-                                <MdClose />
-                            </button>
+                            <IconButton icon={<MdClose />} onClick={handleHide} />
                         </div>
                         <div className="gp-header-shadow" />
                         <div className="gp-body">

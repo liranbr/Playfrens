@@ -32,6 +32,7 @@
         visibility: visible;
         background-color: var(--pf-btn-primary-darker);
     }
+
     &.excluded {
         outline: 2px dotted var(--pf-fg-700);
         outline-offset: -2px;

@@ -58,12 +58,7 @@
         box-shadow: var(--container-shadow);
 
         .gp-header {
-            width: 100%;
-            max-width: 100%;
             height: var(--header-height);
-            display: grid;
-            grid-template-columns: var(--icon-size) 1fr var(--icon-size);
-            align-items: center;
             padding: 12px;
             background-color: inherit;
             border-top-left-radius: 20px;
@@ -78,7 +73,6 @@
                 padding: 0 12px;
                 color: #fff;
                 margin: 0;
-                line-height: 1;
                 text-align: center;
                 font-weight: bold;
                 overflow: hidden;

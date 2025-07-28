@@ -11,6 +11,7 @@ import "./GamePageDialog.css";
 import { Dialogs, dialogStore } from "./DialogStore.jsx";
 import { useState } from "react";
 import { IconButton } from "../common/IconButton.jsx";
+import { CenterAndEdgesRow } from "../common/CenterAndEdgesRow.jsx";
 
 const AddTagDropdown = ({ tagType, game }) => {
     const [open, setOpen] = useState(false);
@@ -53,11 +54,11 @@ const GPDSidebarGroup = observer(({ game, tagType }) => {
     };
     return (
         <div className="sidebar-group">
-            <div className="sidebar-header">
+            <CenterAndEdgesRow className="sidebar-header">
                 <div />
                 <h4>{title}</h4>
                 <AddTagDropdown tagType={tagType} game={game} />
-            </div>
+            </CenterAndEdgesRow>
             <div className="sidebar-buttons-list">
                 {gameTagsList.map((item, index) => (
                     <OverlayTrigger
@@ -143,13 +144,13 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
                     </VisuallyHidden>
                     <div className="gp-cover-art" style={{ "--bg-url": `url("${gameCover}")` }} />
                     <div className="gp-container">
-                        <div className="gp-header">
+                        <CenterAndEdgesRow className="gp-header">
                             <GameOptionsButton game={game} />
                             <Dialog.Title autoFocus className="gp-title">
                                 {game.title}
                             </Dialog.Title>
                             <IconButton icon={<MdClose />} onClick={handleHide} />
-                        </div>
+                        </CenterAndEdgesRow>
                         <div className="gp-header-shadow" />
                         <div className="gp-body">
                             <div className="gp-column">
@@ -163,11 +164,11 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
                             </div>
                             <div className="gp-column">
                                 <div className="game-note-container gp-element">
-                                    <div className="sidebar-header">
+                                    <CenterAndEdgesRow className="sidebar-header">
                                         <div />
                                         <h4>NOTE</h4>
                                         <div />
-                                    </div>
+                                    </CenterAndEdgesRow>
                                     <textarea
                                         className="game-note"
                                         rows={5}

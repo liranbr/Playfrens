@@ -46,10 +46,6 @@
 }
 
 .sidebar-header {
-    width: 100%;
-    display: grid;
-    grid-template-columns: var(--icon-size) 1fr var(--icon-size);
-    align-items: center;
     background-color: inherit;
     margin-bottom: 8px;
 

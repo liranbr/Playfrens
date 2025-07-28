@@ -4,6 +4,7 @@ import "./Sidebar.css";
 import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
 import { observer } from "mobx-react-lite";
 import { IconButton } from "./common/IconButton.jsx";
+import { CenterAndEdgesRow } from "./common/CenterAndEdgesRow.jsx";
 
 export const SidebarGroup = observer(({ tagType, tagsList }) => {
     const title = tagType.plural.toUpperCase();
@@ -12,11 +13,11 @@ export const SidebarGroup = observer(({ tagType, tagsList }) => {
     };
     return (
         <div className="sidebar-group">
-            <div className="sidebar-header">
+            <CenterAndEdgesRow className="sidebar-header">
                 <div />
                 <h4>{title}</h4>
                 <IconButton icon={<MdAdd />} onClick={handleAddButtonClick} />
-            </div>
+            </CenterAndEdgesRow>
             <div className="sidebar-buttons-list">
                 {tagsList.map((item, index) => (
                     <SidebarButton key={index} value={item} tagType={tagType} />

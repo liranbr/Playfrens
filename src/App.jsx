@@ -23,6 +23,7 @@ import { Dialogs, dialogStore } from "./components/Dialogs/DialogStore.jsx";
 import { useFilterStore } from "./FilterStore.jsx";
 import { observer } from "mobx-react-lite";
 import { IconButton } from "./components/common/IconButton.jsx";
+import { CenterAndEdgesRow } from "./components/common/CenterAndEdgesRow.jsx";
 
 function AppMenu() {
     const [open, setOpen] = useState(false);
@@ -96,67 +97,64 @@ const AppHeader = observer(() => {
     const search = filterStore.search;
     const updateSearch = (e) => filterStore.setSearch(e.target.value);
     return (
-        <div className="app-header">
-            <AppMenu />
-            <div className="app-brand">
-                <img
-                    src="/Playfrens_Logo.png"
-                    alt="Playfrens Logo"
-                    width={30}
-                    height={30}
-                    className="d-inline-block align-top"
-                />
-                <b> Playfrens</b>
+        <CenterAndEdgesRow className="app-header">
+            <div>
+                <AppMenu />
+                <div className="app-brand">
+                    <img src="/Playfrens_Logo.png" alt="Playfrens Logo" width={30} height={30} />
+                    <b> Playfrens</b>
+                </div>
             </div>
+
             {/*TODO: Replace this whole form + reset button*/}
-            <Form
-                inline="true"
-                style={{
-                    position: "absolute",
-                    right: "50%",
-                    transform: "translateX(50%)",
-                }}
-            >
-                <Form.Control
-                    type="text"
-                    placeholder="Search"
-                    value={search}
-                    onChange={updateSearch}
-                    className={"game-search" + (search ? " has-value" : "")}
-                    autoComplete="off"
-                    onKeyDown={(e) => (e.key === "Enter" ? e.preventDefault() : null)}
-                    onSubmit={(e) => e.preventDefault()}
-                />
-                <IconButton
-                    icon={<MdClose />}
-                    onClick={updateSearch}
-                    type="reset"
-                    style={{
-                        display: search ? "flex" : "none",
-                        position: "absolute",
-                        fontSize: "20px",
-                        right: "0",
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        border: "none",
-                        background: "none",
-                        alignItems: "center",
-                    }}
-                />
-            </Form>
+            <div>
+                <Form inline="true" className="flex-row align-items-center justify-content-center">
+                    <Form.Control
+                        type="text"
+                        placeholder="Search"
+                        value={search}
+                        onChange={updateSearch}
+                        className={"game-search" + (search ? " has-value" : "")}
+                        autoComplete="off"
+                        onKeyDown={(e) => (e.key === "Enter" ? e.preventDefault() : null)}
+                        onSubmit={(e) => e.preventDefault()}
+                    />
+                    <IconButton
+                        icon={<MdClose />}
+                        onClick={updateSearch}
+                        type="reset"
+                        style={{
+                            display: search ? "flex" : "none",
+                            position: "absolute",
+                            fontSize: "20px",
+                            right: "0",
+                            top: "50%",
+                            transform: "translateY(-50%)",
+                            border: "none",
+                            background: "none",
+                            alignItems: "center",
+                        }}
+                    />
+                </Form>
+            </div>
 
-            <button className="new-game-button" onClick={() => dialogStore.open(Dialogs.EditGame)}>
-                <MdOutlineGamepad />
-                Add Game
-            </button>
+            <div>
+                <button
+                    className="new-game-button"
+                    onClick={() => dialogStore.open(Dialogs.EditGame)}
+                >
+                    <MdOutlineGamepad />
+                    Add Game
+                </button>
 
-            <Avatar.Root className="rx-avatar">
-                <Avatar.Image />
-                <Avatar.Fallback>
-                    <MdPerson />
-                </Avatar.Fallback>
-            </Avatar.Root>
-        </div>
+                <Avatar.Root className="rx-avatar">
+                    <Avatar.Image />
+                    <Avatar.Fallback>
+                        <MdPerson />
+                    </Avatar.Fallback>
+                </Avatar.Root>
+            </div>
+        </CenterAndEdgesRow>
     );
 });
 

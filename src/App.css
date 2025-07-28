@@ -1,14 +1,8 @@
 .app-header {
     background-color: var(--pf-bg-900);
-    padding-right: 12px;
-    padding-left: 12px;
-    height: 56px;
+    padding: 0 12px;
+    height: var(--app-header-height);
     position: fixed;
-    display: flex;
-    align-items: center;
-    top: 0;
-    left: 0;
-    right: 0;
     border-bottom: var(--pf-border-500);
     z-index: 2;
 }
@@ -23,7 +17,7 @@
 
 #main-content {
     height: 100vh;
-    padding-top: 56px; /* compensates for navbar height, included in 100vh */
+    padding-top: var(--app-header-height); /* included in 100vh */
     display: flex;
 }
 

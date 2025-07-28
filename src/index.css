@@ -42,6 +42,7 @@
     --pf-border-color-primary: hsl(var(--hsl-base-btn-primary) 60%);
 
     --sidebar-width: 275px;
+    --app-header-height: 56px;
     --game-card-width: 210px; /* for the game cards in the grid */
     --game-card-border-radius: 0;
     --gp-cover-art-width: 450px; /* for game page dialog */

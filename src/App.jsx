@@ -62,16 +62,12 @@ function AppMenu() {
                         </DropdownMenu.Portal>
                     </DropdownMenu.Sub>
                     <DropdownMenu.Separator />
-                    <DropdownMenu.Item>
-                        <a href="https://github.com/liranbr/Playfrens" target="_blank">
-                            GitHub
-                        </a>
-                    </DropdownMenu.Item>
-                    <DropdownMenu.Item>
-                        <a href="https://trello.com/b/H9Cln6UD/playfrens" target="_blank">
-                            Trello
-                        </a>
-                    </DropdownMenu.Item>
+                    <a href="https://github.com/liranbr/Playfrens" target="_blank">
+                        <DropdownMenu.Item>GitHub</DropdownMenu.Item>
+                    </a>
+                    <a href="https://trello.com/b/H9Cln6UD/playfrens" target="_blank">
+                        <DropdownMenu.Item>Trello</DropdownMenu.Item>
+                    </a>
                     <DropdownMenu.Item onClick={() => dialogStore.open(Dialogs.Settings)}>
                         Settings
                     </DropdownMenu.Item>

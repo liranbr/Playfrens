@@ -3,12 +3,13 @@
     flex-direction: row;
     width: fit-content;
     height: fit-content;
+    align-items: center;
     background: none;
     padding: 0;
     border: none;
     outline: none;
     box-shadow: none;
-    gap: 14px; /* 12px gap + 1px outlines on container and covert art card */
+    gap: 12px;
 
     --cover-art-width: 450px; /* for game page dialog */
     --cover-art-height: calc(var(--cover-art-width) * 1.5);
@@ -17,6 +18,8 @@
     --header-height: 56px;
     --cols-amount: 2;
     --border: var(--pf-border-700);
+    --outer-border: var(--pf-border-700);
+    --border-radius: 20px;
     --container-bg: var(--pf-bg-900);
     --element-bg: var(--pf-bg-700);
 
@@ -24,37 +27,24 @@
 
     .gp-cover-art {
         width: var(--cover-art-width);
-        min-width: var(--cover-art-width);
-        height: var(--cover-art-height);
-        outline: var(--border);
-        border: none;
-        border-radius: 20px;
+        min-width: calc(var(--cover-art-width) + 2px); /* 2px for 1px borders */
+        height: calc(var(--cover-art-height) + 2px);
+        border: var(--outer-border);
+        border-radius: var(--border-radius);
         box-shadow: var(--container-shadow);
-        --bg-url: url("/public/missing_game_cover.png");
-        background-image: var(--bg-url);
         background-size: cover;
         background-position: center;
-
-        .gp-card-bg {
-            position: absolute;
-            width: var(--cover-art-width);
-            height: var(--cover-art-height);
-            background-size: cover;
-            background-position: center;
-            background-image: var(--bg-url);
-        }
     }
 
     .gp-container {
         flex-direction: column;
         background-color: var(--container-bg);
-        outline: var(--border);
-        border: none;
-        border-radius: 20px;
+        border: var(--outer-border);
+        border-radius: var(--border-radius);
         padding: 0;
         width: fit-content;
         max-width: calc(
-            var(--sidebar-width) * var(--cols-amount) + 12px * (var(--cols-amount) - 1) + 24px
+            var(--ui-card-width) * var(--cols-amount) + 12px * (var(--cols-amount) - 1) + 24px
         ); /* two columns, padding and gap */
         height: fit-content;
         box-shadow: var(--container-shadow);
@@ -63,8 +53,8 @@
             height: var(--header-height);
             padding: 12px;
             background-color: inherit;
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
+            border-top-left-radius: var(--border-radius);
+            border-top-right-radius: var(--border-radius);
             border-bottom: var(--border);
             /* below are needed for the shadow */
             position: relative;
@@ -99,32 +89,24 @@
             gap: 12px;
             padding: 12px;
 
-            .gp-element {
-                background-color: var(--element-bg);
-                border: var(--border);
-                border-radius: 20px;
-                padding: 12px;
-                box-shadow: var(--element-shadow);
-            }
-
             .gp-column {
                 height: fit-content;
                 max-height: 100%;
-                width: var(--sidebar-width);
+                width: var(--ui-card-width);
                 display: flex;
                 flex-direction: column;
                 gap: 12px;
             }
 
-            .sidebar {
-                height: fit-content;
-                max-height: 100%;
-                margin: 0;
+            .ui-card {
+                background-color: var(--element-bg);
+                border: var(--border);
+                box-shadow: var(--element-shadow);
 
                 .sidebar-group {
                     min-height: fit-content;
 
-                    .gp-sidebar-button:hover {
+                    .sidebar-button:hover {
                         --bs-btn-active-bg: none;
                         background: none;
                         outline: var(--pf-border-100);
@@ -132,13 +114,13 @@
                     }
                 }
 
-                .sidebar-separator {
+                .separator {
                     border-top: var(--border);
                 }
             }
 
             .game-note-container {
-                border-radius: 20px;
+                border-radius: var(--border-radius);
                 padding-top: 20px;
 
                 .game-note {
@@ -151,7 +133,7 @@
                     padding: 12px 8px;
                     border: none;
                     outline: none;
-                    border-radius: 20px;
+                    border-radius: var(--border-radius);
                     resize: vertical;
                 }
             }

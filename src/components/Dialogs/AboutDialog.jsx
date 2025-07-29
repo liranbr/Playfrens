@@ -16,7 +16,6 @@ export const AboutDialog = ({ open, closeDialog }) => {
                     </VisuallyHidden>
 
                     <img
-                        style={{ width: "100%" }}
                         src="https://i.imgur.com/tlXb8mI.jpeg"
                         alt="i love my puter, all my friends are inside it"
                         referrerPolicy="no-referrer"

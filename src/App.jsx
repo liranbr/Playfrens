@@ -10,7 +10,7 @@ import {
     MdOutlineGamepad,
     MdPerson,
 } from "react-icons/md";
-import { backupToFile, restoreFromFile } from "./DataStore.jsx";
+import { backupToFile, restoreFromFile } from "./stores/DataStore.jsx";
 import { tagTypes } from "./models/TagTypes.jsx";
 import { GamesGrid } from "./components/GameGrid.jsx";
 import { SidebarGroup } from "./components/SidebarGroup.jsx";
@@ -20,7 +20,7 @@ import "react-toastify/dist/ReactToastify.css";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Avatar from "@radix-ui/react-avatar";
 import { Dialogs, dialogStore } from "./components/Dialogs/DialogStore.jsx";
-import { useFilterStore } from "./FilterStore.jsx";
+import { useFilterStore } from "./stores/FilterStore.jsx";
 import { observer } from "mobx-react-lite";
 import { IconButton } from "./components/common/IconButton.jsx";
 import { CenterAndEdgesRow } from "./components/common/CenterAndEdgesRow.jsx";
@@ -115,6 +115,7 @@ const AppHeader = observer(() => {
                         onKeyDown={(e) => (e.key === "Enter" ? e.preventDefault() : null)}
                         onSubmit={(e) => e.preventDefault()}
                     />
+                    {/*TODO: improve here when removing bootstrap*/}
                     <IconButton
                         icon={<MdClose />}
                         onClick={updateSearch}
@@ -156,12 +157,14 @@ const AppHeader = observer(() => {
 
 function AppSidebar() {
     return (
-        <div className="sidebar">
-            <SidebarGroup tagType={tagTypes.friend} tagsList={tagTypes.friend.allTagsList} />
-            <div className="sidebar-separator" />
-            <SidebarGroup tagType={tagTypes.category} tagsList={tagTypes.category.allTagsList} />
-            <div className="sidebar-separator" />
-            <SidebarGroup tagType={tagTypes.status} tagsList={tagTypes.status.allTagsList} />
+        <div className="app-sidebar-container">
+            <div className="ui-card">
+                <SidebarGroup tagType={tagTypes.friend} />
+                <div className="separator" />
+                <SidebarGroup tagType={tagTypes.category} />
+                <div className="separator" />
+                <SidebarGroup tagType={tagTypes.status} />
+            </div>
         </div>
     );
 }

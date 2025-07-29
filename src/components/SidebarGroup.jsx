@@ -6,20 +6,20 @@ import { observer } from "mobx-react-lite";
 import { IconButton } from "./common/IconButton.jsx";
 import { CenterAndEdgesRow } from "./common/CenterAndEdgesRow.jsx";
 
-export const SidebarGroup = observer(({ tagType, tagsList }) => {
+export const SidebarGroup = observer(({ tagType }) => {
     const title = tagType.plural.toUpperCase();
     const handleAddButtonClick = () => {
         dialogStore.open(Dialogs.EditTag, { tagType: tagType });
     };
     return (
         <div className="sidebar-group">
-            <CenterAndEdgesRow className="sidebar-header">
+            <CenterAndEdgesRow className="ui-card-header">
                 <div />
                 <h4>{title}</h4>
                 <IconButton icon={<MdAdd />} onClick={handleAddButtonClick} />
             </CenterAndEdgesRow>
             <div className="sidebar-buttons-list">
-                {tagsList.map((item, index) => (
+                {tagType.allTagsList.map((item, index) => (
                     <SidebarButton key={index} value={item} tagType={tagType} />
                 ))}
             </div>

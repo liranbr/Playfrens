@@ -2,10 +2,10 @@ import { useState } from "react";
 import { ToggleButton } from "react-bootstrap";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { MdDeleteOutline, MdEdit, MdMoreVert, MdOutlineSearchOff } from "react-icons/md";
-import { removeTag } from "../DataStore.jsx";
+import { removeTag } from "../stores/DataStore.jsx";
 import "./SidebarButton.css";
 import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
-import { useFilterStore } from "../FilterStore.jsx";
+import { useFilterStore } from "../stores/FilterStore.jsx";
 import { observer } from "mobx-react-lite";
 import { IconButton } from "./common/IconButton.jsx";
 

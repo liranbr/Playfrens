@@ -5,7 +5,7 @@ import "../App.css";
 import "./GameGrid.css";
 import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
 import { observer } from "mobx-react-lite";
-import { useFilterStore } from "../FilterStore.jsx";
+import { useFilterStore } from "../stores/FilterStore.jsx";
 
 function GameCard({ game }) {
     const gameCover = useValidatedImage(game.coverImageURL);

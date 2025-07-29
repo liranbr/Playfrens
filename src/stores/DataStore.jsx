@@ -1,13 +1,13 @@
 import { action, autorun, observable } from "mobx";
-import { GameObject } from "./models/GameObject.jsx";
-import { tagTypes } from "./models/TagTypes.jsx";
+import { GameObject } from "../models/GameObject.jsx";
+import { tagTypes } from "../models/TagTypes.jsx";
 import {
     compareAlphaIgnoreCase,
     compareGameTitles,
     setToastSilence,
     toastDataChangeSuccess,
     toastError,
-} from "./Utils.jsx";
+} from "../Utils.jsx";
 
 function loadObsArray(key) {
     return observable.array(JSON.parse(localStorage.getItem(key) || "[]"));

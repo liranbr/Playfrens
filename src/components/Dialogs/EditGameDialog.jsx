@@ -1,6 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { addGame } from "../../DataStore.jsx";
+import { addGame } from "../../stores/DataStore.jsx";
 import { Dialogs, dialogStore } from "./DialogStore.jsx";
 import { Button } from "../common/Button.jsx";
 

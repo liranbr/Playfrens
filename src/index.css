@@ -1,6 +1,16 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
+@import "./styles/radix-overrides.css";
+@import "./styles/ui-elements.css";
 
 :root {
+    --app-header-height: 56px;
+    --ui-card-width: 275px;
+    --ui-card-border-radius: 20px;
+    --game-card-width: 210px; /* for the game cards in the grid */
+    --game-card-border-radius: 0;
+    --icon-size: 30px; /* for icon buttons like ⋮ or + */
+    --dialog-fade-duration: 250ms;
+
     color-scheme: dark;
 
     --hsl-base-bg: 240 7%;
@@ -42,13 +52,6 @@
     --pf-border-500: 1px solid hsl(var(--hsl-base-bg) 24%);
     --pf-border-100: 1px solid hsl(var(--hsl-base-bg) 48%);
     --pf-border-color-primary: hsl(var(--hsl-base-btn-primary) 60%);
-
-    --sidebar-width: 275px;
-    --app-header-height: 56px;
-    --game-card-width: 210px; /* for the game cards in the grid */
-    --game-card-border-radius: 0;
-    --icon-size: 30px; /* for icon buttons like ⋮ or + */
-    --dialog-fade-duration: 250ms;
 }
 
 *,
@@ -84,14 +87,4 @@ body {
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-}
-
-input {
-    box-shadow: none !important;
-    --bs-body-bg: none;
-    background: none;
-}
-
-.toast-notification {
-    border: var(--pf-border-500);
 }

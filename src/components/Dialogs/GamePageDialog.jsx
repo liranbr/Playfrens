@@ -2,7 +2,7 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert } from "react-icons/md";
 import { observer } from "mobx-react-lite";
 import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
-import { removeGame } from "../../DataStore.jsx";
+import { removeGame } from "../../stores/DataStore.jsx";
 import { useValidatedImage } from "../../hooks/useValidatedImage.js";
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
@@ -54,7 +54,7 @@ const GPDSidebarGroup = observer(({ game, tagType }) => {
     };
     return (
         <div className="sidebar-group">
-            <CenterAndEdgesRow className="sidebar-header">
+            <CenterAndEdgesRow className="ui-card-header">
                 <div />
                 <h4>{title}</h4>
                 <AddTagDropdown tagType={tagType} game={game} />
@@ -68,7 +68,7 @@ const GPDSidebarGroup = observer(({ game, tagType }) => {
                     >
                         <Button
                             value={item}
-                            className="sidebar-button gp-sidebar-button"
+                            className="sidebar-button"
                             draggable="true"
                             onClick={() => handleRemove(item)}
                         >
@@ -142,7 +142,7 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
                     <VisuallyHidden>
                         <Dialog.Description>{"Game Page of " + game.title}</Dialog.Description>
                     </VisuallyHidden>
-                    <div className="gp-cover-art" style={{ "--bg-url": `url("${gameCover}")` }} />
+                    <img className="gp-cover-art" src={gameCover} alt="Game cover art" />
                     <div className="gp-container">
                         <CenterAndEdgesRow className="gp-header">
                             <GameOptionsButton game={game} />
@@ -154,17 +154,17 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
                         <div className="gp-header-shadow" />
                         <div className="gp-body">
                             <div className="gp-column">
-                                <div className="sidebar gp-element">
+                                <div className="ui-card">
                                     <GPDSidebarGroup tagType={tagTypes.friend} game={game} />
-                                    <div className="sidebar-separator" />
+                                    <div className="separator" />
                                     <GPDSidebarGroup tagType={tagTypes.category} game={game} />
-                                    <div className="sidebar-separator" />
+                                    <div className="separator" />
                                     <GPDSidebarGroup tagType={tagTypes.status} game={game} />
                                 </div>
                             </div>
                             <div className="gp-column">
-                                <div className="game-note-container gp-element">
-                                    <CenterAndEdgesRow className="sidebar-header">
+                                <div className="ui-card game-note-container">
+                                    <CenterAndEdgesRow className="ui-card-header">
                                         <div />
                                         <h4>NOTE</h4>
                                         <div />

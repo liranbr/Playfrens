@@ -47,7 +47,6 @@
     --app-header-height: 56px;
     --game-card-width: 210px; /* for the game cards in the grid */
     --game-card-border-radius: 0;
-    --gp-cover-art-width: 450px; /* for game page dialog */
     --icon-size: 30px; /* for icon buttons like ⋮ or + */
     --dialog-fade-duration: 250ms;
 }

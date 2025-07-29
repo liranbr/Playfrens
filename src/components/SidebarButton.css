@@ -46,6 +46,7 @@
             background-color: var(--pf-bg-500);
             outline-color: var(--pf-fg-500);
         }
+
         &:hover .icon-button:hover,
         &.active .icon-button {
             background-color: var(--pf-bg-200);

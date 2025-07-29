@@ -8,8 +8,10 @@
     border: none;
     outline: none;
     box-shadow: none;
-    gap: 14px; /* 12px gap + 1px outlines on container and card */
+    gap: 14px; /* 12px gap + 1px outlines on container and covert art card */
 
+    --cover-art-width: 450px; /* for game page dialog */
+    --cover-art-height: calc(var(--cover-art-width) * 1.5);
     --container-shadow: 0 0 20px rgba(0, 0, 0, 1);
     --element-shadow: 0 0 8px 3px rgba(0, 0, 0, 0.3);
     --header-height: 56px;
@@ -18,10 +20,12 @@
     --container-bg: var(--pf-bg-900);
     --element-bg: var(--pf-bg-700);
 
+    /* gp = Game Page */
+
     .gp-cover-art {
-        width: var(--gp-cover-art-width);
-        min-width: var(--gp-cover-art-width);
-        height: calc(var(--gp-cover-art-width) * 1.5);
+        width: var(--cover-art-width);
+        min-width: var(--cover-art-width);
+        height: var(--cover-art-height);
         outline: var(--border);
         border: none;
         border-radius: 20px;
@@ -33,15 +37,13 @@
 
         .gp-card-bg {
             position: absolute;
-            width: var(--gp-cover-art-width);
-            height: calc(var(--gp-cover-art-width) * 1.5);
+            width: var(--cover-art-width);
+            height: var(--cover-art-height);
             background-size: cover;
             background-position: center;
             background-image: var(--bg-url);
         }
     }
-
-    /* gp = Game Page */
 
     .gp-container {
         flex-direction: column;
@@ -54,7 +56,7 @@
         max-width: calc(
             var(--sidebar-width) * var(--cols-amount) + 12px * (var(--cols-amount) - 1) + 24px
         ); /* two columns, padding and gap */
-        height: calc(var(--gp-cover-art-width) * 1.5);
+        height: fit-content;
         box-shadow: var(--container-shadow);
 
         .gp-header {
@@ -91,7 +93,7 @@
             display: flex;
             flex-direction: row;
             width: 100%;
-            height: calc(var(--gp-cover-art-width) * 1.5 - 54px); /* 54px for header height */
+            height: calc(var(--cover-art-height) - var(--header-height));
             position: relative;
             overflow: hidden;
             gap: 12px;

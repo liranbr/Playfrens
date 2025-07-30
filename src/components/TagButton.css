@@ -1,0 +1,79 @@
+.tag-button-container {
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    border-radius: 16px;
+    height: fit-content;
+
+    .tag-button {
+        width: 100%;
+        height: 38px;
+        background: none;
+        border: none;
+        padding: 0 12px;
+        border-radius: inherit;
+        font-size: 18px;
+        text-align: left;
+        transition: none;
+
+        &:focus-visible + .icon-button {
+            opacity: 1;
+        }
+    }
+    .icon-button {
+        /* ⋮ menu button */
+        /* using opacity:0 and not display/visibility, to keep in DOM for keyboard navigation */
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 0;
+        color: white;
+    }
+    &:hover .icon-button,
+    &.dd-open .icon-button,
+    .icon-button:hover {
+        opacity: 1;
+    }
+}
+.sidebar-tbc {
+    &:hover {
+        .tag-button {
+            background-color: var(--pf-btn-primary);
+        }
+    }
+    &.dd-open .tag-button {
+        background-color: var(--pf-btn-primary);
+    }
+    &.dd-open .icon-button,
+    .icon-button:hover {
+        background-color: var(--pf-btn-primary-darker);
+    }
+    &.selected .tag-button {
+        background-color: var(--pf-btn-primary-active);
+        font-weight: 500;
+    }
+
+    &.excluded {
+        .tag-button {
+            outline: 2px dashed var(--pf-fg-700);
+            outline-offset: -2px;
+            color: var(--pf-fg-700);
+            text-decoration: line-through;
+        }
+        &:hover,
+        &:focus,
+        &.dd-open {
+            .tag-button {
+                color: var(--pf-fg-500);
+                background-color: var(--pf-bg-500);
+                outline-color: var(--pf-fg-500);
+            }
+        }
+
+        &.dd-open .icon-button,
+        &:hover .icon-button:hover {
+            background-color: var(--pf-bg-200);
+        }
+    }
+}

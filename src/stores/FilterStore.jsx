@@ -100,6 +100,14 @@ class FilterStore {
         return true;
     }
 
+    isTagSelected(tagType, tagName) {
+        return this.selectedTags[tagType.key]?.has(tagName) || false;
+    }
+
+    isTagExcluded(tagType, tagName) {
+        return this.excludedTags[tagType.key]?.has(tagName) || false;
+    }
+
     doesGamePassFilters(game) {
         // TODO: add fuzzy search matching
         if (this.search) {

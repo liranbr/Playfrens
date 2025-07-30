@@ -22,6 +22,15 @@
     display: flex;
 }
 
+.app-sidebar-container {
+    min-height: fit-content;
+    max-height: 100%;
+    min-width: fit-content;
+    max-width: fit-content;
+    padding: 12px 0 12px 12px; /* right gap comes from the grid */
+    overflow: auto;
+}
+
 .game-search {
     border-radius: 16px;
     border: var(--pf-border-500);

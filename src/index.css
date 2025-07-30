@@ -27,6 +27,7 @@
     --pf-fg-300: hsl(var(--hsl-base-bg) 75%);
 
     --hsl-base-btn-primary: 215 98%;
+    --pf-fg-link: hsl(var(--hsl-base-btn-primary) 75%);
     --pf-btn-primary: hsl(var(--hsl-base-btn-primary) 52%);
     --pf-btn-primary-hover: hsl(var(--hsl-base-btn-primary) 44%);
     --pf-btn-primary-active: hsl(var(--hsl-base-btn-primary) 40%);

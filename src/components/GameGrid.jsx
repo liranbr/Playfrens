@@ -10,9 +10,9 @@ import { useFilterStore } from "../stores/FilterStore.jsx";
 function GameCard({ game }) {
     const gameCover = useValidatedImage(game.coverImageURL);
     const handleDrop = (e) => {
-        const item = e.dataTransfer.getData("item");
+        const tagName = e.dataTransfer.getData("tagName");
         const tagTypeKey = e.dataTransfer.getData("tagTypeKey");
-        tagTypes[tagTypeKey].addToGame(game, item);
+        tagTypes[tagTypeKey].addToGame(game, tagName);
     };
     const openGamePageDialog = () => {
         dialogStore.open(Dialogs.Playfrens, { game });

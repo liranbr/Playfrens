@@ -13,7 +13,7 @@ import {
 import { backupToFile, restoreFromFile } from "./stores/DataStore.jsx";
 import { tagTypes } from "./models/TagTypes.jsx";
 import { GamesGrid } from "./components/GameGrid.jsx";
-import { SidebarGroup } from "./components/SidebarGroup.jsx";
+import { SidebarTagButtonGroup } from "./components/TagButtonGroup.jsx";
 import { DialogRoot } from "./components/Dialogs/DialogRoot.jsx";
 import "./App.css";
 import "react-toastify/dist/ReactToastify.css";
@@ -159,11 +159,11 @@ function AppSidebar() {
     return (
         <div className="app-sidebar-container">
             <div className="ui-card">
-                <SidebarGroup tagType={tagTypes.friend} />
+                <SidebarTagButtonGroup tagType={tagTypes.friend} />
                 <div className="separator" />
-                <SidebarGroup tagType={tagTypes.category} />
+                <SidebarTagButtonGroup tagType={tagTypes.category} />
                 <div className="separator" />
-                <SidebarGroup tagType={tagTypes.status} />
+                <SidebarTagButtonGroup tagType={tagTypes.status} />
             </div>
         </div>
     );

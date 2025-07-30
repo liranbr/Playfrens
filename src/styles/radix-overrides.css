@@ -85,6 +85,7 @@
         &:focus,
         &:active {
             text-decoration: underline;
+            color: var(--pf-fg-link);
         }
     }
 }
@@ -108,7 +109,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    background: var(--pf-bg-900);
+    background-color: var(--pf-bg-900);
     width: 425px;
     padding: 20px;
     height: fit-content;

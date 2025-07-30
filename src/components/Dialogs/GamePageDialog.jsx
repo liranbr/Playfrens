@@ -1,17 +1,18 @@
+import { useState } from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert } from "react-icons/md";
+import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert, MdRemove } from "react-icons/md";
 import { observer } from "mobx-react-lite";
-import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
-import { removeGame } from "../../stores/DataStore.jsx";
-import { useValidatedImage } from "../../hooks/useValidatedImage.js";
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { removeGame } from "../../stores/DataStore.jsx";
+import { useValidatedImage } from "../../hooks/useValidatedImage.js";
 import { tagTypes } from "../../models/TagTypes.jsx";
-import "./GamePageDialog.css";
 import { Dialogs, dialogStore } from "./DialogStore.jsx";
-import { useState } from "react";
 import { IconButton } from "../common/IconButton.jsx";
 import { CenterAndEdgesRow } from "../common/CenterAndEdgesRow.jsx";
+import "../TagButtonGroup.css";
+import "../TagButton.css";
+import "./GamePageDialog.css";
 
 const AddTagDropdown = ({ tagType, game }) => {
     const [open, setOpen] = useState(false);
@@ -46,35 +47,62 @@ const AddTagDropdown = ({ tagType, game }) => {
     );
 };
 
-const GPDSidebarGroup = observer(({ game, tagType }) => {
-    const title = tagType.plural.toUpperCase();
-    const gameTagsList = tagType.gameTagsList(game);
-    const handleRemove = (item) => {
-        tagType.removeFromGame(game, item);
+const GPTagButton = observer(({ game, tagType, tagName }) => {
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const handleRemove = () => {
+        tagType.removeFromGame(game, tagName);
     };
     return (
-        <div className="sidebar-group">
+        <div
+            className={"tag-button-container" + (dropdownOpen ? " dd-open" : "")}
+            onClick={() => setDropdownOpen(true)}
+        >
+            <button value={tagName} className="tag-button" draggable="true">
+                {tagName}
+            </button>
+
+            <DropdownMenu.Root open={dropdownOpen} onOpenChange={setDropdownOpen}>
+                <DropdownMenu.Trigger asChild>
+                    <IconButton>
+                        <MdMoreVert />
+                    </IconButton>
+                </DropdownMenu.Trigger>
+
+                <DropdownMenu.Portal>
+                    <DropdownMenu.Content
+                        className="rx-dropdown-menu"
+                        align={"start"}
+                        side={"bottom"}
+                        sideOffset={5}
+                    >
+                        <DropdownMenu.Item onClick={handleRemove}>
+                            <MdRemove /> Remove
+                        </DropdownMenu.Item>
+                    </DropdownMenu.Content>
+                </DropdownMenu.Portal>
+            </DropdownMenu.Root>
+        </div>
+    );
+});
+
+const GPTagButtonGroup = observer(({ game, tagType }) => {
+    const title = tagType.plural.toUpperCase();
+    const gameTagsList = tagType.gameTagsList(game);
+    return (
+        <div className="tag-button-group">
             <CenterAndEdgesRow className="ui-card-header">
                 <div />
                 <h4>{title}</h4>
                 <AddTagDropdown tagType={tagType} game={game} />
             </CenterAndEdgesRow>
-            <div className="sidebar-buttons-list">
-                {gameTagsList.map((item, index) => (
-                    <OverlayTrigger
-                        key={"btn-overlay-" + tagType.key + "-" + item + "-" + index}
-                        placement={"right"}
-                        overlay={<Tooltip style={{ transition: "none" }}>Remove</Tooltip>}
-                    >
-                        <Button
-                            value={item}
-                            className="sidebar-button"
-                            draggable="true"
-                            onClick={() => handleRemove(item)}
-                        >
-                            {item}
-                        </Button>
-                    </OverlayTrigger>
+            <div className="tag-button-list">
+                {gameTagsList.map((tagName, index) => (
+                    <GPTagButton
+                        key={"btn-" + tagType.key + "-" + tagName + "-" + index}
+                        game={game}
+                        tagType={tagType}
+                        tagName={tagName}
+                    />
                 ))}
             </div>
         </div>
@@ -155,11 +183,11 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
                         <div className="gp-body">
                             <div className="gp-column">
                                 <div className="ui-card">
-                                    <GPDSidebarGroup tagType={tagTypes.friend} game={game} />
+                                    <GPTagButtonGroup tagType={tagTypes.friend} game={game} />
                                     <div className="separator" />
-                                    <GPDSidebarGroup tagType={tagTypes.category} game={game} />
+                                    <GPTagButtonGroup tagType={tagTypes.category} game={game} />
                                     <div className="separator" />
-                                    <GPDSidebarGroup tagType={tagTypes.status} game={game} />
+                                    <GPTagButtonGroup tagType={tagTypes.status} game={game} />
                                 </div>
                             </div>
                             <div className="gp-column">

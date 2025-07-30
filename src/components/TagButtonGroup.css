@@ -1,0 +1,26 @@
+.tag-button-group {
+    width: 100%;
+    min-height: 164px; /* meant to fit 3 buttons */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex-shrink: 1;
+    flex-grow: 1;
+    flex-basis: auto;
+
+    &:first-child {
+        flex-shrink: 1000;
+        flex-grow: 1000;
+    }
+
+    .tag-button-list {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 1px 12px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        scrollbar-gutter: stable;
+    }
+}

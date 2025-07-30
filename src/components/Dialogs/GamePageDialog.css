@@ -8,6 +8,7 @@
     padding: 0;
     border: none;
     outline: none;
+    overflow: unset;
     box-shadow: none;
     gap: 12px;
 
@@ -103,19 +104,19 @@
                 border: var(--border);
                 box-shadow: var(--element-shadow);
 
-                .sidebar-group {
-                    min-height: fit-content;
-
-                    .sidebar-button:hover {
-                        --bs-btn-active-bg: none;
-                        background: none;
-                        outline: var(--pf-border-100);
-                        color: #fff;
-                    }
-                }
-
                 .separator {
                     border-top: var(--border);
+                }
+            }
+
+            .tag-button-group {
+                min-height: fit-content;
+
+                .tag-button-container {
+                    &:hover .tag-button,
+                    &.dd-open .tag-button {
+                        background-color: var(--pf-bg-300);
+                    }
                 }
             }
 

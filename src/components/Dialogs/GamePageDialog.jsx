@@ -75,7 +75,7 @@ const GPTagButton = observer(({ game, tagType, tagName }) => {
                         side={"bottom"}
                         sideOffset={5}
                     >
-                        <DropdownMenu.Item onClick={handleRemove}>
+                        <DropdownMenu.Item data-danger onClick={handleRemove}>
                             <MdRemove /> Remove
                         </DropdownMenu.Item>
                     </DropdownMenu.Content>

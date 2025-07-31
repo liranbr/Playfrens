@@ -1,5 +1,4 @@
-/* TODO: After removing React-Bootstrap, switch 'button' to 'btn' and 'btn-primary' etc */
-.button {
+.btn {
     min-width: 80px;
     width: fit-content;
     min-height: 36px;
@@ -10,7 +9,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
     transition: 0.15s ease-in-out;
-    cursor: pointer;
 
     --pf-btn: var(--pf-btn-primary);
     --pf-btn-hover: var(--pf-btn-primary-hover);
@@ -25,19 +23,19 @@
         background-color: var(--pf-btn-active);
     }
 
-    &.button-primary {
+    &.btn-primary {
         --pf-btn: var(--pf-btn-primary);
         --pf-btn-hover: var(--pf-btn-primary-hover);
         --pf-btn-active: var(--pf-btn-primary-active);
     }
 
-    &.button-secondary {
+    &.btn-secondary {
         --pf-btn: var(--pf-btn-secondary);
         --pf-btn-hover: var(--pf-btn-secondary-hover);
         --pf-btn-active: var(--pf-btn-secondary-active);
     }
 
-    &.button-danger {
+    &.btn-danger {
         --pf-btn: var(--pf-btn-danger);
         --pf-btn-hover: var(--pf-btn-danger-hover);
         --pf-btn-active: var(--pf-btn-danger-active);

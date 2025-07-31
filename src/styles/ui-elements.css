@@ -1,11 +1,32 @@
 input {
     box-shadow: none !important;
-    --bs-body-bg: none;
     background: none;
+    font-size: inherit;
 }
 
-.toast-notification {
-    border: var(--pf-border-500);
+textarea {
+    font-family: inherit;
+    font-size: inherit;
+}
+
+a {
+    color: var(--pf-fg-link);
+    &:hover {
+        color: var(--pf-fg-link-hover);
+    }
+}
+
+button {
+    cursor: pointer;
+}
+
+fieldset {
+    border: none;
+}
+
+.Toastify__toast {
+    border: var(--pf-border-700);
+    border-width: 2px;
 }
 
 .separator {

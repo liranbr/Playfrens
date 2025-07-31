@@ -1,6 +1,8 @@
 import { useState } from "react";
-import Form from "react-bootstrap/Form";
+import { observer } from "mobx-react-lite";
 import { ToastContainer } from "react-toastify";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import * as Avatar from "@radix-ui/react-avatar";
 import {
     MdChevronRight,
     MdClose,
@@ -15,23 +17,19 @@ import { tagTypes } from "./models/TagTypes.jsx";
 import { GamesGrid } from "./components/GameGrid.jsx";
 import { SidebarTagButtonGroup } from "./components/TagButtonGroup.jsx";
 import { DialogRoot } from "./components/Dialogs/DialogRoot.jsx";
-import "./App.css";
-import "react-toastify/dist/ReactToastify.css";
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import * as Avatar from "@radix-ui/react-avatar";
 import { Dialogs, dialogStore } from "./components/Dialogs/DialogStore.jsx";
 import { useFilterStore } from "./stores/FilterStore.jsx";
-import { observer } from "mobx-react-lite";
 import { IconButton } from "./components/common/IconButton.jsx";
 import { CenterAndEdgesRow } from "./components/common/CenterAndEdgesRow.jsx";
+import "./App.css";
 
 function AppMenu() {
-    const [open, setOpen] = useState(false);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
     return (
         <>
-            <DropdownMenu.Root onOpenChange={setOpen}>
+            <DropdownMenu.Root onOpenChange={setDropdownOpen}>
                 <DropdownMenu.Trigger asChild>
-                    <IconButton icon={<MdMenu />} activate={open} />
+                    <IconButton icon={<MdMenu />} activate={dropdownOpen} />
                 </DropdownMenu.Trigger>
                 <DropdownMenu.Content
                     className="rx-dropdown-menu"
@@ -97,42 +95,14 @@ const AppHeader = observer(() => {
             <div>
                 <AppMenu />
                 <div className="app-brand">
-                    <img src="/Playfrens_Logo.png" alt="Playfrens Logo" width={30} height={30} />
-                    <b> Playfrens</b>
+                    <img src="/Playfrens_Logo.png" alt="Playfrens Logo" />
+                    Playfrens
                 </div>
             </div>
 
-            {/*TODO: Replace this whole form + reset button*/}
-            <div>
-                <Form inline="true" className="flex-row align-items-center justify-content-center">
-                    <Form.Control
-                        type="text"
-                        placeholder="Search"
-                        value={search}
-                        onChange={updateSearch}
-                        className={"game-search" + (search ? " has-value" : "")}
-                        autoComplete="off"
-                        onKeyDown={(e) => (e.key === "Enter" ? e.preventDefault() : null)}
-                        onSubmit={(e) => e.preventDefault()}
-                    />
-                    {/*TODO: improve here when removing bootstrap*/}
-                    <IconButton
-                        icon={<MdClose />}
-                        onClick={updateSearch}
-                        type="reset"
-                        style={{
-                            display: search ? "flex" : "none",
-                            position: "absolute",
-                            fontSize: "20px",
-                            right: "0",
-                            top: "50%",
-                            transform: "translateY(-50%)",
-                            border: "none",
-                            background: "none",
-                            alignItems: "center",
-                        }}
-                    />
-                </Form>
+            <div className={"game-search" + (search ? " has-value" : "")}>
+                <input value={search} onChange={updateSearch} placeholder="Search" />
+                <IconButton icon={<MdClose />} type="reset" onClick={updateSearch} />
             </div>
 
             <div>
@@ -178,7 +148,7 @@ export default function App() {
                 <GamesGrid />
             </div>
             <DialogRoot />
-            <ToastContainer toastClassName="toast-notification" />
+            <ToastContainer />
         </>
     );
 }

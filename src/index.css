@@ -1,9 +1,11 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
+@import "react-toastify/dist/ReactToastify.css";
 @import "./styles/radix-overrides.css";
 @import "./styles/ui-elements.css";
 
 :root {
     --app-header-height: 56px;
+    --app-header-element-height: 36px;
     --ui-card-width: 275px;
     --ui-card-border-radius: 20px;
     --game-card-width: 210px; /* for the game cards in the grid */
@@ -27,7 +29,8 @@
     --pf-fg-300: hsl(var(--hsl-base-bg) 75%);
 
     --hsl-base-btn-primary: 215 98%;
-    --pf-fg-link: hsl(var(--hsl-base-btn-primary) 75%);
+    --pf-fg-link-hover: hsl(var(--hsl-base-btn-primary) 77%);
+    --pf-fg-link: hsl(var(--hsl-base-btn-primary) 71%);
     --pf-btn-primary: hsl(var(--hsl-base-btn-primary) 52%);
     --pf-btn-primary-hover: hsl(var(--hsl-base-btn-primary) 44%);
     --pf-btn-primary-active: hsl(var(--hsl-base-btn-primary) 40%);
@@ -60,8 +63,6 @@
 *::after {
     margin: 0;
     padding: 0;
-    --bs-gutter-x: 0;
-    --bs-gutter-y: 0;
     box-sizing: border-box;
     scrollbar-width: thin;
 
@@ -82,10 +83,11 @@ body {
     background-color: var(--pf-bg-500);
     color: #fff;
 
-    font-family: "Roboto", sans-serif;
-    line-height: 1.5;
+    font-family: "Roboto", sans-serif, system-ui;
     font-weight: 400;
-    text-rendering: optimizeLegibility;
+    font-size: 14px;
+    line-height: 1.5;
+    text-rendering: optimizeSpeed;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }

@@ -11,7 +11,7 @@ import "./Button.css";
  */
 export function Button({ variant = "primary", className = "", children, ...rest }) {
     return (
-        <button className={`button button-${variant} ${className}`} {...rest}>
+        <button className={`btn btn-${variant} ${className}`} {...rest}>
             {children}
         </button>
     );

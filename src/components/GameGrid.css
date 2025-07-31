@@ -25,7 +25,6 @@
     padding: 0;
     border: 0;
     border-radius: var(--game-card-border-radius);
-    cursor: pointer;
     background-color: transparent;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.9);
     transition: 0.3s ease;
@@ -48,6 +47,7 @@
         font-size: 16px;
         font-weight: bold;
         text-align: center;
+        font-family: sans-serif;
         opacity: 0;
         transition: 0.3s ease;
         overflow: hidden;
@@ -55,6 +55,7 @@
         text-overflow: ellipsis;
         -webkit-text-stroke: 4px rgba(0, 0, 0, 0.66);
         paint-order: stroke fill;
+        text-rendering: optimizeLegibility;
     }
 
     &:hover {

@@ -85,7 +85,7 @@
         &:focus,
         &:active {
             text-decoration: underline;
-            color: var(--pf-fg-link);
+            color: var(--pf-fg-link-hover);
         }
     }
 }
@@ -121,6 +121,7 @@
     position: fixed;
     top: 50%;
     left: 50%;
+    will-change: transform, opacity;
     transform: translate(-50%, -50%);
     z-index: 101;
 

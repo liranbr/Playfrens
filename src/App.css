@@ -14,6 +14,11 @@
     gap: 8px;
     margin-left: 16px;
     user-select: none;
+    font-weight: bold;
+    img {
+        height: 30px;
+        width: 30px;
+    }
 }
 
 #main-content {
@@ -32,28 +37,47 @@
 }
 
 .game-search {
+    position: relative;
     border-radius: 16px;
-    border: var(--pf-border-500);
-    height: 36px;
-    width: 300px;
-    box-sizing: border-box;
+    input {
+        height: var(--app-header-element-height);
+        width: 300px;
+        border-radius: inherit;
+        border: var(--pf-border-500);
+        outline: none;
+        padding: 0 12px;
+        font-size: 16px;
 
-    &::placeholder {
-        color: var(--pf-fg-500);
+        &::placeholder {
+            color: var(--pf-fg-500);
+        }
+        &:focus {
+            border-color: var(--pf-border-color-primary);
+        }
     }
-
-    &:focus {
-        border-color: var(--pf-border-color-primary);
+    .icon-button {
+        visibility: hidden;
+        position: absolute;
+        width: fit-content;
+        font-size: 20px;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        border-radius: inherit;
     }
-
     &.has-value {
-        border: 2px solid var(--pf-btn-primary);
+        input {
+            border: 2px solid var(--pf-btn-primary);
+        }
+        .icon-button {
+            visibility: visible;
+        }
     }
 }
 
 .new-game-button {
     margin: 0 16px 0 auto;
-    height: 36px;
+    height: var(--app-header-element-height);
     width: fit-content;
     display: flex;
     align-items: center;

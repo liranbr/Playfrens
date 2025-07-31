@@ -14,12 +14,12 @@ import "../TagButtonGroup.css";
 import "../TagButton.css";
 import "./GamePageDialog.css";
 
-const AddTagDropdown = ({ tagType, game }) => {
-    const [open, setOpen] = useState(false);
+const AddTagButton = ({ tagType, game }) => {
+    const [openDropdown, setOpenDropdown] = useState(false);
     return (
-        <DropdownMenu.Root onOpenChange={setOpen}>
+        <DropdownMenu.Root onOpenChange={setOpenDropdown}>
             <DropdownMenu.Trigger asChild>
-                <IconButton icon={<MdAdd />} activate={open} />
+                <IconButton icon={<MdAdd />} activate={openDropdown} />
             </DropdownMenu.Trigger>
 
             <DropdownMenu.Portal>
@@ -93,7 +93,7 @@ const GPTagButtonGroup = observer(({ game, tagType }) => {
             <CenterAndEdgesRow className="ui-card-header">
                 <div />
                 <h4>{title}</h4>
-                <AddTagDropdown tagType={tagType} game={game} />
+                <AddTagButton tagType={tagType} game={game} />
             </CenterAndEdgesRow>
             <div className="tag-button-list">
                 {gameTagsList.map((tagName, index) => (
@@ -110,11 +110,11 @@ const GPTagButtonGroup = observer(({ game, tagType }) => {
 });
 
 function GameOptionsButton({ game }) {
-    const [open, setOpen] = useState(false);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
     return (
-        <DropdownMenu.Root onOpenChange={setOpen}>
+        <DropdownMenu.Root onOpenChange={setDropdownOpen}>
             <DropdownMenu.Trigger asChild>
-                <IconButton icon={<MdMoreVert />} activate={open} />
+                <IconButton icon={<MdMoreVert />} activate={dropdownOpen} />
             </DropdownMenu.Trigger>
 
             <DropdownMenu.Portal>

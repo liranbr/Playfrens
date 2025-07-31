@@ -12,6 +12,10 @@
         min-width: 0;
     }
 
+    & > :nth-child(1) {
+        justify-self: left;
+    }
+
     & > :nth-child(2) {
         justify-self: center;
     }

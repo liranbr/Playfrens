@@ -16,7 +16,7 @@
     --cover-art-height: calc(var(--cover-art-width) * 1.5);
     --container-shadow: 0 0 20px rgba(0, 0, 0, 1);
     --element-shadow: 0 0 8px 3px rgba(0, 0, 0, 0.3);
-    --header-height: 56px;
+    --header-height: 48px;
     --cols-amount: 2;
     --border: var(--pf-border-700);
     --outer-border: var(--pf-border-700);
@@ -52,7 +52,7 @@
 
         .gp-header {
             height: var(--header-height);
-            padding: 12px;
+            padding: 0 12px;
             background-color: inherit;
             border-top-left-radius: var(--border-radius);
             border-top-right-radius: var(--border-radius);
@@ -131,7 +131,7 @@
                     background: none;
                     right: 0;
                     left: 0;
-                    padding: 12px 8px;
+                    padding: 0 8px;
                     border: none;
                     outline: none;
                     border-radius: var(--border-radius);

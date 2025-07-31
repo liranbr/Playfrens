@@ -48,7 +48,7 @@ export const allGames = observable.array(
             }
             return new GameObject(
                 game.title,
-                game.coverImageURL || game.coverImagePath,
+                game.coverImageURL,
                 game.sortingTitle,
                 game.friends,
                 game.categories,
@@ -137,7 +137,6 @@ export const removeTag = action((tagType, value) => {
         toastError(`${value} does not exist in ${tagType.plural} list`);
         return false;
     }
-    // TODO: Add Dialog Confirmation
     setToastSilence(true);
     allGames.forEach((game) => {
         tagType.removeFromGame(game, value);

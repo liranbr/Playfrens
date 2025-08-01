@@ -14,6 +14,8 @@
         border-radius: inherit;
         font-size: 18px;
         text-align: left;
+        overflow: hidden;
+        text-overflow: ellipsis;
         transition: none;
 
         &:focus-visible + .icon-button {

@@ -45,7 +45,7 @@
         border-radius: inherit;
         border: var(--pf-border-500);
         outline: none;
-        padding: 0 12px;
+        padding: 0 var(--icon-size) 0 12px;
         font-size: 16px;
 
         &::placeholder {

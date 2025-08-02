@@ -38,6 +38,7 @@ export const DialogRoot = observer(() => (
 
 // This is the base for all dialogs only
 export const DialogBase = observer(({ children, open, onOpenChange, overlay = true, contentProps = undefined }) => {
+
     return (
         <Dialog.Root open={open} onOpenChange={onOpenChange}>
             <Dialog.Portal>

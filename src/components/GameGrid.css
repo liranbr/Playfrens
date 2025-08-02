@@ -24,6 +24,7 @@
     margin: 0;
     padding: 0;
     border: 0;
+    outline: 4px solid transparent;
     border-radius: var(--game-card-border-radius);
     background-color: transparent;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.9);
@@ -64,8 +65,12 @@
         z-index: 1;
 
         .game-card-title-overlay {
-            transform: scale(1.01); /* fixes flicker on scale end */
+            transform: scale(1.01); /* reduces flicker on transition end */
             opacity: 1;
         }
+    }
+    &.tag-hovered {
+        outline: 4px solid var(--pf-border-color-primary);
+        transition: outline 0.3s ease 0.45s; /* delay on appearance, not disappearance */
     }
 }

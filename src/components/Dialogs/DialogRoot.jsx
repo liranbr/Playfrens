@@ -6,7 +6,7 @@ import { GamePageDialog } from "./GamePageDialog.jsx";
 import { DeleteWarningDialog } from "./DeleteWarningDialog.jsx";
 import { SettingsDialog } from "./SettingsDialog.jsx";
 import { AboutDialog } from "./AboutDialog.jsx";
-
+import * as Dialog from "@radix-ui/react-dialog";
 export const DialogRoot = observer(() => (
     <>
         {dialogStore.dialogStack.map(({ name, props, open }, index) => {
@@ -35,3 +35,17 @@ export const DialogRoot = observer(() => (
         })}
     </>
 ));
+
+// This is the base for all dialogs only
+export const DialogBase = observer(({ children, open, onOpenChange, overlay = true, contentProps = undefined }) => {
+    return (
+        <Dialog.Root open={open} onOpenChange={onOpenChange}>
+            <Dialog.Portal>
+                {overlay && <Dialog.Overlay className="rx-dialog-overlay" />}
+                <Dialog.Content {...contentProps} className={contentProps?.className ? contentProps.className : "rx-dialog"}>
+                    {children}
+                </Dialog.Content>
+            </Dialog.Portal>
+        </Dialog.Root>
+    )
+})

@@ -1,19 +1,4 @@
-import { Bounce, toast } from "react-toastify";
-import { observable } from "mobx";
-
-const toastOptions = {
-    position: "bottom-center",
-    autoClose: 3000,
-    closeButton: false,
-    hideProgressBar: true,
-    closeOnClick: true,
-    pauseOnHover: true,
-    pauseOnFocusLoss: false,
-    draggable: true,
-    progress: undefined,
-    theme: "dark",
-    transition: Bounce,
-};
+import { toast } from "react-toastify";
 
 let silentToasts = false;
 
@@ -22,12 +7,12 @@ export function setToastSilence(silence) {
 }
 
 export function toastError(message) {
-    if (!silentToasts) toast.error(message, toastOptions);
+    if (!silentToasts) toast.error(message);
 }
 
 export function toastDataChangeSuccess(message) {
     // game data changes don't cause a game grid filter update, this triggers it
-    if (!silentToasts) toast.success(message, toastOptions);
+    if (!silentToasts) toast.success(message);
 }
 
 export function insertSortedByOrder(item, array, orderArray) {

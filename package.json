@@ -16,8 +16,8 @@
         "@radix-ui/react-visually-hidden": "^1.2.3",
         "mobx": "^6.13.7",
         "mobx-react-lite": "^4.1.0",
-        "react": "^19.0.0",
-        "react-dom": "^19.0.0",
+        "react": "^19.1.1",
+        "react-dom": "^19.1.1",
         "react-icons": "^5.5.0",
         "react-toastify": "^11.0.5"
     },

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { observer } from "mobx-react-lite";
-import { ToastContainer } from "react-toastify";
+import { Bounce, ToastContainer } from "react-toastify";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Avatar from "@radix-ui/react-avatar";
 import {
@@ -139,6 +139,23 @@ function AppSidebar() {
     );
 }
 
+function ToastRoot() {
+    return (
+        <ToastContainer
+            position="bottom-center"
+            autoClose={3000}
+            closeButton={false}
+            hideProgressBar={true}
+            closeOnClick={true}
+            pauseOnHover={true}
+            draggable={true}
+            progress={undefined}
+            theme="dark"
+            toastClassName="toast-notification"
+        />
+    );
+}
+
 export default function App() {
     return (
         <>
@@ -148,7 +165,7 @@ export default function App() {
                 <GamesGrid />
             </div>
             <DialogRoot />
-            <ToastContainer />
+            <ToastRoot />
         </>
     );
 }

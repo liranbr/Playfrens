@@ -10,6 +10,7 @@ import {
     toastDataChangeSuccess,
     toastError,
 } from "../Utils.jsx";
+import { settingsKeyInStorage } from "./SettingsStore.jsx";
 
 function loadFromStorageObsArray(key) {
     return observable.array(loadFromStorage(key, []));
@@ -74,6 +75,7 @@ export function backupToFile() {
         allCategories: allCategories,
         allStatuses: allStatuses,
         allGames: allGames,
+        settings: loadFromStorage(settingsKeyInStorage, {}),
     };
     const blob = new Blob([JSON.stringify(data, null, 4)], {
         type: "application/json",
@@ -100,7 +102,7 @@ export function restoreFromFile(file) {
                 (game) =>
                     new GameObject(
                         game.title,
-                        game.coverImageURL || game.coverImagePath,
+                        game.coverImageURL,
                         game.sortingTitle,
                         game.friends,
                         game.categories,
@@ -110,6 +112,7 @@ export function restoreFromFile(file) {
                     ),
             ),
         );
+        saveToStorage(settingsKeyInStorage, data[settingsKeyInStorage]);
         window.location.reload();
     });
     reader.readAsText(file);

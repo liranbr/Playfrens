@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { observer } from "mobx-react-lite";
-import { Bounce, ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Avatar from "@radix-ui/react-avatar";
 import {

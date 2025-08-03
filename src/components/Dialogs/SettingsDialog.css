@@ -1,0 +1,6 @@
+.settings-dialog {
+    gap: 12px;
+    p {
+        color: var(--pf-fg-300);
+    }
+}

@@ -26,7 +26,10 @@ export const SidebarTagButton = observer(({ tagName, tagType }) => {
             <button
                 value={tagName}
                 className={"tag-button"}
-                onClick={toggleSelection}
+                onClick={() => {
+                    toggleSelection();
+                    filterStore.setHoveredTag(null, null);
+                }}
                 draggable="true"
                 onDragStart={(e) => {
                     e.dataTransfer.setData("tagName", tagName);

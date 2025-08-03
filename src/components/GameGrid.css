@@ -28,7 +28,9 @@
     border-radius: var(--game-card-border-radius);
     background-color: transparent;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.9);
-    transition: 0.3s ease;
+    transition:
+        0.3s ease,
+        filter 0.3s ease 0.1s;
 
     img {
         width: 100%;
@@ -71,6 +73,10 @@
     }
     &.highlight {
         outline: 4px solid var(--pf-border-color-primary);
-        transition: outline 0.3s ease 0.45s; /* delay on appearance, not disappearance */
+        transition: outline 0.3s ease 0.5s; /* delay on appearance, not disappearance */
+    }
+    &.darken {
+        filter: brightness(0.4) grayscale(0.5);
+        transition: filter 0.3s ease 0.5s; /* longer delay on appearance */
     }
 }

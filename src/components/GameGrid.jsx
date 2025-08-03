@@ -47,12 +47,13 @@ export const GamesGrid = observer(() => {
         if (
             hoverTagSetting !== "none" &&
             hoveredTagType &&
-            hoveredTagName &&
-            !filterStore.isTagSelected(hoveredTagType, hoveredTagName) &&
-            game.hasTag(hoveredTagType, hoveredTagName)
+            hoveredTagName
+            // !filterStore.isTagSelected(hoveredTagType, hoveredTagName) &&
         ) {
-            if (hoverTagSetting === "highlight") return " highlight";
-            // TODO: implement darken-the-rest variant
+            if (hoverTagSetting === "highlight" && game.hasTag(hoveredTagType, hoveredTagName))
+                return " highlight";
+            if (hoverTagSetting === "darken" && !game.hasTag(hoveredTagType, hoveredTagName))
+                return " darken";
         }
 
         return "";

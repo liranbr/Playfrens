@@ -50,8 +50,7 @@ class DialogStore {
         this.currentDialog.open = false;
         this.previousDialog.open = false;
         this.afterCloseAnimation(() => {
-            this.dialogStack.pop();
-            this.dialogStack.pop();
+            this.dialogStack.splice(-2, 2)
         });
     };
 

@@ -6,8 +6,9 @@ import "./GameGrid.css";
 import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
 import { observer } from "mobx-react-lite";
 import { useFilterStore } from "../stores/FilterStore.jsx";
+import { useSettingsStore } from "../stores/SettingsStore.jsx";
 
-function GameCard({ game }) {
+function GameCard({ game, className = "" }) {
     const gameCover = useValidatedImage(game.coverImageURL);
     const handleDrop = (e) => {
         const tagName = e.dataTransfer.getData("tagName");
@@ -19,7 +20,7 @@ function GameCard({ game }) {
     };
     return (
         <button
-            className="game-card"
+            className={"game-card" + className}
             onClick={openGamePageDialog}
             onDrop={handleDrop}
             onDragOver={(e) => e.preventDefault()}
@@ -37,7 +38,25 @@ function GameCard({ game }) {
 
 export const GamesGrid = observer(() => {
     const filterStore = useFilterStore();
+    const settingsStore = useSettingsStore();
     const filteredGames = filterStore.filteredGames;
+    const hoveredTagClassname = (game) => {
+        const hoverTagSetting = settingsStore.TagHoverGameHighlight;
+        const hoveredTagType = filterStore.hoveredTag.tagType;
+        const hoveredTagName = filterStore.hoveredTag.tagName;
+        if (
+            hoverTagSetting !== "none" &&
+            hoveredTagType &&
+            hoveredTagName &&
+            !filterStore.isTagSelected(hoveredTagType, hoveredTagName) &&
+            game.hasTag(hoveredTagType, hoveredTagName)
+        ) {
+            if (hoverTagSetting === "highlight") return " highlight";
+            // TODO: implement darken-the-rest variant
+        }
+
+        return "";
+    };
 
     // useEffect to update the grid justification if there aren't enough items to fill the row
     const gridRef = useRef(null);
@@ -61,7 +80,7 @@ export const GamesGrid = observer(() => {
         <div className="games-grid-container">
             <div className="games-grid" ref={gridRef}>
                 {filteredGames.map((game, index) => (
-                    <GameCard key={index} game={game} />
+                    <GameCard className={hoveredTagClassname(game)} key={index} game={game} />
                 ))}
             </div>
         </div>

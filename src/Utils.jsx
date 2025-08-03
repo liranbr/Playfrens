@@ -1,4 +1,5 @@
 import { Bounce, toast } from "react-toastify";
+import { observable } from "mobx";
 
 const toastOptions = {
     position: "bottom-center",
@@ -46,4 +47,17 @@ export function compareGameTitles(a, b) {
     const titleA = a.sortingTitle || a.title;
     const titleB = b.sortingTitle || b.title;
     return compareAlphaIgnoreCase(titleA, titleB);
+}
+
+export function loadFromStorage(key, fallback) {
+    try {
+        const item = localStorage.getItem(key);
+        return item !== null ? JSON.parse(item) : fallback;
+    } catch {
+        return fallback;
+    }
+}
+
+export function saveToStorage(key, value) {
+    localStorage.setItem(key, JSON.stringify(value, null, 4));
 }

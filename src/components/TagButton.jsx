@@ -32,6 +32,12 @@ export const SidebarTagButton = observer(({ tagName, tagType }) => {
                     e.dataTransfer.setData("tagName", tagName);
                     e.dataTransfer.setData("tagTypeKey", tagType.key);
                 }}
+                onMouseOver={() => {
+                    filterStore.setHoveredTag(tagType, tagName);
+                }}
+                onMouseLeave={() => {
+                    filterStore.setHoveredTag(null, null);
+                }}
             >
                 {tagName}
             </button>

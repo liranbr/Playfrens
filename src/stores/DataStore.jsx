@@ -4,32 +4,32 @@ import { tagTypes } from "../models/TagTypes.jsx";
 import {
     compareAlphaIgnoreCase,
     compareGameTitles,
+    loadFromStorage,
+    saveToStorage,
     setToastSilence,
     toastDataChangeSuccess,
     toastError,
 } from "../Utils.jsx";
 
-function loadObsArray(key) {
-    return observable.array(JSON.parse(localStorage.getItem(key) || "[]"));
+function loadFromStorageObsArray(key) {
+    return observable.array(loadFromStorage(key, []));
 }
 
-function saveObsArray(key, value) {
-    localStorage.setItem(key, JSON.stringify(value, null, 4));
-}
-
-const firstVisit = localStorage.getItem("Visited") === null;
+const visited = loadFromStorage("Visited", false);
+const firstVisit = !visited;
 if (firstVisit) {
     const defaultCategories = ["Playthrough", "Round-based", "Persistent World"];
     const defaultStatuses = ["Playing", "LFG", "Paused", "Backlog", "Abandoned", "Finished"];
-    localStorage.setItem("allCategories", JSON.stringify(defaultCategories, null, 4));
-    localStorage.setItem("allStatuses", JSON.stringify(defaultStatuses, null, 4));
-    localStorage.setItem("Visited", "true");
+    saveToStorage("allCategories", defaultCategories);
+    saveToStorage("allStatuses", defaultStatuses);
+    saveToStorage("Visited", true);
 }
 
 // load tags from localstorage as observables
-export const allFriends = loadObsArray("allFriends").sort(compareAlphaIgnoreCase);
-export const allCategories = loadObsArray("allCategories");
-export const allStatuses = loadObsArray("allStatuses");
+export const allFriends = loadFromStorageObsArray("allFriends").sort(compareAlphaIgnoreCase);
+export const allCategories = loadFromStorageObsArray("allCategories");
+export const allStatuses = loadFromStorageObsArray("allStatuses");
+
 const tagsSortOrder = {
     friends: allFriends,
     categories: allCategories,
@@ -40,7 +40,7 @@ tagTypes.category.allTagsList = allCategories;
 tagTypes.status.allTagsList = allStatuses;
 
 export const allGames = observable.array(
-    loadObsArray("allGames")
+    loadFromStorageObsArray("allGames")
         .map((game) => {
             if (!game) {
                 console.warn("Skipping invalid game data:", game);
@@ -62,10 +62,10 @@ export const allGames = observable.array(
 );
 
 // when a change is made to an array, it is saved to localstorage
-autorun(() => saveObsArray("allFriends", allFriends));
-autorun(() => saveObsArray("allCategories", allCategories));
-autorun(() => saveObsArray("allStatuses", allStatuses));
-autorun(() => saveObsArray("allGames", allGames));
+autorun(() => saveToStorage("allFriends", allFriends));
+autorun(() => saveToStorage("allCategories", allCategories));
+autorun(() => saveToStorage("allStatuses", allStatuses));
+autorun(() => saveToStorage("allGames", allGames));
 
 export function backupToFile() {
     console.log("Backing up data to file...");

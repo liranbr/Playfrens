@@ -136,6 +136,20 @@ export class GameObject {
         this.note = note;
     }
 
+    hasTag(tagType, tagName) {
+        switch (tagType?.key) {
+            case "friend":
+                return this.friends.includes(tagName);
+            case "category":
+                return this.categories.includes(tagName);
+            case "status":
+                return this.statuses.includes(tagName);
+            default:
+                console.error(`Unknown tag type: ${tagType?.key}`);
+                return false;
+        }
+    }
+
     toJSON() {
         return {
             title: this.title,

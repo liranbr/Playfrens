@@ -20,6 +20,7 @@ class FilterStore {
         [tagTypes.category.key]: "OR",
         [tagTypes.status.key]: "OR",
     };
+    hoveredTag = { tagType: null, tagName: null }; // Used for tag-hover effects on game cards
 
     constructor() {
         makeAutoObservable(this);
@@ -109,35 +110,28 @@ class FilterStore {
     }
 
     doesGamePassFilters(game) {
-        // TODO: add fuzzy search matching
         if (this.search) {
             if (!game.title.toLowerCase().includes(this.search.toLowerCase())) {
                 return false;
             }
         }
 
-        // If any excluded tag is present, game does not pass filters
-        for (const [tagTypeKey, exclusionSet] of Object.entries(this.excludedTags)) {
-            if (exclusionSet.size) {
-                const gameTags = tagTypes[tagTypeKey].gameTagsList(game);
-                if (gameTags.some((tag) => exclusionSet.has(tag))) {
-                    return false;
-                }
-            }
-        }
-
-        // If selected tags are present, check filter by logic
         const filterMethods = {
-            AND: (gameTags, selectedTags) => selectedTags.every((tag) => gameTags.includes(tag)),
-            OR: (gameTags, selectedTags) => selectedTags.some((tag) => gameTags.includes(tag)),
+            AND: "every",
+            OR: "some",
         };
-        for (const [tagTypeKey, selectionSet] of Object.entries(this.selectedTags)) {
+        for (const tagTypeKey in tagTypes) {
+            const gameTags = tagTypes[tagTypeKey].gameTagsList(game);
+
+            const exclusionSet = this.excludedTags[tagTypeKey];
+            // If any excluded tag is present, game does not pass filters
+            if (exclusionSet.size && gameTags.some((tag) => exclusionSet.has(tag))) return false;
+
+            const selectionSet = this.selectedTags[tagTypeKey];
+            // If selected tags are present, filter by the tag type's logic
             if (selectionSet.size) {
-                const gameTags = tagTypes[tagTypeKey].gameTagsList(game);
-                const filterLogic = this.filterLogic[tagTypeKey]; // AND/OR filter logic
-                if (!filterMethods[filterLogic](gameTags, [...selectionSet])) {
-                    return false;
-                }
+                const filterMethod = filterMethods[this.filterLogic[tagTypeKey]];
+                if (![...selectionSet][filterMethod]((tag) => gameTags.includes(tag))) return false;
             }
         }
         return true;
@@ -145,6 +139,10 @@ class FilterStore {
 
     get filteredGames() {
         return allGames.filter((game) => this.doesGamePassFilters(game));
+    }
+
+    setHoveredTag(tagType, tagName) {
+        this.hoveredTag = { tagType: tagType, tagName: tagName };
     }
 }
 

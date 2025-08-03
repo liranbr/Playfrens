@@ -6,6 +6,7 @@ import "./GameGrid.css";
 import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
 import { observer } from "mobx-react-lite";
 import { useFilterStore } from "../stores/FilterStore.jsx";
+import { useSettingsStore } from "../stores/SettingsStore.jsx";
 
 function GameCard({ game, className = "" }) {
     const gameCover = useValidatedImage(game.coverImageURL);
@@ -37,18 +38,23 @@ function GameCard({ game, className = "" }) {
 
 export const GamesGrid = observer(() => {
     const filterStore = useFilterStore();
+    const settingsStore = useSettingsStore();
     const filteredGames = filterStore.filteredGames;
-    const hoveredTagType = filterStore.hoveredTag.tagType;
-    const hoveredTagName = filterStore.hoveredTag.tagName;
     const hoveredTagClassname = (game) => {
-        // TODO: add setting check here after settings are implemented
+        const hoverTagSetting = settingsStore.TagHoverGameHighlight;
+        const hoveredTagType = filterStore.hoveredTag.tagType;
+        const hoveredTagName = filterStore.hoveredTag.tagName;
         if (
+            hoverTagSetting !== "none" &&
             hoveredTagType &&
             hoveredTagName &&
             !filterStore.isTagSelected(hoveredTagType, hoveredTagName) &&
             game.hasTag(hoveredTagType, hoveredTagName)
-        )
-            return " tag-hovered";
+        ) {
+            if (hoverTagSetting === "highlight") return " highlight";
+            // TODO: implement darken-the-rest variant
+        }
+
         return "";
     };
 

@@ -69,7 +69,7 @@
             opacity: 1;
         }
     }
-    &.tag-hovered {
+    &.highlight {
         outline: 4px solid var(--pf-border-color-primary);
         transition: outline 0.3s ease 0.45s; /* delay on appearance, not disappearance */
     }

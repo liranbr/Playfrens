@@ -15,15 +15,6 @@ export const Dialogs = {
     About: AboutDialog,
 };
 
-export const dialogComponents = {
-    DeleteWarning: DeleteWarningDialog,
-    EditTag: EditTagDialog,
-    EditGame: EditGameDialog,
-    Playfrens: GamePageDialog,
-    Settings: SettingsDialog,
-    About: AboutDialog,
-};
-
 class DialogStore {
     dialogStack = [];
 

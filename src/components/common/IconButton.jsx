@@ -7,7 +7,7 @@ import "./IconButton.css";
  *   activate?: boolean,
  *   className?: string,
  *   children?: React.ReactNode,
- * }} props
+ * } & React.ButtonHTMLAttributes} props
  * @returns {JSX.Element}
  */
 export function IconButton({ icon, activate = false, className = "", children, ...rest }) {

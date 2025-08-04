@@ -147,6 +147,14 @@ class FilterStore {
     setHoveredTag(tagType, tagName) {
         this.hoveredTag = { tagType: tagType, tagName: tagName };
     }
+
+    get areFiltersActive() {
+        return (
+            this.search ||
+            Object.values(this.selectedTags).some((set) => set.size > 0) ||
+            Object.values(this.excludedTags).some((set) => set.size > 0)
+        );
+    }
 }
 
 const filterStore = new FilterStore();

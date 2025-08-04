@@ -3,10 +3,10 @@ import "./Button.css";
 /**
  * A standard button component with some variants
  * @param {{
- *   children?: React.ReactNode,
  *   variant?: "primary" | "secondary" | "danger",
  *   className?: string,
- * }} props
+ *   children?: React.ReactNode,
+ * } & React.ButtonHTMLAttributes} props
  * @returns {JSX.Element}
  */
 export function Button({ variant = "primary", className = "", children, ...rest }) {

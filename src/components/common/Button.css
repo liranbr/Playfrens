@@ -1,4 +1,7 @@
 .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     min-width: 80px;
     width: fit-content;
     min-height: 36px;

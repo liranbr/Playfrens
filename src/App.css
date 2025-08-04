@@ -100,3 +100,7 @@
         background-color: var(--pf-bg-300);
     }
 }
+
+.app-header-center {
+    gap: 16px;
+}

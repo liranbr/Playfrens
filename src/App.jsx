@@ -6,6 +6,7 @@ import * as Avatar from "@radix-ui/react-avatar";
 import {
     MdChevronRight,
     MdClose,
+    MdFilterListOff,
     MdMenu,
     MdOutlineFileDownload,
     MdOutlineFileUpload,
@@ -100,10 +101,18 @@ const AppHeader = observer(() => {
                 </div>
             </div>
 
-            <div className={"game-search" + (search ? " has-value" : "")}>
-                <input value={search} onChange={updateSearch} placeholder="Search" />
-                <IconButton icon={<MdClose />} type="reset" onClick={updateSearch} />
-            </div>
+            <CenterAndEdgesRow className="app-header-center">
+                <IconButton
+                    icon={<MdFilterListOff />}
+                    style={{ visibility: !filterStore.areFiltersActive ? "hidden" : "visible" }}
+                    onClick={() => filterStore.resetFilters()}
+                />
+                <div className={"game-search" + (search ? " has-value" : "")}>
+                    <input value={search} onChange={updateSearch} placeholder="Search" />
+                    <IconButton icon={<MdClose />} type="reset" onClick={updateSearch} />
+                </div>
+                <div />
+            </CenterAndEdgesRow>
 
             <div>
                 <button

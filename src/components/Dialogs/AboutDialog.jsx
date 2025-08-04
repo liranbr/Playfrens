@@ -1,6 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { Button } from "../common/Button.jsx";
+import { Button } from "@/components";
 
 export const AboutDialog = ({ open, closeDialog }) => {
     const handleHide = () => closeDialog();

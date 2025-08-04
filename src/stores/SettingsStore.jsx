@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react";
 import { autorun, makeAutoObservable } from "mobx";
-import { saveToStorage } from "../Utils.jsx";
+import { saveToStorage } from "@/Utils.jsx";
 
 export const settingsKeyInStorage = "settings";
 export const TagHoverGameHighlightOptions = {

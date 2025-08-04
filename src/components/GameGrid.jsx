@@ -1,12 +1,11 @@
 import { useEffect, useRef } from "react";
-import { tagTypes } from "../models/TagTypes.jsx";
-import { useValidatedImage } from "../hooks/useValidatedImage.js";
+import { observer } from "mobx-react-lite";
+import { useFilterStore, useSettingsStore } from "@/stores";
+import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
+import { tagTypes } from "@/models";
+import { useValidatedImage } from "@/hooks/useValidatedImage.js";
 import "../App.css";
 import "./GameGrid.css";
-import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
-import { observer } from "mobx-react-lite";
-import { useFilterStore } from "../stores/FilterStore.jsx";
-import { useSettingsStore } from "../stores/SettingsStore.jsx";
 
 function GameCard({ game, className = "" }) {
     const gameCover = useValidatedImage(game.coverImageURL);

@@ -1,7 +1,7 @@
 import { createContext, useContext } from "react";
 import { makeAutoObservable } from "mobx";
-import { tagTypes } from "../models/TagTypes.jsx";
-import { allGames } from "./DataStore.jsx";
+import { tagTypes } from "@/models";
+import { allGames } from "@/stores";
 
 class FilterStore {
     search = "";

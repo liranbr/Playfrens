@@ -1,12 +1,11 @@
 import { useState } from "react";
+import { observer } from "mobx-react-lite";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { MdDeleteOutline, MdEdit, MdMoreVert, MdOutlineSearchOff } from "react-icons/md";
-import { removeTag } from "../stores/DataStore.jsx";
-import "./TagButton.css";
+import { removeTag, useFilterStore } from "@/stores";
+import { IconButton } from "@/components";
 import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
-import { useFilterStore } from "../stores/FilterStore.jsx";
-import { observer } from "mobx-react-lite";
-import { IconButton } from "./common/IconButton.jsx";
+import "./TagButton.css";
 
 export const SidebarTagButton = observer(({ tagName, tagType }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);

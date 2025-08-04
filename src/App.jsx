@@ -13,15 +13,11 @@ import {
     MdOutlineGamepad,
     MdPerson,
 } from "react-icons/md";
-import { backupToFile, restoreFromFile } from "./stores/DataStore.jsx";
-import { tagTypes } from "./models/TagTypes.jsx";
-import { GamesGrid } from "./components/GameGrid.jsx";
-import { SidebarTagButtonGroup } from "./components/TagButtonGroup.jsx";
-import { DialogRoot } from "./components/Dialogs/DialogRoot.jsx";
-import { Dialogs, dialogStore } from "./components/Dialogs/DialogStore.jsx";
-import { useFilterStore } from "./stores/FilterStore.jsx";
-import { IconButton } from "./components/common/IconButton.jsx";
-import { CenterAndEdgesRow } from "./components/common/CenterAndEdgesRow.jsx";
+import { SidebarTagButtonGroup, IconButton, CenterAndEdgesRow, GamesGrid } from "@/components";
+import { useFilterStore, backupToFile, restoreFromFile } from "@/stores";
+import { tagTypes } from "@/models";
+import { DialogRoot } from "@/components/Dialogs/DialogRoot.jsx";
+import { Dialogs, dialogStore } from "@/components/Dialogs/DialogStore.jsx";
 import "./App.css";
 
 function AppMenu() {

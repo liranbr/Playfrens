@@ -1,10 +1,8 @@
 import { MdAdd } from "react-icons/md";
-import { SidebarTagButton } from "./TagButton.jsx";
-import "./TagButtonGroup.css";
-import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
 import { observer } from "mobx-react-lite";
-import { IconButton } from "./common/IconButton.jsx";
-import { CenterAndEdgesRow } from "./common/CenterAndEdgesRow.jsx";
+import { SidebarTagButton, IconButton, CenterAndEdgesRow } from "@/components";
+import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
+import "./TagButtonGroup.css";
 
 export const SidebarTagButtonGroup = observer(({ tagType }) => {
     const title = tagType.plural.toUpperCase();

@@ -1,6 +1,6 @@
 import { action, autorun, observable } from "mobx";
-import { GameObject } from "../models/GameObject.jsx";
-import { tagTypes } from "../models/TagTypes.jsx";
+import { GameObject } from "@/models";
+import { tagTypes } from "@/models";
 import {
     compareAlphaIgnoreCase,
     compareGameTitles,
@@ -9,8 +9,8 @@ import {
     setToastSilence,
     toastDataChangeSuccess,
     toastError,
-} from "../Utils.jsx";
-import { settingsKeyInStorage } from "./SettingsStore.jsx";
+} from "@/Utils.jsx";
+import { settingsKeyInStorage } from "@/stores";
 
 function loadFromStorageObsArray(key) {
     return observable.array(loadFromStorage(key, []));
@@ -150,7 +150,7 @@ export const removeTag = action((tagType, value) => {
     return true;
 });
 
-export const EditTag = action((tagType, oldValue, newValue) => {
+export const editTag = action((tagType, oldValue, newValue) => {
     const fullList = tagType.allTagsList;
     if (!newValue) {
         toastError("Cannot save a " + tagType.single + " without a name");

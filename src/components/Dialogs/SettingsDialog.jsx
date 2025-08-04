@@ -1,8 +1,8 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { Button } from "../common/Button.jsx";
 import * as RadioGroup from "@radix-ui/react-radio-group";
-import { TagHoverGameHighlightOptions, useSettingsStore } from "../../stores/SettingsStore.jsx";
+import { Button } from "@/components";
+import { TagHoverGameHighlightOptions, useSettingsStore } from "@/stores";
 import "./SettingsDialog.css";
 
 export const SettingsDialog = ({ open, closeDialog }) => {

@@ -1,17 +1,16 @@
 import { useState } from "react";
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert, MdRemove } from "react-icons/md";
 import { observer } from "mobx-react-lite";
 import * as Dialog from "@radix-ui/react-dialog";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { removeGame } from "../../stores/DataStore.jsx";
-import { useValidatedImage } from "../../hooks/useValidatedImage.js";
-import { tagTypes } from "../../models/TagTypes.jsx";
+import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert, MdRemove } from "react-icons/md";
+import { CenterAndEdgesRow, IconButton } from "@/components";
+import { removeGame } from "@/stores";
+import { useValidatedImage } from "@/hooks/useValidatedImage.js";
+import { tagTypes } from "@/models";
 import { Dialogs, dialogStore } from "./DialogStore.jsx";
-import { IconButton } from "../common/IconButton.jsx";
-import { CenterAndEdgesRow } from "../common/CenterAndEdgesRow.jsx";
-import "../TagButtonGroup.css";
-import "../TagButton.css";
+import "@/components/TagButtonGroup.css";
+import "@/components/TagButton.css";
 import "./GamePageDialog.css";
 
 const AddTagButton = ({ tagType, game }) => {

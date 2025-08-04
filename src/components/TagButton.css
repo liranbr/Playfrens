@@ -19,6 +19,7 @@
         text-align: left;
         overflow: hidden;
         text-overflow: ellipsis;
+        cursor: pointer;
         transition: none;
 
         &:focus-visible + .icon-button {

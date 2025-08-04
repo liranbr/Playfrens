@@ -56,9 +56,9 @@ const GPTagButton = observer(({ game, tagType, tagName }) => {
             className={"tag-button-container" + (dropdownOpen ? " dd-open" : "")}
             onClick={() => setDropdownOpen(true)}
         >
-            <button value={tagName} className="tag-button" draggable="true">
+            <span role="button" className="tag-button" draggable="true">
                 {tagName}
-            </button>
+            </span>
 
             <DropdownMenu.Root open={dropdownOpen} onOpenChange={setDropdownOpen}>
                 <DropdownMenu.Trigger asChild>

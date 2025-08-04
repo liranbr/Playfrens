@@ -25,8 +25,8 @@ export const SidebarTagButton = observer(({ tagName, tagType }) => {
                 "tag-button-container sidebar-tbc" + isSelected + isExcluded + isDropdownOpen
             }
         >
-            <button
-                value={tagName}
+            <span
+                role="button"
                 className={"tag-button"}
                 onClick={() => {
                     toggleSelection();
@@ -46,7 +46,7 @@ export const SidebarTagButton = observer(({ tagName, tagType }) => {
             >
                 {tagName}
                 <label>{gameAmountInCurrentFilter}</label>
-            </button>
+            </span>
             <SidebarTBMenuButton
                 tagName={tagName}
                 tagType={tagType}

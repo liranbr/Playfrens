@@ -5,6 +5,7 @@ import { GamePageDialog } from "./GamePageDialog.jsx";
 import { DeleteWarningDialog } from "./DeleteWarningDialog.jsx";
 import { SettingsDialog } from "./SettingsDialog.jsx";
 import { AboutDialog } from "./AboutDialog.jsx";
+import { List, Item } from 'linked-list'
 
 export const Dialogs = {
     DeleteWarning: DeleteWarningDialog,
@@ -15,8 +16,28 @@ export const Dialogs = {
     About: AboutDialog,
 };
 
+class DialogList extends List {
+    detachLast() {
+        return this.size == 1 ? this.head.detach() : this.tail.detach();
+    }
+}
+
+class DialogItem extends Item {
+    constructor(value) {
+        super()
+        this.value = value;
+    }
+
+    toString() {
+        return this.value
+    }
+}
+
+
+
 class DialogStore {
     dialogStack = [];
+    dialogList = new DialogList();
 
     constructor() {
         makeAutoObservable(this);
@@ -32,13 +53,19 @@ class DialogStore {
         if (!this.isDialogValid(dialog)) return console.warn("Unknown Dialog passed:\n", dialog);
         if (this.currentDialog) this.currentDialog.open = false;
         this.dialogStack.push({ dialog, props, open: true });
+        this.dialogList.append(new DialogItem({ dialog, props, open: true }));
     };
 
     close = () => {
         if (!this.currentDialog) return console.warn("No dialog to close.");
         if (this.previousDialog) this.previousDialog.open = true;
         this.currentDialog.open = false;
-        this.afterCloseAnimation(() => this.dialogStack.pop());
+        this.afterCloseAnimation(() => {
+            this.dialogList.detachLast();
+            this.dialogStack.pop();
+            console.log(this.dialogList.size, this.dialogList);
+        });
+
     };
 
     insertPrevious = (dialog, props = {}) => {

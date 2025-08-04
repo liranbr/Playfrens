@@ -1,12 +1,27 @@
 import { action, makeAutoObservable } from "mobx";
+import { EditTagDialog } from "./EditTagDialog.jsx";
+import { EditGameDialog } from "./EditGameDialog.jsx";
+import { GamePageDialog } from "./GamePageDialog.jsx";
+import { DeleteWarningDialog } from "./DeleteWarningDialog.jsx";
+import { SettingsDialog } from "./SettingsDialog.jsx";
+import { AboutDialog } from "./AboutDialog.jsx";
 
 export const Dialogs = {
-    EditTag: "EditTag",
-    EditGame: "EditGame",
-    Playfrens: "Playfrens",
-    DeleteWarning: "DeleteWarning",
-    Settings: "Settings",
-    About: "About",
+    DeleteWarning: DeleteWarningDialog,
+    EditTag: EditTagDialog,
+    EditGame: EditGameDialog,
+    Playfrens: GamePageDialog,
+    Settings: SettingsDialog,
+    About: AboutDialog,
+};
+
+export const dialogComponents = {
+    DeleteWarning: DeleteWarningDialog,
+    EditTag: EditTagDialog,
+    EditGame: EditGameDialog,
+    Playfrens: GamePageDialog,
+    Settings: SettingsDialog,
+    About: AboutDialog,
 };
 
 class DialogStore {
@@ -22,10 +37,10 @@ class DialogStore {
         });
     }
 
-    open = (name, props = {}) => {
-        if (!Dialogs.hasOwnProperty(name)) return console.warn(`Unknown dialog type: ${name}`);
+    open = (dialog, props = {}) => {
+        if (!this.isDialogValid(dialog)) return console.warn("Unknown Dialog passed:\n", dialog);
         if (this.currentDialog) this.currentDialog.open = false;
-        this.dialogStack.push({ name, props, open: true });
+        this.dialogStack.push({ dialog, props, open: true });
     };
 
     close = () => {
@@ -35,11 +50,17 @@ class DialogStore {
         this.afterCloseAnimation(() => this.dialogStack.pop());
     };
 
-    insertPrevious = (name, props = {}) => {
-        if (!Dialogs.hasOwnProperty(name)) return console.warn(`Unknown dialog type: ${name}`);
+    insertPrevious = (dialog, props = {}) => {
+        if (!this.isDialogValid(dialog)) return console.warn("Unknown Dialog passed:\n", dialog);
         if (!this.currentDialog) return console.warn("No current dialog to insert behind.");
-        this.dialogStack.splice(-1, 0, { name, props, open: false });
+        this.dialogStack.splice(-1, 0, { dialog, props, open: false });
     };
+
+    closePrevious = () => {
+        if (!this.previousDialog) return console.warn("No previous dialog to detach from the stack!");
+        if (!this.currentDialog) return console.warn("No current dialog in the stack.");
+        this.afterCloseAnimation(() => this.dialogStack.splice(-2, 1));
+    }
 
     // Useful when you don't want the previous one to open when closing current,
     // e.g., after deleting a game, close the confirmation dialog and the game dialog
@@ -73,6 +94,10 @@ class DialogStore {
 
     clearAll() {
         this.dialogStack = [];
+    }
+
+    isDialogValid(dialog) {
+        return Object.values(Dialogs).includes(dialog);
     }
 }
 

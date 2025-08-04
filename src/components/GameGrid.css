@@ -76,7 +76,7 @@
         transition: outline 0.3s ease 0.5s; /* delay on appearance, not disappearance */
     }
     &.darken {
-        filter: brightness(0.4) grayscale(0.5);
+        filter: brightness(0.5) grayscale(1);
         transition: filter 0.3s ease 0.5s; /* longer delay on appearance */
     }
 }

@@ -6,6 +6,9 @@
     height: fit-content;
 
     .tag-button {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         width: 100%;
         height: 38px;
         background: none;
@@ -39,9 +42,18 @@
     }
 }
 .sidebar-tbc {
+    label {
+        width: var(--icon-size);
+        text-align: right;
+        color: var(--pf-fg-900);
+        font-size: 16px;
+    }
     &:hover {
         .tag-button {
             background-color: var(--pf-btn-primary);
+        }
+        label {
+            display: none;
         }
     }
     &.dd-open .tag-button {
@@ -54,6 +66,10 @@
     &.selected .tag-button {
         background-color: var(--pf-btn-primary-active);
         font-weight: 500;
+        label {
+            color: var(--pf-fg-300);
+            font-weight: normal;
+        }
     }
 
     &.excluded {
@@ -62,6 +78,9 @@
             outline-offset: -2px;
             color: var(--pf-fg-700);
             text-decoration: line-through;
+            label {
+                display: none;
+            }
         }
         &:hover,
         &:focus,

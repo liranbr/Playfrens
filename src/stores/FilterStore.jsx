@@ -137,6 +137,9 @@ class FilterStore {
         return true;
     }
 
+    /**
+     * @returns GameObject[] - All games that pass the current filters
+     */
     get filteredGames() {
         return allGames.filter((game) => this.doesGamePassFilters(game));
     }

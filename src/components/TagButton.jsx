@@ -14,6 +14,9 @@ export const SidebarTagButton = observer(({ tagName, tagType }) => {
     const isSelected = filterStore.isTagSelected(tagType, tagName) ? " selected" : "";
     const isExcluded = filterStore.isTagExcluded(tagType, tagName) ? " excluded" : "";
     const isDropdownOpen = dropdownOpen ? " dd-open" : "";
+    const gameAmountInCurrentFilter = filterStore.filteredGames.filter((game) =>
+        game.hasTag(tagType, tagName),
+    ).length;
 
     const toggleSelection = () => filterStore.toggleTagSelection(tagType, tagName);
 
@@ -43,6 +46,7 @@ export const SidebarTagButton = observer(({ tagName, tagType }) => {
                 }}
             >
                 {tagName}
+                <label>{gameAmountInCurrentFilter}</label>
             </button>
             <SidebarTBMenuButton
                 tagName={tagName}

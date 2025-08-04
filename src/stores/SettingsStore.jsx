@@ -5,8 +5,8 @@ import { saveToStorage } from "../Utils.jsx";
 export const settingsKeyInStorage = "settings";
 export const TagHoverGameHighlightOptions = {
     highlight: "Highlight",
-    darken: "Darken rest",
-    none: "Do nothing",
+    darken: "Darken the rest",
+    none: "None",
 };
 
 class SettingsStore {

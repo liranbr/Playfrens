@@ -17,19 +17,25 @@ export const Dialogs = {
 };
 
 class DialogList extends List {
+
+    detachFirst() {
+        return this.head?.detach();
+    }
+
     detachLast() {
         return this.size == 1 ? this.head.detach() : this.tail.detach();
     }
 }
 
 class DialogItem extends Item {
+
     constructor(value) {
         super()
         this.value = value;
     }
 
-    toString() {
-        return this.value
+    print() {
+        console.log("DialogItem:", this.value);
     }
 }
 
@@ -38,6 +44,7 @@ class DialogItem extends Item {
 class DialogStore {
     dialogStack = [];
     dialogList = new DialogList();
+    activeDialog = null;
 
     constructor() {
         makeAutoObservable(this);
@@ -54,6 +61,7 @@ class DialogStore {
         if (this.currentDialog) this.currentDialog.open = false;
         this.dialogStack.push({ dialog, props, open: true });
         this.dialogList.append(new DialogItem({ dialog, props, open: true }));
+        this.activeDialog = this.dialogList?.tail;
     };
 
     close = () => {
@@ -72,6 +80,7 @@ class DialogStore {
         if (!this.isDialogValid(dialog)) return console.warn("Unknown Dialog passed:\n", dialog);
         if (!this.currentDialog) return console.warn("No current dialog to insert behind.");
         this.dialogStack.splice(-1, 0, { dialog, props, open: false });
+        this.dialogList.tail.prepend(new DialogItem({ dialog, props, open: false }));
     };
 
     closePrevious = () => {

@@ -13,7 +13,13 @@ import {
     MdOutlineGamepad,
     MdPerson,
 } from "react-icons/md";
-import { SidebarTagButtonGroup, IconButton, CenterAndEdgesRow, GamesGrid } from "@/components";
+import {
+    SidebarTagButtonGroup,
+    IconButton,
+    CenterAndEdgesRow,
+    GamesGrid,
+    ScrollView,
+} from "@/components";
 import { useFilterStore, backupToFile, restoreFromFile } from "@/stores";
 import { tagTypes } from "@/models";
 import { DialogRoot } from "@/components/Dialogs/DialogRoot.jsx";
@@ -28,20 +34,20 @@ function AppMenu() {
                 <DropdownMenu.Trigger asChild>
                     <IconButton icon={<MdMenu />} activate={dropdownOpen} />
                 </DropdownMenu.Trigger>
-                <DropdownMenu.Content
-                    className="rx-dropdown-menu"
-                    align={"start"}
-                    side={"bottom"}
-                    sideOffset={5}
-                >
-                    <DropdownMenu.Sub>
-                        <DropdownMenu.SubTrigger>
-                            File{" "}
-                            <div className="rx-dropdown-right-slot">
-                                <MdChevronRight />
-                            </div>
-                        </DropdownMenu.SubTrigger>
-                        <DropdownMenu.Portal>
+                <DropdownMenu.Portal>
+                    <DropdownMenu.Content
+                        className="rx-dropdown-menu"
+                        align={"start"}
+                        side={"bottom"}
+                        sideOffset={5}
+                    >
+                        <DropdownMenu.Sub>
+                            <DropdownMenu.SubTrigger>
+                                File{" "}
+                                <div className="rx-dropdown-right-slot">
+                                    <MdChevronRight />
+                                </div>
+                            </DropdownMenu.SubTrigger>
                             <DropdownMenu.SubContent className="rx-dropdown-menu" sideOffset={5}>
                                 <DropdownMenu.Item
                                     onClick={() => {
@@ -54,22 +60,22 @@ function AppMenu() {
                                     <MdOutlineFileDownload /> Backup
                                 </DropdownMenu.Item>
                             </DropdownMenu.SubContent>
-                        </DropdownMenu.Portal>
-                    </DropdownMenu.Sub>
-                    <DropdownMenu.Separator />
-                    <a href="https://github.com/liranbr/Playfrens" target="_blank">
-                        <DropdownMenu.Item>GitHub</DropdownMenu.Item>
-                    </a>
-                    <a href="https://trello.com/b/H9Cln6UD/playfrens" target="_blank">
-                        <DropdownMenu.Item>Trello</DropdownMenu.Item>
-                    </a>
-                    <DropdownMenu.Item onClick={() => dialogStore.open(Dialogs.Settings)}>
-                        Settings
-                    </DropdownMenu.Item>
-                    <DropdownMenu.Item onClick={() => dialogStore.open(Dialogs.About)}>
-                        About
-                    </DropdownMenu.Item>
-                </DropdownMenu.Content>
+                        </DropdownMenu.Sub>
+                        <DropdownMenu.Separator />
+                        <a href="https://github.com/liranbr/Playfrens" target="_blank">
+                            <DropdownMenu.Item>GitHub</DropdownMenu.Item>
+                        </a>
+                        <a href="https://trello.com/b/H9Cln6UD/playfrens" target="_blank">
+                            <DropdownMenu.Item>Trello</DropdownMenu.Item>
+                        </a>
+                        <DropdownMenu.Item onClick={() => dialogStore.open(Dialogs.Settings)}>
+                            Settings
+                        </DropdownMenu.Item>
+                        <DropdownMenu.Item onClick={() => dialogStore.open(Dialogs.About)}>
+                            About
+                        </DropdownMenu.Item>
+                    </DropdownMenu.Content>
+                </DropdownMenu.Portal>
             </DropdownMenu.Root>
 
             <input

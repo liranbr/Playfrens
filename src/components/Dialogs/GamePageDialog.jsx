@@ -4,7 +4,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert, MdRemove } from "react-icons/md";
-import { CenterAndEdgesRow, IconButton } from "@/components";
+import { CenterAndEdgesRow, IconButton, ScrollView } from "@/components";
 import { removeGame } from "@/stores";
 import { useValidatedImage } from "@/hooks/useValidatedImage.js";
 import { tagTypes } from "@/models";
@@ -28,18 +28,20 @@ const AddTagButton = ({ tagType, game }) => {
                     side={"bottom"}
                     sideOffset={5}
                 >
-                    {tagType.allTagsList
-                        .filter((item) => !tagType.gameTagsList(game).includes(item))
-                        .map((item) => (
-                            <DropdownMenu.Item
-                                key={item}
-                                onClick={() => {
-                                    tagType.addToGame(game, item);
-                                }}
-                            >
-                                {item}
-                            </DropdownMenu.Item>
-                        ))}
+                    <ScrollView>
+                        {tagType.allTagsList
+                            .filter((item) => !tagType.gameTagsList(game).includes(item))
+                            .map((item) => (
+                                <DropdownMenu.Item
+                                    key={item}
+                                    onClick={() => {
+                                        tagType.addToGame(game, item);
+                                    }}
+                                >
+                                    {item}
+                                </DropdownMenu.Item>
+                            ))}
+                    </ScrollView>
                 </DropdownMenu.Content>
             </DropdownMenu.Portal>
         </DropdownMenu.Root>

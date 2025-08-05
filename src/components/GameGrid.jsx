@@ -3,6 +3,7 @@ import { observer } from "mobx-react-lite";
 import { useFilterStore, useSettingsStore } from "@/stores";
 import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
 import { tagTypes } from "@/models";
+import { ScrollView } from "@/components";
 import { useValidatedImage } from "@/hooks/useValidatedImage.js";
 import "../App.css";
 import "./GameGrid.css";
@@ -75,14 +76,13 @@ export const GamesGrid = observer(() => {
         window.addEventListener("resize", updateGridJustification);
     }, [filteredGames]);
 
-    // need the empty div to contain the grid correctly
     return (
-        <div className="games-grid-container">
+        <ScrollView>
             <div className="games-grid" ref={gridRef}>
                 {filteredGames.map((game, index) => (
                     <GameCard className={hoveredTagClassname(game)} key={index} game={game} />
                 ))}
             </div>
-        </div>
+        </ScrollView>
     );
 });

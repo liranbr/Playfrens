@@ -1,9 +1,3 @@
-.games-grid-container {
-    width: 100%;
-    overflow-y: auto;
-    scrollbar-gutter: stable;
-}
-
 .games-grid {
     width: 100%;
     display: grid;

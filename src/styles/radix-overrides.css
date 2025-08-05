@@ -1,13 +1,14 @@
 /* radix dropdown menu */
 .rx-dropdown-menu {
-    display: block;
-    max-height: 495px;
+    --dd-max-height: 500px;
+    --dd-padding: 4px;
+    max-height: var(--dd-max-height);
     min-width: 150px;
-    overflow-y: auto;
+    overflow-y: hidden;
     background-color: var(--pf-bg-700);
     border: var(--pf-border-700);
     border-radius: 8px;
-    padding: 4px;
+    padding: var(--dd-padding);
     z-index: 103;
 
     div[role="menuitem"] {
@@ -87,6 +88,11 @@
             text-decoration: underline;
             color: var(--pf-fg-link-hover);
         }
+    }
+
+    .rx-scroll-area {
+        /* fix needed because dropdowns are portal based */
+        max-height: calc(var(--dd-max-height) - 2 * var(--dd-padding));
     }
 }
 
@@ -187,7 +193,6 @@
 
 .rx-avatar {
     display: inline-flex;
-    background-color: red;
     align-items: center;
     justify-content: center;
     vertical-align: middle;
@@ -195,7 +200,7 @@
     user-select: none;
     width: 36px;
     height: 36px;
-    border-radius: 100%;
+    border-radius: 50%;
     border: var(--pf-border-700);
 
     & span {
@@ -229,7 +234,7 @@
         background-color: var(--pf-bg-700);
         width: 14px;
         height: 14px;
-        border-radius: 100%;
+        border-radius: 50%;
         border: 1px solid var(--pf-fg-700);
         &[data-state="checked"] {
             border: 4px solid var(--pf-btn-primary);
@@ -238,6 +243,34 @@
         &:focus-visible {
             outline: 2px solid var(--pf-btn-primary);
             outline-offset: 1px;
+        }
+    }
+}
+
+.rx-scroll-area {
+    display: flex;
+    flex-direction: column;
+    max-height: 100%;
+    height: 100%;
+    max-width: 100%;
+    width: 100%;
+    overflow: hidden;
+
+    .rx-scrollbar {
+        max-height: inherit;
+        width: 6px;
+        padding: 0 1px;
+        z-index: 3;
+        user-select: none;
+        &:hover {
+            padding: 0;
+        }
+        .rx-scroll-thumb {
+            background-color: var(--pf-fg-700);
+            border-radius: 4px;
+        }
+        &:active .rx-scroll-thumb {
+            background-color: var(--pf-fg-900);
         }
     }
 }

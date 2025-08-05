@@ -1,6 +1,6 @@
 import { MdAdd } from "react-icons/md";
 import { observer } from "mobx-react-lite";
-import { SidebarTagButton, IconButton, CenterAndEdgesRow } from "@/components";
+import { SidebarTagButton, IconButton, CenterAndEdgesRow, ScrollView } from "@/components";
 import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
 import "./TagButtonGroup.css";
 
@@ -16,11 +16,13 @@ export const SidebarTagButtonGroup = observer(({ tagType }) => {
                 <h4>{title}</h4>
                 <IconButton icon={<MdAdd />} onClick={handleAddButtonClick} />
             </CenterAndEdgesRow>
-            <div className="tag-button-list">
-                {tagType.allTagsList.map((tagName, index) => (
-                    <SidebarTagButton key={index} tagName={tagName} tagType={tagType} />
-                ))}
-            </div>
+            <ScrollView>
+                <div className="tag-button-list">
+                    {tagType.allTagsList.map((tagName, index) => (
+                        <SidebarTagButton key={index} tagName={tagName} tagType={tagType} />
+                    ))}
+                </div>
+            </ScrollView>
         </div>
     );
 });

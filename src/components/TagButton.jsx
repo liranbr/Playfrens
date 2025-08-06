@@ -27,6 +27,10 @@ export const SidebarTagButton = observer(({ tagName, tagType }) => {
         game.hasTag(tagType, tagName),
     ).length;
 
+    const onClick = () => {
+        filterStore.toggleTagSelection(tagType, tagName);
+        filterStore.setHoveredTag(null);
+    };
     const toggleSelection = () => filterStore.toggleTagSelection(tagType, tagName);
 
     return (
@@ -42,9 +46,13 @@ export const SidebarTagButton = observer(({ tagName, tagType }) => {
             <span
                 role="button"
                 className={"tag-button"}
-                onClick={() => {
-                    toggleSelection();
-                    filterStore.setHoveredTag(null);
+                tabIndex={0}
+                onClick={onClick}
+                onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+                        e.preventDefault();
+                        onClick();
+                    }
                 }}
                 onMouseEnter={() => filterStore.setHoveredTag(tagType, tagName)}
                 onMouseLeave={() => filterStore.setHoveredTag(null)}

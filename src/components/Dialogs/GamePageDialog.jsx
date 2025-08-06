@@ -53,10 +53,18 @@ const GPTagButton = observer(({ game, tagType, tagName }) => {
     const handleRemove = () => {
         tagType.removeFromGame(game, tagName);
     };
+    const onClick = () => setDropdownOpen(true);
     return (
         <div
             className={"tag-button-container" + (dropdownOpen ? " dd-open" : "")}
-            onClick={() => setDropdownOpen(true)}
+            tabIndex={0}
+            onClick={onClick}
+            onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+                    e.preventDefault();
+                    onClick();
+                }
+            }}
         >
             <span role="button" className="tag-button" draggable="true">
                 {tagName}

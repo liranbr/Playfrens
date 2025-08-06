@@ -6,20 +6,14 @@ import * as Avatar from "@radix-ui/react-avatar";
 import {
     MdChevronRight,
     MdClose,
-    MdFilterListOff,
+    MdFilterAltOff,
     MdMenu,
     MdOutlineFileDownload,
     MdOutlineFileUpload,
     MdOutlineGamepad,
     MdPerson,
 } from "react-icons/md";
-import {
-    SidebarTagButtonGroup,
-    IconButton,
-    CenterAndEdgesRow,
-    GamesGrid,
-    ScrollView,
-} from "@/components";
+import { SidebarTagButtonGroup, IconButton, CenterAndEdgesRow, GamesGrid } from "@/components";
 import { useFilterStore, backupToFile, restoreFromFile } from "@/stores";
 import { tagTypes } from "@/models";
 import { DialogRoot } from "@/components/Dialogs/DialogRoot.jsx";
@@ -105,7 +99,7 @@ const AppHeader = observer(() => {
 
             <CenterAndEdgesRow className="app-header-center">
                 <IconButton
-                    icon={<MdFilterListOff />}
+                    icon={<MdFilterAltOff />}
                     style={{ visibility: !filterStore.areFiltersActive ? "hidden" : "visible" }}
                     onClick={() => filterStore.resetFilters()}
                 />

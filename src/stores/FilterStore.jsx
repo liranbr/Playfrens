@@ -21,6 +21,7 @@ class FilterStore {
         [tagTypes.status.key]: "OR",
     };
     hoveredTag = { tagType: null, tagName: null }; // Used for tag-hover effects on game cards
+    draggedTag = { tagType: null, tagName: null }; // Same for drag-and-drop effects
 
     constructor() {
         makeAutoObservable(this);
@@ -144,8 +145,16 @@ class FilterStore {
         return allGames.filter((game) => this.doesGamePassFilters(game));
     }
 
-    setHoveredTag(tagType, tagName) {
-        this.hoveredTag = { tagType: tagType, tagName: tagName };
+    setHoveredTag(tagType = null, tagName = null) {
+        if (tagType && tagName) this.hoveredTag = { tagType: tagType, tagName: tagName };
+        else this.hoveredTag = { tagType: null, tagName: null };
+        console.log("Hovered tag set to:", this.hoveredTag.tagType, this.hoveredTag.tagName);
+    }
+
+    setDraggedTag(tagType = null, tagName = null) {
+        if (tagType && tagName) this.draggedTag = { tagType: tagType, tagName: tagName };
+        else this.draggedTag = { tagType: null, tagName: null };
+        console.log("Dragged tag set to:", this.draggedTag.tagType, this.draggedTag.tagName);
     }
 
     get areFiltersActive() {

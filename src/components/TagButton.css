@@ -19,6 +19,7 @@
         text-align: left;
         overflow: hidden;
         text-overflow: ellipsis;
+        text-wrap: nowrap;
         cursor: pointer;
         transition: none;
 
@@ -49,12 +50,43 @@
         color: var(--pf-fg-900);
         font-size: 16px;
     }
+    .hover-drag-indicator {
+        position: absolute;
+        top: 50%;
+        left: 12px;
+        transform: translate(-50%, -50%);
+        width: 24px;
+        height: 24px;
+        color: var(--pf-fg-200);
+        border-radius: 50%;
+        opacity: 0;
+    }
     &:hover {
         .tag-button {
             background-color: var(--pf-btn-primary);
+            padding-left: 22px;
+            transition: padding-left 0.3s ease 0.8s;
         }
         label {
             display: none;
+        }
+        .hover-drag-indicator {
+            opacity: 1;
+            transition: opacity 0.3s ease 0.8s;
+        }
+    }
+    &.being-dragged {
+        filter: brightness(0.5);
+        .hover-drag-indicator {
+            opacity: 1;
+            transition: none;
+        }
+        .tag-button {
+            padding-left: 22px;
+            transition: none;
+        }
+        .icon-button {
+            opacity: 0;
         }
     }
     &.dd-open .tag-button {

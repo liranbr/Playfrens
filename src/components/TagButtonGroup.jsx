@@ -1,4 +1,5 @@
 import { MdAdd } from "react-icons/md";
+import { LuSettings2 } from "react-icons/lu";
 import { observer } from "mobx-react-lite";
 import { SidebarTagButton, IconButton, CenterAndEdgesRow, ScrollView } from "@/components";
 import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
@@ -12,7 +13,7 @@ export const SidebarTagButtonGroup = observer(({ tagType }) => {
     return (
         <div className="tag-button-group">
             <CenterAndEdgesRow className="ui-card-header">
-                <div />
+                <IconButton icon={<LuSettings2 />} style={{ padding: "5px" }} />
                 <h4>{title}</h4>
                 <IconButton icon={<MdAdd />} onClick={handleAddButtonClick} />
             </CenterAndEdgesRow>

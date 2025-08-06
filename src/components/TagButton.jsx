@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { observer } from "mobx-react-lite";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { MdDeleteOutline, MdEdit, MdMoreVert, MdOutlineSearchOff } from "react-icons/md";
+import {
+    MdDeleteOutline,
+    MdDragIndicator,
+    MdEdit,
+    MdMoreVert,
+    MdOutlineSearchOff,
+} from "react-icons/md";
 import { removeTag, useFilterStore } from "@/stores";
 import { IconButton } from "@/components";
 import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
@@ -12,6 +18,10 @@ export const SidebarTagButton = observer(({ tagName, tagType }) => {
     const filterStore = useFilterStore();
     const isSelected = filterStore.isTagSelected(tagType, tagName) ? " selected" : "";
     const isExcluded = filterStore.isTagExcluded(tagType, tagName) ? " excluded" : "";
+    const isBeingDragged =
+        filterStore.draggedTag.tagType === tagType && filterStore.draggedTag.tagName === tagName
+            ? " being-dragged"
+            : "";
     const isDropdownOpen = dropdownOpen ? " dd-open" : "";
     const gameAmountInCurrentFilter = filterStore.filteredGames.filter((game) =>
         game.hasTag(tagType, tagName),
@@ -22,7 +32,11 @@ export const SidebarTagButton = observer(({ tagName, tagType }) => {
     return (
         <div
             className={
-                "tag-button-container sidebar-tbc" + isSelected + isExcluded + isDropdownOpen
+                "tag-button-container sidebar-tbc" +
+                isSelected +
+                isExcluded +
+                isDropdownOpen +
+                isBeingDragged
             }
         >
             <span
@@ -30,22 +44,22 @@ export const SidebarTagButton = observer(({ tagName, tagType }) => {
                 className={"tag-button"}
                 onClick={() => {
                     toggleSelection();
-                    filterStore.setHoveredTag(null, null);
+                    filterStore.setHoveredTag(null);
                 }}
+                onMouseEnter={() => filterStore.setHoveredTag(tagType, tagName)}
+                onMouseLeave={() => filterStore.setHoveredTag(null)}
                 draggable="true"
                 onDragStart={(e) => {
+                    filterStore.setHoveredTag(null);
+                    filterStore.setDraggedTag(tagType, tagName);
                     e.dataTransfer.setData("tagName", tagName);
                     e.dataTransfer.setData("tagTypeKey", tagType.key);
                 }}
-                onMouseOver={() => {
-                    filterStore.setHoveredTag(tagType, tagName);
-                }}
-                onMouseLeave={() => {
-                    filterStore.setHoveredTag(null, null);
-                }}
+                onDragEnd={() => filterStore.setDraggedTag(null)}
             >
                 {tagName}
                 <label>{gameAmountInCurrentFilter}</label>
+                <MdDragIndicator className="hover-drag-indicator" />
             </span>
             <SidebarTBMenuButton
                 tagName={tagName}

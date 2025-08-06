@@ -13,7 +13,7 @@
 .game-card {
     position: relative;
     overflow: hidden; /* for the overlay */
-    width: 100%;
+    width: var(--game-card-width);
     aspect-ratio: 1 / 1.5;
     margin: 0;
     padding: 0;
@@ -22,7 +22,9 @@
     border-radius: var(--game-card-border-radius);
     background-color: transparent;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.9);
-    transition: 0.3s ease;
+    transition:
+        0.3s ease,
+        outline 0.3s ease 0.1s;
 
     img {
         width: 100%;
@@ -65,8 +67,8 @@
             opacity: 1;
         }
     }
-    &.highlight img {
-        outline: 4px solid var(--pf-border-color-primary);
+    &.highlight {
+        outline-color: var(--pf-border-color-primary);
         transition: outline 0.3s ease 0.8s; /* delay on appearance, not disappearance */
     }
     &.darken img {

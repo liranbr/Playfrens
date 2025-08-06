@@ -37,10 +37,8 @@ function AppMenu() {
                     >
                         <DropdownMenu.Sub>
                             <DropdownMenu.SubTrigger>
-                                File{" "}
-                                <div className="rx-dropdown-right-slot">
-                                    <MdChevronRight />
-                                </div>
+                                File
+                                <MdChevronRight className="rx-dropdown-right-slot" />
                             </DropdownMenu.SubTrigger>
                             <DropdownMenu.SubContent className="rx-dropdown-menu" sideOffset={5}>
                                 <DropdownMenu.Item

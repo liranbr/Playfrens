@@ -10,13 +10,20 @@
     border: none;
     border-radius: 8px;
     color: var(--pf-fg-500);
-    background: none;
+    background-color: #55555500;
+    transition: 0.1s ease;
 
     &:hover,
     &:active,
     &:focus,
     &.activate {
-        background: none;
         color: #fff;
+    }
+    &:hover {
+        background-color: #55555555;
+    }
+    &:active,
+    &.activate {
+        background-color: #66666666;
     }
 }

@@ -96,16 +96,18 @@ const GPTagButtonGroup = observer(({ game, tagType }) => {
                 <h4>{title}</h4>
                 <AddTagButton tagType={tagType} game={game} />
             </CenterAndEdgesRow>
-            <div className="tag-button-list">
-                {gameTagsList.map((tagName, index) => (
-                    <GPTagButton
-                        key={"btn-" + tagType.key + "-" + tagName + "-" + index}
-                        game={game}
-                        tagType={tagType}
-                        tagName={tagName}
-                    />
-                ))}
-            </div>
+            <ScrollView>
+                <div className="tag-button-list">
+                    {gameTagsList.map((tagName, index) => (
+                        <GPTagButton
+                            key={"btn-" + tagType.key + "-" + tagName + "-" + index}
+                            game={game}
+                            tagType={tagType}
+                            tagName={tagName}
+                        />
+                    ))}
+                </div>
+            </ScrollView>
         </div>
     );
 });

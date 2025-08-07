@@ -38,9 +38,10 @@ const AddTagButton = ({ tagType, game }) => {
                                         tagType.addToGame(game, item);
                                     }}
                                 >
-                                    {item}
+                                    <text>{item}</text>
                                 </DropdownMenu.Item>
                             ))}
+                        {/* Variable-length dropdown items need text wrapper to prevent overflow */}
                     </ScrollView>
                 </DropdownMenu.Content>
             </DropdownMenu.Portal>
@@ -67,7 +68,7 @@ const GPTagButton = observer(({ game, tagType, tagName }) => {
             }}
         >
             <span role="button" className="tag-button" draggable="true">
-                {tagName}
+                <text>{tagName}</text>
             </span>
 
             <DropdownMenu.Root open={dropdownOpen} onOpenChange={setDropdownOpen}>

@@ -13,7 +13,7 @@ export const SidebarTagButtonGroup = observer(({ tagType }) => {
     return (
         <div className="tag-button-group">
             <CenterAndEdgesRow className="ui-card-header">
-                <IconButton icon={<LuSettings2 />} style={{ padding: "5px" }} />
+                <IconButton icon={<LuSettings2 fontSize={20} />} />
                 <h4>{title}</h4>
                 <IconButton icon={<MdAdd />} onClick={handleAddButtonClick} />
             </CenterAndEdgesRow>

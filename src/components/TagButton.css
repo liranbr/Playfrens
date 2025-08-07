@@ -17,11 +17,14 @@
         border-radius: inherit;
         font-size: 18px;
         text-align: left;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        text-wrap: nowrap;
         cursor: pointer;
         transition: none;
+        text {
+            max-width: 85%; /* reserve some space for the menu button */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-wrap: nowrap;
+        }
 
         &:focus-visible + .icon-button {
             opacity: 1;
@@ -68,7 +71,7 @@
             transition: padding-left 0.3s ease 0.8s;
         }
         label {
-            display: none;
+            opacity: 0;
         }
         .hover-drag-indicator {
             opacity: 1;

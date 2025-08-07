@@ -4,6 +4,7 @@
     --dd-padding: 4px;
     max-height: var(--dd-max-height);
     min-width: 150px;
+    max-width: 300px;
     overflow-y: hidden;
     background-color: var(--pf-bg-700);
     border: var(--pf-border-700);
@@ -16,12 +17,18 @@
         align-items: center;
         font-size: 16px;
         height: 36px;
-        padding-left: 14px;
+        padding: 0 14px;
         border-radius: 4px;
         outline: none;
         border: none;
         user-select: none;
         cursor: pointer;
+
+        text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-wrap: nowrap;
+        }
 
         &[data-disabled] {
             color: var(--pf-fg-700);
@@ -44,6 +51,7 @@
 
         .rx-dropdown-right-slot {
             margin-left: auto;
+            margin-right: -6px;
         }
 
         & svg {
@@ -256,6 +264,12 @@
     width: 100%;
     overflow: hidden;
 
+    .rx-scroll-viewport > div {
+        /* the built-in div that Radix ScrollArea adds is display: table, causes overflow */
+        display: block !important;
+        max-width: 100%;
+        overflow: hidden;
+    }
     .rx-scrollbar {
         max-height: inherit;
         width: 6px;

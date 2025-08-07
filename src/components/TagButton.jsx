@@ -65,7 +65,7 @@ export const SidebarTagButton = observer(({ tagName, tagType }) => {
                 }}
                 onDragEnd={() => filterStore.setDraggedTag(null)}
             >
-                {tagName}
+                <text>{tagName}</text>
                 <label>{gameAmountInCurrentFilter}</label>
                 <MdDragIndicator className="hover-drag-indicator" />
             </span>

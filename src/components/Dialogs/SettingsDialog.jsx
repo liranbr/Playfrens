@@ -21,7 +21,7 @@ export const SettingsDialog = ({ open, closeDialog }) => {
 
                     <p>Highlight games when hovering on a sidebar tag</p>
                     <RadioGroup.Root
-                        defaultValue={settingsStore.TagHoverGameHighlight}
+                        defaultValue={settingsStore.tagHoverGameHighlight}
                         className="rx-radio-group"
                         onValueChange={(option) => settingsStore.setTagHoverGameHighlight(option)}
                     >

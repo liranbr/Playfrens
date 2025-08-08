@@ -13,4 +13,6 @@ export {
     useSettingsStore,
     settingsKeyInStorage,
     TagHoverGameHighlightOptions,
+    TagFilterLogicOptions,
+    globalSettingsStore,
 } from "./SettingsStore.jsx";

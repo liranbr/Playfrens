@@ -20,3 +20,29 @@
         padding: 0 12px;
     }
 }
+
+.sidebar-popover-content {
+    display: flex;
+    flex-direction: column;
+    min-width: 250px;
+    width: fit-content;
+    max-width: 500px;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: var(--pf-bg-700);
+    border: 2px solid var(--pf-bg-100);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 1);
+    z-index: 2; /* stay above hovered game cards */
+    gap: 8px;
+
+    .popover-close {
+        position: absolute;
+        right: 8px;
+        top: 8px;
+    }
+
+    p {
+        color: var(--pf-fg-200);
+        font-size: 14px;
+    }
+}

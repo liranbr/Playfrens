@@ -1,7 +1,7 @@
 import { createContext, useContext } from "react";
 import { makeAutoObservable } from "mobx";
 import { tagTypes } from "@/models";
-import { allGames } from "@/stores";
+import { allGames, globalSettingsStore } from "@/stores";
 
 class FilterStore {
     search = "";
@@ -14,11 +14,6 @@ class FilterStore {
         [tagTypes.friend.key]: new Set(),
         [tagTypes.category.key]: new Set(),
         [tagTypes.status.key]: new Set(),
-    };
-    filterLogic = {
-        [tagTypes.friend.key]: "AND",
-        [tagTypes.category.key]: "OR",
-        [tagTypes.status.key]: "OR",
     };
     hoveredTag = { tagType: null, tagName: null }; // Used for tag-hover effects on game cards
     draggedTag = { tagType: null, tagName: null }; // Same for drag-and-drop effects
@@ -117,6 +112,7 @@ class FilterStore {
             }
         }
 
+        const settingsStore = globalSettingsStore;
         const filterMethods = {
             AND: "every",
             OR: "some",
@@ -131,7 +127,8 @@ class FilterStore {
             const selectionSet = this.selectedTags[tagTypeKey];
             // If selected tags are present, filter by the tag type's logic
             if (selectionSet.size) {
-                const filterMethod = filterMethods[this.filterLogic[tagTypeKey]];
+                // Logic per tag type (AND/OR) that's stored in the settings is converted to (every/some) methods and used to filter
+                const filterMethod = filterMethods[settingsStore.tagFilterLogic[tagTypeKey]];
                 if (![...selectionSet][filterMethod]((tag) => gameTags.includes(tag))) return false;
             }
         }
@@ -148,13 +145,11 @@ class FilterStore {
     setHoveredTag(tagType = null, tagName = null) {
         if (tagType && tagName) this.hoveredTag = { tagType: tagType, tagName: tagName };
         else this.hoveredTag = { tagType: null, tagName: null };
-        console.log("Hovered tag set to:", this.hoveredTag.tagType, this.hoveredTag.tagName);
     }
 
     setDraggedTag(tagType = null, tagName = null) {
         if (tagType && tagName) this.draggedTag = { tagType: tagType, tagName: tagName };
         else this.draggedTag = { tagType: null, tagName: null };
-        console.log("Dragged tag set to:", this.draggedTag.tagType, this.draggedTag.tagName);
     }
 
     get areFiltersActive() {

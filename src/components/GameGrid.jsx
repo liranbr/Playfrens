@@ -59,7 +59,7 @@ export const GamesGrid = observer(() => {
         }
         return "";
     };
-    const hoverTagSetting = settingsStore.TagHoverGameHighlight;
+    const hoverTagSetting = settingsStore.tagHoverGameHighlight;
     const hoveredTagType = filterStore.hoveredTag.tagType;
     const hoveredTagName = filterStore.hoveredTag.tagName;
     const hoveredTagClassname = (game) => {

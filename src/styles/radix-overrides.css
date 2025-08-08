@@ -239,7 +239,7 @@
         font-weight: 500;
     }
     button[role="radio"] {
-        background-color: var(--pf-bg-700);
+        background-color: inherit;
         width: 14px;
         height: 14px;
         border-radius: 50%;
@@ -274,7 +274,6 @@
         max-height: inherit;
         width: 6px;
         padding: 0 1px;
-        z-index: 3;
         user-select: none;
         &:hover {
             padding: 0;

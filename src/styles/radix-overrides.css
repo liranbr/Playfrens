@@ -264,11 +264,10 @@
     width: 100%;
     overflow: hidden;
 
-    .rx-scroll-viewport > div {
-        /* the built-in div that Radix ScrollArea adds is display: table, causes overflow */
+    .rx-scroll-viewport {
+        /* the radix viewport div is display: table, caused horizontal overflow */
         display: block !important;
         max-width: 100%;
-        overflow: hidden;
     }
     .rx-scrollbar {
         max-height: inherit;

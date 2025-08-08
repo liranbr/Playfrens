@@ -19,7 +19,7 @@ export function ScrollView({
 }) {
     return (
         <ScrollArea.Root type={type} className={`rx-scroll-area ${rootClassName}`} {...rest}>
-            <ScrollArea.Viewport className={`rx-scroll-viewport ${viewportClassName}`}>
+            <ScrollArea.Viewport asChild className={`rx-scroll-viewport ${viewportClassName}`}>
                 {children}
             </ScrollArea.Viewport>
             <ScrollArea.Scrollbar orientation="vertical" className="rx-scrollbar">

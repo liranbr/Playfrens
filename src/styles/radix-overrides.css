@@ -133,6 +133,11 @@
         animation: dialogHide var(--dialog-fade-duration);
     }
 
+    &.no-anim[data-state="open"],
+    &.no-anim[data-state="closed"] {
+        animation: none;
+    }
+
     h2 {
         font-size: 18px;
         margin-bottom: 12px;

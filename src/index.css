@@ -11,7 +11,7 @@
     --game-card-width: 210px; /* for the game cards in the grid */
     --game-card-border-radius: 0;
     --icon-size: 30px; /* for icon buttons like ⋮ or + */
-    --dialog-fade-duration: 250ms;
+    --dialog-fade-duration: 1000ms;
 
     color-scheme: dark;
 

@@ -26,8 +26,11 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
         } else {
             const newGame = addGame(gameTitle, gameCoverPath, gameSortingTitle);
             if (newGame) {
-                dialogStore.insertPrevious(Dialogs.Playfrens, { game: newGame });
-                handleHide();
+                dialogStore.open(Dialogs.Playfrens, { game: newGame });
+                setTimeout(() => {
+                    dialogStore.closePrevious();
+                }, dialogDescription.dialogFadeDuration);
+                // handleHide();
             }
         }
     };

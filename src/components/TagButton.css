@@ -19,7 +19,7 @@
         text-align: left;
         cursor: pointer;
         transition: none;
-        text {
+        .tag-name {
             max-width: 85%; /* reserve some space for the menu button */
             overflow: hidden;
             text-overflow: ellipsis;

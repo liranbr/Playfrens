@@ -11,8 +11,8 @@ export const TagHoverGameHighlightOptions = {
     none: "None",
 };
 export const TagFilterLogicOptions = {
-    AND: "Game has all",
-    OR: "Game has at least one",
+    AND: "Have all",
+    OR: "Have at least one",
 };
 
 class SettingsStore {

@@ -24,10 +24,10 @@
 .sidebar-popover-content {
     display: flex;
     flex-direction: column;
-    min-width: 250px;
+    min-width: var(--ui-card-width);
     width: fit-content;
     max-width: 500px;
-    padding: 20px;
+    padding: 28px 20px 20px 20px;
     border-radius: 8px;
     background-color: var(--pf-bg-700);
     border: 2px solid var(--pf-bg-100);
@@ -37,8 +37,8 @@
 
     .popover-close {
         position: absolute;
-        right: 8px;
-        top: 8px;
+        right: 4px;
+        top: 4px;
     }
 
     p {

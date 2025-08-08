@@ -24,7 +24,7 @@
         user-select: none;
         cursor: pointer;
 
-        text {
+        .item-label {
             overflow: hidden;
             text-overflow: ellipsis;
             text-wrap: nowrap;

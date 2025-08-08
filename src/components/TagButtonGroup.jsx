@@ -44,7 +44,7 @@ const SidebarTBGMenu = observer(({ tagType }) => {
                         <IconButton className="popover-close" icon={<MdClose />} />
                     </Popover.Close>
 
-                    <p>Selected {tagType.plural} filter logic</p>
+                    <p>Selecting {tagType.plural} filters for games that:</p>
                     <RadioGroup.Root
                         defaultValue={settingsStore.tagFilterLogic[tagType.key]}
                         className="rx-radio-group"

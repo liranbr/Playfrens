@@ -129,15 +129,19 @@ class DialogStore {
             this.prevIsOpen = false;
     }
 
+    insertPrevious = (dialog, props = {}) => {
+        const tail = this.dialogList.getLast();
+        if (!tail) return;
+        tail.prepend(new DialogItem({ dialog, props, open: false }));
+        this.setActiveDialog(tail);
+    }
+
     // to-do: we need to figure out how to manage this data properly!
     closePrevious = () => {
         const tail = this.dialogList.getLast();
+        this.prevDialog = null;
         tail.prev && tail.prev.detach();
-        this.activeIsOpen = true;
-        this.prevIsOpen = false;
         this.prevDialog = tail.prev;
-        console.log(this.activeDialog, this.activeIsOpen, this.prevIsOpen);
-        // this.refreshDialogValues();
     }
 
     refreshDialogValues = () => {

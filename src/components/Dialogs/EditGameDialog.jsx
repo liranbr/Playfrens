@@ -26,11 +26,8 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
         } else {
             const newGame = addGame(gameTitle, gameCoverPath, gameSortingTitle);
             if (newGame) {
-                dialogStore.open(Dialogs.Playfrens, { game: newGame });
-                setTimeout(() => {
-                    dialogStore.closePrevious();
-                }, dialogDescription.dialogFadeDuration);
-                // handleHide();
+                dialogStore.insertPrevious(Dialogs.Playfrens, { game: newGame });
+                handleHide();
             }
         }
     };
@@ -42,7 +39,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
     };
 
     return (
-        <DialogBase open={open} onOpenChange={handleHide} >
+        <DialogBase open={open} onOpenChange={handleHide} contentProps={{ forceMount: !game }} >
             <Dialog.Title>{dialogTitle}</Dialog.Title>
             <VisuallyHidden>
                 <Dialog.Description>{dialogDescription}</Dialog.Description>
@@ -91,6 +88,6 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                     Save
                 </Button>
             </div>
-        </DialogBase>
+        </DialogBase >
     );
 }

@@ -27,22 +27,26 @@
     min-width: var(--ui-card-width);
     width: fit-content;
     max-width: 500px;
-    padding: 28px 20px 20px 20px;
+    padding: 16px 20px;
     border-radius: 8px;
-    background-color: var(--pf-bg-700);
-    border: 2px solid var(--pf-bg-100);
-    box-shadow: 0 0 20px rgba(0, 0, 0, 1);
+    background-color: var(--pf-bg-500);
+    border: var(--pf-border-300);
+    box-shadow: 0 0 16px 2px rgba(0, 0, 0, 1);
     z-index: 2; /* stay above hovered game cards */
-    gap: 8px;
+    gap: 4px;
 
     .popover-close {
         position: absolute;
-        right: 4px;
-        top: 4px;
+        right: 12px;
+        top: 12px;
     }
 
     p {
         color: var(--pf-fg-200);
         font-size: 14px;
+    }
+
+    .spacer {
+        margin-bottom: 16px;
     }
 }

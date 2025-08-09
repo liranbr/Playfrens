@@ -80,17 +80,12 @@ class DialogStore {
                 computedStyle
                     .getPropertyValue("--dialog-fade-duration")
                     .replace("ms", "") || "0";
-            this.dialogAnimationDelay =
-                computedStyle
-                    .getPropertyValue("--dialog-animation-delay")
-                    .replace("ms", "") || "0";
         });
     }
 
     open = (dialog, props = {}) => {
         if (!this.isDialogValid(dialog)) return console.warn("Unknown Dialog passed:\n", dialog);
         this.dialogList.append(new DialogItem({ dialog, props, open: false }));
-
         this.setActiveDialog(this.dialogList.getLast());
         this.doDialogTransition();
     };
@@ -98,12 +93,11 @@ class DialogStore {
     close = () => {
         console.log(this.activeDialog, this.activeIsOpen, this.prevIsOpen);
         this.doDialogTransition(true);
-        this.afterCloseAnimation(() => {
+        this.onTransitionComplete(() => {
             this.dialogList.detachLast();
             this.setActiveDialog(this.dialogList.getLast());
             if (this.activeDialog)
                 this.activeIsOpen = true;
-            console.log("closing..")
         });
 
     };
@@ -113,16 +107,16 @@ class DialogStore {
         this.prevDialog = dialogItem && dialogItem.prev ? dialogItem.prev : null;
     }
 
-    doDialogTransition = (backwards = false, prevClose = false) => {
+    doDialogTransition = (backwards = false, forcePrevClose = false) => {
         if (this.activeDialog) {
             this.activeDialog.open = !backwards;
             this.activeIsOpen = this.activeDialog.open;
         }
         else
-            this.activeDialog = false;
+            this.activeIsOpen = false;
 
         if (this.activeDialog.prev) {
-            this.activeDialog.prev.open = backwards && !prevClose;
+            this.activeDialog.prev.open = backwards && !forcePrevClose;
             this.prevIsOpen = this.activeDialog.prev.open;
         }
         else
@@ -136,27 +130,10 @@ class DialogStore {
         this.setActiveDialog(tail);
     }
 
-    // to-do: we need to figure out how to manage this data properly!
     closePrevious = () => {
         const tail = this.dialogList.getLast();
-        this.prevDialog = null;
         tail.prev && tail.prev.detach();
-        this.prevDialog = tail.prev;
-    }
-
-    refreshDialogValues = () => {
-        const tail = this.dialogList.getLast();
-        if (!tail) {
-            this.activeIsOpen = false;
-            this.prevIsOpen = false;
-            return;
-        }
-        tail.open = true;
-        this.activeIsOpen = tail.open;
-        if (tail.prev) {
-            tail.prev.open = false;
-            this.prevIsOpen = tail.prev.open;
-        }
+        this.prevDialog = null;
         this.setActiveDialog(tail);
     }
 
@@ -170,7 +147,7 @@ class DialogStore {
             this.prevIsOpen = this.activeDialog.prev.open;
         }
 
-        this.afterCloseAnimation(() => {
+        this.onTransitionComplete(() => {
             tail.prev?.detach();
             this.dialogList.detachLast();
             this.setActiveDialog(this.dialogList.getLast());
@@ -180,10 +157,22 @@ class DialogStore {
     };
 
     closeMultiple = (amount) => {
-        const tail = this.activeDialog;
+        const last = this.activeDialog;
         this.doDialogTransition(true, true);
 
-        this.afterCloseAnimation(() => {
+        // for while loop
+        // let tail = last;
+        // while (amount > 0 && tail.prev) {
+        //     const prev = tail.prev;
+        //     prev.open = false;
+        //     this.prevIsOpen = this
+        // }
+        if (this.activeDialog.prev) {
+            this.activeDialog.prev.open = false;
+            this.prevIsOpen = this.activeDialog.prev.open;
+        }
+
+        this.onTransitionComplete(() => {
             tail.prev?.detach();
             this.dialogList.detachLast();
             this.setActiveDialog(this.dialogList.getLast());
@@ -192,30 +181,24 @@ class DialogStore {
         });
     }
 
-    afterCloseAnimation = (callback) => {
+    onTransitionComplete = (callback) => {
         setTimeout(
             action(() => {
                 callback();
             }),
-            +this.dialogFadeDuration,
+            +this.dialogFadeDuration
         );
-    };
-
-    get currentDialog() {
-        return this.dialogStack[this.dialogStack.length - 1] || null;
-    }
-
-    get previousDialog() {
-        return this.dialogStack[this.dialogStack.length - 2] || null;
     }
 
     clearAll() {
-        this.dialogStack = [];
+        this.activeDialog = null;
+        this.prevDialog = null;
+        this.activeIsOpen = false;
+        this.prevIsOpen = false;
+        this.dialogList = new DialogList();
     }
 
-    isDialogValid(dialog) {
-        return Object.values(Dialogs).includes(dialog);
-    }
+    isDialogValid(dialog) { return Object.values(Dialogs).includes(dialog); }
 }
 
 export const dialogStore = new DialogStore();

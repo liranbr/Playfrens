@@ -26,7 +26,7 @@ export function insertSortedByOrder(item, array, orderArray) {
 
 export function compareAlphaIgnoreCase(a, b) {
     return a.toLowerCase().localeCompare(b.toLowerCase());
-}
+} // TODO: remove after tag and game sorting is implemented without this
 
 export function compareGameTitles(a, b) {
     const titleA = a.sortingTitle || a.title;

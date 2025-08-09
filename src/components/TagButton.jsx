@@ -8,7 +8,7 @@ import {
     MdMoreVert,
     MdOutlineSearchOff,
 } from "react-icons/md";
-import { removeTag, useFilterStore } from "@/stores";
+import { removeTag, tagGameCount, useFilterStore } from "@/stores";
 import { IconButton } from "@/components";
 import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
 import "./TagButton.css";
@@ -23,15 +23,12 @@ export const SidebarTagButton = observer(({ tagName, tagType }) => {
             ? " being-dragged"
             : "";
     const isDropdownOpen = dropdownOpen ? " dd-open" : "";
-    const gameAmountInCurrentFilter = filterStore.filteredGames.filter((game) =>
-        game.hasTag(tagType, tagName),
-    ).length;
+    const gameCount = tagGameCount(tagType, tagName, true);
 
     const onClick = () => {
         filterStore.toggleTagSelection(tagType, tagName);
         filterStore.setHoveredTag(null);
     };
-    const toggleSelection = () => filterStore.toggleTagSelection(tagType, tagName);
 
     return (
         <div
@@ -66,7 +63,7 @@ export const SidebarTagButton = observer(({ tagName, tagType }) => {
                 onDragEnd={() => filterStore.setDraggedTag(null)}
             >
                 <span className="tag-name">{tagName}</span>
-                <label>{gameAmountInCurrentFilter !== 0 ? gameAmountInCurrentFilter : ""}</label>
+                <label>{gameCount !== 0 ? gameCount : ""}</label>
                 <MdDragIndicator className="hover-drag-indicator" />
             </span>
             <SidebarTBMenuButton

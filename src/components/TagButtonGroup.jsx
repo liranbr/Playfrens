@@ -3,7 +3,7 @@ import { LuSettings2 } from "react-icons/lu";
 import { observer } from "mobx-react-lite";
 import * as Popover from "@radix-ui/react-popover";
 import * as RadioGroup from "@radix-ui/react-radio-group";
-import { useSettingsStore, TagFilterLogicOptions } from "@/stores";
+import { useSettingsStore, TagFilterLogicOptions, TagSortOptions } from "@/stores";
 import { SidebarTagButton, IconButton, CenterAndEdgesRow, ScrollView } from "@/components";
 import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
 import "./TagButtonGroup.css";
@@ -54,6 +54,21 @@ const SidebarTBGMenu = observer(({ tagType }) => {
                             <label htmlFor={option} key={option}>
                                 <RadioGroup.Item value={option} id={option} autoFocus />
                                 {TagFilterLogicOptions[option]}
+                            </label>
+                        ))}
+                    </RadioGroup.Root>
+                    <div className="spacer" />
+
+                    <p>Sort {tagType.plural} by</p>
+                    <RadioGroup.Root
+                        defaultValue={settingsStore.tagSort[tagType.key]}
+                        className="rx-radio-group"
+                        onValueChange={(option) => settingsStore.setTagSort(tagType, option)}
+                    >
+                        {Object.keys(TagSortOptions).map((option) => (
+                            <label htmlFor={option} key={option}>
+                                <RadioGroup.Item value={option} id={option} />
+                                {TagSortOptions[option]}
                             </label>
                         ))}
                     </RadioGroup.Root>

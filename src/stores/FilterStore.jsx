@@ -164,3 +164,36 @@ class FilterStore {
 const filterStore = new FilterStore();
 const FilterStoreContext = createContext(filterStore);
 export const useFilterStore = () => useContext(FilterStoreContext);
+
+export function tagGameCount(tagType, tagName, withFilters = true) {
+    const gamesList = withFilters ? filterStore.filteredGames : allGames;
+    return gamesList.filter((game) => game.hasTag(tagType, tagName)).length;
+}
+
+export function sortTagsList(tagType, tagsList) {
+    const sortOption = globalSettingsStore.tagSort[tagType.key];
+    const compareAlpha = (a, b) => a.localeCompare(b, undefined, { sensitivity: "base" });
+    const useFiltersForTagGameCount = globalSettingsStore.tagSortGameCountWithFilters;
+    const compareGameCount = (a, b) => {
+        const countA = tagGameCount(tagType, a, useFiltersForTagGameCount);
+        const countB = tagGameCount(tagType, b, useFiltersForTagGameCount);
+        return countA - countB;
+    };
+
+    switch (sortOption) {
+        case "nameAsc":
+            return tagsList.sort((a, b) => compareAlpha(a, b));
+        case "nameDesc":
+            return tagsList.sort((a, b) => compareAlpha(b, a));
+        case "countAsc":
+            return tagsList.sort((a, b) => compareGameCount(a, b));
+        case "countDesc":
+            return tagsList.sort((a, b) => compareGameCount(b, a));
+        case "custom":
+            console.warn(`Custom sorting not yet implemented, returning tags as is.`);
+            return tagsList;
+        default:
+            console.warn(`Unknown sort option: ${sortOption}, returning tags as is.`);
+            return tagsList;
+    }
+}

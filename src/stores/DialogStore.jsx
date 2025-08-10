@@ -13,7 +13,7 @@ export const Dialogs = {
     DeleteWarning: DeleteWarningDialog,
     EditTag: EditTagDialog,
     EditGame: EditGameDialog,
-    Playfrens: GamePageDialog,
+    GamePage: GamePageDialog,
     Settings: SettingsDialog,
     About: AboutDialog,
 };

@@ -25,7 +25,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
         } else {
             const newGame = addGame(gameTitle, gameCoverPath, gameSortingTitle);
             if (newGame) {
-                dialogStore.insertPrevious(Dialogs.Playfrens, { game: newGame });
+                dialogStore.insertPrevious(Dialogs.GamePage, { game: newGame });
                 handleHide();
             }
         }

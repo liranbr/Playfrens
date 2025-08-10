@@ -19,7 +19,7 @@ function GameCard({ game, className = "" }) {
         tagTypes[tagTypeKey].addToGame(game, tagName);
     };
     const openGamePageDialog = () => {
-        dialogStore.open(Dialogs.Playfrens, { game });
+        dialogStore.open(Dialogs.GamePage, { game });
     };
     return (
         <button

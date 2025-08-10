@@ -91,7 +91,6 @@ class DialogStore {
     };
 
     close = () => {
-        console.log(this.activeDialog, this.activeIsOpen, this.prevIsOpen);
         this.doDialogTransition(true);
         this.onTransitionComplete(() => {
             this.dialogList.detachLast();
@@ -151,7 +150,6 @@ class DialogStore {
             let node = tail;
             let i = amount;
             while (i > 0 && node) {
-                console.log("node.prev, node:", node?.prev, node)
                 node = node?.prev;
                 i--;
             }
@@ -162,7 +160,6 @@ class DialogStore {
             while (till.next && till.next != tail) {
                 const next = till.next;
                 next.detach();
-                console.log("DETACHED!");
             }
             // referesh values now
             this.setActiveDialog(tail);

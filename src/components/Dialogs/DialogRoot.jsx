@@ -10,10 +10,6 @@ export const DialogRoot = observer(() => {
     const size = active?.list?.size ?? 0;
     const prev = store.prevDialog;
 
-    useEffect(() => {
-        console.log("PREVIOUS CHANGE!!!")
-    }, [store.prevDialog])
-
     if (!active) return <></>;
 
     const isDialogActive = () => {
@@ -31,7 +27,6 @@ export const DialogRoot = observer(() => {
             <Dialog.Overlay className="rx-dialog-overlay" />
             {(() => {
                 if (!prev) return <></>;
-                console.log("prev update", prev)
                 const { dialog, open, props } = prev;
                 const DialogComponent = dialog;
                 return <DialogComponent {...props} open={open} closeDialog={store.close} key={size - 1} />;
@@ -39,7 +34,6 @@ export const DialogRoot = observer(() => {
             {(() => {
                 const { dialog, open, props } = active;
                 const DialogComponent = dialog;
-                console.log("open stat:", open)
                 return <DialogComponent {...props} open={open} closeDialog={store.close} key={size} />;
             })()}
         </Dialog.Root>

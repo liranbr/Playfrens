@@ -104,7 +104,7 @@ class DialogStore {
 
     setActiveDialog = (dialogItem) => {
         this.activeDialog = dialogItem;
-        this.prevDialog = dialogItem && dialogItem.prev ? dialogItem.prev : null;
+        this.prevDialog = dialogItem?.prev ?? null;
     }
 
     doDialogTransition = (backwards = false, forcePrevClose = false) => {
@@ -139,38 +139,51 @@ class DialogStore {
 
     // Useful when you don't want the previous one to open when closing current,
     // e.g., after deleting a game, close the confirmation dialog and the game dialog
-    closeTwo = () => {
+    closeMultiple = (amount = 1) => {
+        if (amount <= 0) {
+            console.warn(".closeMultiple(); called with 0 or less amount! Attempting to close only 1.");
+            amount = 1;
+        }
+
         const tail = this.activeDialog;
-        this.doDialogTransition(true, true);
-        if (this.activeDialog.prev) {
-            this.activeDialog.prev.open = false;
-            this.prevIsOpen = this.activeDialog.prev.open;
+        // Get the dialog we want to back track to, "null" means we are exiting till head and deactivate.
+        const till = (() => {
+            let node = tail;
+            let i = amount;
+            while (i > 0 && node) {
+                console.log("node.prev, node:", node?.prev, node)
+                node = node?.prev;
+                i--;
+            }
+            return node;
+        })();
+
+        if (till) {
+            while (till.next && till.next != tail) {
+                const next = till.next;
+                next.detach();
+                console.log("DETACHED!");
+            }
+            // referesh values now
+            this.setActiveDialog(tail);
+        }
+        this.doDialogTransition(true, till != null);
+
+        // manually clean the prev node of tail
+        let prev = tail.prev;
+        prev && (prev.open = false);
+        this.prevIsOpen = false;
+
+        // Clean up rest
+        let i = amount - 1;
+        while (i > 1 && prev) {
+            prev.open = false;
+            prev = prev.prev;
+            i--;
         }
 
-        this.onTransitionComplete(() => {
-            tail.prev?.detach();
-            this.dialogList.detachLast();
-            this.setActiveDialog(this.dialogList.getLast());
-            if (this.activeDialog)
-                this.activeIsOpen = true;
-        });
-    };
-
-    closeMultiple = (amount) => {
-        const last = this.activeDialog;
-        this.doDialogTransition(true, true);
-
-        // for while loop
-        // let tail = last;
-        // while (amount > 0 && tail.prev) {
-        //     const prev = tail.prev;
-        //     prev.open = false;
-        //     this.prevIsOpen = this
-        // }
-        if (this.activeDialog.prev) {
-            this.activeDialog.prev.open = false;
-            this.prevIsOpen = this.activeDialog.prev.open;
-        }
+        // The dialog we want to go to so open!
+        till && (till.open = true);
 
         this.onTransitionComplete(() => {
             tail.prev?.detach();

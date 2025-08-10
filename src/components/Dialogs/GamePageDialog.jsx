@@ -139,7 +139,7 @@ function GameOptionsButton({ game }) {
                                 itemName: game.title,
                                 deleteFunction: () => {
                                     removeGame(game);
-                                    dialogStore.closeTwo();
+                                    dialogStore.closeMultiple(2);
                                 },
                             });
                         }}

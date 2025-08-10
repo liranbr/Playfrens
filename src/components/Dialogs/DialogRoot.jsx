@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import { dialogStore } from "./DialogStore.jsx";
+import { dialogStore } from "@/stores";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useEffect } from "react";
 

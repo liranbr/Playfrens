@@ -8,9 +8,8 @@ import {
     MdMoreVert,
     MdOutlineSearchOff,
 } from "react-icons/md";
-import { removeTag, useFilterStore } from "@/stores";
+import { removeTag, useFilterStore, Dialogs, dialogStore } from "@/stores";
 import { IconButton } from "@/components";
-import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
 import "./TagButton.css";
 
 export const SidebarTagButton = observer(({ tagName, tagType }) => {

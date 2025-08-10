@@ -4,8 +4,7 @@ import "./CenterAndEdgesRow.css";
  * <b>Requires three children elements.</b>
  *
  * Places first child on the left edge, second in the center, and third on the right edge.
- * @param children
- * @param className
+ * @param {{className, children} & React.HTMLAttributes<HTMLDivElement>} props
  * @returns {JSX.Element}
  */
 export function CenterAndEdgesRow({ children, className = "" }) {

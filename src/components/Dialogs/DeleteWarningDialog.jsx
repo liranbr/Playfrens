@@ -1,6 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
-import { Button } from "../common/Button.jsx";
 import { DialogBase } from "./DialogRoot.jsx";
+import { Button } from "@/components";
 
 export function DeleteWarningDialog({ open, closeDialog, itemName, deleteFunction }) {
     const handleDelete = () => {

@@ -6,21 +6,18 @@ import * as Avatar from "@radix-ui/react-avatar";
 import {
     MdChevronRight,
     MdClose,
+    MdFilterAltOff,
     MdMenu,
     MdOutlineFileDownload,
     MdOutlineFileUpload,
     MdOutlineGamepad,
     MdPerson,
 } from "react-icons/md";
-import { backupToFile, restoreFromFile } from "./stores/DataStore.jsx";
-import { tagTypes } from "./models/TagTypes.jsx";
-import { GamesGrid } from "./components/GameGrid.jsx";
-import { SidebarTagButtonGroup } from "./components/TagButtonGroup.jsx";
-import { DialogRoot } from "./components/Dialogs/DialogRoot.jsx";
-import { Dialogs, dialogStore } from "./components/Dialogs/DialogStore.jsx";
-import { useFilterStore } from "./stores/FilterStore.jsx";
-import { IconButton } from "./components/common/IconButton.jsx";
-import { CenterAndEdgesRow } from "./components/common/CenterAndEdgesRow.jsx";
+import { SidebarTagButtonGroup, IconButton, CenterAndEdgesRow, GamesGrid } from "@/components";
+import { useFilterStore, backupToFile, restoreFromFile } from "@/stores";
+import { tagTypes } from "@/models";
+import { DialogRoot } from "@/components/Dialogs/DialogRoot.jsx";
+import { Dialogs, dialogStore } from "@/components/Dialogs/DialogStore.jsx";
 import "./App.css";
 
 function AppMenu() {
@@ -31,20 +28,18 @@ function AppMenu() {
                 <DropdownMenu.Trigger asChild>
                     <IconButton icon={<MdMenu />} activate={dropdownOpen} />
                 </DropdownMenu.Trigger>
-                <DropdownMenu.Content
-                    className="rx-dropdown-menu"
-                    align={"start"}
-                    side={"bottom"}
-                    sideOffset={5}
-                >
-                    <DropdownMenu.Sub>
-                        <DropdownMenu.SubTrigger>
-                            File{" "}
-                            <div className="rx-dropdown-right-slot">
-                                <MdChevronRight />
-                            </div>
-                        </DropdownMenu.SubTrigger>
-                        <DropdownMenu.Portal>
+                <DropdownMenu.Portal>
+                    <DropdownMenu.Content
+                        className="rx-dropdown-menu"
+                        align={"start"}
+                        side={"bottom"}
+                        sideOffset={5}
+                    >
+                        <DropdownMenu.Sub>
+                            <DropdownMenu.SubTrigger>
+                                File
+                                <MdChevronRight className="rx-dropdown-right-slot" />
+                            </DropdownMenu.SubTrigger>
                             <DropdownMenu.SubContent className="rx-dropdown-menu" sideOffset={5}>
                                 <DropdownMenu.Item
                                     onClick={() => {
@@ -57,22 +52,22 @@ function AppMenu() {
                                     <MdOutlineFileDownload /> Backup
                                 </DropdownMenu.Item>
                             </DropdownMenu.SubContent>
-                        </DropdownMenu.Portal>
-                    </DropdownMenu.Sub>
-                    <DropdownMenu.Separator />
-                    <a href="https://github.com/liranbr/Playfrens" target="_blank">
-                        <DropdownMenu.Item>GitHub</DropdownMenu.Item>
-                    </a>
-                    <a href="https://trello.com/b/H9Cln6UD/playfrens" target="_blank">
-                        <DropdownMenu.Item>Trello</DropdownMenu.Item>
-                    </a>
-                    <DropdownMenu.Item onClick={() => dialogStore.open(Dialogs.Settings)}>
-                        Settings
-                    </DropdownMenu.Item>
-                    <DropdownMenu.Item onClick={() => dialogStore.open(Dialogs.About)}>
-                        About
-                    </DropdownMenu.Item>
-                </DropdownMenu.Content>
+                        </DropdownMenu.Sub>
+                        <DropdownMenu.Separator />
+                        <a href="https://github.com/liranbr/Playfrens" target="_blank">
+                            <DropdownMenu.Item>GitHub</DropdownMenu.Item>
+                        </a>
+                        <a href="https://trello.com/b/H9Cln6UD/playfrens" target="_blank">
+                            <DropdownMenu.Item>Trello</DropdownMenu.Item>
+                        </a>
+                        <DropdownMenu.Item onClick={() => dialogStore.open(Dialogs.Settings)}>
+                            Settings
+                        </DropdownMenu.Item>
+                        <DropdownMenu.Item onClick={() => dialogStore.open(Dialogs.About)}>
+                            About
+                        </DropdownMenu.Item>
+                    </DropdownMenu.Content>
+                </DropdownMenu.Portal>
             </DropdownMenu.Root>
 
             <input
@@ -100,10 +95,18 @@ const AppHeader = observer(() => {
                 </div>
             </div>
 
-            <div className={"game-search" + (search ? " has-value" : "")}>
-                <input value={search} onChange={updateSearch} placeholder="Search" />
-                <IconButton icon={<MdClose />} type="reset" onClick={updateSearch} />
-            </div>
+            <CenterAndEdgesRow className="app-header-center">
+                <IconButton
+                    icon={<MdFilterAltOff />}
+                    style={{ visibility: !filterStore.areFiltersActive ? "hidden" : "visible" }}
+                    onClick={() => filterStore.resetFilters()}
+                />
+                <div className={"game-search" + (search ? " has-value" : "")}>
+                    <input value={search} onChange={updateSearch} placeholder="Search" />
+                    <IconButton icon={<MdClose />} type="reset" onClick={updateSearch} />
+                </div>
+                <div />
+            </CenterAndEdgesRow>
 
             <div>
                 <button
@@ -139,6 +142,23 @@ function AppSidebar() {
     );
 }
 
+function ToastRoot() {
+    return (
+        <ToastContainer
+            position="bottom-center"
+            autoClose={3000}
+            closeButton={false}
+            hideProgressBar={true}
+            closeOnClick={true}
+            pauseOnHover={true}
+            draggable={true}
+            progress={undefined}
+            theme="dark"
+            toastClassName="toast-notification"
+        />
+    );
+}
+
 export default function App() {
     return (
         <>
@@ -148,7 +168,7 @@ export default function App() {
                 <GamesGrid />
             </div>
             <DialogRoot />
-            <ToastContainer />
+            <ToastRoot />
         </>
     );
 }

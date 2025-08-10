@@ -1,46 +1,74 @@
 import { useState } from "react";
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { MdDeleteOutline, MdEdit, MdMoreVert, MdOutlineSearchOff } from "react-icons/md";
-import { removeTag } from "../stores/DataStore.jsx";
-import "./TagButton.css";
-import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
-import { useFilterStore } from "../stores/FilterStore.jsx";
 import { observer } from "mobx-react-lite";
-import { IconButton } from "./common/IconButton.jsx";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import {
+    MdDeleteOutline,
+    MdDragIndicator,
+    MdEdit,
+    MdMoreVert,
+    MdOutlineSearchOff,
+} from "react-icons/md";
+import { removeTag, useFilterStore } from "@/stores";
+import { IconButton } from "@/components";
+import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
+import "./TagButton.css";
 
 export const SidebarTagButton = observer(({ tagName, tagType }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const filterStore = useFilterStore();
     const isSelected = filterStore.isTagSelected(tagType, tagName) ? " selected" : "";
     const isExcluded = filterStore.isTagExcluded(tagType, tagName) ? " excluded" : "";
+    const isBeingDragged =
+        filterStore.draggedTag.tagType === tagType && filterStore.draggedTag.tagName === tagName
+            ? " being-dragged"
+            : "";
     const isDropdownOpen = dropdownOpen ? " dd-open" : "";
+    const gameAmountInCurrentFilter = filterStore.filteredGames.filter((game) =>
+        game.hasTag(tagType, tagName),
+    ).length;
 
+    const onClick = () => {
+        filterStore.toggleTagSelection(tagType, tagName);
+        filterStore.setHoveredTag(null);
+    };
     const toggleSelection = () => filterStore.toggleTagSelection(tagType, tagName);
 
     return (
         <div
             className={
-                "tag-button-container sidebar-tbc" + isSelected + isExcluded + isDropdownOpen
+                "tag-button-container sidebar-tbc" +
+                isSelected +
+                isExcluded +
+                isDropdownOpen +
+                isBeingDragged
             }
         >
-            <button
-                value={tagName}
+            <span
+                role="button"
                 className={"tag-button"}
-                onClick={toggleSelection}
+                tabIndex={0}
+                onClick={onClick}
+                onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+                        e.preventDefault();
+                        onClick();
+                    }
+                }}
+                onMouseEnter={() => filterStore.setHoveredTag(tagType, tagName)}
+                onMouseLeave={() => filterStore.setHoveredTag(null)}
                 draggable="true"
                 onDragStart={(e) => {
+                    filterStore.setHoveredTag(null);
+                    filterStore.setDraggedTag(tagType, tagName);
                     e.dataTransfer.setData("tagName", tagName);
                     e.dataTransfer.setData("tagTypeKey", tagType.key);
                 }}
-                onMouseOver={() => {
-                    filterStore.setHoveredTag(tagType, tagName);
-                }}
-                onMouseLeave={() => {
-                    filterStore.setHoveredTag(null, null);
-                }}
+                onDragEnd={() => filterStore.setDraggedTag(null)}
             >
-                {tagName}
-            </button>
+                <span className="tag-name">{tagName}</span>
+                <label>{gameAmountInCurrentFilter !== 0 ? gameAmountInCurrentFilter : ""}</label>
+                <MdDragIndicator className="hover-drag-indicator" />
+            </span>
             <SidebarTBMenuButton
                 tagName={tagName}
                 tagType={tagType}

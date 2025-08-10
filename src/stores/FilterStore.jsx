@@ -1,7 +1,7 @@
 import { createContext, useContext } from "react";
 import { makeAutoObservable } from "mobx";
-import { tagTypes } from "../models/TagTypes.jsx";
-import { allGames } from "./DataStore.jsx";
+import { tagTypes } from "@/models";
+import { allGames, globalSettingsStore } from "@/stores";
 
 class FilterStore {
     search = "";
@@ -15,12 +15,8 @@ class FilterStore {
         [tagTypes.category.key]: new Set(),
         [tagTypes.status.key]: new Set(),
     };
-    filterLogic = {
-        [tagTypes.friend.key]: "AND",
-        [tagTypes.category.key]: "OR",
-        [tagTypes.status.key]: "OR",
-    };
     hoveredTag = { tagType: null, tagName: null }; // Used for tag-hover effects on game cards
+    draggedTag = { tagType: null, tagName: null }; // Same for drag-and-drop effects
 
     constructor() {
         makeAutoObservable(this);
@@ -116,6 +112,7 @@ class FilterStore {
             }
         }
 
+        const settingsStore = globalSettingsStore;
         const filterMethods = {
             AND: "every",
             OR: "some",
@@ -130,19 +127,37 @@ class FilterStore {
             const selectionSet = this.selectedTags[tagTypeKey];
             // If selected tags are present, filter by the tag type's logic
             if (selectionSet.size) {
-                const filterMethod = filterMethods[this.filterLogic[tagTypeKey]];
+                // Logic per tag type (AND/OR) that's stored in the settings is converted to (every/some) methods and used to filter
+                const filterMethod = filterMethods[settingsStore.tagFilterLogic[tagTypeKey]];
                 if (![...selectionSet][filterMethod]((tag) => gameTags.includes(tag))) return false;
             }
         }
         return true;
     }
 
+    /**
+     * @returns GameObject[] - All games that pass the current filters
+     */
     get filteredGames() {
         return allGames.filter((game) => this.doesGamePassFilters(game));
     }
 
-    setHoveredTag(tagType, tagName) {
-        this.hoveredTag = { tagType: tagType, tagName: tagName };
+    setHoveredTag(tagType = null, tagName = null) {
+        if (tagType && tagName) this.hoveredTag = { tagType: tagType, tagName: tagName };
+        else this.hoveredTag = { tagType: null, tagName: null };
+    }
+
+    setDraggedTag(tagType = null, tagName = null) {
+        if (tagType && tagName) this.draggedTag = { tagType: tagType, tagName: tagName };
+        else this.draggedTag = { tagType: null, tagName: null };
+    }
+
+    get areFiltersActive() {
+        return (
+            this.search ||
+            Object.values(this.selectedTags).some((set) => set.size > 0) ||
+            Object.values(this.excludedTags).some((set) => set.size > 0)
+        );
     }
 }
 

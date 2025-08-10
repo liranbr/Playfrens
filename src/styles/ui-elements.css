@@ -5,7 +5,6 @@ input {
 }
 
 textarea {
-    font-family: inherit;
     font-size: inherit;
 }
 
@@ -24,7 +23,7 @@ fieldset {
     border: none;
 }
 
-.Toastify__toast {
+.toast-notification {
     border: var(--pf-border-700);
     border-width: 2px;
 }

@@ -4,8 +4,8 @@ import {
     insertSortedByOrder,
     toastDataChangeSuccess,
     toastError,
-} from "../Utils.jsx";
-import { allGames } from "../stores/DataStore.jsx";
+} from "@/Utils.jsx";
+import { allGames } from "@/stores";
 
 /**
  * @typedef {Object} GameObject

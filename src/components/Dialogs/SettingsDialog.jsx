@@ -1,22 +1,37 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { Button } from "../common/Button.jsx";
+import * as RadioGroup from "@radix-ui/react-radio-group";
+import { Button } from "@/components";
+import { TagHoverGameHighlightOptions, useSettingsStore } from "@/stores";
+import "./SettingsDialog.css";
 
 export const SettingsDialog = ({ open, closeDialog }) => {
     const handleHide = () => closeDialog();
+    const settingsStore = useSettingsStore();
 
     return (
         <Dialog.Root open={open} onOpenChange={handleHide}>
             <Dialog.Portal>
                 <Dialog.Overlay className="rx-dialog-overlay" />
-                <Dialog.Content className="rx-dialog">
+                <Dialog.Content className="rx-dialog settings-dialog">
                     <Dialog.Title>Settings</Dialog.Title>
                     <VisuallyHidden>
                         <Dialog.Description>Configure application settings</Dialog.Description>
                     </VisuallyHidden>
 
-                    <p>Settings will be implemented here.</p>
-
+                    <p>Highlight games when hovering on a sidebar tag</p>
+                    <RadioGroup.Root
+                        defaultValue={settingsStore.tagHoverGameHighlight}
+                        className="rx-radio-group"
+                        onValueChange={(option) => settingsStore.setTagHoverGameHighlight(option)}
+                    >
+                        {Object.keys(TagHoverGameHighlightOptions).map((option) => (
+                            <label htmlFor={option} key={option}>
+                                <RadioGroup.Item value={option} id={option} />
+                                {TagHoverGameHighlightOptions[option]}
+                            </label>
+                        ))}
+                    </RadioGroup.Root>
                     <div className="rx-dialog-footer">
                         <Button variant="secondary" onClick={handleHide}>
                             Close

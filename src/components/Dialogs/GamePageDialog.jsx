@@ -1,17 +1,16 @@
 import { useState } from "react";
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert, MdRemove } from "react-icons/md";
 import { observer } from "mobx-react-lite";
 import * as Dialog from "@radix-ui/react-dialog";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { removeGame } from "../../stores/DataStore.jsx";
-import { useValidatedImage } from "../../hooks/useValidatedImage.js";
-import { tagTypes } from "../../models/TagTypes.jsx";
+import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert, MdRemove } from "react-icons/md";
+import { CenterAndEdgesRow, IconButton, ScrollView } from "@/components";
+import { removeGame } from "@/stores";
+import { useValidatedImage } from "@/hooks/useValidatedImage.js";
+import { tagTypes } from "@/models";
 import { Dialogs, dialogStore } from "./DialogStore.jsx";
-import { IconButton } from "../common/IconButton.jsx";
-import { CenterAndEdgesRow } from "../common/CenterAndEdgesRow.jsx";
-import "../TagButtonGroup.css";
-import "../TagButton.css";
+import "@/components/TagButtonGroup.css";
+import "@/components/TagButton.css";
 import "./GamePageDialog.css";
 import { DialogBase } from "./DialogRoot.jsx";
 
@@ -30,18 +29,21 @@ const AddTagButton = ({ tagType, game }) => {
                     side={"bottom"}
                     sideOffset={5}
                 >
-                    {tagType.allTagsList
-                        .filter((item) => !tagType.gameTagsList(game).includes(item))
-                        .map((item) => (
-                            <DropdownMenu.Item
-                                key={item}
-                                onClick={() => {
-                                    tagType.addToGame(game, item);
-                                }}
-                            >
-                                {item}
-                            </DropdownMenu.Item>
-                        ))}
+                    <ScrollView>
+                        {tagType.allTagsList
+                            .filter((item) => !tagType.gameTagsList(game).includes(item))
+                            .map((item) => (
+                                <DropdownMenu.Item
+                                    key={item}
+                                    onClick={() => {
+                                        tagType.addToGame(game, item);
+                                    }}
+                                >
+                                    <span className="item-label">{item}</span>
+                                </DropdownMenu.Item>
+                            ))}
+                        {/* Variable-length dropdown items need text wrapper to prevent overflow */}
+                    </ScrollView>
                 </DropdownMenu.Content>
             </DropdownMenu.Portal>
         </DropdownMenu.Root>
@@ -53,14 +55,22 @@ const GPTagButton = observer(({ game, tagType, tagName }) => {
     const handleRemove = () => {
         tagType.removeFromGame(game, tagName);
     };
+    const onClick = () => setDropdownOpen(true);
     return (
         <div
             className={"tag-button-container" + (dropdownOpen ? " dd-open" : "")}
-            onClick={() => setDropdownOpen(true)}
+            tabIndex={0}
+            onClick={onClick}
+            onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+                    e.preventDefault();
+                    onClick();
+                }
+            }}
         >
-            <button value={tagName} className="tag-button" draggable="true">
-                {tagName}
-            </button>
+            <span role="button" className="tag-button" draggable="true">
+                <span className="tag-name">{tagName}</span>
+            </span>
 
             <DropdownMenu.Root open={dropdownOpen} onOpenChange={setDropdownOpen}>
                 <DropdownMenu.Trigger asChild>
@@ -96,16 +106,18 @@ const GPTagButtonGroup = observer(({ game, tagType }) => {
                 <h4>{title}</h4>
                 <AddTagButton tagType={tagType} game={game} />
             </CenterAndEdgesRow>
-            <div className="tag-button-list">
-                {gameTagsList.map((tagName, index) => (
-                    <GPTagButton
-                        key={"btn-" + tagType.key + "-" + tagName + "-" + index}
-                        game={game}
-                        tagType={tagType}
-                        tagName={tagName}
-                    />
-                ))}
-            </div>
+            <ScrollView>
+                <div className="tag-button-list">
+                    {gameTagsList.map((tagName, index) => (
+                        <GPTagButton
+                            key={"btn-" + tagType.key + "-" + tagName + "-" + index}
+                            game={game}
+                            tagType={tagType}
+                            tagName={tagName}
+                        />
+                    ))}
+                </div>
+            </ScrollView>
         </div>
     );
 });

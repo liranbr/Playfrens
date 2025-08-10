@@ -17,8 +17,8 @@ export const TagFilterLogicOptions = {
 export const TagSortOptions = {
     nameAsc: "Name (A-Z)",
     nameDesc: "Name (Z-A)",
-    countAsc: "Game Count (Low to High)",
-    countDesc: "Game Count (High to Low)",
+    countAsc: "Game Count (Asc.)",
+    countDesc: "Game Count (Desc.)",
     // custom: "Custom Order",
 };
 

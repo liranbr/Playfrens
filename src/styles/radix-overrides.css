@@ -287,6 +287,72 @@
     }
 }
 
+.rx-select-trigger {
+    display: inline-flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 8px;
+    border: var(--pf-border-300);
+    background-color: var(--pf-bg-300);
+    padding: 0 15px;
+    font-size: 14px;
+    color: var(--pf-fg-100);
+    line-height: 1;
+    height: 32px;
+    gap: 5px;
+    cursor: default;
+
+    svg {
+        color: var(--pf-fg-500);
+        font-size: 16px;
+    }
+
+    &:hover {
+        background-color: var(--pf-bg-200);
+    }
+    &[data-state="open"] {
+        background-color: var(--pf-bg-300);
+    }
+}
+.rx-select-content {
+    max-height: 500px;
+    min-width: 150px;
+    max-width: 300px;
+    overflow-y: hidden;
+    background-color: var(--pf-bg-700);
+    border: var(--pf-border-700);
+    border-radius: 8px;
+    padding: 4px;
+
+    div[role="option"] {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 14px;
+        height: 32px;
+        padding: 0 12px;
+        border-radius: 4px;
+        user-select: none;
+
+        &:hover,
+        &:focus {
+            background-color: var(--pf-bg-300);
+        }
+
+        .item-indicator {
+            color: var(--pf-fg-100);
+        }
+
+        & > * {
+            /* ItemText className seems to not work */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-wrap: nowrap;
+        }
+    }
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;

@@ -50,3 +50,11 @@
         margin-bottom: 16px;
     }
 }
+
+.rx-select-trigger {
+    width: 200px;
+    max-width: 200px;
+}
+.rx-select-content {
+    width: 200px;
+}

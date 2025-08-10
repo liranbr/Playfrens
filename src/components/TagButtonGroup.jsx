@@ -1,8 +1,9 @@
-import { MdAdd, MdClose } from "react-icons/md";
+import { MdAdd, MdCheck, MdClose, MdKeyboardArrowDown } from "react-icons/md";
 import { LuSettings2 } from "react-icons/lu";
 import { observer } from "mobx-react-lite";
 import * as Popover from "@radix-ui/react-popover";
 import * as RadioGroup from "@radix-ui/react-radio-group";
+import * as Select from "@radix-ui/react-select";
 import { useSettingsStore, TagFilterLogicOptions, TagSortOptions } from "@/stores";
 import { SidebarTagButton, IconButton, CenterAndEdgesRow, ScrollView } from "@/components";
 import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
@@ -60,18 +61,28 @@ const SidebarTBGMenu = observer(({ tagType }) => {
                     <div className="spacer" />
 
                     <p>Sort {tagType.plural} by</p>
-                    <RadioGroup.Root
-                        defaultValue={settingsStore.tagSort[tagType.key]}
-                        className="rx-radio-group"
+                    <Select.Root
+                        value={settingsStore.tagSort[tagType.key]}
+                        className="rx-select"
                         onValueChange={(option) => settingsStore.setTagSort(tagType, option)}
                     >
-                        {Object.keys(TagSortOptions).map((option) => (
-                            <label htmlFor={option} key={option}>
-                                <RadioGroup.Item value={option} id={option} />
-                                {TagSortOptions[option]}
-                            </label>
-                        ))}
-                    </RadioGroup.Root>
+                        <Select.Trigger className="rx-select-trigger">
+                            <Select.Value />
+                            <Select.Icon children={<MdKeyboardArrowDown />} />
+                        </Select.Trigger>
+                        <Select.Content position="popper" className="rx-select-content">
+                            <Select.Viewport>
+                                {Object.keys(TagSortOptions).map((option) => (
+                                    <Select.Item value={option} key={option}>
+                                        <Select.ItemText>{TagSortOptions[option]}</Select.ItemText>
+                                        <Select.ItemIndicator className="item-indicator">
+                                            <MdCheck />
+                                        </Select.ItemIndicator>
+                                    </Select.Item>
+                                ))}
+                            </Select.Viewport>
+                        </Select.Content>
+                    </Select.Root>
                 </Popover.Content>
             </Popover.Portal>
         </Popover.Root>

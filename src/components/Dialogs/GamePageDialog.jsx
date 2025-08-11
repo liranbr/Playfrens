@@ -5,7 +5,7 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert, MdRemove } from "react-icons/md";
 import { CenterAndEdgesRow, IconButton, ScrollView } from "@/components";
-import { removeGame, Dialogs, dialogStore } from "@/stores";
+import { removeGame, Dialogs, dialogStore, useDataStore } from "@/stores";
 import { useValidatedImage } from "@/hooks/useValidatedImage.js";
 import { tagTypes } from "@/models";
 import "@/components/TagButtonGroup.css";
@@ -14,6 +14,7 @@ import "./GamePageDialog.css";
 import { DialogBase } from "./DialogRoot.jsx";
 
 const AddTagButton = ({ tagType, game }) => {
+    const dataStore = useDataStore();
     const [openDropdown, setOpenDropdown] = useState(false);
     return (
         <DropdownMenu.Root onOpenChange={setOpenDropdown}>
@@ -29,7 +30,7 @@ const AddTagButton = ({ tagType, game }) => {
                     sideOffset={5}
                 >
                     <ScrollView>
-                        {tagType.allTagsList
+                        {dataStore.allTags[tagType.key]
                             .filter((item) => !tagType.gameTagsList(game).includes(item))
                             .map((item) => (
                                 <DropdownMenu.Item
@@ -177,8 +178,9 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
                     e.preventDefault();
                     e.target.focus();
                 },
-                className: "rx-dialog game-page-dialog"
-            }}>
+                className: "rx-dialog game-page-dialog",
+            }}
+        >
             <VisuallyHidden>
                 <Dialog.Description>{"Game Page of " + game.title}</Dialog.Description>
             </VisuallyHidden>
@@ -220,6 +222,6 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
                     </div>
                 </div>
             </div>
-        </DialogBase >
+        </DialogBase>
     );
 });

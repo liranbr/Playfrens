@@ -1,4 +1,4 @@
-import { action, autorun, observable } from "mobx";
+import { action, autorun, observable, makeAutoObservable } from "mobx";
 import { GameObject } from "@/models";
 import { tagTypes } from "@/models";
 import {
@@ -11,67 +11,74 @@ import {
     toastError,
 } from "@/Utils.jsx";
 import { settingsKeyInStorage } from "@/stores";
+import { createContext, useContext } from "react";
 
-function loadFromStorageObsArray(key) {
-    return observable.array(loadFromStorage(key, []));
+export class DataStore {
+    // TODO: Make allTags and allGames based on ID:Object Maps
+    allTags = {
+        [tagTypes.friend.key]: [],
+        [tagTypes.category.key]: [],
+        [tagTypes.status.key]: [],
+    };
+    allGames = observable.array([]);
+
+    constructor() {
+        this.allGames = loadFromStorage("allGames", [])
+            .filter((game) => {
+                if (!game) console.warn("Skipping invalid game data:", game);
+                return !!game;
+            })
+            .map((game) => new GameObject(game))
+            .sort(compareGameTitles);
+
+        this.allTags = {
+            [tagTypes.friend.key]: loadFromStorage("allFriends", []).sort(compareAlphaIgnoreCase),
+            [tagTypes.category.key]: loadFromStorage("allCategories", []),
+            [tagTypes.status.key]: loadFromStorage("allStatuses", []),
+        };
+
+        makeAutoObservable(this);
+    }
 }
+const dataStore = new DataStore();
+const DataStoreContext = createContext(dataStore);
+export const useDataStore = () => useContext(DataStoreContext);
+// Prefer to use the context version in components, for expanded functionality in the future
+// but the global version is available for non-component uses
+export const globalDataStore = dataStore;
 
-const visited = loadFromStorage("Visited", false);
-const firstVisit = !visited;
+const firstVisit = !loadFromStorage("Visited", false);
 if (firstVisit) {
-    const defaultCategories = ["Playthrough", "Round-based", "Persistent World"];
-    const defaultStatuses = ["Playing", "LFG", "Paused", "Backlog", "Abandoned", "Finished"];
-    saveToStorage("allCategories", defaultCategories);
-    saveToStorage("allStatuses", defaultStatuses);
+    dataStore.allTags = {
+        [tagTypes.friend.key]: [],
+        [tagTypes.category.key]: ["Playthrough", "Round-based", "Persistent World"],
+        [tagTypes.status.key]: ["Playing", "LFG", "Paused", "Backlog", "Abandoned", "Finished"],
+    };
     saveToStorage("Visited", true);
 }
 
-// export class DataStore {
-//     // TODO: Replace with a Map of TagObjects
-//     allTags = {
-//         [tagTypes.friend.key]: loadFromStorageObsArray("allFriends").sort(compareAlphaIgnoreCase),
-//         [tagTypes.category.key]: loadFromStorageObsArray("allCategories"),
-//         [tagTypes.status.key]: loadFromStorageObsArray("allStatuses"),
-//     };
-// }
-
-// load tags from localstorage as observables
-export const allFriends = loadFromStorageObsArray("allFriends").sort(compareAlphaIgnoreCase);
-export const allCategories = loadFromStorageObsArray("allCategories");
-export const allStatuses = loadFromStorageObsArray("allStatuses");
-
 export const tagsSortOrder = {
-    [tagTypes.friend.key]: allFriends,
-    [tagTypes.category.key]: allCategories,
-    [tagTypes.status.key]: allStatuses,
+    [tagTypes.friend.key]: dataStore.allTags[tagTypes.friend.key],
+    [tagTypes.category.key]: dataStore.allTags[tagTypes.category.key],
+    [tagTypes.status.key]: dataStore.allTags[tagTypes.status.key],
 };
-tagTypes.friend.allTagsList = allFriends;
-tagTypes.category.allTagsList = allCategories;
-tagTypes.status.allTagsList = allStatuses;
-
-export const allGames = observable.array(
-    loadFromStorageObsArray("allGames")
-        .filter((game) => {
-            if (!game) console.warn("Skipping invalid game data:", game);
-            return !!game;
-        })
-        .map((game) => new GameObject(game))
-        .sort(compareGameTitles),
-);
+tagTypes.friend.allTagsList = dataStore.allTags[tagTypes.friend.key];
+tagTypes.category.allTagsList = dataStore.allTags[tagTypes.category.key];
+tagTypes.status.allTagsList = dataStore.allTags[tagTypes.status.key];
 
 // when a change is made to an array, it is saved to localstorage
-autorun(() => saveToStorage("allFriends", allFriends));
-autorun(() => saveToStorage("allCategories", allCategories));
-autorun(() => saveToStorage("allStatuses", allStatuses));
-autorun(() => saveToStorage("allGames", allGames));
+autorun(() => saveToStorage("allFriends", dataStore.allTags[tagTypes.friend.key]));
+autorun(() => saveToStorage("allCategories", dataStore.allTags[tagTypes.category.key]));
+autorun(() => saveToStorage("allStatuses", dataStore.allTags[tagTypes.status.key]));
+autorun(() => saveToStorage("allGames", dataStore.allGames));
 
 export function backupToFile() {
     console.log("Backing up data to file...");
     const data = {
-        allFriends: allFriends,
-        allCategories: allCategories,
-        allStatuses: allStatuses,
-        allGames: allGames,
+        allFriends: dataStore.allTags[tagTypes.friend.key],
+        allCategories: dataStore.allTags[tagTypes.category.key],
+        allStatuses: dataStore.allTags[tagTypes.status.key],
+        allGames: dataStore.allGames,
         settings: loadFromStorage(settingsKeyInStorage, {}),
     };
     const blob = new Blob([JSON.stringify(data, null, 4)], {
@@ -91,11 +98,12 @@ export function restoreFromFile(file) {
     const reader = new FileReader();
     reader.onload = action(function (e) {
         const data = JSON.parse(e.target.result.toString());
-        allFriends.replace(data["allFriends"]);
-        allCategories.replace(data["allCategories"]);
-        allStatuses.replace(data["allStatuses"]);
-        allGames.replace(data["allGames"].map((game) => new GameObject(game)));
-        saveToStorage(settingsKeyInStorage, data[settingsKeyInStorage]);
+        dataStore.allTags[tagTypes.friend.key].replace(data["allFriends"]);
+        dataStore.allTags[tagTypes.category.key].replace(data["allCategories"]);
+        dataStore.allTags[tagTypes.status.key].replace(data["allStatuses"]);
+        dataStore.allGames.replace(data["allGames"].map((game) => new GameObject(game)));
+        dataStore.allGames.sort(compareGameTitles);
+        saveToStorage(settingsKeyInStorage, data[settingsKeyInStorage]); // the rest are auto-saved by the autoruns
         window.location.reload();
     });
     reader.readAsText(file);
@@ -106,13 +114,13 @@ export const addTag = action((tagType, value) => {
         toastError("Cannot save a " + tagType.single + " without a name");
         return false;
     }
-    if (tagType.allTagsList.includes(value)) {
+    if (dataStore.allTags[tagType.key].includes(value)) {
         toastError(`${value} already exists in ${tagType.plural} list`);
         return false;
     }
-    tagType.allTagsList.push(value);
+    dataStore.allTags[tagType.key].push(value);
     if (tagType.key === "friend") {
-        tagType.allTagsList.sort(compareAlphaIgnoreCase);
+        dataStore.allTags[tagType.key].sort(compareAlphaIgnoreCase);
     }
     toastDataChangeSuccess("Added " + value + " to " + tagType.plural + " list");
     return true;
@@ -124,7 +132,7 @@ export const removeTag = action((tagType, value) => {
         return false;
     }
     setToastSilence(true);
-    allGames.forEach((game) => {
+    dataStore.allGames.forEach((game) => {
         tagType.removeFromGame(game, value);
     });
     tagType.allTagsList.remove(value);
@@ -149,7 +157,7 @@ export const editTag = action((tagType, oldValue, newValue) => {
     if (tagType.key === "friend") {
         fullList.sort(compareAlphaIgnoreCase);
     }
-    allGames.forEach((game) => {
+    dataStore.allGames.forEach((game) => {
         if (tagType.gameTagsList(game).includes(oldValue)) {
             tagType.removeFromGame(game, oldValue);
             tagType.addToGame(game, newValue);
@@ -166,7 +174,7 @@ export const addGame = action((title, coverImageURL, gameSortingTitle = "") => {
         toastError("Cannot save a game without a title");
         return null;
     }
-    if (allGames.some((game) => game.title === title)) {
+    if (dataStore.allGames.some((game) => game.title === title)) {
         toastError(`${title} already exists in games list`);
         return null;
     }
@@ -183,18 +191,18 @@ export const addGame = action((title, coverImageURL, gameSortingTitle = "") => {
         statuses: [],
         note: "",
     });
-    allGames.push(newGame);
-    allGames.sort(compareGameTitles);
+    dataStore.allGames.push(newGame);
+    dataStore.allGames.sort(compareGameTitles);
     toastDataChangeSuccess("Added " + title + " to games list");
     return newGame;
 });
 
 export const removeGame = action((game) => {
-    if (!allGames.includes(game)) {
+    if (!dataStore.allGames.includes(game)) {
         toastError(`${game.title} does not exist in games list`);
         return false;
     }
-    allGames.remove(game);
+    dataStore.allGames.remove(game);
     toastDataChangeSuccess("Removed " + game.title + " from games list");
     return true;
 });

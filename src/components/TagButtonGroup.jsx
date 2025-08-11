@@ -3,11 +3,18 @@ import { LuSettings2 } from "react-icons/lu";
 import { observer } from "mobx-react-lite";
 import * as Popover from "@radix-ui/react-popover";
 import * as RadioGroup from "@radix-ui/react-radio-group";
-import { useSettingsStore, TagFilterLogicOptions, Dialogs, dialogStore } from "@/stores";
+import {
+    useSettingsStore,
+    TagFilterLogicOptions,
+    Dialogs,
+    dialogStore,
+    useDataStore,
+} from "@/stores";
 import { SidebarTagButton, IconButton, CenterAndEdgesRow, ScrollView } from "@/components";
 import "./TagButtonGroup.css";
 
 export const SidebarTagButtonGroup = observer(({ tagType }) => {
+    const dataStore = useDataStore();
     const title = tagType.plural.toUpperCase();
     const handleAddButtonClick = () => {
         dialogStore.open(Dialogs.EditTag, { tagType: tagType });
@@ -21,7 +28,7 @@ export const SidebarTagButtonGroup = observer(({ tagType }) => {
             </CenterAndEdgesRow>
             <ScrollView>
                 <div className="tag-button-list">
-                    {tagType.allTagsList.map((tagName, index) => (
+                    {dataStore.allTags[tagType.key].map((tagName, index) => (
                         <SidebarTagButton key={index} tagName={tagName} tagType={tagType} />
                     ))}
                 </div>

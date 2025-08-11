@@ -1,7 +1,7 @@
 import { createContext, useContext } from "react";
 import { makeAutoObservable } from "mobx";
 import { tagTypes } from "@/models";
-import { allGames, globalSettingsStore } from "@/stores";
+import { globalDataStore, globalSettingsStore } from "@/stores";
 
 class FilterStore {
     search = "";
@@ -37,7 +37,7 @@ class FilterStore {
     }
 
     validateTag(tagType, tagName) {
-        if (!tagType.allTagsList.includes(tagName)) {
+        if (!globalDataStore.allTags[tagType.key].includes(tagName)) {
             console.warn(`Tag "${tagName}" is not a valid "${tagType.key}" tag.`);
             return false;
         }
@@ -144,7 +144,7 @@ class FilterStore {
      * @returns GameObject[] - All games that pass the current filters
      */
     get filteredGames() {
-        return allGames.filter((game) => this.doesGamePassFilters(game));
+        return globalDataStore.allGames.filter((game) => this.doesGamePassFilters(game));
     }
 
     setHoveredTag(tagType = null, tagName = null) {

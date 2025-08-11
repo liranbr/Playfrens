@@ -1,7 +1,6 @@
 import { observer } from "mobx-react-lite";
 import { dialogStore } from "@/stores";
 import * as Dialog from "@radix-ui/react-dialog";
-import { useEffect } from "react";
 
 export const DialogRoot = observer(() => {
 
@@ -13,8 +12,8 @@ export const DialogRoot = observer(() => {
     if (!active) return <></>;
 
     const isDialogActive = () => {
-        if (size == 1 && store.activeIsOpen) return true;
-        if (size == 2 && (store.prevIsOpen || store.activeIsOpen)) return true;
+        if (size === 1 && store.activeIsOpen) return true;
+        if (size === 2 && (store.prevIsOpen || store.activeIsOpen)) return true;
         if (size.length >= 2) return true;
         return false;
     }

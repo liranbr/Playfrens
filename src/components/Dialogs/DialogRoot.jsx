@@ -21,8 +21,10 @@ export const DialogRoot = observer(() => {
 
 
     return (
-        // There're 2 Dialogs, one that triggers specifically the overlay, 
-        // the other dialog renders the content the user is requesting to open.
+        // There's 3 dialogs here.
+        // 1 dialog that acts as the root for the other 2, its purpose to enable the darkening overlay, the other 2 are the active dialog and the previous dialog
+        // previous dialog is only relevant when there's stacked dialog requests (e.g. GamePage Dialog -> Delete Game Dialog), they are kept for the transioning animation when closing or opening dialogs.
+
         <Dialog.Root open={isDialogActive()}>
             <Dialog.Overlay className="rx-dialog-overlay" />
             {(() => {

@@ -4,7 +4,9 @@
     "version": "0.1.0",
     "type": "module",
     "scripts": {
-        "dev": "vite",
+        "dev": "concurrently -n VITE,BACKEND -c cyan,green \"npm run dev:vite\" \"npm run dev:backend\"",
+        "dev:vite": "vite",
+        "dev:backend": "nodemon backend/server.js",
         "build": "vite build",
         "lint": "eslint .",
         "preview": "vite preview"
@@ -19,9 +21,13 @@
         "@radix-ui/react-select": "^2.2.6",
         "@radix-ui/react-toggle-group": "^1.1.11",
         "@radix-ui/react-visually-hidden": "^1.2.3",
+        "cors": "^2.8.5",
+        "dotenv": "^17.2.1",
+        "express": "^5.1.0",
         "linked-list": "^3.1.0",
         "mobx": "^6.13.7",
         "mobx-react-lite": "^4.1.0",
+        "nodemon": "^3.1.10",
         "react": "^19.1.1",
         "react-dom": "^19.1.1",
         "react-icons": "^5.5.0",
@@ -30,6 +36,7 @@
     "devDependencies": {
         "@eslint/js": "^9.23.0",
         "@vitejs/plugin-react": "^4.3.4",
+        "concurrently": "^9.2.0",
         "eslint": "^9.23.0",
         "eslint-plugin-react": "^7.37.4",
         "eslint-plugin-react-hooks": "^5.2.0",

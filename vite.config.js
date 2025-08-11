@@ -10,6 +10,9 @@ export default defineConfig({
         port: 5174, // for developing - stable is running on 5173
         https: true,
         sourcemap: true,
+        proxy: {
+            "/api": "http://localhost:5174",
+        },
     },
     resolve: {
         alias: {

@@ -7,8 +7,6 @@ import { SettingsDialog } from "@/components/Dialogs/SettingsDialog.jsx";
 import { AboutDialog } from "@/components/Dialogs/AboutDialog.jsx";
 import { List, Item } from 'linked-list'
 
-AboutDialog
-
 export const Dialogs = {
     DeleteWarning: DeleteWarningDialog,
     EditTag: EditTagDialog,

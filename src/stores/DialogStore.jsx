@@ -23,7 +23,7 @@ class DialogList extends List {
     }
 
     detachLast() {
-        return this.size == 0 ? null : this.size == 1 ? this.head.detach() : this.tail.detach();
+        return this.size === 0 ? null : this.size === 1 ? this.head.detach() : this.tail.detach();
     }
 
     getLast() {

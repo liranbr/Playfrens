@@ -16,3 +16,4 @@ export {
     TagFilterLogicOptions,
     globalSettingsStore,
 } from "./SettingsStore.jsx";
+export { Dialogs, dialogStore } from "./DialogStore.jsx";

@@ -1,5 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { DialogBase } from "./DialogRoot.jsx";
 import { addTag, editTag, useFilterStore } from "@/stores";
 import { Button } from "@/components";
 
@@ -33,35 +34,30 @@ export function EditTagDialog({ open, closeDialog, tagType, tagName = "" }) {
     };
 
     return (
-        <Dialog.Root open={open} onOpenChange={handleHide}>
-            <Dialog.Portal>
-                <Dialog.Overlay className="rx-dialog-overlay" />
-                <Dialog.Content className="rx-dialog">
-                    <Dialog.Title>{title}</Dialog.Title>
-                    <VisuallyHidden>
-                        <Dialog.Description>{description}</Dialog.Description>
-                    </VisuallyHidden>
+        <DialogBase open={open} onOpenChange={handleHide}>
+            <Dialog.Title>{title}</Dialog.Title>
+            <VisuallyHidden>
+                <Dialog.Description>{description}</Dialog.Description>
+            </VisuallyHidden>
 
-                    <fieldset>
-                        <label>Name</label>
-                        <input
-                            id="tagNameInput"
-                            onKeyDown={saveOnEnter}
-                            defaultValue={tagName}
-                            autoFocus
-                        />
-                    </fieldset>
+            <fieldset>
+                <label>Name</label>
+                <input
+                    id="tagNameInput"
+                    onKeyDown={saveOnEnter}
+                    defaultValue={tagName}
+                    autoFocus
+                />
+            </fieldset>
 
-                    <div className="rx-dialog-footer">
-                        <Button variant="secondary" onClick={handleHide}>
-                            Cancel
-                        </Button>
-                        <Button variant="primary" onClick={handleSave}>
-                            Save
-                        </Button>
-                    </div>
-                </Dialog.Content>
-            </Dialog.Portal>
-        </Dialog.Root>
+            <div className="rx-dialog-footer">
+                <Button variant="secondary" onClick={handleHide}>
+                    Cancel
+                </Button>
+                <Button variant="primary" onClick={handleSave}>
+                    Save
+                </Button>
+            </div>
+        </DialogBase>
     );
 }

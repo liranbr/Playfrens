@@ -17,7 +17,7 @@ import { SidebarTagButtonGroup, IconButton, CenterAndEdgesRow, GamesGrid } from 
 import { useFilterStore, backupToFile, restoreFromFile } from "@/stores";
 import { tagTypes } from "@/models";
 import { DialogRoot } from "@/components/Dialogs/DialogRoot.jsx";
-import { Dialogs, dialogStore } from "@/components/Dialogs/DialogStore.jsx";
+import { Dialogs, dialogStore } from "@/stores/DialogStore.jsx";
 import "./App.css";
 
 function AppMenu() {

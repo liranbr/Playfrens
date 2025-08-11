@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { useFilterStore, useSettingsStore } from "@/stores";
-import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
+import { useFilterStore, useSettingsStore, Dialogs, dialogStore } from "@/stores";
 import { tagTypes } from "@/models";
 import { ScrollView } from "@/components";
 import { useValidatedImage } from "@/hooks/useValidatedImage.js";
@@ -20,7 +19,7 @@ function GameCard({ game, className = "" }) {
         tagTypes[tagTypeKey].addToGame(game, tagName);
     };
     const openGamePageDialog = () => {
-        dialogStore.open(Dialogs.Playfrens, { game });
+        dialogStore.open(Dialogs.GamePage, { game });
     };
     return (
         <button

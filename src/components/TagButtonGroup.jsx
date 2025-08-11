@@ -3,9 +3,8 @@ import { LuSettings2 } from "react-icons/lu";
 import { observer } from "mobx-react-lite";
 import * as Popover from "@radix-ui/react-popover";
 import * as RadioGroup from "@radix-ui/react-radio-group";
-import { useSettingsStore, TagFilterLogicOptions } from "@/stores";
+import { useSettingsStore, TagFilterLogicOptions, Dialogs, dialogStore } from "@/stores";
 import { SidebarTagButton, IconButton, CenterAndEdgesRow, ScrollView } from "@/components";
-import { Dialogs, dialogStore } from "./Dialogs/DialogStore.jsx";
 import "./TagButtonGroup.css";
 
 export const SidebarTagButtonGroup = observer(({ tagType }) => {

@@ -5,13 +5,13 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert, MdRemove } from "react-icons/md";
 import { CenterAndEdgesRow, IconButton, ScrollView } from "@/components";
-import { removeGame } from "@/stores";
+import { removeGame, Dialogs, dialogStore } from "@/stores";
 import { useValidatedImage } from "@/hooks/useValidatedImage.js";
 import { tagTypes } from "@/models";
-import { Dialogs, dialogStore } from "./DialogStore.jsx";
 import "@/components/TagButtonGroup.css";
 import "@/components/TagButton.css";
 import "./GamePageDialog.css";
+import { DialogBase } from "./DialogRoot.jsx";
 
 const AddTagButton = ({ tagType, game }) => {
     const [openDropdown, setOpenDropdown] = useState(false);
@@ -150,7 +150,7 @@ function GameOptionsButton({ game }) {
                                 itemName: game.title,
                                 deleteFunction: () => {
                                     removeGame(game);
-                                    dialogStore.closeTwo();
+                                    dialogStore.closeMultiple(2);
                                 },
                             });
                         }}
@@ -168,60 +168,58 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
     const handleHide = () => closeDialog();
 
     return (
-        <Dialog.Root open={open} onOpenChange={handleHide}>
-            <Dialog.Portal>
-                <Dialog.Overlay className="rx-dialog-overlay" />
-                <Dialog.Content
-                    // Focuses the dialog content instead of the first interactable element
-                    onOpenAutoFocus={(e) => {
-                        e.preventDefault();
-                        e.target.focus();
-                    }}
-                    className="rx-dialog game-page-dialog"
-                >
-                    <VisuallyHidden>
-                        <Dialog.Description>{"Game Page of " + game.title}</Dialog.Description>
-                    </VisuallyHidden>
-                    <img className="gp-cover-art" src={gameCover} alt="Game cover art" />
-                    <div className="gp-container">
-                        <CenterAndEdgesRow className="gp-header">
-                            <GameOptionsButton game={game} />
-                            <Dialog.Title autoFocus className="gp-title">
-                                {game.title}
-                            </Dialog.Title>
-                            <IconButton icon={<MdClose />} onClick={handleHide} />
-                        </CenterAndEdgesRow>
-                        <div className="gp-header-shadow" />
-                        <div className="gp-body">
-                            <div className="gp-column">
-                                <div className="ui-card">
-                                    <GPTagButtonGroup tagType={tagTypes.friend} game={game} />
-                                    <div className="separator" />
-                                    <GPTagButtonGroup tagType={tagTypes.category} game={game} />
-                                    <div className="separator" />
-                                    <GPTagButtonGroup tagType={tagTypes.status} game={game} />
-                                </div>
-                            </div>
-                            <div className="gp-column">
-                                <div className="ui-card game-note-container">
-                                    <CenterAndEdgesRow className="ui-card-header">
-                                        <div />
-                                        <h4>NOTE</h4>
-                                        <div />
-                                    </CenterAndEdgesRow>
-                                    <textarea
-                                        className="game-note"
-                                        rows={5}
-                                        spellCheck={false}
-                                        value={game.note}
-                                        onChange={(e) => game.setNote(e.target.value)}
-                                    />
-                                </div>
-                            </div>
+        <DialogBase
+            open={open}
+            onOpenChange={handleHide}
+            contentProps={{
+                // Focuses the dialog content instead of the first interactable element
+                onOpenAutoFocus: (e) => {
+                    e.preventDefault();
+                    e.target.focus();
+                },
+                className: "rx-dialog game-page-dialog"
+            }}>
+            <VisuallyHidden>
+                <Dialog.Description>{"Game Page of " + game.title}</Dialog.Description>
+            </VisuallyHidden>
+            <img className="gp-cover-art" src={gameCover} alt="Game cover art" />
+            <div className="gp-container">
+                <CenterAndEdgesRow className="gp-header">
+                    <GameOptionsButton game={game} />
+                    <Dialog.Title autoFocus className="gp-title">
+                        {game.title}
+                    </Dialog.Title>
+                    <IconButton icon={<MdClose />} onClick={handleHide} />
+                </CenterAndEdgesRow>
+                <div className="gp-header-shadow" />
+                <div className="gp-body">
+                    <div className="gp-column">
+                        <div className="ui-card">
+                            <GPTagButtonGroup tagType={tagTypes.friend} game={game} />
+                            <div className="separator" />
+                            <GPTagButtonGroup tagType={tagTypes.category} game={game} />
+                            <div className="separator" />
+                            <GPTagButtonGroup tagType={tagTypes.status} game={game} />
                         </div>
                     </div>
-                </Dialog.Content>
-            </Dialog.Portal>
-        </Dialog.Root>
+                    <div className="gp-column">
+                        <div className="ui-card game-note-container">
+                            <CenterAndEdgesRow className="ui-card-header">
+                                <div />
+                                <h4>NOTE</h4>
+                                <div />
+                            </CenterAndEdgesRow>
+                            <textarea
+                                className="game-note"
+                                rows={5}
+                                spellCheck={false}
+                                value={game.note}
+                                onChange={(e) => game.setNote(e.target.value)}
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </DialogBase >
     );
 });

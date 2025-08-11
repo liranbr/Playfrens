@@ -1,11 +1,12 @@
-import { action, makeObservable, observable } from "mobx";
+import { makeAutoObservable } from "mobx";
 import {
     compareGameTitles,
     insertSortedByOrder,
     toastDataChangeSuccess,
     toastError,
 } from "@/Utils.jsx";
-import { allGames } from "@/stores";
+import { allGames, tagsSortOrder } from "@/stores";
+import { tagTypes } from "@/models/TagTypes.jsx";
 
 /**
  * @typedef {Object} GameObject
@@ -16,50 +17,37 @@ import { allGames } from "@/stores";
  * @property {Array<string>} categories - The list of categories for this game.
  * @property {Array<string>} statuses - The list of statuses for this game.
  * @property {string} note - A custom note for this game.
- * @property {{ friends: Array<string>, categories: Array<string>, statuses: Array<string> }} tagsSortOrder - The order to sort tags by, usually the full lists
  */
 export class GameObject {
-    constructor(
-        title,
-        coverImageURL = "/missing_game_cover.png",
-        sortingTitle = "",
-        friends = [],
-        categories = [],
-        statuses = [],
-        note = "",
-        tagsSortOrder = {},
-    ) {
-        this.title = title;
-        this.coverImageURL = coverImageURL;
-        this.sortingTitle = sortingTitle;
-        this.friends = friends;
-        this.categories = categories;
-        this.statuses = statuses;
-        this.note = note;
-        this.tagsSortOrder = tagsSortOrder;
-        makeObservable(this, {
-            title: observable,
-            coverImageURL: observable,
-            sortingTitle: observable,
-            friends: observable,
-            categories: observable,
-            statuses: observable,
-            note: observable,
-            tagsSortOrder: observable,
-            addFriend: action,
-            removeFriend: action,
-            addCategory: action,
-            removeCategory: action,
-            addStatus: action,
-            removeStatus: action,
-            editGame: action,
-            setNote: action,
-        });
+    title;
+    coverImageURL = "/missing_game_cover.png";
+    sortingTitle = "";
+    friends = [];
+    categories = [];
+    statuses = [];
+    note = "";
+
+    constructor({ title, coverImageURL, sortingTitle, friends, categories, statuses, note } = {}) {
+        if (!title || !title.trim()) {
+            throw new Error("GameObject must have a title");
+        }
+        this.title = title ?? this.title;
+        this.coverImageURL = coverImageURL ?? this.coverImageURL;
+        this.sortingTitle = sortingTitle ?? this.sortingTitle;
+        this.friends = friends ?? this.friends;
+        this.categories = categories ?? this.categories;
+        this.statuses = statuses ?? this.statuses;
+        this.note = note ?? this.note;
+        makeAutoObservable(this);
     }
 
     addFriend(friend) {
         if (!this.friends.includes(friend)) {
-            this.friends = insertSortedByOrder(friend, this.friends, this.tagsSortOrder.friends);
+            this.friends = insertSortedByOrder(
+                friend,
+                this.friends,
+                tagsSortOrder[tagTypes.friend.key],
+            );
             toastDataChangeSuccess(`Added ${friend} as a friend for ${this.title}`);
         } else {
             toastError(`${friend} is already a friend for ${this.title}`);
@@ -80,7 +68,7 @@ export class GameObject {
             this.categories = insertSortedByOrder(
                 category,
                 this.categories,
-                this.tagsSortOrder.categories,
+                tagsSortOrder[tagTypes.category.key],
             );
             toastDataChangeSuccess(`Added ${category} as a category for ${this.title}`);
         } else {
@@ -99,7 +87,11 @@ export class GameObject {
 
     addStatus(status) {
         if (!this.statuses.includes(status)) {
-            this.statuses = insertSortedByOrder(status, this.statuses, this.tagsSortOrder.statuses);
+            this.statuses = insertSortedByOrder(
+                status,
+                this.statuses,
+                tagsSortOrder[tagTypes.status.key],
+            );
             toastDataChangeSuccess(`Added ${status} as a status for ${this.title}`);
         } else {
             toastError(`${status} is already a status for ${this.title}`);
@@ -138,11 +130,11 @@ export class GameObject {
 
     hasTag(tagType, tagName) {
         switch (tagType?.key) {
-            case "friend":
+            case tagTypes.friend.key:
                 return this.friends.includes(tagName);
-            case "category":
+            case tagTypes.category.key:
                 return this.categories.includes(tagName);
-            case "status":
+            case tagTypes.status.key:
                 return this.statuses.includes(tagName);
             default:
                 console.error(`Unknown tag type: ${tagType?.key}`);

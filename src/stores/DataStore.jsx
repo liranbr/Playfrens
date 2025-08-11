@@ -26,15 +26,24 @@ if (firstVisit) {
     saveToStorage("Visited", true);
 }
 
+// export class DataStore {
+//     // TODO: Replace with a Map of TagObjects
+//     allTags = {
+//         [tagTypes.friend.key]: loadFromStorageObsArray("allFriends").sort(compareAlphaIgnoreCase),
+//         [tagTypes.category.key]: loadFromStorageObsArray("allCategories"),
+//         [tagTypes.status.key]: loadFromStorageObsArray("allStatuses"),
+//     };
+// }
+
 // load tags from localstorage as observables
 export const allFriends = loadFromStorageObsArray("allFriends").sort(compareAlphaIgnoreCase);
 export const allCategories = loadFromStorageObsArray("allCategories");
 export const allStatuses = loadFromStorageObsArray("allStatuses");
 
-const tagsSortOrder = {
-    friends: allFriends,
-    categories: allCategories,
-    statuses: allStatuses,
+export const tagsSortOrder = {
+    [tagTypes.friend.key]: allFriends,
+    [tagTypes.category.key]: allCategories,
+    [tagTypes.status.key]: allStatuses,
 };
 tagTypes.friend.allTagsList = allFriends;
 tagTypes.category.allTagsList = allCategories;
@@ -42,23 +51,11 @@ tagTypes.status.allTagsList = allStatuses;
 
 export const allGames = observable.array(
     loadFromStorageObsArray("allGames")
-        .map((game) => {
-            if (!game) {
-                console.warn("Skipping invalid game data:", game);
-                return null;
-            }
-            return new GameObject(
-                game.title,
-                game.coverImageURL,
-                game.sortingTitle,
-                game.friends,
-                game.categories,
-                game.statuses,
-                game.note,
-                tagsSortOrder,
-            );
+        .filter((game) => {
+            if (!game) console.warn("Skipping invalid game data:", game);
+            return !!game;
         })
-        .filter((game) => game !== null)
+        .map((game) => new GameObject(game))
         .sort(compareGameTitles),
 );
 
@@ -97,21 +94,7 @@ export function restoreFromFile(file) {
         allFriends.replace(data["allFriends"]);
         allCategories.replace(data["allCategories"]);
         allStatuses.replace(data["allStatuses"]);
-        allGames.replace(
-            data["allGames"].map(
-                (game) =>
-                    new GameObject(
-                        game.title,
-                        game.coverImageURL,
-                        game.sortingTitle,
-                        game.friends,
-                        game.categories,
-                        game.statuses,
-                        game.note,
-                        tagsSortOrder,
-                    ),
-            ),
-        );
+        allGames.replace(data["allGames"].map((game) => new GameObject(game)));
         saveToStorage(settingsKeyInStorage, data[settingsKeyInStorage]);
         window.location.reload();
     });
@@ -191,16 +174,15 @@ export const addGame = action((title, coverImageURL, gameSortingTitle = "") => {
         toastError("Cannot save a game without a cover image");
         return null;
     }
-    const newGame = new GameObject(
-        title,
-        coverImageURL,
-        gameSortingTitle,
-        [],
-        [],
-        [],
-        "",
-        tagsSortOrder,
-    );
+    const newGame = new GameObject({
+        title: title,
+        coverImageURL: coverImageURL,
+        sortingTitle: gameSortingTitle,
+        friends: [],
+        categories: [],
+        statuses: [],
+        note: "",
+    });
     allGames.push(newGame);
     allGames.sort(compareGameTitles);
     toastDataChangeSuccess("Added " + title + " to games list");

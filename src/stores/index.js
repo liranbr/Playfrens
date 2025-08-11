@@ -1,4 +1,4 @@
-export { allFriends, allCategories, allStatuses, allGames } from "./DataStore.jsx";
+export { allFriends, allCategories, allStatuses, allGames, tagsSortOrder } from "./DataStore.jsx";
 export {
     backupToFile,
     restoreFromFile,

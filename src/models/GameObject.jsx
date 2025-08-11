@@ -17,6 +17,7 @@ import { tagTypes } from "@/models/TagTypes.jsx";
  * @property {Array<string>} categories - The list of categories for this game.
  * @property {Array<string>} statuses - The list of statuses for this game.
  * @property {string} note - A custom note for this game.
+ * @property {string} id - A UUID identifier for the game object.
  */
 export class GameObject {
     title;
@@ -26,8 +27,9 @@ export class GameObject {
     categories = [];
     statuses = [];
     note = "";
+    id;
 
-    constructor({ title, coverImageURL, sortingTitle, friends, categories, statuses, note } = {}) {
+    constructor({ title, coverImageURL, sortingTitle, friends, categories, statuses, note, id }) {
         if (!title || !title.trim()) {
             throw new Error("GameObject must have a title");
         }
@@ -38,6 +40,7 @@ export class GameObject {
         this.categories = categories ?? this.categories;
         this.statuses = statuses ?? this.statuses;
         this.note = note ?? this.note;
+        this.id = id ?? crypto.randomUUID();
         makeAutoObservable(this);
     }
 
@@ -142,19 +145,9 @@ export class GameObject {
         }
     }
 
-    toJSON() {
-        return {
-            title: this.title,
-            coverImageURL: this.coverImageURL,
-            sortingTitle: this.sortingTitle,
-            friends: this.friends,
-            categories: this.categories,
-            statuses: this.statuses,
-            note: this.note,
-        };
-    }
-
     toString() {
-        return `Game Title: ${this.title}, sorting title: ${this.sortingTitle}, cover image URL: ${this.coverImageURL}, \nfriends: ${this.friends}, categories: ${this.categories}, statuses: ${this.statuses}, \nnote: ${this.note}`;
+        return `Game Title: ${this.title}, sorting title: ${this.sortingTitle}, cover image URL: ${this.coverImageURL}, \n
+        friends: ${this.friends}, categories: ${this.categories}, statuses: ${this.statuses}, \n
+        note: ${this.note}, id: ${this.id}`;
     }
 }

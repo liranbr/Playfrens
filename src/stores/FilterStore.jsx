@@ -36,54 +36,59 @@ class FilterStore {
         this.search = searchValue || "";
     }
 
-    validateTag(tagType, tag) {
-        if (!tagType.allTagsList.includes(tag)) {
-            console.warn(`Tag "${tag}" is not a valid "${tagType.key}" tag.`);
+    validateTag(tagType, tagName) {
+        if (!tagType.allTagsList.includes(tagName)) {
+            console.warn(`Tag "${tagName}" is not a valid "${tagType.key}" tag.`);
             return false;
         }
-        if (this.selectedTags[tagType.key].has(tag) && this.excludedTags[tagType.key].has(tag)) {
-            console.warn(`Tag "${tag}" of type "${tagType.key}" is both selected and excluded.`);
+        if (
+            this.selectedTags[tagType.key].has(tagName) &&
+            this.excludedTags[tagType.key].has(tagName)
+        ) {
+            console.warn(
+                `Tag "${tagName}" of type "${tagType.key}" is both selected and excluded.`,
+            );
             return false;
         }
         return true;
     }
 
-    toggleTagSelection(tagType, tag) {
-        if (!this.validateTag(tagType, tag)) {
+    toggleTagSelection(tagType, tagName) {
+        if (!this.validateTag(tagType, tagName)) {
             return false;
         }
         const selectionSet = this.selectedTags[tagType.key];
         const exclusionSet = this.excludedTags[tagType.key];
-        if (exclusionSet.delete(tag)) {
+        if (exclusionSet.delete(tagName)) {
             return true;
         }
-        if (selectionSet.has(tag)) {
-            return selectionSet.delete(tag);
+        if (selectionSet.has(tagName)) {
+            return selectionSet.delete(tagName);
         }
-        selectionSet.add(tag);
+        selectionSet.add(tagName);
         return true;
     }
 
-    toggleTagExclusion(tagType, tag) {
-        if (!this.validateTag(tagType, tag)) {
+    toggleTagExclusion(tagType, tagName) {
+        if (!this.validateTag(tagType, tagName)) {
             return false;
         } // is invalid if both selected and excluded somehow, so no need to check again
         const selectionSet = this.selectedTags[tagType.key];
         const exclusionSet = this.excludedTags[tagType.key];
         // If excluded, remove exclusion
-        if (exclusionSet.has(tag)) {
-            return exclusionSet.delete(tag);
+        if (exclusionSet.has(tagName)) {
+            return exclusionSet.delete(tagName);
         }
         // Else exclude, whether was selected or not
-        selectionSet.delete(tag);
-        exclusionSet.add(tag);
+        selectionSet.delete(tagName);
+        exclusionSet.add(tagName);
         return true;
     }
 
     // TODO: Temporary, used simultaneously when deleting a tag from DataStore, should probably be a mobx reaction
-    removeFiltersOfTag(tagType, tag) {
-        this.selectedTags[tagType.key].delete(tag);
-        this.excludedTags[tagType.key].delete(tag);
+    removeFiltersOfTag(tagType, tagName) {
+        this.selectedTags[tagType.key].delete(tagName);
+        this.excludedTags[tagType.key].delete(tagName);
     }
 
     // TODO: Temporary like above, until tag UUID implementation

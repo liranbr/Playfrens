@@ -20,7 +20,7 @@ export class DataStore {
         [tagTypes.category.key]: [],
         [tagTypes.status.key]: [],
     };
-    allGames = observable.array([]);
+    allGames = [];
 
     constructor() {
         this.allGames = loadFromStorage("allGames", [])
@@ -62,9 +62,6 @@ export const tagsSortOrder = {
     [tagTypes.category.key]: dataStore.allTags[tagTypes.category.key],
     [tagTypes.status.key]: dataStore.allTags[tagTypes.status.key],
 };
-tagTypes.friend.allTagsList = dataStore.allTags[tagTypes.friend.key];
-tagTypes.category.allTagsList = dataStore.allTags[tagTypes.category.key];
-tagTypes.status.allTagsList = dataStore.allTags[tagTypes.status.key];
 
 // when a change is made to an array, it is saved to localstorage
 autorun(() => saveToStorage("allFriends", dataStore.allTags[tagTypes.friend.key]));
@@ -127,22 +124,22 @@ export const addTag = action((tagType, value) => {
 });
 
 export const removeTag = action((tagType, value) => {
-    if (!tagType.allTagsList.includes(value)) {
+    if (!dataStore.allTags[tagType.key].includes(value)) {
         toastError(`${value} does not exist in ${tagType.plural} list`);
         return false;
     }
     setToastSilence(true);
     dataStore.allGames.forEach((game) => {
-        tagType.removeFromGame(game, value);
+        game.removeTag(tagType, value);
     });
-    tagType.allTagsList.remove(value);
+    dataStore.allTags[tagType.key].remove(value);
     setToastSilence(false);
     toastDataChangeSuccess("Removed " + value + " from " + tagType.plural + " list");
     return true;
 });
 
 export const editTag = action((tagType, oldValue, newValue) => {
-    const fullList = tagType.allTagsList;
+    const fullList = dataStore.allTags[tagType.key];
     if (!newValue) {
         toastError("Cannot save a " + tagType.single + " without a name");
         return false;
@@ -158,9 +155,9 @@ export const editTag = action((tagType, oldValue, newValue) => {
         fullList.sort(compareAlphaIgnoreCase);
     }
     dataStore.allGames.forEach((game) => {
-        if (tagType.gameTagsList(game).includes(oldValue)) {
-            tagType.removeFromGame(game, oldValue);
-            tagType.addToGame(game, newValue);
+        if (game.tagsList(tagType).includes(oldValue)) {
+            game.removeTag(tagType, oldValue);
+            game.addTag(tagType, newValue);
             toastDataChangeSuccess(`Updated ${oldValue} to ${newValue} in ${game.title}`);
         }
     });

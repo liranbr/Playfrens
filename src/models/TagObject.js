@@ -1,4 +1,4 @@
-import { tagTypes } from "@/models/TagTypes.jsx";
+import { tagTypes } from "@/models/TagTypes.js";
 import { makeAutoObservable } from "mobx";
 
 export class TagObject {

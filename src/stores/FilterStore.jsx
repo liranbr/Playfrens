@@ -123,7 +123,7 @@ class FilterStore {
             OR: "some",
         };
         for (const tagTypeKey in tagTypes) {
-            const gameTags = tagTypes[tagTypeKey].gameTagsList(game);
+            const gameTags = game.tagsList(tagTypes[tagTypeKey]);
 
             const exclusionSet = this.excludedTags[tagTypeKey];
             // If any excluded tag is present, game does not pass filters

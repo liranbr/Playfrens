@@ -14,9 +14,9 @@ function GameCard({ game, className = "" }) {
     const gameCover = useValidatedImage(game.coverImageURL);
     const handleDrop = (e) => {
         const tagName = e.dataTransfer.getData("tagName");
-        const tagTypeKey = e.dataTransfer.getData("tagTypeKey");
+        const tagType = tagTypes[e.dataTransfer.getData("tagTypeKey")];
         setDraggedOver(false);
-        tagTypes[tagTypeKey].addToGame(game, tagName);
+        game.addTag(tagType, tagName);
     };
     const openGamePageDialog = () => {
         dialogStore.open(Dialogs.GamePage, { game });

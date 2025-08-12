@@ -31,12 +31,12 @@ const AddTagButton = ({ tagType, game }) => {
                 >
                     <ScrollView>
                         {dataStore.allTags[tagType.key]
-                            .filter((item) => !tagType.gameTagsList(game).includes(item))
+                            .filter((item) => !game.tagsList(tagType).includes(item))
                             .map((item) => (
                                 <DropdownMenu.Item
                                     key={item}
                                     onClick={() => {
-                                        tagType.addToGame(game, item);
+                                        game.addTag(tagType, item);
                                     }}
                                 >
                                     <span className="item-label">{item}</span>
@@ -53,7 +53,7 @@ const AddTagButton = ({ tagType, game }) => {
 const GPTagButton = observer(({ game, tagType, tagName }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const handleRemove = () => {
-        tagType.removeFromGame(game, tagName);
+        game.removeTag(tagType, tagName);
     };
     const onClick = () => setDropdownOpen(true);
     return (
@@ -98,7 +98,6 @@ const GPTagButton = observer(({ game, tagType, tagName }) => {
 
 const GPTagButtonGroup = observer(({ game, tagType }) => {
     const title = tagType.plural.toUpperCase();
-    const gameTagsList = tagType.gameTagsList(game);
     return (
         <div className="tag-button-group">
             <CenterAndEdgesRow className="ui-card-header">
@@ -108,7 +107,7 @@ const GPTagButtonGroup = observer(({ game, tagType }) => {
             </CenterAndEdgesRow>
             <ScrollView>
                 <div className="tag-button-list">
-                    {gameTagsList.map((tagName, index) => (
+                    {game.tagsList(tagType).map((tagName, index) => (
                         <GPTagButton
                             key={"btn-" + tagType.key + "-" + tagName + "-" + index}
                             game={game}

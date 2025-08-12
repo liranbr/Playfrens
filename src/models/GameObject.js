@@ -6,7 +6,7 @@ import {
     toastError,
 } from "@/Utils.jsx";
 import { globalDataStore, tagsSortOrder } from "@/stores";
-import { tagTypes } from "@/models/TagTypes.jsx";
+import { tagTypes } from "@/models/TagTypes.js";
 
 /**
  * @typedef {Object} GameObject
@@ -44,6 +44,64 @@ export class GameObject {
         makeAutoObservable(this);
     }
 
+    tagsList(tagType) {
+        // TODO: Bandaid, will be improved with TagObject Sets/Maps
+        switch (tagType.key) {
+            case tagTypes.friend.key:
+                return this.friends;
+            case tagTypes.category.key:
+                return this.categories;
+            case tagTypes.status.key:
+                return this.statuses;
+            default:
+                console.error(`Unknown tag type: ${tagType.key}`);
+                return [];
+        }
+    }
+
+    addTag(tagType, tagName) {
+        // TODO: Bandaid, can be improved now, and later with TagObject and Tag Sets / Maps
+        if (!tagType || !tagName) {
+            console.error(`Unknown tag type: ${tagType.key}`);
+            return;
+        }
+
+        switch (tagType.key) {
+            case tagTypes.friend.key:
+                this.addFriend(tagName);
+                break;
+            case tagTypes.category.key:
+                this.addCategory(tagName);
+                break;
+            case tagTypes.status.key:
+                this.addStatus(tagName);
+                break;
+            default:
+                console.error(`Unknown tag type: ${tagType.key}`);
+        }
+    }
+
+    removeTag(tagType, tagName) {
+        // TODO: Bandaid, can be improved now, and later with TagObject and Tag Sets / Maps
+        if (!tagType || !tagName) {
+            console.error(`Unknown tag type: ${tagType.key}`);
+            return;
+        }
+        switch (tagType.key) {
+            case tagTypes.friend.key:
+                this.removeFriend(tagName);
+                break;
+            case tagTypes.category.key:
+                this.removeCategory(tagName);
+                break;
+            case tagTypes.status.key:
+                this.removeStatus(tagName);
+                break;
+            default:
+                console.error(`Unknown tag type: ${tagType.key}`);
+        }
+    }
+
     addFriend(friend) {
         if (!this.friends.includes(friend)) {
             this.friends = insertSortedByOrder(
@@ -60,7 +118,7 @@ export class GameObject {
     removeFriend(friend) {
         if (this.friends.includes(friend)) {
             this.friends = this.friends.filter((f) => f !== friend);
-            toastDataChangeSuccess(`Removed ${friend} from the ${this.title} friendslist`);
+            toastDataChangeSuccess(`Removed the friend ${friend} from ${this.title}`);
         } else {
             toastError(`${friend} is not a friend for ${this.title}`);
         }

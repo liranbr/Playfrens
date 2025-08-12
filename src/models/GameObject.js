@@ -1,7 +1,7 @@
 import { makeAutoObservable } from "mobx";
 import {
     compareGameTitles,
-    insertSortedByOrder,
+    insertAndSortByOrder,
     toastDataChangeSuccess,
     toastError,
 } from "@/Utils.jsx";
@@ -44,128 +44,43 @@ export class GameObject {
         makeAutoObservable(this);
     }
 
+    // TODO: Temp until three arrays become TagObject Sets/Maps
     tagsList(tagType) {
-        // TODO: Bandaid, will be improved with TagObject Sets/Maps
-        switch (tagType.key) {
-            case tagTypes.friend.key:
-                return this.friends;
-            case tagTypes.category.key:
-                return this.categories;
-            case tagTypes.status.key:
-                return this.statuses;
-            default:
-                console.error(`Unknown tag type: ${tagType.key}`);
-                return [];
+        if (!tagType || !tagTypes.hasOwnProperty(tagType.key)) {
+            console.error(`Unknown tag type: ${tagType?.key}`);
+            return [];
         }
+        const lists = {
+            [tagTypes.friend.key]: this.friends,
+            [tagTypes.category.key]: this.categories,
+            [tagTypes.status.key]: this.statuses,
+        };
+        return lists[tagType.key] || [];
     }
 
     addTag(tagType, tagName) {
-        // TODO: Bandaid, can be improved now, and later with TagObject and Tag Sets / Maps
-        if (!tagType || !tagName) {
-            console.error(`Unknown tag type: ${tagType.key}`);
+        if (!tagType || !tagTypes.hasOwnProperty(tagType.key) || !tagName) {
+            console.error(`Unknown tag type: ${tagType?.key}`);
             return;
         }
-
-        switch (tagType.key) {
-            case tagTypes.friend.key:
-                this.addFriend(tagName);
-                break;
-            case tagTypes.category.key:
-                this.addCategory(tagName);
-                break;
-            case tagTypes.status.key:
-                this.addStatus(tagName);
-                break;
-            default:
-                console.error(`Unknown tag type: ${tagType.key}`);
-        }
+        const tagsList = this.tagsList(tagType);
+        if (!tagsList.includes(tagName)) {
+            insertAndSortByOrder(tagName, tagsList, tagsSortOrder[tagType.key]);
+            toastDataChangeSuccess(`Added ${tagName} as a friend for ${this.title}`);
+        } else toastError(`${tagName} is already a ${tagType.single} for ${this.title}`);
     }
 
     removeTag(tagType, tagName) {
-        // TODO: Bandaid, can be improved now, and later with TagObject and Tag Sets / Maps
-        if (!tagType || !tagName) {
-            console.error(`Unknown tag type: ${tagType.key}`);
+        if (!tagType || !tagTypes.hasOwnProperty(tagType.key) || !tagName) {
+            console.error(`Unknown tag type: ${tagType?.key}`);
             return;
         }
-        switch (tagType.key) {
-            case tagTypes.friend.key:
-                this.removeFriend(tagName);
-                break;
-            case tagTypes.category.key:
-                this.removeCategory(tagName);
-                break;
-            case tagTypes.status.key:
-                this.removeStatus(tagName);
-                break;
-            default:
-                console.error(`Unknown tag type: ${tagType.key}`);
-        }
-    }
-
-    addFriend(friend) {
-        if (!this.friends.includes(friend)) {
-            this.friends = insertSortedByOrder(
-                friend,
-                this.friends,
-                tagsSortOrder[tagTypes.friend.key],
-            );
-            toastDataChangeSuccess(`Added ${friend} as a friend for ${this.title}`);
-        } else {
-            toastError(`${friend} is already a friend for ${this.title}`);
-        }
-    }
-
-    removeFriend(friend) {
-        if (this.friends.includes(friend)) {
-            this.friends = this.friends.filter((f) => f !== friend);
-            toastDataChangeSuccess(`Removed the friend ${friend} from ${this.title}`);
-        } else {
-            toastError(`${friend} is not a friend for ${this.title}`);
-        }
-    }
-
-    addCategory(category) {
-        if (!this.categories.includes(category)) {
-            this.categories = insertSortedByOrder(
-                category,
-                this.categories,
-                tagsSortOrder[tagTypes.category.key],
-            );
-            toastDataChangeSuccess(`Added ${category} as a category for ${this.title}`);
-        } else {
-            toastError(`${category} is already a category for ${this.title}`);
-        }
-    }
-
-    removeCategory(category) {
-        if (this.categories.includes(category)) {
-            this.categories = this.categories.filter((c) => c !== category);
-            toastDataChangeSuccess(`Removed ${category} from ${this.title}'s categories`);
-        } else {
-            toastError(`${category} is not a category for ${this.title}`);
-        }
-    }
-
-    addStatus(status) {
-        if (!this.statuses.includes(status)) {
-            this.statuses = insertSortedByOrder(
-                status,
-                this.statuses,
-                tagsSortOrder[tagTypes.status.key],
-            );
-            toastDataChangeSuccess(`Added ${status} as a status for ${this.title}`);
-        } else {
-            toastError(`${status} is already a status for ${this.title}`);
-        }
-    }
-
-    removeStatus(status) {
-        if (this.statuses.includes(status)) {
-            this.statuses = this.statuses.filter((s) => s !== status);
-            toastDataChangeSuccess(`Removed ${status} from ${this.title}'s statuses`);
-        } else {
-            toastError(`${status} is not a status for ${this.title}`);
-        }
+        const tagsList = this.tagsList(tagType);
+        const index = tagsList.indexOf(tagName);
+        if (index >= 0) {
+            tagsList.splice(index, 1);
+            toastDataChangeSuccess(`Removed the ${tagType.single} ${tagName} from ${this.title}`);
+        } else toastError(`${tagName} is not a ${tagType.single} for ${this.title}`);
     }
 
     editGame(title, coverImageURL, sortingTitle) {
@@ -190,17 +105,11 @@ export class GameObject {
     }
 
     hasTag(tagType, tagName) {
-        switch (tagType?.key) {
-            case tagTypes.friend.key:
-                return this.friends.includes(tagName);
-            case tagTypes.category.key:
-                return this.categories.includes(tagName);
-            case tagTypes.status.key:
-                return this.statuses.includes(tagName);
-            default:
-                console.error(`Unknown tag type: ${tagType?.key}`);
-                return false;
+        if (!tagType || !tagTypes.hasOwnProperty(tagType.key) || !tagName) {
+            console.error(`Unknown tag type: ${tagType?.key}`);
+            return;
         }
+        return this.tagsList(tagType).includes(tagName);
     }
 
     toString() {

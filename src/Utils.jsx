@@ -15,12 +15,12 @@ export function toastDataChangeSuccess(message) {
     if (!silentToasts) toast.success(message);
 }
 
-export function insertSortedByOrder(item, array, orderArray) {
+export function insertAndSortByOrder(item, array, orderArray) {
     if (!orderArray || !orderArray.includes(item)) {
         console.error(`Item ${item} is not in the order array`);
         return array;
     }
-    array = [...array, item];
+    array.push(item);
     return array.sort((a, b) => orderArray.indexOf(a) - orderArray.indexOf(b));
 }
 

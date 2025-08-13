@@ -1,10 +1,11 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { addGame, Dialogs, dialogStore } from "@/stores";
+import { Dialogs, dialogStore, useDataStore } from "@/stores";
 import { Button } from "@/components";
 import { DialogBase } from "./DialogRoot.jsx";
 
 export function EditGameDialog({ open, closeDialog, game = null }) {
+    const dataStore = useDataStore();
     const dialogTitle = game ? "Edit Game Details" : "Add Game";
     const dialogDescription = game ? `Editing ${game.title}` : "Adding a new game";
 
@@ -23,7 +24,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                 handleHide();
             }
         } else {
-            const newGame = addGame(gameTitle, gameCoverPath, gameSortingTitle);
+            const newGame = dataStore.addGame(gameTitle, gameCoverPath, gameSortingTitle);
             if (newGame) {
                 dialogStore.insertPrevious(Dialogs.GamePage, { game: newGame });
                 handleHide();
@@ -38,7 +39,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
     };
 
     return (
-        <DialogBase open={open} onOpenChange={handleHide} contentProps={{ forceMount: !game }} >
+        <DialogBase open={open} onOpenChange={handleHide} contentProps={{ forceMount: !game }}>
             <Dialog.Title>{dialogTitle}</Dialog.Title>
             <VisuallyHidden>
                 <Dialog.Description>{dialogDescription}</Dialog.Description>
@@ -87,6 +88,6 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                     Save
                 </Button>
             </div>
-        </DialogBase >
+        </DialogBase>
     );
 }

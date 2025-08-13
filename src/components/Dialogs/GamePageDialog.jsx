@@ -5,7 +5,7 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert, MdRemove } from "react-icons/md";
 import { CenterAndEdgesRow, IconButton, ScrollView } from "@/components";
-import { removeGame, Dialogs, dialogStore, useDataStore } from "@/stores";
+import { Dialogs, dialogStore, useDataStore } from "@/stores";
 import { useValidatedImage } from "@/hooks/useValidatedImage.js";
 import { tagTypes } from "@/models";
 import "@/components/TagButtonGroup.css";
@@ -122,6 +122,7 @@ const GPTagButtonGroup = observer(({ game, tagType }) => {
 });
 
 function GameOptionsButton({ game }) {
+    const dataStore = useDataStore();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     return (
         <DropdownMenu.Root onOpenChange={setDropdownOpen}>
@@ -149,7 +150,7 @@ function GameOptionsButton({ game }) {
                             dialogStore.open(Dialogs.DeleteWarning, {
                                 itemName: game.title,
                                 deleteFunction: () => {
-                                    removeGame(game);
+                                    dataStore.removeGame(game);
                                     dialogStore.closeMultiple(2);
                                 },
                             });

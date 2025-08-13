@@ -39,9 +39,83 @@ export class DataStore {
 
         makeAutoObservable(this);
     }
+
+    addTag(tagType, value) {
+        const fullList = dataStore.allTags[tagType.key];
+        if (!value) return toastError("Cannot save a " + tagType.single + " without a name");
+        if (fullList.includes(value))
+            return toastError(`${value} already exists in ${tagType.plural} list`);
+
+        fullList.push(value);
+        if (tagType.key === "friend") fullList.sort(compareAlphaIgnoreCase); // TODO: Temp, replace after implementing tag sorting options
+        return toastSuccess("Added " + value + " to " + tagType.plural + " list");
+    }
+
+    removeTag(tagType, value) {
+        if (!dataStore.allTags[tagType.key].includes(value))
+            return toastError(`${value} does not exist in ${tagType.plural} list`);
+
+        setToastSilence(true);
+        dataStore.allGames.forEach((game) => game.removeTag(tagType, value));
+        dataStore.allTags[tagType.key].remove(value);
+        setToastSilence(false);
+        return toastSuccess("Removed " + value + " from " + tagType.plural + " list");
+    }
+
+    editTag(tagType, oldValue, newValue) {
+        const fullList = dataStore.allTags[tagType.key];
+        const oldValueIndex = fullList.indexOf(oldValue);
+        if (!newValue) return toastError("Cannot save a " + tagType.single + " without a name");
+        if (oldValueIndex === -1)
+            return toastError(`${oldValue} does not exist in ${tagType.plural} list`);
+
+        setToastSilence(true);
+        fullList[oldValueIndex] = newValue;
+        if (tagType.key === "friend") fullList.sort(compareAlphaIgnoreCase); // TODO: Temp, replace after implementing tag sorting options
+        dataStore.allGames.forEach((game) => {
+            if (game.tagsList(tagType).includes(oldValue)) {
+                game.removeTag(tagType, oldValue);
+                game.addTag(tagType, newValue);
+            }
+        });
+        setToastSilence(false);
+        return toastSuccess(`Updated ${oldValue} to ${newValue} in ${tagType.plural} list`);
+    }
+
+    addGame(title, coverImageURL, sortingTitle = "") {
+        if (!title) {
+            toastError("Cannot save a game without a title");
+            return null;
+        }
+        // TODO: Reconsider duplicate game handling
+        if (dataStore.allGames.some((game) => game.title === title)) {
+            toastError(`${title} already exists in games list`);
+            return null;
+        }
+        if (!coverImageURL) {
+            toastError("Cannot save a game without a cover image");
+            return null;
+        }
+
+        const newGame = new GameObject({
+            title: title,
+            coverImageURL: coverImageURL,
+            sortingTitle: sortingTitle,
+        });
+        dataStore.allGames.push(newGame);
+        dataStore.allGames.sort(compareGameTitles);
+        toastSuccess("Added " + title + " to games list");
+        return newGame;
+    }
+
+    removeGame(game) {
+        const removed = dataStore.allGames.remove(game);
+        if (!removed) return toastError(`Failed to remove ${game.title} from games list`);
+        return toastSuccess("Removed " + game.title + " from games list");
+    }
 }
+
 const dataStore = new DataStore();
-const DataStoreContext = createContext(dataStore);
 // when a change is made to an array, it is saved to localstorage
 autorun(() => saveToStorage("allFriends", dataStore.allTags[tagTypes.friend.key]));
 autorun(() => saveToStorage("allCategories", dataStore.allTags[tagTypes.category.key]));
@@ -49,6 +123,7 @@ autorun(() => saveToStorage("allStatuses", dataStore.allTags[tagTypes.status.key
 autorun(() => saveToStorage("allGames", dataStore.allGames));
 // Prefer to use the context version in components, for expanded functionality in the future
 // but the global version is available for non-component uses
+const DataStoreContext = createContext(dataStore);
 export const useDataStore = () => useContext(DataStoreContext);
 export const globalDataStore = dataStore;
 
@@ -104,77 +179,3 @@ export function restoreFromFile(file) {
     });
     reader.readAsText(file);
 }
-
-export const addTag = action((tagType, value) => {
-    const fullList = dataStore.allTags[tagType.key];
-    if (!value) return toastError("Cannot save a " + tagType.single + " without a name");
-    if (fullList.includes(value))
-        return toastError(`${value} already exists in ${tagType.plural} list`);
-
-    fullList.push(value);
-    if (tagType.key === "friend") fullList.sort(compareAlphaIgnoreCase); // TODO: Temp, replace after implementing tag sorting options
-    return toastSuccess("Added " + value + " to " + tagType.plural + " list");
-});
-
-export const removeTag = action((tagType, value) => {
-    if (!dataStore.allTags[tagType.key].includes(value))
-        return toastError(`${value} does not exist in ${tagType.plural} list`);
-
-    setToastSilence(true);
-    dataStore.allGames.forEach((game) => game.removeTag(tagType, value));
-    dataStore.allTags[tagType.key].remove(value);
-    setToastSilence(false);
-    return toastSuccess("Removed " + value + " from " + tagType.plural + " list");
-});
-
-export const editTag = action((tagType, oldValue, newValue) => {
-    const fullList = dataStore.allTags[tagType.key];
-    const oldValueIndex = fullList.indexOf(oldValue);
-    if (!newValue) return toastError("Cannot save a " + tagType.single + " without a name");
-    if (oldValueIndex === -1)
-        return toastError(`${oldValue} does not exist in ${tagType.plural} list`);
-
-    setToastSilence(true);
-    fullList[oldValueIndex] = newValue;
-    if (tagType.key === "friend") fullList.sort(compareAlphaIgnoreCase); // TODO: Temp, replace after implementing tag sorting options
-    dataStore.allGames.forEach((game) => {
-        if (game.tagsList(tagType).includes(oldValue)) {
-            game.removeTag(tagType, oldValue);
-            game.addTag(tagType, newValue);
-        }
-    });
-    setToastSilence(false);
-    return toastSuccess(`Updated ${oldValue} to ${newValue} in ${tagType.plural} list`);
-});
-
-export const addGame = action((title, coverImageURL, sortingTitle = "") => {
-    if (!title) {
-        toastError("Cannot save a game without a title");
-        return null;
-    }
-    // TODO: Reconsider duplicate game handling
-    if (dataStore.allGames.some((game) => game.title === title)) {
-        toastError(`${title} already exists in games list`);
-        return null;
-    }
-    if (!coverImageURL) {
-        toastError("Cannot save a game without a cover image");
-        return null;
-    }
-
-    const newGame = new GameObject({
-        title: title,
-        coverImageURL: coverImageURL,
-        sortingTitle: sortingTitle,
-    });
-    dataStore.allGames.push(newGame);
-    dataStore.allGames.sort(compareGameTitles);
-    toastSuccess("Added " + title + " to games list");
-    return newGame;
-});
-
-export const removeGame = action((game) => {
-    const removed = dataStore.allGames.remove(game);
-    if (!removed) return toastError(`Failed to remove ${game.title} from games list`);
-    return toastSuccess("Removed " + game.title + " from games list");
-});

@@ -48,10 +48,10 @@ class SettingsStore {
 
 const storedSettings = JSON.parse(localStorage.getItem(settingsKeyInStorage));
 const settingsStore = new SettingsStore(storedSettings);
-autorun(() => saveToStorage(settingsKeyInStorage, settingsStore)); // whenever settings are changed, auto-save
-
-const SettingsStoreContext = createContext(settingsStore);
-export const useSettingsStore = () => useContext(SettingsStoreContext);
+// whenever settings are changed, auto-save
+autorun(() => saveToStorage(settingsKeyInStorage, settingsStore));
 // Prefer to use the context version in components, for expanded functionality in the future
 // but the global version is available for non-component uses
+const SettingsStoreContext = createContext(settingsStore);
+export const useSettingsStore = () => useContext(SettingsStoreContext);
 export const globalSettingsStore = settingsStore;

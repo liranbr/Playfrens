@@ -8,7 +8,7 @@ import {
     MdMoreVert,
     MdOutlineSearchOff,
 } from "react-icons/md";
-import { removeTag, useFilterStore, Dialogs, dialogStore } from "@/stores";
+import { useFilterStore, Dialogs, dialogStore, useDataStore } from "@/stores";
 import { IconButton } from "@/components";
 import "./TagButton.css";
 
@@ -30,7 +30,6 @@ export const SidebarTagButton = observer(({ tagName, tagType }) => {
         filterStore.toggleTagSelection(tagType, tagName);
         filterStore.setHoveredTag(null);
     };
-    const toggleSelection = () => filterStore.toggleTagSelection(tagType, tagName);
 
     return (
         <div
@@ -79,6 +78,7 @@ export const SidebarTagButton = observer(({ tagName, tagType }) => {
 });
 
 const SidebarTBMenuButton = observer(({ tagName, tagType, filterStore, setDropdownOpen }) => {
+    const dataStore = useDataStore();
     const isExcluded = filterStore.excludedTags[tagType.key]?.has(tagName) ?? false;
     const toggleExclusion = () => filterStore.toggleTagExclusion(tagType, tagName);
 
@@ -93,7 +93,7 @@ const SidebarTBMenuButton = observer(({ tagName, tagType, filterStore, setDropdo
             itemName: tagName,
             deleteFunction: () => {
                 filterStore.removeFiltersOfTag(tagType, tagName);
-                removeTag(tagType, tagName);
+                dataStore.removeTag(tagType, tagName);
             },
         });
     };

@@ -1,10 +1,5 @@
 import { makeAutoObservable } from "mobx";
-import {
-    compareGameTitles,
-    insertAndSortByOrder,
-    toastDataChangeSuccess,
-    toastError,
-} from "@/Utils.jsx";
+import { compareGameTitles, insertAndSortByOrder, toastSuccess, toastError } from "@/Utils.jsx";
 import { globalDataStore, tagsSortOrder } from "@/stores";
 import { tagTypes } from "@/models/TagTypes.js";
 
@@ -66,7 +61,7 @@ export class GameObject {
         const tagsList = this.tagsList(tagType);
         if (!tagsList.includes(tagName)) {
             insertAndSortByOrder(tagName, tagsList, tagsSortOrder[tagType.key]);
-            toastDataChangeSuccess(`Added ${tagName} as a friend for ${this.title}`);
+            toastSuccess(`Added ${tagName} as a friend for ${this.title}`);
         } else toastError(`${tagName} is already a ${tagType.single} for ${this.title}`);
     }
 
@@ -79,7 +74,7 @@ export class GameObject {
         const index = tagsList.indexOf(tagName);
         if (index >= 0) {
             tagsList.splice(index, 1);
-            toastDataChangeSuccess(`Removed the ${tagType.single} ${tagName} from ${this.title}`);
+            toastSuccess(`Removed the ${tagType.single} ${tagName} from ${this.title}`);
         } else toastError(`${tagName} is not a ${tagType.single} for ${this.title}`);
     }
 
@@ -96,7 +91,7 @@ export class GameObject {
         this.coverImageURL = coverImageURL;
         this.sortingTitle = sortingTitle;
         globalDataStore.allGames.sort(compareGameTitles);
-        toastDataChangeSuccess(`Updated ${this.title}`);
+        toastSuccess(`Updated ${this.title}`);
         return true;
     }
 

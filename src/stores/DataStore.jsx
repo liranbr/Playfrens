@@ -1,4 +1,4 @@
-import { action, autorun, observable, makeAutoObservable } from "mobx";
+import { action, autorun, makeAutoObservable } from "mobx";
 import { GameObject } from "@/models";
 import { tagTypes } from "@/models";
 import {
@@ -7,7 +7,7 @@ import {
     loadFromStorage,
     saveToStorage,
     setToastSilence,
-    toastDataChangeSuccess,
+    toastSuccess,
     toastError,
 } from "@/Utils.jsx";
 import { settingsKeyInStorage } from "@/stores";
@@ -42,9 +42,14 @@ export class DataStore {
 }
 const dataStore = new DataStore();
 const DataStoreContext = createContext(dataStore);
-export const useDataStore = () => useContext(DataStoreContext);
+// when a change is made to an array, it is saved to localstorage
+autorun(() => saveToStorage("allFriends", dataStore.allTags[tagTypes.friend.key]));
+autorun(() => saveToStorage("allCategories", dataStore.allTags[tagTypes.category.key]));
+autorun(() => saveToStorage("allStatuses", dataStore.allTags[tagTypes.status.key]));
+autorun(() => saveToStorage("allGames", dataStore.allGames));
 // Prefer to use the context version in components, for expanded functionality in the future
 // but the global version is available for non-component uses
+export const useDataStore = () => useContext(DataStoreContext);
 export const globalDataStore = dataStore;
 
 const firstVisit = !loadFromStorage("Visited", false);
@@ -62,12 +67,6 @@ export const tagsSortOrder = {
     [tagTypes.category.key]: dataStore.allTags[tagTypes.category.key],
     [tagTypes.status.key]: dataStore.allTags[tagTypes.status.key],
 };
-
-// when a change is made to an array, it is saved to localstorage
-autorun(() => saveToStorage("allFriends", dataStore.allTags[tagTypes.friend.key]));
-autorun(() => saveToStorage("allCategories", dataStore.allTags[tagTypes.category.key]));
-autorun(() => saveToStorage("allStatuses", dataStore.allTags[tagTypes.status.key]));
-autorun(() => saveToStorage("allGames", dataStore.allGames));
 
 export function backupToFile() {
     console.log("Backing up data to file...");
@@ -107,70 +106,53 @@ export function restoreFromFile(file) {
 }
 
 export const addTag = action((tagType, value) => {
-    if (!value) {
-        toastError("Cannot save a " + tagType.single + " without a name");
-        return false;
-    }
-    if (dataStore.allTags[tagType.key].includes(value)) {
-        toastError(`${value} already exists in ${tagType.plural} list`);
-        return false;
-    }
-    dataStore.allTags[tagType.key].push(value);
-    if (tagType.key === "friend") {
-        dataStore.allTags[tagType.key].sort(compareAlphaIgnoreCase);
-    }
-    toastDataChangeSuccess("Added " + value + " to " + tagType.plural + " list");
-    return true;
+    const fullList = dataStore.allTags[tagType.key];
+    if (!value) return toastError("Cannot save a " + tagType.single + " without a name");
+    if (fullList.includes(value))
+        return toastError(`${value} already exists in ${tagType.plural} list`);
+
+    fullList.push(value);
+    if (tagType.key === "friend") fullList.sort(compareAlphaIgnoreCase); // TODO: Temp, replace after implementing tag sorting options
+    return toastSuccess("Added " + value + " to " + tagType.plural + " list");
 });
 
 export const removeTag = action((tagType, value) => {
-    if (!dataStore.allTags[tagType.key].includes(value)) {
-        toastError(`${value} does not exist in ${tagType.plural} list`);
-        return false;
-    }
+    if (!dataStore.allTags[tagType.key].includes(value))
+        return toastError(`${value} does not exist in ${tagType.plural} list`);
+
     setToastSilence(true);
-    dataStore.allGames.forEach((game) => {
-        game.removeTag(tagType, value);
-    });
+    dataStore.allGames.forEach((game) => game.removeTag(tagType, value));
     dataStore.allTags[tagType.key].remove(value);
     setToastSilence(false);
-    toastDataChangeSuccess("Removed " + value + " from " + tagType.plural + " list");
-    return true;
+    return toastSuccess("Removed " + value + " from " + tagType.plural + " list");
 });
 
 export const editTag = action((tagType, oldValue, newValue) => {
     const fullList = dataStore.allTags[tagType.key];
-    if (!newValue) {
-        toastError("Cannot save a " + tagType.single + " without a name");
-        return false;
-    }
     const oldValueIndex = fullList.indexOf(oldValue);
-    if (oldValueIndex === -1) {
-        toastError(`${oldValue} does not exist in ${tagType.plural} list`);
-        return false;
-    }
+    if (!newValue) return toastError("Cannot save a " + tagType.single + " without a name");
+    if (oldValueIndex === -1)
+        return toastError(`${oldValue} does not exist in ${tagType.plural} list`);
+
     setToastSilence(true);
     fullList[oldValueIndex] = newValue;
-    if (tagType.key === "friend") {
-        fullList.sort(compareAlphaIgnoreCase);
-    }
+    if (tagType.key === "friend") fullList.sort(compareAlphaIgnoreCase); // TODO: Temp, replace after implementing tag sorting options
     dataStore.allGames.forEach((game) => {
         if (game.tagsList(tagType).includes(oldValue)) {
             game.removeTag(tagType, oldValue);
             game.addTag(tagType, newValue);
-            toastDataChangeSuccess(`Updated ${oldValue} to ${newValue} in ${game.title}`);
         }
     });
     setToastSilence(false);
-    toastDataChangeSuccess(`Updated ${oldValue} to ${newValue} in ${tagType.plural} list`);
-    return true;
+    return toastSuccess(`Updated ${oldValue} to ${newValue} in ${tagType.plural} list`);
 });
 
-export const addGame = action((title, coverImageURL, gameSortingTitle = "") => {
+export const addGame = action((title, coverImageURL, sortingTitle = "") => {
     if (!title) {
         toastError("Cannot save a game without a title");
         return null;
     }
+    // TODO: Reconsider duplicate game handling
     if (dataStore.allGames.some((game) => game.title === title)) {
         toastError(`${title} already exists in games list`);
         return null;
@@ -179,27 +161,20 @@ export const addGame = action((title, coverImageURL, gameSortingTitle = "") => {
         toastError("Cannot save a game without a cover image");
         return null;
     }
+
     const newGame = new GameObject({
         title: title,
         coverImageURL: coverImageURL,
-        sortingTitle: gameSortingTitle,
-        friends: [],
-        categories: [],
-        statuses: [],
-        note: "",
+        sortingTitle: sortingTitle,
     });
     dataStore.allGames.push(newGame);
     dataStore.allGames.sort(compareGameTitles);
-    toastDataChangeSuccess("Added " + title + " to games list");
+    toastSuccess("Added " + title + " to games list");
     return newGame;
 });
 
 export const removeGame = action((game) => {
-    if (!dataStore.allGames.includes(game)) {
-        toastError(`${game.title} does not exist in games list`);
-        return false;
-    }
-    dataStore.allGames.remove(game);
-    toastDataChangeSuccess("Removed " + game.title + " from games list");
-    return true;
+    const removed = dataStore.allGames.remove(game);
+    if (!removed) return toastError(`Failed to remove ${game.title} from games list`);
+    return toastSuccess("Removed " + game.title + " from games list");
 });

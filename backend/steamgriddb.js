@@ -15,25 +15,22 @@ export class SteamGridDBService extends Service {
             const response_noResults = () => {
                 res.status(404).json({
                     status: 404,
-                    message: "Couldn't find any games matching --> " + name + " <--",
+                    message: "Couldn't find any games matching name: " + name,
                 });
             };
             const name = req.params.name;
             const client = this.connect();
             const games = await client.searchGame("" + name);
             if (games.length == 0) {
-                response_noResults();
-                return;
+                return response_noResults();
             }
             const id = games[0]?.id ?? -1;
             if (id == -1) {
-                response_noResults();
-                return;
+                return response_noResults();
             }
             client
-                .getGrids({ type: "game", id: id })
+                .getGrids({ type: "game", id: id, dimensions: ["600x900"], nsfw: false })
                 .then((grids) => {
-                    console.log("Grids found:", grids.length);
                     res.status(200).json(grids);
                 })
                 .catch((error) => {

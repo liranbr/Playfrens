@@ -21,7 +21,6 @@ app.listen(PORT, () => {
 const services = [];
 
 export const run = () => {
-    console.log("run", process.env.STEAMGRIDDB_API_KEY);
     services.push(new SteamGridDBService(app));
 };
 

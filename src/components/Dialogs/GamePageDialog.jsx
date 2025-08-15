@@ -12,7 +12,6 @@ import "@/components/TagButtonGroup.css";
 import "@/components/TagButton.css";
 import "./GamePageDialog.css";
 import { DialogBase } from "./DialogRoot.jsx";
-
 const AddTagButton = ({ tagType, game }) => {
     const dataStore = useDataStore();
     const [openDropdown, setOpenDropdown] = useState(false);
@@ -31,15 +30,15 @@ const AddTagButton = ({ tagType, game }) => {
                 >
                     <ScrollView>
                         {dataStore.allTags[tagType.key]
-                            .filter((item) => !game.tagsList(tagType).includes(item))
-                            .map((item) => (
+                            .filter((t) => !game.tagsList(tagType).includes(t))
+                            .map((t) => (
                                 <DropdownMenu.Item
-                                    key={item}
+                                    key={t.id}
                                     onClick={() => {
-                                        game.addTag(tagType, item);
+                                        game.addTag(t);
                                     }}
                                 >
-                                    <span className="item-label">{item}</span>
+                                    <span className="item-label">{t.name}</span>
                                 </DropdownMenu.Item>
                             ))}
                         {/* Variable-length dropdown items need text wrapper to prevent overflow */}
@@ -50,26 +49,25 @@ const AddTagButton = ({ tagType, game }) => {
     );
 };
 
-const GPTagButton = observer(({ game, tagType, tagName }) => {
+const GPTagButton = observer(({ game, tag }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
-    const handleRemove = () => {
-        game.removeTag(tagType, tagName);
-    };
-    const onClick = () => setDropdownOpen(true);
+    const handleRemove = () => game.removeTag(tag);
+    const handleClick = () => setDropdownOpen(true);
+
     return (
         <div
             className={"tag-button-container" + (dropdownOpen ? " dd-open" : "")}
             tabIndex={0}
-            onClick={onClick}
+            onClick={handleClick}
             onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
                     e.preventDefault();
-                    onClick();
+                    handleClick();
                 }
             }}
         >
             <span role="button" className="tag-button" draggable="true">
-                <span className="tag-name">{tagName}</span>
+                <span className="tag-name">{tag.name}</span>
             </span>
 
             <DropdownMenu.Root open={dropdownOpen} onOpenChange={setDropdownOpen}>
@@ -107,12 +105,11 @@ const GPTagButtonGroup = observer(({ game, tagType }) => {
             </CenterAndEdgesRow>
             <ScrollView>
                 <div className="tag-button-list">
-                    {game.tagsList(tagType).map((tagName, index) => (
+                    {game.tagsList(tagType).map((tag, index) => (
                         <GPTagButton
-                            key={"btn-" + tagType.key + "-" + tagName + "-" + index}
+                            key={"btn-" + tagType.key + "-" + tag.name + "-" + index}
                             game={game}
-                            tagType={tagType}
-                            tagName={tagName}
+                            tag={tag}
                         />
                     ))}
                 </div>

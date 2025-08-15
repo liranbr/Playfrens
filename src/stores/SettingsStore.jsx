@@ -3,7 +3,7 @@ import { autorun, makeAutoObservable } from "mobx";
 import { saveToStorage } from "@/Utils.jsx";
 import { tagTypes } from "@/models";
 
-export const settingsKeyInStorage = "settings";
+export const settingsStorageKey = "settings";
 
 export const TagHoverGameHighlightOptions = {
     highlight: "Highlight",
@@ -46,10 +46,10 @@ class SettingsStore {
     }
 }
 
-const storedSettings = JSON.parse(localStorage.getItem(settingsKeyInStorage));
+const storedSettings = JSON.parse(localStorage.getItem(settingsStorageKey));
 const settingsStore = new SettingsStore(storedSettings);
 // whenever settings are changed, auto-save
-autorun(() => saveToStorage(settingsKeyInStorage, settingsStore));
+autorun(() => saveToStorage(settingsStorageKey, settingsStore));
 // Prefer to use the context version in components, for expanded functionality in the future
 // but the global version is available for non-component uses
 const SettingsStoreContext = createContext(settingsStore);

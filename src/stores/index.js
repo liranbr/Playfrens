@@ -3,7 +3,7 @@ export { backupToFile, restoreFromFile } from "./DataStore.jsx";
 export { useFilterStore } from "./FilterStore.jsx";
 export {
     useSettingsStore,
-    settingsKeyInStorage,
+    settingsStorageKey,
     TagHoverGameHighlightOptions,
     TagFilterLogicOptions,
     globalSettingsStore,

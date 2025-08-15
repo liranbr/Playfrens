@@ -1,3 +1,2 @@
-export { GameObject } from "./GameObject.js";
-export { tagTypes, tagType } from "./TagTypes.js";
-export { TagObject } from "./TagObject.js";
+export { TagType, tagTypes, TagObject, compareTagNamesAZ } from "./TagObject.js";
+export { GameObject, compareGameTitlesAZ } from "./GameObject.js";

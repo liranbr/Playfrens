@@ -1,16 +1,20 @@
 import { makeAutoObservable } from "mobx";
-import { compareGameTitles, insertAndSortByOrder, toastSuccess, toastError } from "@/Utils.jsx";
-import { globalDataStore, tagsSortOrder } from "@/stores";
-import { tagTypes } from "@/models/TagTypes.js";
+import {
+    insertAndSortByOrder,
+    toastSuccess,
+    toastError,
+    compareAlphaIgnoreCase,
+} from "@/Utils.jsx";
+import { TagObject, tagTypes } from "@/models";
 
 /**
  * @typedef {Object} GameObject
  * @property {string} title - The title of the game.
  * @property {string} coverImageURL - The path to the game's cover image file.
  * @property {string} sortingTitle - The (optional) title used for sorting the game.
- * @property {Array<string>} friends - The list of friends for this game.
- * @property {Array<string>} categories - The list of categories for this game.
- * @property {Array<string>} statuses - The list of statuses for this game.
+ * @property {Array<TagObject>} friends - The list of friends for this game.
+ * @property {Array<TagObject>} categories - The list of categories for this game.
+ * @property {Array<TagObject>} statuses - The list of statuses for this game.
  * @property {string} note - A custom note for this game.
  * @property {string} id - A UUID identifier for the game object.
  */
@@ -28,7 +32,7 @@ export class GameObject {
         if (!title || !title.trim()) {
             throw new Error("GameObject must have a title");
         }
-        this.title = title ?? this.title;
+        this.title = title;
         this.coverImageURL = coverImageURL ?? this.coverImageURL;
         this.sortingTitle = sortingTitle ?? this.sortingTitle;
         this.friends = friends ?? this.friends;
@@ -40,6 +44,9 @@ export class GameObject {
     }
 
     // TODO: Temp until three arrays become TagObject Sets/Maps
+    /**
+     * @returns {Array<TagObject>}
+     */
     tagsList(tagType) {
         if (!tagType || !tagTypes.hasOwnProperty(tagType.key)) {
             console.error(`Unknown tag type: ${tagType?.key}`);
@@ -53,29 +60,34 @@ export class GameObject {
         return lists[tagType.key] || [];
     }
 
-    addTag(tagType, tagName) {
-        if (!tagType || !tagTypes.hasOwnProperty(tagType.key) || !tagName) {
-            console.error(`Unknown tag type: ${tagType?.key}`);
-            return;
-        }
-        const tagsList = this.tagsList(tagType);
-        if (!tagsList.includes(tagName)) {
-            insertAndSortByOrder(tagName, tagsList, tagsSortOrder[tagType.key]);
-            toastSuccess(`Added ${tagName} as a friend for ${this.title}`);
-        } else toastError(`${tagName} is already a ${tagType.single} for ${this.title}`);
+    addTag(tag) {
+        if (!(tag instanceof TagObject)) return console.error(`Invalid tag: ${tag}`);
+
+        const tagsList = this.tagsList(tag.type);
+        if (!tagsList.includes(tag)) {
+            // insertAndSortByOrder(tag.name, tagsList, tagsSortOrder[tag.tagTypeKey]); TODO: Implement sorting functions in SettingsStore
+            tagsList.push(tag.name); // TODO: Temp, lacking sorting
+            toastSuccess(`Added ${tag.name} as a friend for ${this.title}`);
+        } else toastError(`${tag.name} is already a ${tag.type.single} for ${this.title}`);
     }
 
-    removeTag(tagType, tagName) {
-        if (!tagType || !tagTypes.hasOwnProperty(tagType.key) || !tagName) {
-            console.error(`Unknown tag type: ${tagType?.key}`);
-            return;
-        }
-        const tagsList = this.tagsList(tagType);
-        const index = tagsList.indexOf(tagName);
+    removeTag(tag) {
+        if (!(tag instanceof TagObject)) return console.error(`Invalid tag: ${tag}`);
+
+        const tagsList = this.tagsList(tag.type);
+        const index = tagsList.indexOf(tag);
         if (index >= 0) {
             tagsList.splice(index, 1);
-            toastSuccess(`Removed the ${tagType.single} ${tagName} from ${this.title}`);
-        } else toastError(`${tagName} is not a ${tagType.single} for ${this.title}`);
+            toastSuccess(`Removed the ${tag.type.single} ${tag.name} from ${this.title}`);
+        } else toastError(`${tag.name} is not a ${tag.type.single} for ${this.title}`);
+    }
+
+    hasTag(tag) {
+        if (!(tag instanceof TagObject)) {
+            console.error(`Invalid tag: ${tag}`);
+            return false;
+        }
+        return this.tagsList(tag.type).some((t) => t.equals(tag));
     }
 
     editGame(title, coverImageURL, sortingTitle) {
@@ -90,7 +102,7 @@ export class GameObject {
         this.title = title;
         this.coverImageURL = coverImageURL;
         this.sortingTitle = sortingTitle;
-        globalDataStore.allGames.sort(compareGameTitles);
+        // globalDataStore.allGames.sort(compareGameTitles); TODO: Make sure editing a game triggers an allGames sort
         toastSuccess(`Updated ${this.title}`);
         return true;
     }
@@ -99,17 +111,15 @@ export class GameObject {
         this.note = note;
     }
 
-    hasTag(tagType, tagName) {
-        if (!tagType || !tagTypes.hasOwnProperty(tagType.key) || !tagName) {
-            console.error(`Unknown tag type: ${tagType?.key}`);
-            return;
-        }
-        return this.tagsList(tagType).includes(tagName);
-    }
-
     toString() {
         return `Game Title: ${this.title}, sorting title: ${this.sortingTitle}, cover image URL: ${this.coverImageURL}, \n
         friends: ${this.friends}, categories: ${this.categories}, statuses: ${this.statuses}, \n
         note: ${this.note}, id: ${this.id}`;
     }
+}
+
+export function compareGameTitlesAZ(a, b) {
+    const titleA = a.sortingTitle || a.title;
+    const titleB = b.sortingTitle || b.title;
+    return compareAlphaIgnoreCase(titleA, titleB);
 }

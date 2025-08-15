@@ -45,12 +45,6 @@ export function compareAlphaIgnoreCase(a, b) {
     return a.localeCompare(b, undefined, { sensitivity: "base" });
 }
 
-export function compareGameTitles(a, b) {
-    const titleA = a.sortingTitle || a.title;
-    const titleB = b.sortingTitle || b.title;
-    return compareAlphaIgnoreCase(titleA, titleB);
-}
-
 export function loadFromStorage(key, fallback) {
     try {
         const item = localStorage.getItem(key);

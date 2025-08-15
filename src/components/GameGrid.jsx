@@ -1,22 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
+import { MdAddCircleOutline } from "react-icons/md";
 import { useFilterStore, useSettingsStore, Dialogs, dialogStore } from "@/stores";
-import { tagTypes } from "@/models";
+import { TagObject } from "@/models";
 import { ScrollView } from "@/components";
 import { useValidatedImage } from "@/hooks/useValidatedImage.js";
 import "../App.css";
 import "./GameGrid.css";
-import { MdAddCircleOutline } from "react-icons/md";
 
 function GameCard({ game, className = "" }) {
     const [draggedOver, setDraggedOver] = useState(false);
     const isDraggedOver = draggedOver ? " dragged-over" : "";
     const gameCover = useValidatedImage(game.coverImageURL);
     const handleDrop = (e) => {
-        const tagName = e.dataTransfer.getData("tagName");
-        const tagType = tagTypes[e.dataTransfer.getData("tagTypeKey")];
+        const tag = new TagObject(JSON.parse(e.dataTransfer.getData("application/json")));
         setDraggedOver(false);
-        game.addTag(tagType, tagName);
+        game.addTag(tag);
     };
     const openGamePageDialog = () => {
         dialogStore.open(Dialogs.GamePage, { game });
@@ -49,24 +48,20 @@ export const GamesGrid = observer(() => {
     const filterStore = useFilterStore();
     const settingsStore = useSettingsStore();
     const filteredGames = filterStore.filteredGames;
-    const draggedTagType = filterStore.draggedTag.tagType;
-    const draggedTagName = filterStore.draggedTag.tagName;
+    const draggedTag = filterStore.draggedTag;
     const draggedTagClassname = (game) => {
-        if (draggedTagType && draggedTagName) {
-            if (game.hasTag(draggedTagType, draggedTagName)) return " has-dragged-tag";
+        if (draggedTag) {
+            if (game.hasTag(draggedTag)) return " has-dragged-tag";
             else return " doesnt-have-dragged-tag";
         }
         return "";
     };
     const hoverTagSetting = settingsStore.tagHoverGameHighlight;
-    const hoveredTagType = filterStore.hoveredTag.tagType;
-    const hoveredTagName = filterStore.hoveredTag.tagName;
+    const hoveredTag = filterStore.hoveredTag;
     const hoveredTagClassname = (game) => {
-        if (hoverTagSetting !== "none" && hoveredTagType && hoveredTagName) {
-            if (hoverTagSetting === "highlight" && game.hasTag(hoveredTagType, hoveredTagName))
-                return " highlight";
-            if (hoverTagSetting === "darken" && !game.hasTag(hoveredTagType, hoveredTagName))
-                return " darken";
+        if (hoverTagSetting !== "none" && hoveredTag) {
+            if (hoverTagSetting === "highlight" && game.hasTag(hoveredTag)) return " highlight";
+            if (hoverTagSetting === "darken" && !game.hasTag(hoveredTag)) return " darken";
         }
         return "";
     };

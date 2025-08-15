@@ -17,7 +17,7 @@ export const SidebarTagButtonGroup = observer(({ tagType }) => {
     const dataStore = useDataStore();
     const title = tagType.plural.toUpperCase();
     const handleAddButtonClick = () => {
-        dialogStore.open(Dialogs.EditTag, { tagType: tagType });
+        dialogStore.open(Dialogs.EditTag, { newTagType: tagType }); // TODO: should probably make a AddTag Dialog?
     };
     return (
         <div className="tag-button-group">
@@ -28,8 +28,8 @@ export const SidebarTagButtonGroup = observer(({ tagType }) => {
             </CenterAndEdgesRow>
             <ScrollView>
                 <div className="tag-button-list">
-                    {dataStore.allTags[tagType.key].map((tagName, index) => (
-                        <SidebarTagButton key={index} tagName={tagName} tagType={tagType} />
+                    {dataStore.allTags[tagType.key].map((t, index) => (
+                        <SidebarTagButton key={index} tag={t} />
                     ))}
                 </div>
             </ScrollView>

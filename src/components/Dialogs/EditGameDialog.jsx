@@ -3,9 +3,14 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Dialogs, dialogStore, useDataStore } from "@/stores";
 import { Button } from "@/components";
 import { DialogBase } from "./DialogRoot.jsx";
+import { useEffect, useRef, useState } from "react";
 
 export function EditGameDialog({ open, closeDialog, game = null }) {
     const dataStore = useDataStore();
+    const [gameName, setGameName] = useState("");
+    const timer = useRef(null);
+
+    const gameCoverInputRef = useRef(null);
     const dialogTitle = game ? "Edit Game Details" : "Add Game";
     const dialogDescription = game ? `Editing ${game.title}` : "Adding a new game";
 
@@ -31,11 +36,21 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
             }
         }
     };
+
     const saveOnEnter = (e) => {
         if (e.key === "Enter") {
             e.preventDefault();
             handleSave();
         }
+    };
+
+    const handleInputChange = (e) => {
+        const value = e.target.value;
+        if (timer.current) clearTimeout(timer.current);
+        timer.current = setTimeout(() => {
+            setGameName(value);
+            console.log("debounced value:", value);
+        }, 1000); // adjust debounce delay as needed
     };
 
     return (
@@ -51,10 +66,12 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                     onKeyDown={saveOnEnter}
                     defaultValue={game ? game.title : ""}
                     autoFocus
+                    onChange={handleInputChange}
                 />
 
                 <label>Game Cover URL</label>
                 <input
+                    ref={gameCoverInputRef}
                     id="gameCoverInput"
                     onKeyDown={saveOnEnter}
                     defaultValue={game ? game.coverImageURL : ""}
@@ -69,7 +86,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                     </a>
                     {" (ideally 600x900)"}
                 </small>
-
+                <SteamGridDBImages key={gameName} gameName={gameName} gameCoverInputRef={gameCoverInputRef} />
                 <label>
                     Sorting Title<small> (optional)</small>
                 </label>
@@ -89,5 +106,35 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                 </Button>
             </div>
         </DialogBase>
+    );
+}
+
+function SteamGridDBImages({ gameName, gameCoverInputRef }) {
+    const [images, setImages] = useState([]);
+    const [error, setError] = useState("");
+    console.log("gameName", gameName);
+    useEffect(() => {
+        if (!gameName) return;
+        fetch(`/api/steamgriddb/getGrids/${encodeURIComponent(gameName)}`)
+            .then(res => {
+                if (!res.ok) throw new Error("No results");
+                return res.json();
+            })
+            .then(data => { setImages(data) })
+            .catch(err => setError(err.message), setImages([]));
+    }, [gameName]);
+
+    console.log(images);
+    if (error) return <div>Error: {error}</div>;
+    if (images.length == 0) return <></>
+    return (
+        <div>
+            or choose one of these images:
+            <div style={{ display: "flex", alignItems: "center", alignContent: "center", justifyContent: "space-evenly", flex: "0 0 33.333%", flexWrap: "wrap" }}>
+                {images.slice(0, 6).map(img => (
+                    <img style={{ marginTop: 8 }} key={img.url} src={img.preview} alt="" width={100} height={150} onClick={() => { gameCoverInputRef.current.value = img.url }} />
+                ))}
+            </div>
+        </div>
     );
 }

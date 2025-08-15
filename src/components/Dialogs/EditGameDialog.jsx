@@ -49,7 +49,6 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
         if (timer.current) clearTimeout(timer.current);
         timer.current = setTimeout(() => {
             setGameName(value);
-            console.log("debounced value:", value);
         }, 1000); // adjust debounce delay as needed
     };
 
@@ -112,7 +111,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
 function SteamGridDBImages({ gameName, gameCoverInputRef }) {
     const [images, setImages] = useState([]);
     const [error, setError] = useState("");
-    console.log("gameName", gameName);
+
     useEffect(() => {
         if (!gameName) return;
         fetch(`/api/steamgriddb/getGrids/${encodeURIComponent(gameName)}`)
@@ -124,7 +123,6 @@ function SteamGridDBImages({ gameName, gameCoverInputRef }) {
             .catch(err => setError(err.message), setImages([]));
     }, [gameName]);
 
-    console.log(images);
     if (error) return <div>Error: {error}</div>;
     if (images.length == 0) return <></>
     return (

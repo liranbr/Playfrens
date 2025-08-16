@@ -25,9 +25,10 @@ export class Service {
         });
     };
     /** @param {import('express').Response} res */
-    sendError = (res, message = "An error has occured while processing your request!") => {
-        res.status(500).json({
-            message: message,
-        });
+    sendError = (
+        res,
+        message = { message: "An error has occured while processing your request!" },
+    ) => {
+        res.status(500).json(message);
     };
 }

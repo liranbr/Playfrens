@@ -47,8 +47,13 @@ export class SteamGridDBService extends Service {
     async getGames(req, res) {
         const { query } = req.params;
         const client = this.connect();
-        const games = await client.searchGame(query);
-        if (games.length == 0) return this.sendNotFound(res, "games", query);
-        this.sendOk(res, games);
+        try {
+            const games = await client.searchGame(query);
+            if (games.length == 0) return this.sendNotFound(res, "games", query);
+            this.sendOk(res, games);
+        } catch (error) {
+            console.error(error);
+            return this.sendError(res, { message: error });
+        }
     }
 }

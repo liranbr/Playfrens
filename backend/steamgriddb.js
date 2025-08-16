@@ -36,11 +36,7 @@ export class SteamGridDBService extends Service {
             const grids = await client.getGrids({ ...this.gridOptions, id });
             if (!grids.length) return this.sendNotFound(res, "games", query);
 
-            const images = grids.map((grid) => ({
-                url: grid.url,
-                preview: grid.thumb,
-            }));
-
+            const images = grids.map((grid) => ({ url: grid.url, preview: grid.thumb }));
             return this.sendOk(res, images);
         } catch (error) {
             console.error(error);

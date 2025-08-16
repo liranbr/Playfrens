@@ -42,7 +42,7 @@ export class SteamGridDBService extends Service {
             })
             .catch((error) => {
                 console.error(error);
-                res.status(500).json({ status: 500, message: error });
+                this.sendError(res, { message: error });
             });
     }
 

@@ -25,35 +25,34 @@ export class SteamGridDBService extends Service {
     async getGrids(req, res) {
         const { query } = req.params;
         const client = this.connect();
-        const games = await client.searchGame(query);
-        if (games.length == 0) return this.sendNotFound(res, "games", query);
-        const id = games[0]?.id ?? -1;
-        if (id == -1) return this.sendNotFound(res, "games", query);
-        client
-            .getGrids({ ...this.gridOptions, id: id })
-            .then((grids) => {
-                if (grids.length == 0) return this.sendNotFound(res, "games", query);
-                else {
-                    const images = grids.map((grid) => {
-                        return { url: grid.url, preview: grid.thumb };
-                    });
-                    this.sendOk(res, images);
-                }
-            })
-            .catch((error) => {
-                console.error(error);
-                this.sendError(res, { message: error });
-            });
+
+        try {
+            const games = await client.searchGame(query);
+            if (!games.length) return this.sendNotFound(res, "games", query);
+
+            const id = games[0]?.id ?? -1;
+            if (id === -1) return this.sendNotFound(res, "games", query);
+
+            const grids = await client.getGrids({ ...this.gridOptions, id });
+            if (!grids.length) return this.sendNotFound(res, "games", query);
+
+            const images = grids.map((grid) => ({
+                url: grid.url,
+                preview: grid.thumb,
+            }));
+
+            return this.sendOk(res, images);
+        } catch (error) {
+            console.error(error);
+            return this.sendError(res, { message: error });
+        }
     }
 
     async getGames(req, res) {
         const { query } = req.params;
         const client = this.connect();
         const games = await client.searchGame(query);
-        if (games.length == 0) {
-            this.sendNotFound(res, "games", query);
-            return;
-        }
+        if (games.length == 0) return this.sendNotFound(res, "games", query);
         this.sendOk(res, games);
     }
 }

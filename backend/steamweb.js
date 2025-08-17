@@ -29,7 +29,7 @@ export class SteamWebService extends Service {
         }
     }
 
-    // Capsules are the grids used to showcase games through the Steam Library
+    // Capsules are the grids used to showcase games through your Steam Library
     /** Example code with 0 OPTIMIZATIONS!!!
      *
      *   fetch(`/api/steamweb/getSteamCapsules/76561198114085482`).then((res) => {
@@ -43,11 +43,16 @@ export class SteamWebService extends Service {
      *       console.log(err)
      *   })
      */
+    /**
+     *
+     * @param {Object} req
+     * @param {Object} res
+     * @returns {{name: string, id: string, image: string}}  An object containing the game name, ID, and image URL.
+     */
     async getSteamCapsules(req, res) {
         const { id } = req.params;
         const client = this.connect();
         if (!this.isIDDigitsOnly(id)) {
-            console.log("ID BAD!!!", id);
             return this.sendError(res, { message: `Invalid SteamID64 passed: ${id}` });
         }
         try {

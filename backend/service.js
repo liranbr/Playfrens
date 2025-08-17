@@ -11,7 +11,9 @@ export class Service {
         this.listen();
     }
     async connect() {}
-    listen() {}
+    listen() {
+        console.log(`Listening to ${this.constructor.name}`);
+    }
 
     /** @param {import('express').Response} res */
     sendOk = (res, data = {}) => {

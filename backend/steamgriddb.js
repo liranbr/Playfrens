@@ -18,6 +18,7 @@ export class SteamGridDBService extends Service {
     }
 
     listen() {
+        super.listen();
         this.app.get("/api/steamgriddb/getGrids/:query", this.getGrids.bind(this));
         this.app.get("/api/steamgriddb/getGames/:query", this.getGames.bind(this));
     }

@@ -30,6 +30,19 @@ export class SteamWebService extends Service {
     }
 
     // Capsules are the grids used to showcase games through the Steam Library
+    /** Example code with 0 OPTIMIZATIONS!!!
+     *
+     *   fetch(`/api/steamweb/getSteamCapsules/76561198114085482`).then((res) => {
+     *       if (!res.ok) throw new Error("No results");
+     *       return res.json();
+     *   }).then((json) => {
+     *       json.map((d) => {
+     *           addGame(d.name, d.image);
+     *       })
+     *   }).catch((err) => {
+     *       console.log(err)
+     *   })
+     */
     async getSteamCapsules(req, res) {
         const { id } = req.params;
         const client = this.connect();

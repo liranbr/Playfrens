@@ -49,6 +49,7 @@ export class SteamWebService extends Service {
      * @param {Object} res
      * @returns {{name: string, id: string, image: string}}  An object containing the game name, ID, and image URL.
      */
+
     async getSteamCapsules(req, res) {
         const { id } = req.params;
         const client = this.connect();

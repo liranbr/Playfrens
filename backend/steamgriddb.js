@@ -1,4 +1,5 @@
 import SGDB from "../node_modules/steamgriddb/dist/index.js";
+import { Response } from "./response.js";
 import { Service } from "./service.js";
 
 export class SteamGridDBService extends Service {
@@ -25,36 +26,57 @@ export class SteamGridDBService extends Service {
 
     async getGrids(req, res) {
         const { query } = req.params;
+        const { NOT_FOUND, INTERNAL_SERVER_ERROR, OK } = Response.HttpStatus;
         const client = this.connect();
 
         try {
             const games = await client.searchGame(query);
-            if (!games.length) return this.sendNotFound(res, "games", query);
+            if (!games.length)
+                return Response.sendMessage(
+                    res,
+                    NOT_FOUND,
+                    `No games were found with the query: ${query}`,
+                );
 
             const id = games[0]?.id ?? -1;
-            if (id === -1) return this.sendNotFound(res, "games", query);
+            if (id === -1)
+                return Response.sendMessage(
+                    res,
+                    NOT_FOUND,
+                    `ID-less game with the query: ${query}, cannot proceed.`,
+                );
 
             const grids = await client.getGrids({ ...this.gridOptions, id });
-            if (!grids.length) return this.sendNotFound(res, "games", query);
+            if (!grids.length)
+                return Response.sendMessage(
+                    res,
+                    NOT_FOUND,
+                    `No games were found with the query: ${query}`,
+                );
 
             const images = grids.map((grid) => ({ url: grid.url, preview: grid.thumb }));
-            return this.sendOk(res, images);
+            return Response.send(res, OK, images);
         } catch (error) {
-            console.error(error);
-            return this.sendError(res, { message: error });
+            return Response.send(res, INTERNAL_SERVER_ERROR, error);
         }
     }
 
     async getGames(req, res) {
         const { query } = req.params;
+        const { NOT_FOUND, INTERNAL_SERVER_ERROR, OK } = Response.HttpStatus;
         const client = this.connect();
+
         try {
             const games = await client.searchGame(query);
-            if (games.length == 0) return this.sendNotFound(res, "games", query);
-            this.sendOk(res, games);
+            if (games.length == 0)
+                return Response.sendMessage(
+                    res,
+                    NOT_FOUND,
+                    `No games were found with the query: ${query}`,
+                );
+            Response.send(res, OK, games);
         } catch (error) {
-            console.error(error);
-            return this.sendError(res, { message: error });
+            return Response.send(res, INTERNAL_SERVER_ERROR, error);
         }
     }
 }

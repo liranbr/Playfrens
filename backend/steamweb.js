@@ -1,4 +1,5 @@
 import SteamAPI from "../node_modules/steamapi/dist/index.js";
+import { Response } from "./response.js";
 import { Service } from "./service.js";
 
 export class SteamWebService extends Service {
@@ -18,14 +19,24 @@ export class SteamWebService extends Service {
     }
     async getOwnedGames(req, res) {
         const { id } = req.params;
-        const client = this.connect();
+        const { OK, BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+
         if (!this.isIDDigitsOnly(id))
-            return this.sendError(res, { message: `Invalid SteamID64 passed: ${id}` });
+            return Response.sendMessage(res, BAD_REQUEST, `Invalid SteamID64 passed: ${id}`);
+
+        const client = this.connect();
+
         try {
             const games = await client.getUserOwnedGames(id, { includeExtendedAppInfo: true });
-            return this.sendOk(res, games);
+            return games.length == 0
+                ? Response.sendMessage(
+                      res,
+                      NOT_FOUND,
+                      `Couldn't find any games using SteamID64 ${id}`,
+                  )
+                : Response.send(res, OK, games);
         } catch (error) {
-            return this.sendError(res, { message: error });
+            return Response.send(res, INTERNAL_SERVER_ERROR, error);
         }
     }
 
@@ -52,13 +63,20 @@ export class SteamWebService extends Service {
 
     async getSteamCapsules(req, res) {
         const { id } = req.params;
+        const { OK, BAD_REQUEST, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+
+        if (!this.isIDDigitsOnly(id) || id.length != 17)
+            return Response.sendMessage(
+                res,
+                BAD_REQUEST,
+                `Invalid SteamID64: ${id} (length: ${id.length})`,
+            );
+
         const client = this.connect();
-        if (!this.isIDDigitsOnly(id)) {
-            return this.sendError(res, { message: `Invalid SteamID64 passed: ${id}` });
-        }
+
         try {
             const games = await client.getUserOwnedGames(id, { includeExtendedAppInfo: true });
-            if (!games) return this.sendNotFound(res, "steam games", id);
+
             const grids = games.map((game) => {
                 const { id, capsuleFilename, name } = game.game;
                 const gridImage = (() => {
@@ -75,9 +93,9 @@ export class SteamWebService extends Service {
                     image: `https://shared.steamstatic.com/store_item_assets/steam/apps/${id}/${gridImage}`,
                 };
             });
-            return this.sendOk(res, grids);
+            return Response.send(res, OK, grids);
         } catch (error) {
-            return this.sendError(res, { message: error });
+            return Response.send(res, INTERNAL_SERVER_ERROR, error);
         }
     }
 

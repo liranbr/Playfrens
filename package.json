@@ -4,6 +4,7 @@
     "version": "0.1.0",
     "type": "module",
     "scripts": {
+        "start": "npm run dev",
         "dev": "concurrently -n VITE,BACKEND -c cyan,green \"npm run dev:vite\" \"npm run dev:backend\"",
         "dev:vite": "vite",
         "dev:backend": "nodemon backend/server.js",

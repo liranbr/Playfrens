@@ -19,9 +19,9 @@ class SettingsStore {
     // Default values, overridden by settings loaded from storage
     tagHoverGameHighlight = "darken";
     tagFilterLogic = {
-        [tagTypes.friend.key]: "AND",
-        [tagTypes.category.key]: "OR",
-        [tagTypes.status.key]: "OR",
+        [tagTypes.friend]: "AND",
+        [tagTypes.category]: "OR",
+        [tagTypes.status]: "OR",
     };
 
     constructor(settings = {}) {
@@ -39,9 +39,9 @@ class SettingsStore {
 
     setTagFilterLogic(tagType, value) {
         if (TagFilterLogicOptions[value]) {
-            this.tagFilterLogic[tagType.key] = value;
+            this.tagFilterLogic[tagType] = value;
         } else {
-            console.warn(`Invalid TagFilterLogic value for ${tagType.key}: ${value}`);
+            console.warn(`Invalid TagFilterLogic value for ${tagType}: ${value}`);
         }
     }
 }

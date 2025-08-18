@@ -5,15 +5,15 @@ import { globalDataStore, globalSettingsStore } from "@/stores";
 
 class FilterStore {
     search = "";
-    selectedTags = {
-        [tagTypes.friend.key]: new Set(),
-        [tagTypes.category.key]: new Set(),
-        [tagTypes.status.key]: new Set(),
+    selectedTagIDs = {
+        [tagTypes.friend]: new Set(),
+        [tagTypes.category]: new Set(),
+        [tagTypes.status]: new Set(),
     };
-    excludedTags = {
-        [tagTypes.friend.key]: new Set(),
-        [tagTypes.category.key]: new Set(),
-        [tagTypes.status.key]: new Set(),
+    excludedTagIDs = {
+        [tagTypes.friend]: new Set(),
+        [tagTypes.category]: new Set(),
+        [tagTypes.status]: new Set(),
     };
     hoveredTag = null; // Used for tag-hover effects on game cards
     draggedTag = null; // Same for drag-and-drop effects
@@ -24,11 +24,11 @@ class FilterStore {
 
     resetFilters() {
         this.search = "";
-        for (const key in this.selectedTags) {
-            this.selectedTags[key].clear();
+        for (const key in this.selectedTagIDs) {
+            this.selectedTagIDs[key].clear();
         }
-        for (const key in this.excludedTags) {
-            this.excludedTags[key].clear();
+        for (const key in this.excludedTagIDs) {
+            this.excludedTagIDs[key].clear();
         }
     }
 
@@ -37,11 +37,11 @@ class FilterStore {
     }
 
     validateTag(tag) {
-        if (!(tag instanceof TagObject) || !globalDataStore.allTags[tag.type.key].includes(tag)) {
+        if (!(tag instanceof TagObject) || !globalDataStore.getTagByID(tag.id, tag.type)) {
             console.warn("Invalid tag object: ", tag);
             return false;
         }
-        if (this.selectedTags[tag.type.key].has(tag) && this.excludedTags[tag.type.key].has(tag)) {
+        if (this.isTagSelected(tag) && this.isTagExcluded(tag)) {
             console.warn(`Tag "${tag.name}" is both selected and excluded.`);
             return false;
         }
@@ -50,40 +50,41 @@ class FilterStore {
 
     toggleTagSelection(tag) {
         if (!this.validateTag(tag)) return false;
-
-        const selectionSet = this.selectedTags[tag.type.key];
-        const exclusionSet = this.excludedTags[tag.type.key];
-        if (exclusionSet.delete(tag)) return true;
-        if (selectionSet.delete(tag)) return true;
-        selectionSet.add(tag);
+        // is invalid if both selected and excluded somehow, so no need to check that again
+        const selectionSet = this.selectedTagIDs[tag.type];
+        const exclusionSet = this.excludedTagIDs[tag.type];
+        // If excluded, remove exclusion
+        if (exclusionSet.delete(tag.id)) return true;
+        // Else toggle selection
+        if (selectionSet.delete(tag.id)) return true;
+        selectionSet.add(tag.id);
         return true;
     }
 
     toggleTagExclusion(tag) {
         if (!this.validateTag(tag)) return false;
         // is invalid if both selected and excluded somehow, so no need to check that again
-        const selectionSet = this.selectedTags[tag.type.key];
-        const exclusionSet = this.excludedTags[tag.type.key];
+        const selectionSet = this.selectedTagIDs[tag.type];
+        const exclusionSet = this.excludedTagIDs[tag.type];
         // If excluded, remove exclusion
-        if (exclusionSet.delete(tag)) return true;
+        if (exclusionSet.delete(tag.id)) return true;
         // Else exclude, whether was selected or not
-        selectionSet.delete(tag);
-        exclusionSet.add(tag);
+        selectionSet.delete(tag.id);
+        exclusionSet.add(tag.id);
         return true;
     }
 
-    // TODO: Temporary, used simultaneously when deleting a tag from DataStore, should probably be a mobx reaction
     removeFiltersOfTag(tag) {
-        this.selectedTags[tag.type.key].delete(tag);
-        this.excludedTags[tag.type.key].delete(tag);
+        this.selectedTagIDs[tag.type].delete(tag.id);
+        this.excludedTagIDs[tag.type].delete(tag.id);
     }
 
     isTagSelected(tag) {
-        return this.selectedTags[tag.type.key]?.has(tag) || false;
+        return this.selectedTagIDs[tag.type].has(tag.id);
     }
 
     isTagExcluded(tag) {
-        return this.excludedTags[tag.type.key]?.has(tag) || false;
+        return this.excludedTagIDs[tag.type].has(tag.id);
     }
 
     doesGamePassFilters(game) {
@@ -92,36 +93,22 @@ class FilterStore {
                 return false;
             }
         }
+        for (const tagType in tagTypes) {
+            const gameTagsSet = game.tagIDs[tagType];
+            const exclusionSet = this.excludedTagIDs[tagType];
+            if (!exclusionSet.isDisjointFrom(gameTagsSet)) {
+                return false; // !isDisjointFrom = there is overlap = game contains an excluded tag
+            }
 
-        const settingsStore = globalSettingsStore;
-        const filterMethods = {
-            AND: "every",
-            OR: "some",
-        };
-        for (const tagTypeKey in tagTypes) {
-            const gameTags = game.tagsList(tagTypes[tagTypeKey]);
-
-            const exclusionSet = this.excludedTags[tagTypeKey];
-            // If any excluded tag is present, game does not pass filters
-            if (
-                exclusionSet.size &&
-                [...exclusionSet].some(
-                    (excludedTag) => gameTags.some((gt) => gt.equals(excludedTag)), // It's alright that this code is messy, about to be replaced with better data structures
-                )
-            )
-                return false;
-
-            const selectionSet = this.selectedTags[tagTypeKey];
-            // If selected tags are present, filter by the tag type's logic
+            const selectionSet = this.selectedTagIDs[tagType];
             if (selectionSet.size) {
-                // Logic per tag type (AND/OR) that's stored in the settings is converted to (every/some) methods and used to filter
-                const filterMethod = filterMethods[settingsStore.tagFilterLogic[tagTypeKey]];
-                if (
-                    ![...selectionSet][filterMethod]((selectedTag) =>
-                        gameTags.some((t) => t.equals(selectedTag)),
-                    )
-                )
+                const selectionLogic = globalSettingsStore.tagFilterLogic[tagType];
+                if (selectionLogic === "AND" && !selectionSet.isSubsetOf(gameTagsSet)) {
                     return false;
+                }
+                if (selectionLogic === "OR" && selectionSet.isDisjointFrom(gameTagsSet)) {
+                    return false;
+                }
             }
         }
         return true;
@@ -131,7 +118,10 @@ class FilterStore {
      * @returns GameObject[] - All games that pass the current filters
      */
     get filteredGames() {
-        return globalDataStore.allGames.filter((game) => this.doesGamePassFilters(game));
+        const allGameObjects = [...globalDataStore.allGames.values()];
+        if (this.areFiltersActive)
+            return allGameObjects.filter((game) => this.doesGamePassFilters(game));
+        else return allGameObjects;
     }
 
     setHoveredTag(tag = null) {
@@ -147,8 +137,8 @@ class FilterStore {
     get areFiltersActive() {
         return (
             this.search ||
-            Object.values(this.selectedTags).some((set) => set.size > 0) ||
-            Object.values(this.excludedTags).some((set) => set.size > 0)
+            Object.values(this.selectedTagIDs).some((set) => set.size > 0) ||
+            Object.values(this.excludedTagIDs).some((set) => set.size > 0)
         );
     }
 }

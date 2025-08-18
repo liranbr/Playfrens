@@ -17,7 +17,7 @@ export const SidebarTagButton = observer(({ tag }) => {
     const filterStore = useFilterStore();
     const isSelected = filterStore.isTagSelected(tag) ? " selected" : "";
     const isExcluded = filterStore.isTagExcluded(tag) ? " excluded" : "";
-    const isBeingDragged = tag.equals(filterStore.draggedTag) ? " being-dragged" : "";
+    const isBeingDragged = filterStore.draggedTag?.id === tag.id ? " being-dragged" : "";
     const isDropdownOpen = dropdownOpen ? " dd-open" : "";
     const gameAmountInCurrentFilter = filterStore.filteredGames.filter((game) =>
         game.hasTag(tag),
@@ -55,7 +55,7 @@ export const SidebarTagButton = observer(({ tag }) => {
                 onDragStart={(e) => {
                     filterStore.setHoveredTag(null);
                     filterStore.setDraggedTag(tag);
-                    e.dataTransfer.setData("application/json", tag);
+                    e.dataTransfer.setData("application/json", JSON.stringify(tag));
                 }}
                 onDragEnd={() => filterStore.setDraggedTag(null)}
             >
@@ -74,12 +74,12 @@ export const SidebarTagButton = observer(({ tag }) => {
 
 const SidebarTBMenuButton = observer(({ tag, filterStore, setDropdownOpen }) => {
     const dataStore = useDataStore();
-    const isExcluded = filterStore.isTagExcluded(tag);
+    const excludeLabel = filterStore.isTagExcluded(tag) ? "Undo Exclude" : "Exclude";
     const toggleExclusion = () => filterStore.toggleTagExclusion(tag);
 
     const openEditDialog = () => {
         dialogStore.open(Dialogs.EditTag, {
-            tag: tag,
+            editingTag: tag,
         });
     };
     const openDeleteDialog = () => {
@@ -108,7 +108,7 @@ const SidebarTBMenuButton = observer(({ tag, filterStore, setDropdownOpen }) => 
                     sideOffset={5}
                 >
                     <DropdownMenu.Item onClick={toggleExclusion}>
-                        <MdOutlineSearchOff /> {isExcluded ? "Undo Exclude" : "Exclude"}
+                        <MdOutlineSearchOff /> {excludeLabel}
                     </DropdownMenu.Item>
                     <DropdownMenu.Item onClick={openEditDialog}>
                         <MdEdit /> Edit

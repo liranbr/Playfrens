@@ -6,15 +6,19 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert, MdRemove } from "react-icons/md";
 import { CenterAndEdgesRow, IconButton, ScrollView } from "@/components";
 import { Dialogs, dialogStore, useDataStore } from "@/stores";
+import { tagTypes, tagTypeStrings } from "@/models";
 import { useValidatedImage } from "@/hooks/useValidatedImage.js";
-import { tagTypes } from "@/models";
+import { DialogBase } from "./DialogRoot.jsx";
 import "@/components/TagButtonGroup.css";
 import "@/components/TagButton.css";
 import "./GamePageDialog.css";
-import { DialogBase } from "./DialogRoot.jsx";
+import { ObservableMap } from "mobx";
+
 const AddTagButton = ({ tagType, game }) => {
     const dataStore = useDataStore();
+    const allTagsOfType = [...dataStore.allTags[tagType].values()];
     const [openDropdown, setOpenDropdown] = useState(false);
+
     return (
         <DropdownMenu.Root onOpenChange={setOpenDropdown}>
             <DropdownMenu.Trigger asChild>
@@ -29,8 +33,8 @@ const AddTagButton = ({ tagType, game }) => {
                     sideOffset={5}
                 >
                     <ScrollView>
-                        {dataStore.allTags[tagType.key]
-                            .filter((t) => !game.tagsList(tagType).includes(t))
+                        {allTagsOfType
+                            .filter((t) => !game.hasTag(t))
                             .map((t) => (
                                 <DropdownMenu.Item
                                     key={t.id}
@@ -41,7 +45,7 @@ const AddTagButton = ({ tagType, game }) => {
                                     <span className="item-label">{t.name}</span>
                                 </DropdownMenu.Item>
                             ))}
-                        {/* Variable-length dropdown items need text wrapper to prevent overflow */}
+                        {/* Variable-length dropdown items need text wrapper (span) to prevent overflow */}
                     </ScrollView>
                 </DropdownMenu.Content>
             </DropdownMenu.Portal>
@@ -95,7 +99,9 @@ const GPTagButton = observer(({ game, tag }) => {
 });
 
 const GPTagButtonGroup = observer(({ game, tagType }) => {
-    const title = tagType.plural.toUpperCase();
+    const dataStore = useDataStore();
+    const title = tagTypeStrings[tagType].plural.toUpperCase();
+    const tags = [...game.tagIDs[tagType]].map((id) => dataStore.getTagByID(id, tagType));
     return (
         <div className="tag-button-group">
             <CenterAndEdgesRow className="ui-card-header">
@@ -105,12 +111,8 @@ const GPTagButtonGroup = observer(({ game, tagType }) => {
             </CenterAndEdgesRow>
             <ScrollView>
                 <div className="tag-button-list">
-                    {game.tagsList(tagType).map((tag, index) => (
-                        <GPTagButton
-                            key={"btn-" + tagType.key + "-" + tag.name + "-" + index}
-                            game={game}
-                            tag={tag}
-                        />
+                    {tags.map((tag) => (
+                        <GPTagButton key={tag.id} game={game} tag={tag} />
                     ))}
                 </div>
             </ScrollView>

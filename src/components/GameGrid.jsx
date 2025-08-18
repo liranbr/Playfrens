@@ -49,6 +49,9 @@ export const GamesGrid = observer(() => {
     const settingsStore = useSettingsStore();
     const filteredGames = filterStore.filteredGames;
     const draggedTag = filterStore.draggedTag;
+    const hoverTagSetting = settingsStore.tagHoverGameHighlight;
+    const hoveredTag = filterStore.hoveredTag;
+
     const draggedTagClassname = (game) => {
         if (draggedTag) {
             if (game.hasTag(draggedTag)) return " has-dragged-tag";
@@ -56,8 +59,6 @@ export const GamesGrid = observer(() => {
         }
         return "";
     };
-    const hoverTagSetting = settingsStore.tagHoverGameHighlight;
-    const hoveredTag = filterStore.hoveredTag;
     const hoveredTagClassname = (game) => {
         if (hoverTagSetting !== "none" && hoveredTag) {
             if (hoverTagSetting === "highlight" && game.hasTag(hoveredTag)) return " highlight";

@@ -86,16 +86,12 @@ export class DataStore {
         };
         const gameObjects = gameJsons.filter(Boolean).map((gameJson) => {
             return new GameObject({
-                title: gameJson.title,
-                coverImageURL: gameJson.coverImageURL,
-                sortingTitle: gameJson.sortingTitle,
+                ...gameJson,
                 tagIDs: {
                     [tT.friend]: getStoredTagIDsFromTagNames(tT.friend, gameJson.friends), // legacy fields
                     [tT.category]: getStoredTagIDsFromTagNames(tT.category, gameJson.categories),
                     [tT.status]: getStoredTagIDsFromTagNames(tT.status, gameJson.statuses),
                 },
-                note: gameJson.note,
-                id: gameJson.id,
             });
         });
         this.allGames = new ObservableMap(gameObjects.map((game) => [game.id, game]));
@@ -120,12 +116,8 @@ export class DataStore {
                 .map(([id, gameJson]) => [
                     id, // the id of the [id, GameObject] entry in the map
                     new GameObject({
-                        title: gameJson.title,
-                        coverImageURL: gameJson.coverImageURL,
-                        sortingTitle: gameJson.sortingTitle,
+                        ...gameJson,
                         tagIDs: parseTagIDs(gameJson.tagIDs), // sets serialized as arrays - needs parsing
-                        note: gameJson.note,
-                        id: gameJson.id,
                     }),
                 ]),
         );
@@ -156,10 +148,8 @@ export class DataStore {
         if (!this.allTags[tag.type].has(tag.id))
             return toastError(`${tag.name} does not exist in ${tag.typeStrings.plural} list`);
 
-        setToastSilence(true); // TODO: Replace with a silentRemove GameObject function
-        this.allGames.forEach((game) => game.removeTag(tag));
+        this.allGames.forEach((game) => game.silentRemoveTag(tag));
         this.allTags[tag.type].delete(tag.id);
-        setToastSilence(false);
         return toastSuccess(`Removed ${tag.name} from ${tag.typeStrings.plural} list`);
     }
 

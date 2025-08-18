@@ -8,9 +8,22 @@ import { useValidatedImage } from "@/hooks/useValidatedImage.js";
 import "../App.css";
 import "./GameGrid.css";
 
-function GameCard({ game, className = "" }) {
+const GameCard = observer(({ game }) => {
     const [draggedOver, setDraggedOver] = useState(false);
-    const isDraggedOver = draggedOver ? " dragged-over" : "";
+    const { draggedTag, hoveredTag } = useFilterStore();
+    const hoverTagSetting = useSettingsStore().tagHoverGameHighlight;
+
+    const classes = ["game-card"];
+    if (draggedTag) {
+        if (game.hasTag(draggedTag)) classes.push("has-dragged-tag");
+        else classes.push("doesnt-have-dragged-tag");
+    }
+    if (hoverTagSetting !== "none" && hoveredTag) {
+        if (hoverTagSetting === "highlight" && game.hasTag(hoveredTag)) classes.push("highlight");
+        else if (hoverTagSetting === "darken" && !game.hasTag(hoveredTag)) classes.push("darken");
+    }
+    if (draggedOver) classes.push("dragged-over");
+
     const gameCover = useValidatedImage(game.coverImageURL);
     const handleDrop = (e) => {
         const tag = new TagObject(JSON.parse(e.dataTransfer.getData("application/json")));
@@ -20,9 +33,10 @@ function GameCard({ game, className = "" }) {
     const openGamePageDialog = () => {
         dialogStore.open(Dialogs.GamePage, { game });
     };
+
     return (
         <button
-            className={"game-card" + className + isDraggedOver}
+            className={classes.join(" ")}
             onClick={openGamePageDialog}
             onDrop={handleDrop}
             onDragOver={(e) => {
@@ -41,31 +55,10 @@ function GameCard({ game, className = "" }) {
             <MdAddCircleOutline className="drag-indicator" />
         </button>
     );
-}
+});
 
 export const GamesGrid = observer(() => {
-    // TODO: After Tag UUIDs, move these classnames from the grid to the GameCard
-    const filterStore = useFilterStore();
-    const settingsStore = useSettingsStore();
-    const filteredGames = filterStore.filteredGames;
-    const draggedTag = filterStore.draggedTag;
-    const hoverTagSetting = settingsStore.tagHoverGameHighlight;
-    const hoveredTag = filterStore.hoveredTag;
-
-    const draggedTagClassname = (game) => {
-        if (draggedTag) {
-            if (game.hasTag(draggedTag)) return " has-dragged-tag";
-            else return " doesnt-have-dragged-tag";
-        }
-        return "";
-    };
-    const hoveredTagClassname = (game) => {
-        if (hoverTagSetting !== "none" && hoveredTag) {
-            if (hoverTagSetting === "highlight" && game.hasTag(hoveredTag)) return " highlight";
-            if (hoverTagSetting === "darken" && !game.hasTag(hoveredTag)) return " darken";
-        }
-        return "";
-    };
+    const { filteredGames } = useFilterStore();
 
     // useEffect to update the grid justification if there aren't enough items to fill the row
     const gridRef = useRef(null);
@@ -88,11 +81,7 @@ export const GamesGrid = observer(() => {
         <ScrollView>
             <div className="games-grid" ref={gridRef}>
                 {filteredGames.map((game, index) => (
-                    <GameCard
-                        className={draggedTagClassname(game) + hoveredTagClassname(game)}
-                        key={index}
-                        game={game}
-                    />
+                    <GameCard game={game} key={index} />
                 ))}
             </div>
         </ScrollView>

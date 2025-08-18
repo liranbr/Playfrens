@@ -29,19 +29,19 @@ class SettingsStore {
         Object.assign(this, settings);
     }
 
-    setTagHoverGameHighlight(value) {
-        if (TagHoverGameHighlightOptions[value]) {
-            this.tagHoverGameHighlight = value;
+    setTagHoverGameHighlight(option) {
+        if (TagHoverGameHighlightOptions[option]) {
+            this.tagHoverGameHighlight = option;
         } else {
-            console.warn(`Invalid TagHoverGameHighlight value: ${value}`);
+            console.warn(`Invalid TagHoverGameHighlight option: ${option}`);
         }
     }
 
-    setTagFilterLogic(tagType, value) {
-        if (TagFilterLogicOptions[value]) {
-            this.tagFilterLogic[tagType] = value;
+    setTagFilterLogic(tagType, option) {
+        if (TagFilterLogicOptions[option]) {
+            this.tagFilterLogic[tagType] = option;
         } else {
-            console.warn(`Invalid TagFilterLogic value for ${tagType}: ${value}`);
+            console.warn(`Invalid TagFilterLogic option for ${tagType}: ${option}`);
         }
     }
 }

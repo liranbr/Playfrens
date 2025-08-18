@@ -15,7 +15,7 @@ import { SidebarTagButton, IconButton, CenterAndEdgesRow, ScrollView } from "@/c
 import "./TagButtonGroup.css";
 
 export const SidebarTagButtonGroup = observer(({ tagType }) => {
-    const dataStore = useDataStore();
+    const { allTags } = useDataStore();
     const title = tagTypeStrings[tagType].plural.toUpperCase();
     const handleAddButtonClick = () => {
         dialogStore.open(Dialogs.EditTag, { addingTagOfType: tagType });
@@ -29,7 +29,7 @@ export const SidebarTagButtonGroup = observer(({ tagType }) => {
             </CenterAndEdgesRow>
             <ScrollView>
                 <div className="tag-button-list">
-                    {[...dataStore.allTags[tagType]].map(([id, tag], index) => (
+                    {[...allTags[tagType]].map(([id, tag], index) => (
                         <SidebarTagButton key={index} tag={tag} />
                     ))}
                 </div>

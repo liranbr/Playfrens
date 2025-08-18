@@ -12,7 +12,6 @@ import { DialogBase } from "./DialogRoot.jsx";
 import "@/components/TagButtonGroup.css";
 import "@/components/TagButton.css";
 import "./GamePageDialog.css";
-import { ObservableMap } from "mobx";
 
 const AddTagButton = ({ tagType, game }) => {
     const dataStore = useDataStore();
@@ -184,6 +183,7 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
                 <Dialog.Description>{"Game Page of " + game.title}</Dialog.Description>
             </VisuallyHidden>
             <img className="gp-cover-art" src={gameCover} alt="Game cover art" />
+
             <div className="gp-container">
                 <CenterAndEdgesRow className="gp-header">
                     <GameOptionsButton game={game} />
@@ -193,6 +193,7 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
                     <IconButton icon={<MdClose />} onClick={handleHide} />
                 </CenterAndEdgesRow>
                 <div className="gp-header-shadow" />
+
                 <div className="gp-body">
                     <div className="gp-column">
                         <div className="ui-card">
@@ -203,6 +204,7 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
                             <GPTagButtonGroup tagType={tagTypes.status} game={game} />
                         </div>
                     </div>
+
                     <div className="gp-column">
                         <div className="ui-card game-note-container">
                             <CenterAndEdgesRow className="ui-card-header">

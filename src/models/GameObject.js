@@ -55,6 +55,12 @@ export class GameObject {
         } else toastError(`${tag.name} is not a ${tag.typeStrings.single} for ${this.title}`);
     }
 
+    // used on all games when deleting a tag from the DataStore, to avoid spamming toasts
+    silentRemoveTag(tag) {
+        if (!(tag instanceof TagObject)) return console.error(`Invalid tag: ${tag}`);
+        this.tagIDs[tag.type].delete(tag.id);
+    }
+
     hasTag(tag) {
         if (!(tag instanceof TagObject)) {
             console.error(`Invalid tag: ${tag}`);

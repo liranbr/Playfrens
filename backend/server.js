@@ -2,8 +2,8 @@ import express from "express";
 import session from "express-session";
 import cors from "cors";
 import dotenv from "dotenv-safe";
-import { SteamGridDBService } from "./steamgriddb.js";
-import { SteamWebService } from "./steamweb.js";
+import { SteamGridDBService } from "./services/steamgriddb.js";
+import { SteamWebService } from "./services/steamweb.js";
 import passport from "passport";
 import SteamStrategy from "passport-steam";
 import { Response } from "./response.js";
@@ -12,7 +12,7 @@ const app = express();
 const PORT = 3000;
 const services = [];
 
-dotenv.config();
+dotenv.config({ debug: true });
 
 app.use(cors()); // allow frontend to call backend during dev
 

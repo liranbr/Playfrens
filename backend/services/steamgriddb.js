@@ -1,6 +1,6 @@
-import SGDB from "../node_modules/steamgriddb/dist/index.js";
-import { Response } from "./response.js";
-import { Service } from "./service.js";
+import { Response } from "../response.js";
+import SGDB from "../../node_modules/steamgriddb/dist/index.js";
+import { Service } from "../service.js";
 
 export class SteamGridDBService extends Service {
     gridOptions = {

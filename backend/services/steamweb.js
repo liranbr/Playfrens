@@ -1,6 +1,6 @@
-import SteamAPI from "../node_modules/steamapi/dist/index.js";
-import { Response } from "./response.js";
-import { Service } from "./service.js";
+import { Response } from "../response.js";
+import { Service } from "../service.js";
+import SteamAPI from "steamapi";
 
 export class SteamWebService extends Service {
     constructor(app) {

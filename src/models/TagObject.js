@@ -43,6 +43,7 @@ export class TagObject {
     type;
     name;
     id;
+    filteredGamesCount;
     constructor({ type, name, id }) {
         if (!tagTypes[type]) throw new Error(`Invalid tag type: ${type}`);
         if (!name || typeof name !== "string" || !name.trim())
@@ -53,6 +54,7 @@ export class TagObject {
         this.type = type;
         this.name = name;
         this.id = id ?? crypto.randomUUID();
+        this.filteredGamesCount = 0;
         makeAutoObservable(this);
     }
 
@@ -70,6 +72,19 @@ export class TagObject {
         );
     }
 
+    setFilteredGamesCount(amount) {
+        this.filteredGamesCount = amount;
+    }
+
+    toJSON() {
+        return {
+            type: this.type,
+            name: this.name,
+            id: this.id,
+        };
+        // no reason to store the filteredGamesCount
+    }
+
     toString() {
         return `TagObject, id: ${this.id}, tagType: ${this.type}, name: ${this.name}`;
     }
@@ -84,4 +99,10 @@ class FriendTagObject extends TagObject {
 
 export function compareTagNamesAZ(a, b) {
     return compareAlphaIgnoreCase(a.name, b.name);
+}
+
+export function compareTagFilteredGamesCount(a, b) {
+    const comparison = a.filteredGamesCount - b.filteredGamesCount;
+    if (comparison !== 0) return comparison;
+    return compareTagNamesAZ(a, b);
 }

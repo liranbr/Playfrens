@@ -14,6 +14,15 @@ export const TagFilterLogicOptions = {
     AND: "Have all",
     OR: "Have at least one",
 };
+export const TagSortOptions = {
+    name: "Name",
+    count: "Game Count",
+    custom: "Custom Order",
+};
+export const GameSortOptions = {
+    title: "Title",
+    custom: "Custom Order",
+};
 
 class SettingsStore {
     // Default values, overridden by settings loaded from storage
@@ -23,6 +32,18 @@ class SettingsStore {
         [tagTypes.category]: "OR",
         [tagTypes.status]: "OR",
     };
+    tagSortMethods = {
+        [tagTypes.friend]: "name",
+        [tagTypes.category]: "custom",
+        [tagTypes.status]: "custom",
+    };
+    tagSortDescending = {
+        [tagTypes.friend]: false,
+        [tagTypes.category]: false,
+        [tagTypes.status]: false,
+    };
+    gameSortMethod = "title";
+    gameSortDescending = false;
 
     constructor(settings = {}) {
         makeAutoObservable(this);

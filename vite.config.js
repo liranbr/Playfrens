@@ -9,6 +9,7 @@ export default defineConfig({
         host: "0.0.0.0",
         port: 5174, // for developing - stable is running on 5173
         https: true,
+        sourcemap: true,
     },
     resolve: {
         alias: {

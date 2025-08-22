@@ -69,22 +69,6 @@ export class GameObject {
         return this.tagIDs[tag.type].has(tag.id);
     }
 
-    editGame(title, coverImageURL, sortingTitle) {
-        if (!title) {
-            toastError("Cannot save a game without a title");
-            return false;
-        }
-        if (!coverImageURL) {
-            toastError("Cannot save a game without a cover image");
-            return false;
-        }
-        this.title = title;
-        this.coverImageURL = coverImageURL;
-        this.sortingTitle = sortingTitle;
-        toastSuccess(`Updated ${this.title}`);
-        return true;
-    }
-
     setNote(note) {
         this.note = note;
     }

@@ -97,7 +97,10 @@ const AppHeader = observer(() => {
             <CenterAndEdgesRow className="app-header-center">
                 <IconButton
                     icon={<MdFilterAltOff />}
-                    style={{ visibility: !filterStore.areFiltersActive ? "hidden" : "visible" }}
+                    style={{
+                        visibility: filterStore.areFiltersActive ? "visible" : "hidden",
+                        transition: "visibility 0s",
+                    }}
                     onClick={() => filterStore.resetFilters()}
                 />
                 <div className={"game-search" + (search ? " has-value" : "")}>

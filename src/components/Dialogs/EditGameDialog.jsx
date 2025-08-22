@@ -19,8 +19,8 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
         const gameSortingTitle = getVal("gameSortingTitleInput");
 
         if (game) {
-            const success = game.editGame(gameTitle, gameCoverPath, gameSortingTitle);
-            if (success) {
+            const edited = dataStore.editGame(game, gameTitle, gameCoverPath, gameSortingTitle);
+            if (edited) {
                 handleHide();
             }
         } else {

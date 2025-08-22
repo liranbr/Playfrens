@@ -19,9 +19,6 @@ export const SidebarTagButton = observer(({ tag }) => {
     const isExcluded = filterStore.isTagExcluded(tag) ? " excluded" : "";
     const isBeingDragged = filterStore.draggedTag?.id === tag.id ? " being-dragged" : "";
     const isDropdownOpen = dropdownOpen ? " dd-open" : "";
-    const gameAmountInCurrentFilter = filterStore.filteredGames.filter((game) =>
-        game.hasTag(tag),
-    ).length;
 
     const onClick = () => {
         filterStore.toggleTagSelection(tag);
@@ -60,7 +57,7 @@ export const SidebarTagButton = observer(({ tag }) => {
                 onDragEnd={() => filterStore.setDraggedTag(null)}
             >
                 <span className="tag-name">{tag.name}</span>
-                <label>{gameAmountInCurrentFilter !== 0 ? gameAmountInCurrentFilter : ""}</label>
+                <label>{tag.filteredGamesCount !== 0 ? tag.filteredGamesCount : ""}</label>
                 <MdDragIndicator className="hover-drag-indicator" />
             </span>
             <SidebarTBMenuButton

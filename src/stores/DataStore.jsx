@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import { action, autorun, makeAutoObservable, ObservableMap } from "mobx";
+import { action, autorun, makeAutoObservable, ObservableMap, reaction, runInAction } from "mobx";
 import { compareGameTitlesAZ, compareTagNamesAZ, GameObject, TagObject, tagTypes } from "@/models";
 import {
     loadFromStorage,
@@ -8,23 +8,22 @@ import {
     toastError,
     toastSuccess,
 } from "@/Utils.jsx";
-import { settingsStorageKey } from "@/stores";
+import { globalSettingsStore, settingsStorageKey } from "@/stores";
 import { version } from "/package.json";
+import { compareTagFilteredGamesCount } from "@/models/TagObject.js";
+import { SortingReaction } from "@/stores/SortingReaction.js";
 
-// Shorter aliases for convenience, used a lot here
+// Short alias for convenience, used a lot here
+const tT = tagTypes;
 const storageKeys = {
-    friend: "allFriends",
-    category: "allCategories",
-    status: "allStatuses",
+    [tT.friend]: "allFriends",
+    [tT.category]: "allCategories",
+    [tT.status]: "allStatuses",
     games: "allGames",
     settings: settingsStorageKey,
     version: "version",
     visited: "visited",
 };
-saveToStorage(storageKeys.version, version);
-const tT = tagTypes;
-
-// TODO: Known issue: sorting is down. implement sorting functions, that are then autorun on changes to tags/games/tag.names/game.titles
 
 /**
  * @typedef {Object} DataStore
@@ -41,12 +40,18 @@ export class DataStore {
 
     constructor() {
         this.populateTags({
-            [tT.friend]: loadFromStorage(storageKeys.friend, []),
-            [tT.category]: loadFromStorage(storageKeys.category, []),
-            [tT.status]: loadFromStorage(storageKeys.status, []),
+            [tT.friend]: loadFromStorage(storageKeys[tT.friend], []),
+            [tT.category]: loadFromStorage(storageKeys[tT.category], []),
+            [tT.status]: loadFromStorage(storageKeys[tT.status], []),
         });
         this.populateGames(loadFromStorage(storageKeys.games, []));
         makeAutoObservable(this);
+
+        // on any change to tags or games, save them
+        autorun(() => saveToStorage(storageKeys[tT.friend], this.allTags[tT.friend]));
+        autorun(() => saveToStorage(storageKeys[tT.category], this.allTags[tT.category]));
+        autorun(() => saveToStorage(storageKeys[tT.status], this.allTags[tT.status]));
+        autorun(() => saveToStorage(storageKeys.games, this.allGames));
     }
 
     populateTagsFromTagNames(tagCollection) {
@@ -154,17 +159,35 @@ export class DataStore {
     }
 
     editTag(tag, newName) {
+        // Editing needs to be in the DataStore rather than the object itself, to prevent duplicate names
         if (!(tag instanceof TagObject)) return toastError("Invalid tag object: " + tag);
-        if (!newName || typeof newName !== "string" || !newName.trim())
-            return toastError(`Cannot save a ${tag.typeStrings.single} without a name`);
-
         const storedTag = this.allTags[tag.type].get(tag.id);
         if (!storedTag)
             return toastError(`${tag.name} does not exist in ${tag.typeStrings.plural} list`);
 
+        if (!newName || typeof newName !== "string" || !newName.trim())
+            return toastError(`Cannot save a ${tag.typeStrings.single} without a name`);
+        if (this.allTags[tag.type].values().some((t) => t.name === newName))
+            return toastError(`${newName} already exists in ${tag.typeStrings.plural} list`);
+
         const oldName = tag.name;
         storedTag.name = newName;
         return toastSuccess(`Updated ${oldName} to ${newName} in ${tag.typeStrings.plural} list`);
+    }
+
+    updateAllTagFilteredGamesCounters(filteredGames) {
+        for (const tagType in this.allTags) {
+            this.allTags[tagType].forEach(
+                (t) =>
+                    (t.filteredGamesCount = filteredGames.filter((game) => game.hasTag(t)).length),
+            );
+        }
+    }
+
+    updateTagFilteredGamesCounter(tag, filteredGames) {
+        // used whenever adding/removing a tag from a game. not the prettiest, but is efficient
+        const t = this.allTags[tag.type].get(tag.id);
+        t.filteredGamesCount = filteredGames.filter((game) => game.hasTag(t)).length;
     }
 
     addGame(title, coverImageURL, sortingTitle = "") {
@@ -196,36 +219,113 @@ export class DataStore {
         if (!removed) return toastError(`Failed to remove ${game.title} from games list`);
         return toastSuccess(`Removed ${game.title} from games list`);
     }
+
+    editGame(game, title, coverImageURL, sortingTitle) {
+        // Editing needs to be in the DataStore rather than the object itself, to prevent duplicate names
+        if (!(game instanceof GameObject)) return toastError("Invalid game object: " + game);
+        const storedGame = this.allGames.get(game.id);
+        if (!storedGame) return toastError(`${game.title} does not exist in the games list`);
+        if (!title || typeof title !== "string" || !title.trim())
+            return toastError("Cannot save a game without a title");
+        if (this.allGames.values().some((t) => t.title === title))
+            return toastError(`${title} already exists in the games list`);
+        if (!coverImageURL) return toastError("Cannot save a game without a cover image");
+
+        storedGame.title = title;
+        storedGame.coverImageURL = coverImageURL;
+        storedGame.sortingTitle = sortingTitle;
+        return toastSuccess(`Updated ${storedGame.title}`);
+    }
+
+    sortTagsByMethod(tagType, sortMethod) {
+        // console.log("Sorting Tags of type " + tagType + ", by method " + sortMethod.name);
+        if (sortMethod === "custom") return; // not implemented yet, so just keeps the order as-is
+        const entriesArray = [...this.allTags[tagType].entries()];
+        entriesArray.sort(([id1, tag1], [id2, tag2]) => sortMethod(tag1, tag2));
+        // Needs to be runInAction because used by autorun/reaction, which seems to lose binding otherwise
+        runInAction(() => this.allTags[tagType].replace(entriesArray));
+    }
+
+    sortGamesByMethod(sortMethod) {
+        // console.log("Sorting games, by method " + sortMethod.name);
+        const entriesArray = [...this.allGames.entries()];
+        entriesArray.sort(([id1, game1], [id2, game2]) => sortMethod(game1, game2));
+        // Needs to be runInAction because used by autorun/reaction, which seems to lose binding otherwise
+        runInAction(() => this.allGames.replace(entriesArray));
+        saveToStorage(storageKeys.games, this.allGames);
+    }
 }
 
 const dataStore = new DataStore();
-// when a change is made to data, it is saved to localstorage
-autorun(() => saveToStorage(storageKeys.friend, dataStore.allTags[tT.friend]));
-autorun(() => saveToStorage(storageKeys.category, dataStore.allTags[tT.category]));
-autorun(() => saveToStorage(storageKeys.status, dataStore.allTags[tT.status]));
-autorun(() => saveToStorage(storageKeys.games, dataStore.allGames));
 // Prefer to use the context version in components, for expanded functionality in the future
 // but the global version is available for non-component uses
 const DataStoreContext = createContext(dataStore);
 export const useDataStore = () => useContext(DataStoreContext);
 export const globalDataStore = dataStore;
 
-const firstVisit = loadFromStorage(storageKeys.visited, false) === false;
-if (firstVisit && dataStore.allGames.size === 0) {
-    dataStore.populateTagsFromTagNames({
-        [tT.friend]: [],
-        [tT.category]: ["Playthrough", "Round-based", "Persistent World"],
-        [tT.status]: ["Playing", "LFG", "Paused", "Backlog", "Abandoned", "Finished"],
-    });
-}
-saveToStorage(storageKeys.visited, true);
+// #==============#
+// ‖ AUTO-SORTING ‖
+// #==============#
+// These handle auto-sorting on relevant changes, e.g. If sorting friends by name, react when any friend's name changes
+const sortingReactions = {
+    [tT.friend]: null,
+    [tT.category]: null,
+    [tT.status]: null,
+    games: null,
+};
 
+setTagSorting(tT.friend, "name"); // TODO: Temp till implementing sorting settings, with a reactions controller and UI
+setTagSorting(tT.category, "custom");
+setTagSorting(tT.status, "custom");
+setGameSorting("title");
+
+function setTagSorting(tagType, sortSetting) {
+    sortingReactions[tagType]?.disable();
+    if (sortSetting === "custom") {
+        // custom sort not implemented yet, so just does nothing
+    } else if (sortSetting === "name") {
+        sortingReactions[tagType] = new SortingReaction(
+            () => [...dataStore.allTags[tagType]].map(([id, tag]) => tag.name),
+            () => {
+                dataStore.sortTagsByMethod(tagType, compareTagNamesAZ);
+            },
+        );
+    } else if (sortSetting === "count") {
+        sortingReactions[tagType] = new SortingReaction(
+            () => [...dataStore.allTags[tagType]].map(([id, tag]) => tag.filteredGamesCount),
+            () => {
+                dataStore.sortTagsByMethod(tagType, compareTagFilteredGamesCount);
+            },
+        );
+    }
+    sortingReactions[tagType]?.enable();
+}
+
+function setGameSorting(sortSetting) {
+    sortingReactions.games?.disable();
+
+    if (sortSetting === "custom") {
+        // custom sort not implemented yet, so just does nothing
+    } else if (sortSetting === "title") {
+        sortingReactions.games = new SortingReaction(
+            () => [...dataStore.allGames].map(([id, game]) => [game.title, game.sortingTitle]),
+            () => {
+                dataStore.sortGamesByMethod(compareGameTitlesAZ);
+            },
+        );
+    }
+    sortingReactions.games?.enable();
+}
+
+// #=============#
+// ‖ FILE BACKUP ‖
+// #=============#
 export function backupToFile() {
     console.log("Backing up data to file...");
     const data = {
-        [storageKeys.friend]: dataStore.allTags[tT.friend], // turning maps into arrays to stringify
-        [storageKeys.category]: dataStore.allTags[tT.category],
-        [storageKeys.status]: dataStore.allTags[tT.status],
+        [storageKeys[tT.friend]]: dataStore.allTags[tT.friend], // turning maps into arrays to stringify
+        [storageKeys[tT.category]]: dataStore.allTags[tT.category],
+        [storageKeys[tT.status]]: dataStore.allTags[tT.status],
         [storageKeys.games]: dataStore.allGames,
         [storageKeys.settings]: loadFromStorage(storageKeys.settings, {}),
         [storageKeys.version]: version,
@@ -249,9 +349,9 @@ export function restoreFromFile(file) {
         const data = JSON.parse(e.target.result.toString());
         // Populate the DataStore's Tags and Games. They're then localstorage-synced by the autoruns.
         const tagCollection = {
-            [tT.friend]: data[storageKeys.friend],
-            [tT.category]: data[storageKeys.category],
-            [tT.status]: data[storageKeys.status],
+            [tT.friend]: data[storageKeys[tT.friend]],
+            [tT.category]: data[storageKeys[tT.category]],
+            [tT.status]: data[storageKeys[tT.status]],
         };
         const legacyData = !data[storageKeys.version]; // Will remove, along with GamesLegacy, once testers update
         if (legacyData) {
@@ -267,3 +367,17 @@ export function restoreFromFile(file) {
     });
     reader.readAsText(file);
 }
+
+// #==========================#
+// ‖ FIRST VISIT DEFAULT TAGS ‖
+// #==========================#
+const firstVisit = loadFromStorage(storageKeys.visited, false) === false;
+if (firstVisit && dataStore.allGames.size === 0) {
+    dataStore.populateTagsFromTagNames({
+        [tT.friend]: [],
+        [tT.category]: ["Playthrough", "Round-based", "Persistent World"],
+        [tT.status]: ["Playing", "LFG", "Paused", "Backlog", "Abandoned", "Finished"],
+    });
+}
+saveToStorage(storageKeys.visited, true);
+saveToStorage(storageKeys.version, version);

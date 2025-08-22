@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { MdAddCircleOutline } from "react-icons/md";
-import { useFilterStore, useSettingsStore, Dialogs, dialogStore } from "@/stores";
+import {
+    useFilterStore,
+    useSettingsStore,
+    Dialogs,
+    dialogStore,
+    updateTagFilteredGamesCounter,
+} from "@/stores";
 import { TagObject } from "@/models";
 import { ScrollView } from "@/components";
 import { useValidatedImage } from "@/hooks/useValidatedImage.js";
@@ -29,6 +35,7 @@ const GameCard = observer(({ game }) => {
         const tag = new TagObject(JSON.parse(e.dataTransfer.getData("application/json")));
         setDraggedOver(false);
         game.addTag(tag);
+        updateTagFilteredGamesCounter(tag);
     };
     const openGamePageDialog = () => {
         dialogStore.open(Dialogs.GamePage, { game });

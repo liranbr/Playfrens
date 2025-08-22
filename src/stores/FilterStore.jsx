@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import { makeAutoObservable } from "mobx";
+import { autorun, makeAutoObservable, reaction } from "mobx";
 import { TagObject, tagTypes } from "@/models";
 import { globalDataStore, globalSettingsStore } from "@/stores";
 
@@ -146,3 +146,16 @@ class FilterStore {
 const filterStore = new FilterStore();
 const FilterStoreContext = createContext(filterStore);
 export const useFilterStore = () => useContext(FilterStoreContext);
+
+// DataStore contains tags, that contain counters of 'how many currently filtered games contain me'
+// filtered games is in the FilterStore, so this provides it to the DataStore, only when filteredGames/allGames changes
+reaction(
+    () => filterStore.filteredGames,
+    (filteredGames) => globalDataStore.updateAllTagFilteredGamesCounters(filteredGames),
+    { fireImmediately: true },
+);
+// and this is a wrapper function to update the other cases that can change this counter;
+// used when adding/removing a tag from a game
+export function updateTagFilteredGamesCounter(tag) {
+    globalDataStore.updateTagFilteredGamesCounter(tag, filterStore.filteredGames);
+}

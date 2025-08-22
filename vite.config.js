@@ -10,7 +10,18 @@ export default defineConfig({
         port: 5174, // for developing - stable is running on 5173
         https: true,
         proxy: {
-            "/api": "http://localhost:5174",
+            "/auth": {
+                target: "http://localhost:3000",
+                changeOrigin: true,
+                secure: false,
+                cookieDomainRewrite: "localhost",
+            },
+            "/api": {
+                target: "http://localhost:3000",
+                changeOrigin: true,
+                secure: false,
+                cookieDomainRewrite: "localhost",
+            },
         },
     },
     resolve: {

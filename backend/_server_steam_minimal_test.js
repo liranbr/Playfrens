@@ -1,43 +1,29 @@
 import express from "express";
 import session from "express-session";
-import cors from "cors";
-import dotenv from "dotenv-safe";
-import { SteamGridDBService } from "./steamgriddb.js";
-import { SteamWebService } from "./steamweb.js";
 import passport from "passport";
 import SteamStrategy from "passport-steam";
-
-const app = express();
-const PORT = 3000;
-const services = [];
+import dotenv from "dotenv";
 
 dotenv.config();
 
-app.use(cors()); // allow frontend to call backend during dev
-
-app.get("/api/hello", (_, res) => res.status(200).send({ message: "Hello from Playfrens! 🕹️" }));
-app.listen(PORT, () => {
-    console.log(`Listening to http://localhost:${PORT}`);
-});
+const app = express();
+const PORT = 3000;
 
 const URL = "http://localhost:3000";
 
-// Session
 app.use(
     session({
         secret: process.env.SESSION_SECRET,
         resave: false,
         saveUninitialized: false,
         cookie: {
-            secure: true, // http vs https
+            secure: false, // http vs https
             httpOnly: true,
-            sameSite: "lax",
             maxAge: 24 * 60 * 60 * 1000, // one day
         },
     }),
 );
 
-// Steam
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -66,22 +52,17 @@ app.get(
     "/auth/steam/return",
     passport.authenticate("steam", { failureRedirect: "/" }),
     (req, res) => {
-        console.log(`Hello, ${req.user.displayName || "Steam user"}!`);
-        res.redirect("https://localhost:5174/api/me");
+        res.send(`Hello, ${req.user.displayName || "Steam user"}!`);
     },
 );
 
-app.get("/api/me", (req, res) => {
-    if (req.isAuthenticated()) {
-        res.json({ user: req.user });
-    } else {
-        res.status(401).json({ error: "Not logged in" });
-    }
+app.get("/", (req, res) => {
+    res.send(`
+    <h1>Welcome to Steam Login</h1>
+    <a href="/auth/steam">Login with Steam</a>
+  `);
 });
 
-export const main = () => {
-    services.push(new SteamGridDBService(app));
-    services.push(new SteamWebService(app));
-};
-
-main();
+app.listen(PORT, () => {
+    console.log(`Server listening at ${URL}`);
+});

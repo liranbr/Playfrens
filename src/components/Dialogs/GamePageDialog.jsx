@@ -39,7 +39,7 @@ const AddTagButton = ({ tagType, game }) => {
                                     key={t.id}
                                     onClick={() => {
                                         game.addTag(t);
-                                        updateTagFilteredGamesCounter(tag);
+                                        updateTagFilteredGamesCounter(t);
                                     }}
                                 >
                                     <span className="item-label">{t.name}</span>

@@ -6,6 +6,7 @@ import { SteamGridDBService } from "./steamgriddb.js";
 import { SteamWebService } from "./steamweb.js";
 import passport from "passport";
 import SteamStrategy from "passport-steam";
+import { Response } from "./response.js";
 
 const app = express();
 const PORT = 3000;
@@ -72,10 +73,12 @@ app.get(
 );
 
 app.get("/api/me", (req, res) => {
+    const { OK, UNAUTHORIZED } = Response.HttpStatus;
     if (req.isAuthenticated()) {
-        res.json({ user: req.user });
+        Response.send(res, OK, { user: req.user });
+        res.json();
     } else {
-        res.status(401).json({ error: "Not logged in" });
+        Response.send(res, UNAUTHORIZED, { error: "Not logged in" });
     }
 });
 

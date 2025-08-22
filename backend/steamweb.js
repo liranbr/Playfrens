@@ -4,7 +4,7 @@ import { Service } from "./service.js";
 
 export class SteamWebService extends Service {
     constructor(app) {
-        super(app, process.env.STEAMWEB_API_KEY);
+        super(app, process.env.STEAM_WEB_API_KEY);
     }
 
     connect() {

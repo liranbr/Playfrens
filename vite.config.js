@@ -11,7 +11,18 @@ export default defineConfig({
         https: true,
         sourcemap: true,
         proxy: {
-            "/api": "http://localhost:5174",
+            "/auth": {
+                target: "http://localhost:3000",
+                changeOrigin: true,
+                secure: false,
+                cookieDomainRewrite: "localhost",
+            },
+            "/api": {
+                target: "http://localhost:3000",
+                changeOrigin: true,
+                secure: false,
+                cookieDomainRewrite: "localhost",
+            },
         },
     },
     resolve: {

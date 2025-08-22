@@ -3,7 +3,7 @@ import { toastSuccess, toastError, compareAlphaIgnoreCase } from "@/Utils.jsx";
 import { TagObject, tagTypes } from "@/models";
 
 /**
- * @typedef {Object} GameObject
+ * @class
  * @property {string} title - The title of the game.
  * @property {string} coverImageURL - The path to the game's cover image file.
  * @property {string} sortingTitle - The (optional) title used for sorting the game.

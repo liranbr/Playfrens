@@ -26,7 +26,7 @@ const storageKeys = {
 };
 
 /**
- * @typedef {Object} DataStore
+ * @class
  * @property {{[key: string]: ObservableMap<String, TagObject>}} allTags
  * @property {ObservableMap<String, GameObject>} allGames
  */

@@ -3,7 +3,7 @@ import { observer } from "mobx-react-lite";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import {
     MdDeleteOutline,
-    MdDragIndicator,
+    MdDragHandle,
     MdEdit,
     MdMoreVert,
     MdOutlineSearchOff,
@@ -58,7 +58,7 @@ export const SidebarTagButton = observer(({ tag }) => {
             >
                 <span className="tag-name">{tag.name}</span>
                 <label>{tag.filteredGamesCount !== 0 ? tag.filteredGamesCount : ""}</label>
-                <MdDragIndicator className="hover-drag-indicator" />
+                <MdDragHandle className="hover-drag-indicator" />
             </span>
             <SidebarTBMenuButton
                 tag={tag}

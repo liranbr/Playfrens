@@ -8,7 +8,7 @@ export const tagTypes = {
 };
 
 /**
- * @typedef {Object} TagTypeStrings
+ * @class
  * @property {string} key - e.g. "friend", "category", "status".
  * @property {string} single - e.g. "Friend", "Category", "Status".
  * @property {string} plural - e.g. "Friends", "Categories", "Status".

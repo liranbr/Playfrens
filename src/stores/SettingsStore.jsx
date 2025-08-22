@@ -3,7 +3,7 @@ import { autorun, makeAutoObservable } from "mobx";
 import { saveToStorage } from "@/Utils.jsx";
 import { tagTypes } from "@/models";
 
-export const settingsKeyInStorage = "settings";
+export const settingsStorageKey = "settings";
 
 export const TagHoverGameHighlightOptions = {
     highlight: "Highlight",
@@ -14,44 +14,65 @@ export const TagFilterLogicOptions = {
     AND: "Have all",
     OR: "Have at least one",
 };
+export const TagSortOptions = {
+    name: "Name",
+    count: "Game Count",
+    custom: "Custom Order",
+};
+export const GameSortOptions = {
+    title: "Title",
+    custom: "Custom Order",
+};
 
 class SettingsStore {
     // Default values, overridden by settings loaded from storage
     tagHoverGameHighlight = "darken";
     tagFilterLogic = {
-        [tagTypes.friend.key]: "AND",
-        [tagTypes.category.key]: "OR",
-        [tagTypes.status.key]: "OR",
+        [tagTypes.friend]: "AND",
+        [tagTypes.category]: "OR",
+        [tagTypes.status]: "OR",
     };
+    tagSortMethods = {
+        [tagTypes.friend]: "name",
+        [tagTypes.category]: "custom",
+        [tagTypes.status]: "custom",
+    };
+    tagSortDescending = {
+        [tagTypes.friend]: false,
+        [tagTypes.category]: false,
+        [tagTypes.status]: false,
+    };
+    gameSortMethod = "title";
+    gameSortDescending = false;
 
     constructor(settings = {}) {
         makeAutoObservable(this);
         Object.assign(this, settings);
     }
 
-    setTagHoverGameHighlight(value) {
-        if (TagHoverGameHighlightOptions[value]) {
-            this.tagHoverGameHighlight = value;
+    setTagHoverGameHighlight(option) {
+        if (TagHoverGameHighlightOptions[option]) {
+            this.tagHoverGameHighlight = option;
         } else {
-            console.warn(`Invalid TagHoverGameHighlight value: ${value}`);
+            console.warn(`Invalid TagHoverGameHighlight option: ${option}`);
         }
     }
 
-    setTagFilterLogic(tagType, value) {
-        if (TagFilterLogicOptions[value]) {
-            this.tagFilterLogic[tagType.key] = value;
+    setTagFilterLogic(tagType, option) {
+        if (TagFilterLogicOptions[option]) {
+            this.tagFilterLogic[tagType] = option;
         } else {
-            console.warn(`Invalid TagFilterLogic value for ${tagType.key}: ${value}`);
+            console.warn(`Invalid TagFilterLogic option for ${tagType}: ${option}`);
         }
     }
 }
 
-const storedSettings = JSON.parse(localStorage.getItem(settingsKeyInStorage));
+const storedSettings = JSON.parse(localStorage.getItem(settingsStorageKey));
 const settingsStore = new SettingsStore(storedSettings);
-autorun(() => saveToStorage(settingsKeyInStorage, settingsStore)); // whenever settings are changed, auto-save
-
-const SettingsStoreContext = createContext(settingsStore);
-export const useSettingsStore = () => useContext(SettingsStoreContext);
+// whenever settings are changed, auto-save
+autorun(() => saveToStorage(settingsStorageKey, settingsStore));
 // Prefer to use the context version in components, for expanded functionality in the future
 // but the global version is available for non-component uses
+const SettingsStoreContext = createContext(settingsStore);
+export const useSettingsStore = () => useContext(SettingsStoreContext);
 export const globalSettingsStore = settingsStore;

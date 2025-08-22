@@ -26,6 +26,8 @@ fieldset {
 .toast-notification {
     border: var(--pf-border-700);
     border-width: 2px;
+    font-size: 16px;
+    border-radius: 12px;
 }
 
 .separator {

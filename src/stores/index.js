@@ -1,19 +1,10 @@
-export { allFriends, allCategories, allStatuses, allGames } from "./DataStore.jsx";
-export {
-    backupToFile,
-    restoreFromFile,
-    addTag,
-    removeTag,
-    editTag,
-    addGame,
-    removeGame,
-} from "./DataStore.jsx";
-export { useFilterStore } from "./FilterStore.jsx";
 export {
     useSettingsStore,
-    settingsKeyInStorage,
+    settingsStorageKey,
     TagHoverGameHighlightOptions,
     TagFilterLogicOptions,
     globalSettingsStore,
 } from "./SettingsStore.jsx";
+export { globalDataStore, useDataStore, backupToFile, restoreFromFile } from "./DataStore.jsx";
+export { useFilterStore, updateTagFilteredGamesCounter } from "./FilterStore.jsx";
 export { Dialogs, dialogStore } from "./DialogStore.jsx";

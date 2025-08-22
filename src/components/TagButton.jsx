@@ -8,29 +8,22 @@ import {
     MdMoreVert,
     MdOutlineSearchOff,
 } from "react-icons/md";
-import { removeTag, useFilterStore, Dialogs, dialogStore } from "@/stores";
+import { useFilterStore, Dialogs, dialogStore, useDataStore } from "@/stores";
 import { IconButton } from "@/components";
 import "./TagButton.css";
 
-export const SidebarTagButton = observer(({ tagName, tagType }) => {
+export const SidebarTagButton = observer(({ tag }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const filterStore = useFilterStore();
-    const isSelected = filterStore.isTagSelected(tagType, tagName) ? " selected" : "";
-    const isExcluded = filterStore.isTagExcluded(tagType, tagName) ? " excluded" : "";
-    const isBeingDragged =
-        filterStore.draggedTag.tagType === tagType && filterStore.draggedTag.tagName === tagName
-            ? " being-dragged"
-            : "";
+    const isSelected = filterStore.isTagSelected(tag) ? " selected" : "";
+    const isExcluded = filterStore.isTagExcluded(tag) ? " excluded" : "";
+    const isBeingDragged = filterStore.draggedTag?.id === tag.id ? " being-dragged" : "";
     const isDropdownOpen = dropdownOpen ? " dd-open" : "";
-    const gameAmountInCurrentFilter = filterStore.filteredGames.filter((game) =>
-        game.hasTag(tagType, tagName),
-    ).length;
 
     const onClick = () => {
-        filterStore.toggleTagSelection(tagType, tagName);
+        filterStore.toggleTagSelection(tag);
         filterStore.setHoveredTag(null);
     };
-    const toggleSelection = () => filterStore.toggleTagSelection(tagType, tagName);
 
     return (
         <div
@@ -53,24 +46,22 @@ export const SidebarTagButton = observer(({ tagName, tagType }) => {
                         onClick();
                     }
                 }}
-                onMouseEnter={() => filterStore.setHoveredTag(tagType, tagName)}
+                onMouseEnter={() => filterStore.setHoveredTag(tag)}
                 onMouseLeave={() => filterStore.setHoveredTag(null)}
                 draggable="true"
                 onDragStart={(e) => {
                     filterStore.setHoveredTag(null);
-                    filterStore.setDraggedTag(tagType, tagName);
-                    e.dataTransfer.setData("tagName", tagName);
-                    e.dataTransfer.setData("tagTypeKey", tagType.key);
+                    filterStore.setDraggedTag(tag);
+                    e.dataTransfer.setData("application/json", JSON.stringify(tag));
                 }}
                 onDragEnd={() => filterStore.setDraggedTag(null)}
             >
-                <span className="tag-name">{tagName}</span>
-                <label>{gameAmountInCurrentFilter !== 0 ? gameAmountInCurrentFilter : ""}</label>
+                <span className="tag-name">{tag.name}</span>
+                <label>{tag.filteredGamesCount !== 0 ? tag.filteredGamesCount : ""}</label>
                 <MdDragIndicator className="hover-drag-indicator" />
             </span>
             <SidebarTBMenuButton
-                tagName={tagName}
-                tagType={tagType}
+                tag={tag}
                 filterStore={filterStore}
                 setDropdownOpen={setDropdownOpen}
             />
@@ -78,22 +69,22 @@ export const SidebarTagButton = observer(({ tagName, tagType }) => {
     );
 });
 
-const SidebarTBMenuButton = observer(({ tagName, tagType, filterStore, setDropdownOpen }) => {
-    const isExcluded = filterStore.excludedTags[tagType.key]?.has(tagName) ?? false;
-    const toggleExclusion = () => filterStore.toggleTagExclusion(tagType, tagName);
+const SidebarTBMenuButton = observer(({ tag, filterStore, setDropdownOpen }) => {
+    const dataStore = useDataStore();
+    const excludeLabel = filterStore.isTagExcluded(tag) ? "Undo Exclude" : "Exclude";
+    const toggleExclusion = () => filterStore.toggleTagExclusion(tag);
 
     const openEditDialog = () => {
         dialogStore.open(Dialogs.EditTag, {
-            tagType: tagType,
-            tagName: tagName,
+            editingTag: tag,
         });
     };
     const openDeleteDialog = () => {
         dialogStore.open(Dialogs.DeleteWarning, {
-            itemName: tagName,
+            itemName: tag.name,
             deleteFunction: () => {
-                filterStore.removeFiltersOfTag(tagType, tagName);
-                removeTag(tagType, tagName);
+                filterStore.removeFiltersOfTag(tag);
+                dataStore.removeTag(tag);
             },
         });
     };
@@ -114,7 +105,7 @@ const SidebarTBMenuButton = observer(({ tagName, tagType, filterStore, setDropdo
                     sideOffset={5}
                 >
                     <DropdownMenu.Item onClick={toggleExclusion}>
-                        <MdOutlineSearchOff /> {isExcluded ? "Undo Exclude" : "Exclude"}
+                        <MdOutlineSearchOff /> {excludeLabel}
                     </DropdownMenu.Item>
                     <DropdownMenu.Item onClick={openEditDialog}>
                         <MdEdit /> Edit

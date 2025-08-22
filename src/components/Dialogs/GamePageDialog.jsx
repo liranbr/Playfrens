@@ -5,16 +5,19 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert, MdRemove } from "react-icons/md";
 import { CenterAndEdgesRow, IconButton, ScrollView } from "@/components";
-import { removeGame, Dialogs, dialogStore } from "@/stores";
+import { Dialogs, dialogStore, updateTagFilteredGamesCounter, useDataStore } from "@/stores";
+import { tagTypes, tagTypeStrings } from "@/models";
 import { useValidatedImage } from "@/hooks/useValidatedImage.js";
-import { tagTypes } from "@/models";
+import { DialogBase } from "./DialogRoot.jsx";
 import "@/components/TagButtonGroup.css";
 import "@/components/TagButton.css";
 import "./GamePageDialog.css";
-import { DialogBase } from "./DialogRoot.jsx";
 
 const AddTagButton = ({ tagType, game }) => {
+    const dataStore = useDataStore();
+    const allTagsOfType = [...dataStore.allTags[tagType].values()];
     const [openDropdown, setOpenDropdown] = useState(false);
+
     return (
         <DropdownMenu.Root onOpenChange={setOpenDropdown}>
             <DropdownMenu.Trigger asChild>
@@ -29,19 +32,20 @@ const AddTagButton = ({ tagType, game }) => {
                     sideOffset={5}
                 >
                     <ScrollView>
-                        {tagType.allTagsList
-                            .filter((item) => !tagType.gameTagsList(game).includes(item))
-                            .map((item) => (
+                        {allTagsOfType
+                            .filter((t) => !game.hasTag(t))
+                            .map((t) => (
                                 <DropdownMenu.Item
-                                    key={item}
+                                    key={t.id}
                                     onClick={() => {
-                                        tagType.addToGame(game, item);
+                                        game.addTag(t);
+                                        updateTagFilteredGamesCounter(tag);
                                     }}
                                 >
-                                    <span className="item-label">{item}</span>
+                                    <span className="item-label">{t.name}</span>
                                 </DropdownMenu.Item>
                             ))}
-                        {/* Variable-length dropdown items need text wrapper to prevent overflow */}
+                        {/* Variable-length dropdown items need text wrapper (span) to prevent overflow */}
                     </ScrollView>
                 </DropdownMenu.Content>
             </DropdownMenu.Portal>
@@ -49,26 +53,28 @@ const AddTagButton = ({ tagType, game }) => {
     );
 };
 
-const GPTagButton = observer(({ game, tagType, tagName }) => {
+const GPTagButton = observer(({ game, tag }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const handleRemove = () => {
-        tagType.removeFromGame(game, tagName);
+        game.removeTag(tag);
+        updateTagFilteredGamesCounter(tag);
     };
-    const onClick = () => setDropdownOpen(true);
+    const handleClick = () => setDropdownOpen(true);
+
     return (
         <div
             className={"tag-button-container" + (dropdownOpen ? " dd-open" : "")}
             tabIndex={0}
-            onClick={onClick}
+            onClick={handleClick}
             onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
                     e.preventDefault();
-                    onClick();
+                    handleClick();
                 }
             }}
         >
             <span role="button" className="tag-button" draggable="true">
-                <span className="tag-name">{tagName}</span>
+                <span className="tag-name">{tag.name}</span>
             </span>
 
             <DropdownMenu.Root open={dropdownOpen} onOpenChange={setDropdownOpen}>
@@ -96,8 +102,9 @@ const GPTagButton = observer(({ game, tagType, tagName }) => {
 });
 
 const GPTagButtonGroup = observer(({ game, tagType }) => {
-    const title = tagType.plural.toUpperCase();
-    const gameTagsList = tagType.gameTagsList(game);
+    const dataStore = useDataStore();
+    const title = tagTypeStrings[tagType].plural.toUpperCase();
+    const tags = [...game.tagIDs[tagType]].map((id) => dataStore.getTagByID(id, tagType));
     return (
         <div className="tag-button-group">
             <CenterAndEdgesRow className="ui-card-header">
@@ -107,13 +114,8 @@ const GPTagButtonGroup = observer(({ game, tagType }) => {
             </CenterAndEdgesRow>
             <ScrollView>
                 <div className="tag-button-list">
-                    {gameTagsList.map((tagName, index) => (
-                        <GPTagButton
-                            key={"btn-" + tagType.key + "-" + tagName + "-" + index}
-                            game={game}
-                            tagType={tagType}
-                            tagName={tagName}
-                        />
+                    {tags.map((tag) => (
+                        <GPTagButton key={tag.id} game={game} tag={tag} />
                     ))}
                 </div>
             </ScrollView>
@@ -122,6 +124,7 @@ const GPTagButtonGroup = observer(({ game, tagType }) => {
 });
 
 function GameOptionsButton({ game }) {
+    const dataStore = useDataStore();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     return (
         <DropdownMenu.Root onOpenChange={setDropdownOpen}>
@@ -149,7 +152,7 @@ function GameOptionsButton({ game }) {
                             dialogStore.open(Dialogs.DeleteWarning, {
                                 itemName: game.title,
                                 deleteFunction: () => {
-                                    removeGame(game);
+                                    dataStore.removeGame(game);
                                     dialogStore.closeMultiple(2);
                                 },
                             });
@@ -177,12 +180,14 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
                     e.preventDefault();
                     e.target.focus();
                 },
-                className: "rx-dialog game-page-dialog"
-            }}>
+                className: "rx-dialog game-page-dialog",
+            }}
+        >
             <VisuallyHidden>
                 <Dialog.Description>{"Game Page of " + game.title}</Dialog.Description>
             </VisuallyHidden>
             <img className="gp-cover-art" src={gameCover} alt="Game cover art" />
+
             <div className="gp-container">
                 <CenterAndEdgesRow className="gp-header">
                     <GameOptionsButton game={game} />
@@ -192,6 +197,7 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
                     <IconButton icon={<MdClose />} onClick={handleHide} />
                 </CenterAndEdgesRow>
                 <div className="gp-header-shadow" />
+
                 <div className="gp-body">
                     <div className="gp-column">
                         <div className="ui-card">
@@ -202,6 +208,7 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
                             <GPTagButtonGroup tagType={tagTypes.status} game={game} />
                         </div>
                     </div>
+
                     <div className="gp-column">
                         <div className="ui-card game-note-container">
                             <CenterAndEdgesRow className="ui-card-header">
@@ -220,6 +227,6 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
                     </div>
                 </div>
             </div>
-        </DialogBase >
+        </DialogBase>
     );
 });

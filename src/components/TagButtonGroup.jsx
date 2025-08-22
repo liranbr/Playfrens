@@ -3,14 +3,22 @@ import { LuSettings2 } from "react-icons/lu";
 import { observer } from "mobx-react-lite";
 import * as Popover from "@radix-ui/react-popover";
 import * as RadioGroup from "@radix-ui/react-radio-group";
-import { useSettingsStore, TagFilterLogicOptions, Dialogs, dialogStore } from "@/stores";
+import { tagTypeStrings } from "@/models";
+import {
+    useSettingsStore,
+    TagFilterLogicOptions,
+    Dialogs,
+    dialogStore,
+    useDataStore,
+} from "@/stores";
 import { SidebarTagButton, IconButton, CenterAndEdgesRow, ScrollView } from "@/components";
 import "./TagButtonGroup.css";
 
 export const SidebarTagButtonGroup = observer(({ tagType }) => {
-    const title = tagType.plural.toUpperCase();
+    const { allTags } = useDataStore();
+    const title = tagTypeStrings[tagType].plural.toUpperCase();
     const handleAddButtonClick = () => {
-        dialogStore.open(Dialogs.EditTag, { tagType: tagType });
+        dialogStore.open(Dialogs.EditTag, { addingTagOfType: tagType });
     };
     return (
         <div className="tag-button-group">
@@ -21,8 +29,8 @@ export const SidebarTagButtonGroup = observer(({ tagType }) => {
             </CenterAndEdgesRow>
             <ScrollView>
                 <div className="tag-button-list">
-                    {tagType.allTagsList.map((tagName, index) => (
-                        <SidebarTagButton key={index} tagName={tagName} tagType={tagType} />
+                    {[...allTags[tagType]].map(([id, tag], index) => (
+                        <SidebarTagButton key={index} tag={tag} />
                     ))}
                 </div>
             </ScrollView>
@@ -42,10 +50,10 @@ const SidebarTBGMenu = observer(({ tagType }) => {
                     <Popover.Close asChild>
                         <IconButton className="popover-close" icon={<MdClose />} />
                     </Popover.Close>
-                    <h3>{tagType.plural} Settings</h3>
-                    <p>Selected {tagType.plural} filter for games that</p>
+                    <h3>{tagTypeStrings[tagType].plural} Settings</h3>
+                    <p>Selected {tagTypeStrings[tagType].plural} will filter for games that</p>
                     <RadioGroup.Root
-                        defaultValue={settingsStore.tagFilterLogic[tagType.key]}
+                        defaultValue={settingsStore.tagFilterLogic[tagType]}
                         className="rx-radio-group"
                         onValueChange={(option) => settingsStore.setTagFilterLogic(tagType, option)}
                     >

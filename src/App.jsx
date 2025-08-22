@@ -13,11 +13,10 @@ import {
     MdOutlineGamepad,
     MdPerson,
 } from "react-icons/md";
-import { SidebarTagButtonGroup, IconButton, CenterAndEdgesRow, GamesGrid } from "@/components";
-import { useFilterStore, backupToFile, restoreFromFile } from "@/stores";
 import { tagTypes } from "@/models";
+import { useFilterStore, backupToFile, restoreFromFile, Dialogs, dialogStore } from "@/stores";
+import { SidebarTagButtonGroup, IconButton, CenterAndEdgesRow, GamesGrid } from "@/components";
 import { DialogRoot } from "@/components/Dialogs/DialogRoot.jsx";
-import { Dialogs, dialogStore } from "@/stores/DialogStore.jsx";
 import "./App.css";
 
 function AppMenu() {
@@ -98,7 +97,10 @@ const AppHeader = observer(() => {
             <CenterAndEdgesRow className="app-header-center">
                 <IconButton
                     icon={<MdFilterAltOff />}
-                    style={{ visibility: !filterStore.areFiltersActive ? "hidden" : "visible" }}
+                    style={{
+                        visibility: filterStore.areFiltersActive ? "visible" : "hidden",
+                        transition: "visibility 0s",
+                    }}
                     onClick={() => filterStore.resetFilters()}
                 />
                 <div className={"game-search" + (search ? " has-value" : "")}>

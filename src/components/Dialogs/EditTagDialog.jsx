@@ -1,30 +1,28 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { DialogBase } from "./DialogRoot.jsx";
-import { addTag, editTag, useFilterStore } from "@/stores";
+import { TagObject, tagTypeStrings } from "@/models";
+import { useDataStore } from "@/stores";
 import { Button } from "@/components";
 
-export function EditTagDialog({ open, closeDialog, tagType, tagName = "" }) {
-    const filterStore = useFilterStore();
-    const mode = tagName ? "Edit" : "Add";
-    const title = mode + " " + tagType.single;
-    const description = mode === "Edit" ? "Editing " + tagName : "Adding a new " + tagType.single;
+// Both Edits existing tags, and Adds new ones - depending on whether a TagObject is provided, otherwise based on the newTagType
+export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagOfType = null }) {
+    const editOrAdd = editingTag instanceof TagObject;
+    const mode = editOrAdd ? "Edit" : "Add";
+    const tagType = editOrAdd ? editingTag.type : addingTagOfType;
+    const title = mode + " " + tagTypeStrings[tagType].single;
+    const description = editOrAdd
+        ? "Editing " + editingTag.name
+        : "Adding a new " + tagTypeStrings[tagType].single;
+    const dataStore = useDataStore();
 
     const handleHide = () => closeDialog();
     const handleSave = () => {
         const newTagName = document.getElementById("tagNameInput").value;
-        if (mode === "Edit") {
-            const success = editTag(tagType, tagName, newTagName);
-            if (success) {
-                filterStore.UpdateTagBandaid(tagType, tagName, newTagName); // TODO: Temp, remove when tags get UUIDs
-                handleHide();
-            }
-        } else {
-            const success = addTag(tagType, newTagName);
-            if (success) {
-                handleHide();
-            }
-        }
+        const savedSuccess = editOrAdd
+            ? dataStore.editTag(editingTag, newTagName)
+            : dataStore.addTag(new TagObject({ type: tagType, name: newTagName }));
+        if (savedSuccess) handleHide();
     };
     const saveOnEnter = (e) => {
         if (e.key === "Enter") {
@@ -45,7 +43,7 @@ export function EditTagDialog({ open, closeDialog, tagType, tagName = "" }) {
                 <input
                     id="tagNameInput"
                     onKeyDown={saveOnEnter}
-                    defaultValue={tagName}
+                    defaultValue={editingTag?.name}
                     autoFocus
                 />
             </fieldset>

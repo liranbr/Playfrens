@@ -271,8 +271,8 @@
     }
     .rx-scrollbar {
         max-height: inherit;
-        width: 6px;
-        padding: 0 1px;
+        width: 8px;
+        padding: 0 2px;
         user-select: none;
         &:hover {
             padding: 0;

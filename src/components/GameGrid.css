@@ -18,13 +18,18 @@
     margin: 0;
     padding: 0;
     border: 0;
-    outline: 4px solid transparent; /* for highlighting on tag hover */
     border-radius: var(--game-card-border-radius);
     background-color: transparent;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.9);
+    outline: 2px solid transparent; /* for highlighting on tag hover */
     transition:
         0.3s ease,
         outline 0.3s ease 0.1s;
+
+    &:active,
+    &:focus {
+        outline: 5px solid transparent !important; /* fixes outline flash on click */
+    }
 
     img {
         width: 100%;
@@ -68,8 +73,11 @@
         }
     }
     &.highlight {
-        outline-color: var(--pf-border-color-primary);
-        transition: outline 0.3s ease 0.8s; /* delay on appearance, not disappearance */
+        outline: 5px solid var(--pf-border-color-primary);
+        box-shadow: 0 0 12px 5px var(--pf-fg-link);
+        transition:
+            outline 0.3s ease 0.8s,
+            box-shadow 0.3s ease 0.8s; /* delay on appearance, not disappearance */
     }
     &.darken img {
         filter: brightness(0.5) grayscale(1);

@@ -74,7 +74,10 @@ const SidebarTBGMenu = observer(({ tagType }) => {
                         className="rx-select"
                         onValueChange={(option) => settingsStore.setTagSort(tagType, option)}
                     >
-                        <Select.Trigger className="rx-select-trigger">
+                        <Select.Trigger
+                            className="rx-select-trigger"
+                            onPointerDown={(e) => e.stopPropagation()}
+                        >
                             <Select.Value />
                             <Select.Icon children={<MdKeyboardArrowDown />} />
                         </Select.Trigger>

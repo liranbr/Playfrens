@@ -35,6 +35,7 @@
         box-shadow: var(--container-shadow);
         background-size: cover;
         background-position: center;
+        user-select: none;
     }
 
     .gp-container {

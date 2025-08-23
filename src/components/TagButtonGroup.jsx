@@ -1,12 +1,14 @@
-import { MdAdd, MdClose } from "react-icons/md";
+import { MdAdd, MdCheck, MdClose, MdKeyboardArrowDown } from "react-icons/md";
 import { LuSettings2 } from "react-icons/lu";
 import { observer } from "mobx-react-lite";
 import * as Popover from "@radix-ui/react-popover";
 import * as RadioGroup from "@radix-ui/react-radio-group";
+import * as Select from "@radix-ui/react-select";
 import { tagTypeStrings } from "@/models";
 import {
     useSettingsStore,
     TagFilterLogicOptions,
+    TagSortOptions,
     Dialogs,
     dialogStore,
     useDataStore,
@@ -64,6 +66,31 @@ const SidebarTBGMenu = observer(({ tagType }) => {
                             </label>
                         ))}
                     </RadioGroup.Root>
+                    <div className="spacer" />
+
+                    <p>Sort {tagTypeStrings[tagType].plural} by</p>
+                    <Select.Root
+                        value={settingsStore.tagSortMethods[tagType]}
+                        className="rx-select"
+                        onValueChange={(option) => settingsStore.setTagSort(tagType, option)}
+                    >
+                        <Select.Trigger className="rx-select-trigger">
+                            <Select.Value />
+                            <Select.Icon children={<MdKeyboardArrowDown />} />
+                        </Select.Trigger>
+                        <Select.Content position="popper" className="rx-select-content">
+                            <Select.Viewport>
+                                {Object.keys(TagSortOptions).map((option) => (
+                                    <Select.Item value={option} key={option}>
+                                        <Select.ItemText>{TagSortOptions[option]}</Select.ItemText>
+                                        <Select.ItemIndicator className="item-indicator">
+                                            <MdCheck />
+                                        </Select.ItemIndicator>
+                                    </Select.Item>
+                                ))}
+                            </Select.Viewport>
+                        </Select.Content>
+                    </Select.Root>
                 </Popover.Content>
             </Popover.Portal>
         </Popover.Root>

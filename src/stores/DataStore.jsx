@@ -227,7 +227,7 @@ export class DataStore {
         if (!storedGame) return toastError(`${game.title} does not exist in the games list`);
         if (!title || typeof title !== "string" || !title.trim())
             return toastError("Cannot save a game without a title");
-        if (this.allGames.values().some((t) => t.title === title))
+        if (game.title !== title && this.allGames.values().some((t) => t.title === title))
             return toastError(`${title} already exists in the games list`);
         if (!coverImageURL) return toastError("Cannot save a game without a cover image");
 

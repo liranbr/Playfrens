@@ -51,19 +51,23 @@ class SettingsStore {
     }
 
     setTagHoverGameHighlight(option) {
-        if (TagHoverGameHighlightOptions[option]) {
-            this.tagHoverGameHighlight = option;
-        } else {
-            console.warn(`Invalid TagHoverGameHighlight option: ${option}`);
-        }
+        if (TagHoverGameHighlightOptions[option]) this.tagHoverGameHighlight = option;
+        else console.warn(`Invalid TagHoverGameHighlight option: ${option}`);
     }
 
     setTagFilterLogic(tagType, option) {
-        if (TagFilterLogicOptions[option]) {
-            this.tagFilterLogic[tagType] = option;
-        } else {
-            console.warn(`Invalid TagFilterLogic option for ${tagType}: ${option}`);
-        }
+        if (TagFilterLogicOptions[option]) this.tagFilterLogic[tagType] = option;
+        else console.warn(`Invalid TagFilterLogic option for ${tagType}: ${option}`);
+    }
+
+    setTagSort(tagType, option) {
+        if (TagSortOptions[option]) this.tagSortMethods[tagType] = option;
+        else console.warn(`Invalid TagSortMethod option for ${tagType}: ${option}`);
+    }
+
+    setTagSortDescending(tagType, isDescending) {
+        if (typeof isDescending === "boolean") this.tagSortDescending[tagType] = isDescending;
+        else console.warn(tagType + "'s descending can only be true/false");
     }
 }
 

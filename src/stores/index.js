@@ -3,6 +3,8 @@ export {
     settingsStorageKey,
     TagHoverGameHighlightOptions,
     TagFilterLogicOptions,
+    TagSortOptions,
+    GameSortOptions,
     globalSettingsStore,
 } from "./SettingsStore.jsx";
 export { globalDataStore, useDataStore, backupToFile, restoreFromFile } from "./DataStore.jsx";

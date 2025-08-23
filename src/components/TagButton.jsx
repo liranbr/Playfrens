@@ -40,6 +40,10 @@ export const SidebarTagButton = observer(({ tag }) => {
                 className={"tag-button"}
                 tabIndex={0}
                 onClick={onClick}
+                onContextMenu={(e) => {
+                    e.preventDefault(); // don't open right-click context menu
+                    setDropdownOpen(true); // open button's dropdown instead
+                }}
                 onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
                         e.preventDefault();
@@ -63,13 +67,14 @@ export const SidebarTagButton = observer(({ tag }) => {
             <SidebarTBMenuButton
                 tag={tag}
                 filterStore={filterStore}
+                dropdownOpen={dropdownOpen}
                 setDropdownOpen={setDropdownOpen}
             />
         </div>
     );
 });
 
-const SidebarTBMenuButton = observer(({ tag, filterStore, setDropdownOpen }) => {
+const SidebarTBMenuButton = observer(({ tag, filterStore, dropdownOpen, setDropdownOpen }) => {
     const dataStore = useDataStore();
     const excludeLabel = filterStore.isTagExcluded(tag) ? "Undo Exclude" : "Exclude";
     const toggleExclusion = () => filterStore.toggleTagExclusion(tag);
@@ -90,7 +95,7 @@ const SidebarTBMenuButton = observer(({ tag, filterStore, setDropdownOpen }) => 
     };
 
     return (
-        <DropdownMenu.Root onOpenChange={setDropdownOpen}>
+        <DropdownMenu.Root open={dropdownOpen} onOpenChange={setDropdownOpen}>
             <DropdownMenu.Trigger asChild>
                 <IconButton>
                     <MdMoreVert />

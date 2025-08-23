@@ -23,6 +23,10 @@ export const GameSortOptions = {
     title: "Title",
     custom: "Custom Order",
 };
+export const SortDirectionOptions = {
+    asc: "Ascending",
+    desc: "Descending",
+};
 
 class SettingsStore {
     // Default values, overridden by settings loaded from storage
@@ -37,13 +41,13 @@ class SettingsStore {
         [tagTypes.category]: "custom",
         [tagTypes.status]: "custom",
     };
-    tagSortDescending = {
-        [tagTypes.friend]: false,
-        [tagTypes.category]: false,
-        [tagTypes.status]: false,
+    tagSortDirection = {
+        [tagTypes.friend]: "asc",
+        [tagTypes.category]: "asc",
+        [tagTypes.status]: "asc",
     };
     gameSortMethod = "title";
-    gameSortDescending = false;
+    gameSortDescending = "asc";
 
     constructor(settings = {}) {
         makeAutoObservable(this);
@@ -65,9 +69,9 @@ class SettingsStore {
         else console.warn(`Invalid TagSortMethod option for ${tagType}: ${option}`);
     }
 
-    setTagSortDescending(tagType, isDescending) {
-        if (typeof isDescending === "boolean") this.tagSortDescending[tagType] = isDescending;
-        else console.warn(tagType + "'s descending can only be true/false");
+    setTagSortDirection(tagType, option) {
+        if (SortDirectionOptions[option]) this.tagSortDirection[tagType] = option;
+        else console.warn(`Invalid TagSortDirection option for ${tagType}: ${option}`);
     }
 }
 

@@ -8,7 +8,7 @@ import {
     toastError,
     toastSuccess,
 } from "@/Utils.jsx";
-import { globalSettingsStore, settingsStorageKey } from "@/stores";
+import { globalSettingsStore, settingsStorageKey, useSettingsStore } from "@/stores";
 import { version } from "/package.json";
 import { compareTagFilteredGamesCount } from "@/models/TagObject.js";
 import { SortingReaction } from "@/stores/SortingReaction.js";
@@ -242,6 +242,7 @@ export class DataStore {
         if (sortMethod === "custom") return; // not implemented yet, so just keeps the order as-is
         const entriesArray = [...this.allTags[tagType].entries()];
         entriesArray.sort(([id1, tag1], [id2, tag2]) => sortMethod(tag1, tag2));
+        if (globalSettingsStore.tagSortDirection[tagType] === "desc") entriesArray.reverse();
         // Needs to be runInAction because used by autorun/reaction, which seems to lose binding otherwise
         runInAction(() => this.allTags[tagType].replace(entriesArray));
     }
@@ -250,6 +251,7 @@ export class DataStore {
         // console.log("Sorting games, by method " + sortMethod.name);
         const entriesArray = [...this.allGames.entries()];
         entriesArray.sort(([id1, game1], [id2, game2]) => sortMethod(game1, game2));
+        if (globalSettingsStore.gameSortDescending === "desc") entriesArray.reverse();
         // Needs to be runInAction because used by autorun/reaction, which seems to lose binding otherwise
         runInAction(() => this.allGames.replace(entriesArray));
         saveToStorage(storageKeys.games, this.allGames);
@@ -285,14 +287,20 @@ function setTagSorting(tagType, sortSetting) {
         // custom sort not implemented yet, so just does nothing
     } else if (sortSetting === "name") {
         sortingReactions[tagType] = new SortingReaction(
-            () => [...dataStore.allTags[tagType]].map(([id, tag]) => tag.name),
+            () => [
+                [...dataStore.allTags[tagType]].map(([id, tag]) => tag.name),
+                globalSettingsStore.tagSortDirection[tagType],
+            ],
             () => {
                 dataStore.sortTagsByMethod(tagType, compareTagNamesAZ);
             },
         );
     } else if (sortSetting === "count") {
         sortingReactions[tagType] = new SortingReaction(
-            () => [...dataStore.allTags[tagType]].map(([id, tag]) => tag.filteredGamesCount),
+            () => [
+                [...dataStore.allTags[tagType]].map(([id, tag]) => tag.filteredGamesCount),
+                globalSettingsStore.tagSortDirection[tagType],
+            ],
             () => {
                 dataStore.sortTagsByMethod(tagType, compareTagFilteredGamesCount);
             },
@@ -308,7 +316,10 @@ function setGameSorting(sortSetting) {
         // custom sort not implemented yet, so just does nothing
     } else if (sortSetting === "title") {
         sortingReactions.games = new SortingReaction(
-            () => [...dataStore.allGames].map(([id, game]) => [game.title, game.sortingTitle]),
+            () => [
+                [...dataStore.allGames].map(([id, game]) => [game.title, game.sortingTitle]),
+                globalSettingsStore.gameSortDescending,
+            ],
             () => {
                 dataStore.sortGamesByMethod(compareGameTitlesAZ);
             },

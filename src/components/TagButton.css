@@ -39,7 +39,7 @@
         top: 50%;
         transform: translateY(-50%);
         opacity: 0;
-        color: white;
+        color: #fff;
     }
     &:hover .icon-button,
     &.dd-open .icon-button,
@@ -62,14 +62,14 @@
         transform: translate(-50%, -50%);
         width: 24px;
         height: 24px;
-        color: var(--pf-fg-200);
+        color: var(--pf-fg-300);
         border-radius: 50%;
         opacity: 0;
     }
     &:hover {
         .tag-button {
             background-color: var(--pf-btn-primary);
-            padding-left: 22px;
+            padding-left: 24px;
             transition: padding-left 0.3s ease 0.8s;
         }
         label {

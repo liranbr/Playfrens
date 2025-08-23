@@ -72,6 +72,10 @@ const GPTagButton = observer(({ game, tag }) => {
                     handleClick();
                 }
             }}
+            onContextMenu={(e) => {
+                e.preventDefault(); // don't open right-click context menu
+                setDropdownOpen(true); // open button's dropdown instead
+            }}
         >
             <span role="button" className="tag-button" draggable="true">
                 <span className="tag-name">{tag.name}</span>

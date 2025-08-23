@@ -330,6 +330,7 @@
         align-items: center;
         justify-content: space-between;
         font-size: 14px;
+        color: var(--pf-fg-200);
         height: 32px;
         padding: 0 12px;
         border-radius: 4px;
@@ -343,6 +344,10 @@
         .item-indicator {
             color: var(--pf-fg-200);
             font-size: 16px;
+        }
+
+        &:has(.item-indicator) {
+            color: #fff;
         }
 
         & > * {

@@ -29,3 +29,5 @@ desktop.ini
 package-lock.json
 # Holds API keys
 .env
+# For certificates
+*.pem

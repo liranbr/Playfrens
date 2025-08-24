@@ -13,8 +13,7 @@ import { version } from "/package.json";
 import { compareTagFilteredGamesCount } from "@/models/TagObject.js";
 import { SortingReaction } from "@/stores/SortingReaction.js";
 
-// Short alias for convenience, used a lot here
-const tT = tagTypes;
+const tT = tagTypes; // Short alias for convenience, used a lot here
 const storageKeys = {
     [tT.friend]: "allFriends",
     [tT.category]: "allCategories",
@@ -24,6 +23,10 @@ const storageKeys = {
     version: "version",
     visited: "visited",
 };
+
+// #============#
+// ‖ DATA STORE ‖
+// #============#
 
 /**
  * @class
@@ -237,24 +240,24 @@ export class DataStore {
         return toastSuccess(`Updated ${storedGame.title}`);
     }
 
-    sortTagsByMethod(tagType, sortMethod) {
+    sortTagsByMethod(tagType, sortMethod, isDescending) {
         // console.log("Sorting Tags of type " + tagType + ", by method " + sortMethod.name);
-        if (sortMethod === "custom") return; // not implemented yet, so just keeps the order as-is
         const entriesArray = [...this.allTags[tagType].entries()];
         entriesArray.sort(([id1, tag1], [id2, tag2]) => sortMethod(tag1, tag2));
-        if (globalSettingsStore.tagSortDirection[tagType] === "desc") entriesArray.reverse();
+        if (isDescending) entriesArray.reverse();
+
         // Needs to be runInAction because used by autorun/reaction, which seems to lose binding otherwise
         runInAction(() => this.allTags[tagType].replace(entriesArray));
     }
 
-    sortGamesByMethod(sortMethod) {
+    sortGamesByMethod(sortMethod, isDescending) {
         // console.log("Sorting games, by method " + sortMethod.name);
         const entriesArray = [...this.allGames.entries()];
         entriesArray.sort(([id1, game1], [id2, game2]) => sortMethod(game1, game2));
-        if (globalSettingsStore.gameSortDescending === "desc") entriesArray.reverse();
+        if (isDescending) entriesArray.reverse();
+
         // Needs to be runInAction because used by autorun/reaction, which seems to lose binding otherwise
         runInAction(() => this.allGames.replace(entriesArray));
-        saveToStorage(storageKeys.games, this.allGames);
     }
 }
 
@@ -268,6 +271,7 @@ export const globalDataStore = dataStore;
 // #==============#
 // ‖ AUTO-SORTING ‖
 // #==============#
+
 // These handle auto-sorting on relevant changes, e.g. If sorting friends by name, react when any friend's name changes
 const sortingReactions = {
     [tT.friend]: null,
@@ -276,52 +280,60 @@ const sortingReactions = {
     games: null,
 };
 
-setTagSorting(tT.friend, "name"); // TODO: Temp till implementing sorting settings, with a reactions controller and UI
-setTagSorting(tT.category, "custom");
-setTagSorting(tT.status, "custom");
-setGameSorting("title");
+// And these set the sorting reactions, by reacting to changes in the SettingsStore.
+// DataStore imports SettingsStore already, so this avoids circular imports.
+const sortBySettingsReaction = (tagType) =>
+    reaction(
+        () => [
+            globalSettingsStore.tagSortMethods[tagType],
+            globalSettingsStore.tagSortDirection[tagType],
+        ],
+        (sortBy) => setTagSorting(tagType, sortBy[0], sortBy[1]),
+    );
+sortBySettingsReaction(tT.friend);
+sortBySettingsReaction(tT.category);
+sortBySettingsReaction(tT.status);
 
-function setTagSorting(tagType, sortSetting) {
+reaction(
+    () => [globalSettingsStore.gameSortMethod, globalSettingsStore.gameSortDirection],
+    (sortBy) => setGameSorting(sortBy[0], sortBy[1]),
+);
+
+function setTagSorting(tagType, sortSetting, sortDirection) {
     sortingReactions[tagType]?.disable();
+    const isDescending = sortDirection === "desc";
+
     if (sortSetting === "custom") {
         // custom sort not implemented yet, so just does nothing
     } else if (sortSetting === "name") {
         sortingReactions[tagType] = new SortingReaction(
-            () => [
-                [...dataStore.allTags[tagType]].map(([id, tag]) => tag.name),
-                globalSettingsStore.tagSortDirection[tagType],
-            ],
+            () => [[...dataStore.allTags[tagType]].map(([id, tag]) => tag.name)],
             () => {
-                dataStore.sortTagsByMethod(tagType, compareTagNamesAZ);
+                dataStore.sortTagsByMethod(tagType, compareTagNamesAZ, isDescending);
             },
         );
     } else if (sortSetting === "count") {
         sortingReactions[tagType] = new SortingReaction(
-            () => [
-                [...dataStore.allTags[tagType]].map(([id, tag]) => tag.filteredGamesCount),
-                globalSettingsStore.tagSortDirection[tagType],
-            ],
+            () => [[...dataStore.allTags[tagType]].map(([id, tag]) => tag.filteredGamesCount)],
             () => {
-                dataStore.sortTagsByMethod(tagType, compareTagFilteredGamesCount);
+                dataStore.sortTagsByMethod(tagType, compareTagFilteredGamesCount, isDescending);
             },
         );
     }
     sortingReactions[tagType]?.enable();
 }
 
-function setGameSorting(sortSetting) {
+function setGameSorting(sortSetting, sortDirection) {
     sortingReactions.games?.disable();
+    const isDescending = sortDirection === "desc";
 
     if (sortSetting === "custom") {
         // custom sort not implemented yet, so just does nothing
     } else if (sortSetting === "title") {
         sortingReactions.games = new SortingReaction(
-            () => [
-                [...dataStore.allGames].map(([id, game]) => [game.title, game.sortingTitle]),
-                globalSettingsStore.gameSortDescending,
-            ],
+            () => [[...dataStore.allGames].map(([id, game]) => [game.title, game.sortingTitle])],
             () => {
-                dataStore.sortGamesByMethod(compareGameTitlesAZ);
+                dataStore.sortGamesByMethod(compareGameTitlesAZ, isDescending);
             },
         );
     }
@@ -331,6 +343,7 @@ function setGameSorting(sortSetting) {
 // #=============#
 // ‖ FILE BACKUP ‖
 // #=============#
+
 export function backupToFile() {
     console.log("Backing up data to file...");
     const data = {

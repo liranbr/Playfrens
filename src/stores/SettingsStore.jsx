@@ -47,7 +47,7 @@ class SettingsStore {
         [tagTypes.status]: "asc",
     };
     gameSortMethod = "title";
-    gameSortDescending = "asc";
+    gameSortDirection = "asc";
 
     constructor(settings = {}) {
         makeAutoObservable(this);

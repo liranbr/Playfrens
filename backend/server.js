@@ -15,7 +15,10 @@ const { PORT, HTTPS } = SETTINGS;
 
 const services = [];
 
-const pems = selfsigned.generate([{ name: "commonName", value: "localhost" }], { days: 365 });
+const pems = selfsigned.generate([{ name: "commonName", value: "localhost" }], {
+    days: 365,
+    keySize: 2048,
+});
 
 dotenv.config({ debug: true, path: ".env" });
 dotenv.config({ debug: true, path: ".env.public" });

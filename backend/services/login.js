@@ -46,13 +46,13 @@ export class LoginService extends Service {
         if (!req.isAuthenticated()) {
             return Response.send(res, UNAUTHORIZED, { error: "Not logged in" });
         }
+        console.log(`Logging out ${req.user.displayName} 🚪`);
         req.logout(function (err) {
             if (err) {
                 return next(err);
             }
             req.session.destroy((err) => {
                 if (err) return next(err);
-                console.log(`Logging out ${req.user.displayName} 🚪`);
                 res.clearCookie("connect.sid"); // maybe a better way to centeralize all cookies to be a specific key name and not this?
                 res.redirect("/");
             });

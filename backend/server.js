@@ -11,17 +11,18 @@ import selfsigned from "selfsigned";
 import { getBackendDomain, SETTINGS } from "./settings.js";
 
 const app = express();
-const { DOMAIN, PORT, HTTPS } = SETTINGS;
+const { PORT, HTTPS } = SETTINGS;
 
 const services = [];
 
 const pems = selfsigned.generate([{ name: "commonName", value: "localhost" }], { days: 365 });
 
-dotenv.config({ debug: true });
+dotenv.config({ debug: true, path: ".env" });
+dotenv.config({ debug: true, path: ".env.public" });
 
 app.use(
     cors({
-        origin: `https://localhost:5174`,
+        origin: process.env.public.VITE_PORT, //`https://localhost:5174`,
         credentials: true,
     }),
 );

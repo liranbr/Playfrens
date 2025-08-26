@@ -2,12 +2,13 @@ import { Service } from "../service.js";
 import { Response } from "../response.js";
 import SteamStrategy from "passport-steam";
 import passport from "passport";
+import { getBackendDomain } from "../settings.js";
 
 export class LoginService extends Service {
     constructor(app) {
         super(app, process.env.SESSION_SECRET);
 
-        const URL = "https://localhost:3000";
+        const URL = getBackendDomain();
         passport.use(
             new SteamStrategy(
                 {

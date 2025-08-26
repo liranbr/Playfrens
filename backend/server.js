@@ -8,10 +8,10 @@ import session from "express-session";
 import passport from "passport";
 import https from "https";
 import selfsigned from "selfsigned";
-import { SETTINGS } from "./settings.js";
+import { getBackendDomain, SETTINGS } from "./settings.js";
 
 const app = express();
-const PORT = SETTINGS.PORT;
+const { DOMAIN, PORT, HTTPS } = SETTINGS;
 
 const services = [];
 
@@ -21,7 +21,7 @@ dotenv.config({ debug: true });
 
 app.use(
     cors({
-        origin: "https://localhost:5174",
+        origin: `https://localhost:5174`,
         credentials: true,
     }),
 );
@@ -34,7 +34,7 @@ app.use(
         resave: false,
         saveUninitialized: false,
         cookie: {
-            secure: true, // http vs https
+            secure: HTTPS, // http vs https
             httpOnly: true,
             sameSite: "none",
             maxAge: 24 * 60 * 60 * 1000, // one day
@@ -55,6 +55,12 @@ export const main = () => {
 
 main();
 
-https.createServer({ key: pems.private, cert: pems.cert }, app).listen(PORT, () => {
-    console.log(`HTTPS server running @ https://localhost:${PORT}`);
-});
+if (HTTPS) {
+    https.createServer({ key: pems.private, cert: pems.cert }, app).listen(PORT, () => {
+        console.log(`HTTPS server running @ ${getBackendDomain()}`);
+    });
+} else {
+    app.listen(PORT, () => {
+        console.log(`Listening to ${getBackendDomain()}`);
+    });
+}

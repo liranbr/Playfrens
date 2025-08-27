@@ -1,13 +1,14 @@
-import dotenv from "dotenv-safe";
-dotenv.config({ debug: true, path: ".env" });
-dotenv.config({ debug: true, path: ".env.public" });
-
 const env = process.env;
 
 export function getFrontendDomain() {
-    return `http${env.Use_HTTPS ? "s" : ""}://${env.DOMAIN}:${env.VITE_PORT}`;
+    return `http${parseBoolean(env.Use_HTTPS) ? "s" : ""}://${env.DOMAIN}:${env.VITE_PORT}`;
 }
 
 export function getBackendDomain() {
-    return `http${env.Use_HTTPS ? "s" : ""}://${env.DOMAIN}:${env.BACKEND_PORT}`;
+    return `http${parseBoolean(env.Use_HTTPS) ? "s" : ""}://${env.DOMAIN}:${env.BACKEND_PORT}`;
+}
+
+export function parseBoolean(s) {
+    const value = s.toLowerCase();
+    return value === "true" || value === "1" || value === "yes";
 }

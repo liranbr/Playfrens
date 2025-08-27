@@ -10,14 +10,20 @@ export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), "");
     const { VITE_PORT, USE_HTTPS, BACKEND_PORT, DOMAIN } = env;
 
-    const target = `http${Boolean(USE_HTTPS) ? "s" : ""}://${DOMAIN}:${BACKEND_PORT}`;
-    console.log("target", target);
+    const parseBoolean = (s) => {
+        const value = s.toLowerCase();
+        return value === "true" || value === "1" || value === "yes";
+    };
+    const useHttps = parseBoolean(USE_HTTPS);
+
+    const target = `http${useHttps ? "s" : ""}://${DOMAIN}:${BACKEND_PORT}`;
+
     return {
-        plugins: [react(), mkcert()],
+        plugins: [react(), useHttps ? mkcert() : undefined],
         server: {
             host: "0.0.0.0",
             port: Number(VITE_PORT), // for developing - stable is running on 5173
-            https: Boolean(USE_HTTPS),
+            https: useHttps,
             sourcemap: true,
             proxy: {
                 "/auth": {

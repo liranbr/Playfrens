@@ -8,15 +8,15 @@ import session from "express-session";
 import passport from "passport";
 import https from "https";
 import selfsigned from "selfsigned";
-import { getBackendDomain, getFrontendDomain } from "./utils.js";
+import { getBackendDomain, getFrontendDomain, parseBoolean } from "./utils.js";
 
-// Init express
-const app = express();
-
-// Load environment keys
+// Load environment keys first before anything else!
 dotenv.config({ debug: true, path: ".env" });
 dotenv.config({ debug: true, path: ".env.public" });
 const env = process.env;
+
+// Init express
+const app = express();
 
 // Enable Cross-Origin Resource Sharing
 app.use(
@@ -37,7 +37,7 @@ app.use(
         resave: false,
         saveUninitialized: false,
         cookie: {
-            secure: env.USE_HTTPS, // http vs https
+            secure: parseBoolean(env.USE_HTTPS), // http vs https
             httpOnly: true,
             sameSite: "none",
             maxAge: 24 * 60 * 60 * 1000, // 1 day
@@ -59,7 +59,7 @@ export const main = () => {
 };
 
 // Finally we set up the server to be ready and listening
-if (Boolean(env.USE_HTTPS)) {
+if (parseBoolean(env.USE_HTTPS)) {
     const pems = selfsigned.generate([{ name: "commonName", value: "localhost" }], {
         days: 365,
         keySize: 2048,
@@ -68,7 +68,7 @@ if (Boolean(env.USE_HTTPS)) {
         console.log(`HTTPS server running @ ${getBackendDomain()}`);
     });
 } else {
-    app.listen(PORT, () => {
+    app.listen(env.PORT, () => {
         console.log(`Listening to ${getBackendDomain()}`);
     });
 }

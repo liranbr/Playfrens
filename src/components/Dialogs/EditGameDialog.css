@@ -1,0 +1,38 @@
+.rx-dialog.edit-game-dialog {
+    pointer-events: none !important; /* to make sure clicking outside the dialogs closes it, due to irregular shape */
+    display: flex;
+    flex-direction: row;
+    width: fit-content;
+    height: fit-content;
+    align-items: center;
+    background: none;
+    padding: 0;
+    border: none;
+    outline: none;
+    overflow: unset;
+    box-shadow: none;
+    gap: 12px;
+
+    --cover-art-width: 450px;
+    --container-shadow: 0 0 20px rgba(0, 0, 0, 1);
+    --border: var(--pf-border-700);
+    --outer-border: var(--pf-border-700);
+    --border-radius: 20px;
+    --container-bg: var(--pf-bg-900);
+    --element-bg: var(--pf-bg-700);
+
+    .card-dialog {
+        pointer-events: auto;
+        width: var(--cover-art-width);
+        border: var(--outer-border);
+        border-radius: var(--border-radius);
+        box-shadow: var(--container-shadow);
+        background-size: cover;
+        background-position: center;
+        background-color: var(--container-bg);
+        padding: 20px;
+        &.cover-art-selector {
+            aspect-ratio: 1 / 1.5;
+        }
+    }
+}

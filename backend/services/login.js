@@ -27,7 +27,7 @@ export class LoginService extends Service {
     }
     listen() {
         super.listen();
-        this.app.get("/auth/me", this.getMe.bind(this));
+        this.app.get("/auth/me", this.getRequestIdentity.bind(this));
         this.app.get("/auth/logout", this.logout.bind(this));
 
         this.app.get("/auth/steam", passport.authenticate("steam", { failureRedirect: "/" }));
@@ -35,37 +35,50 @@ export class LoginService extends Service {
             "/auth/steam/return",
             passport.authenticate("steam", { failureRedirect: "/" }),
             (req, res) => {
-                console.log(`Hello, ${req.user.displayName || "Steam user"}!`);
-                res.redirect(getFrontendDomain());
+                try {
+                    console.log(`Hello, ${req.user.displayName || "Steam user"}!`);
+                    res.redirect(getFrontendDomain());
+                } catch (error) {
+                    Response.send(res, INTERNAL_SERVER_ERROR, error);
+                }
             },
         );
     }
 
     async logout(req, res, next) {
         const { UNAUTHORIZED } = Response.HttpStatus;
-        if (!req.isAuthenticated()) {
-            return Response.send(res, UNAUTHORIZED, { error: "Not logged in" });
-        }
-        console.log(`Logging out ${req.user.displayName} 🚪`);
-        req.logout(function (err) {
-            if (err) {
-                return next(err);
+        try {
+            if (!req.isAuthenticated()) {
+                return Response.send(res, UNAUTHORIZED, { error: "Not logged in" });
             }
-            req.session.destroy((err) => {
-                if (err) return next(err);
-                res.clearCookie("connect.sid"); // maybe a better way to centeralize all cookies to be a specific key name and not this?
-                res.redirect("/");
+            console.log(`Logging out ${req.user.displayName} 🚪`);
+            req.logout(function (err) {
+                if (err) {
+                    return next(err);
+                }
+                req.session.destroy((err) => {
+                    if (err) return next(err);
+                    res.clearCookie("connect.sid"); // maybe a better way to centeralize all cookies to be a specific key name and not this?
+                    res.redirect("/");
+                });
             });
-        });
+        } catch (error) {
+            Response.send(res, INTERNAL_SERVER_ERROR, error);
+        }
     }
 
-    async getMe(req, res) {
-        const { OK, UNAUTHORIZED } = Response.HttpStatus;
-        if (req.isAuthenticated()) {
-            Response.send(res, OK, { user: req.user });
-            res.json();
-        } else {
-            Response.send(res, UNAUTHORIZED, { error: "Not logged in" });
+    // Returns the user's information used to login with (e.g. Steam public data)
+    async getRequestIdentity(req, res) {
+        const { OK, UNAUTHORIZED, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+        try {
+            if (req.isAuthenticated()) {
+                Response.send(res, OK, { user: req.user });
+                res.json();
+            } else {
+                Response.send(res, UNAUTHORIZED, { error: "Not logged in" });
+            }
+        } catch (error) {
+            Response.send(res, INTERNAL_SERVER_ERROR, error);
         }
     }
 }

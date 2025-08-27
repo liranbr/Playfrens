@@ -1,9 +1,15 @@
+/**
+ * @class
+ * @property {import('express').application} app
+ */
 export class Service {
+    /** @type {string} */
     environment_key = "";
     /** @type {import('express').Express} */
-    app = null;
+    app;
     /**
      * @param {import('express').Express} app
+     * @param {string} environment_key
      */
     constructor(app, environment_key) {
         this.app = app;

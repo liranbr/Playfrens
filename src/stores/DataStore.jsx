@@ -289,6 +289,7 @@ const sortBySettingsReaction = (tagType) =>
             globalSettingsStore.tagSortDirection[tagType],
         ],
         (sortBy) => setTagSorting(tagType, sortBy[0], sortBy[1]),
+        { fireImmediately: true },
     );
 sortBySettingsReaction(tT.friend);
 sortBySettingsReaction(tT.category);
@@ -297,6 +298,7 @@ sortBySettingsReaction(tT.status);
 reaction(
     () => [globalSettingsStore.gameSortMethod, globalSettingsStore.gameSortDirection],
     (sortBy) => setGameSorting(sortBy[0], sortBy[1]),
+    { fireImmediately: true },
 );
 
 function setTagSorting(tagType, sortSetting, sortDirection) {

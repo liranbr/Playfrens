@@ -108,7 +108,14 @@ const GPTagButton = observer(({ game, tag }) => {
 const GPTagButtonGroup = observer(({ game, tagType }) => {
     const dataStore = useDataStore();
     const title = tagTypeStrings[tagType].plural.toUpperCase();
-    const tags = [...game.tagIDs[tagType]].map((id) => dataStore.getTagByID(id, tagType));
+    // Instead of sorting the tags inside every GameObject according to current sort-by settings (inefficient and awkward),
+    // we'll just display a game's tags in its GamePage as they are ordered in the (auto sorted) DataStore
+    const tags = [...game.tagIDs[tagType]]
+        .sort((id1, id2) => {
+            const order = [...dataStore.allTags[tagType].keys()];
+            return order.indexOf(id1) - order.indexOf(id2);
+        })
+        .map((id) => dataStore.getTagByID(id, tagType));
     return (
         <div className="tag-button-group">
             <CenterAndEdgesRow className="ui-card-header">

@@ -27,7 +27,7 @@
     /* gp = Game Page */
 
     .gp-cover-art {
-        width: var(--cover-art-width);
+        width: calc(var(--cover-art-width) + 2px);
         min-width: calc(var(--cover-art-width) + 2px); /* 2px for 1px borders */
         height: calc(var(--cover-art-height) + 2px);
         border: var(--outer-border);

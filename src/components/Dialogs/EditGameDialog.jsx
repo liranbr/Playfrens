@@ -4,6 +4,8 @@ import { Dialogs, dialogStore, useDataStore } from "@/stores";
 import { Button } from "@/components";
 import { DialogBase } from "./DialogRoot.jsx";
 import { useEffect, useRef, useState } from "react";
+import "./GamePageDialog.css";
+import "./EditGameDialog.css";
 
 export function EditGameDialog({ open, closeDialog, game = null }) {
     const dataStore = useDataStore();
@@ -53,56 +55,62 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
     };
 
     return (
-        <DialogBase open={open} onOpenChange={handleHide} contentProps={{ forceMount: !game }}>
-            <Dialog.Title>{dialogTitle}</Dialog.Title>
-            <VisuallyHidden>
-                <Dialog.Description>{dialogDescription}</Dialog.Description>
-            </VisuallyHidden>
-            <fieldset>
-                <label>Game Title</label>
-                <input
-                    id="gameTitleInput"
-                    onKeyDown={saveOnEnter}
-                    defaultValue={game ? game.title : ""}
-                    autoFocus
-                    onChange={handleInputChange}
+        <DialogBase
+            open={open}
+            onOpenChange={handleHide}
+            contentProps={{ forceMount: !game, className: "rx-dialog edit-game-dialog" }}
+        >
+            <div className="card-dialog cover-art-selector">
+                <Dialog.Title>Cover Art</Dialog.Title>
+                <fieldset>
+                    <input
+                        ref={gameCoverInputRef}
+                        id="gameCoverInput"
+                        onKeyDown={saveOnEnter}
+                        defaultValue={game ? game.coverImageURL : ""}
+                        placeholder="Enter URL, or choose from title-based suggestions"
+                    />
+                </fieldset>
+                <SteamGridDBImages
+                    key={gameName}
+                    gameName={gameName}
+                    gameCoverInputRef={gameCoverInputRef}
                 />
+            </div>
 
-                <label>Game Cover URL</label>
-                <input
-                    ref={gameCoverInputRef}
-                    id="gameCoverInput"
-                    onKeyDown={saveOnEnter}
-                    defaultValue={game ? game.coverImageURL : ""}
-                />
-                <small>
-                    <a
-                        href="https://www.steamgriddb.com/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        SteamGridDB
-                    </a>
-                    {" (ideally 600x900)"}
-                </small>
-                <SteamGridDBImages key={gameName} gameName={gameName} gameCoverInputRef={gameCoverInputRef} />
-                <label>
-                    Sorting Title<small> (optional)</small>
-                </label>
-                <input
-                    id="gameSortingTitleInput"
-                    onKeyDown={saveOnEnter}
-                    defaultValue={game ? game.sortingTitle : ""}
-                />
-            </fieldset>
+            <div className="card-dialog">
+                <Dialog.Title>{dialogTitle}</Dialog.Title>
+                <VisuallyHidden>
+                    <Dialog.Description>{dialogDescription}</Dialog.Description>
+                </VisuallyHidden>
+                <fieldset>
+                    <label>Game Title</label>
+                    <input
+                        id="gameTitleInput"
+                        onKeyDown={saveOnEnter}
+                        defaultValue={game ? game.title : ""}
+                        autoFocus
+                        onChange={handleInputChange}
+                    />
 
-            <div className="rx-dialog-footer">
-                <Button variant="secondary" onClick={handleHide}>
-                    Cancel
-                </Button>
-                <Button variant="primary" onClick={handleSave}>
-                    Save
-                </Button>
+                    <label>
+                        Sorting Title<small> (optional)</small>
+                    </label>
+                    <input
+                        id="gameSortingTitleInput"
+                        onKeyDown={saveOnEnter}
+                        defaultValue={game ? game.sortingTitle : ""}
+                    />
+                </fieldset>
+
+                <div className="rx-dialog-footer">
+                    <Button variant="secondary" onClick={handleHide}>
+                        Cancel
+                    </Button>
+                    <Button variant="primary" onClick={handleSave}>
+                        Save
+                    </Button>
+                </div>
             </div>
         </DialogBase>
     );
@@ -115,22 +123,43 @@ function SteamGridDBImages({ gameName, gameCoverInputRef }) {
     useEffect(() => {
         if (!gameName) return;
         fetch(`/api/steamgriddb/getGrids/${encodeURIComponent(gameName)}`)
-            .then(res => {
+            .then((res) => {
                 if (!res.ok) throw new Error("No results");
                 return res.json();
             })
-            .then(data => { setImages(data) })
-            .catch(err => setError(err.message), setImages([]));
+            .then((data) => {
+                setImages(data);
+            })
+            .catch((err) => setError(err.message), setImages([]));
     }, [gameName]);
 
     if (error) return <div>Error: {error}</div>;
-    if (images.length == 0) return <></>
+    if (images.length == 0) return <></>;
     return (
         <div>
             or choose one of these images:
-            <div style={{ display: "flex", alignItems: "center", alignContent: "center", justifyContent: "space-evenly", flex: "0 0 33.333%", flexWrap: "wrap" }}>
-                {images.slice(0, 6).map(img => (
-                    <img style={{ marginTop: 8 }} key={img.url} src={img.preview} alt="" width={100} height={150} onClick={() => { gameCoverInputRef.current.value = img.url }} />
+            <div
+                style={{
+                    display: "flex",
+                    alignItems: "center",
+                    alignContent: "center",
+                    justifyContent: "space-evenly",
+                    flex: "0 0 33.333%",
+                    flexWrap: "wrap",
+                }}
+            >
+                {images.slice(0, 6).map((img) => (
+                    <img
+                        style={{ marginTop: 8 }}
+                        key={img.url}
+                        src={img.preview}
+                        alt=""
+                        width={100}
+                        height={150}
+                        onClick={() => {
+                            gameCoverInputRef.current.value = img.url;
+                        }}
+                    />
                 ))}
             </div>
         </div>

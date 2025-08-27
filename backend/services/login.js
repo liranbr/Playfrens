@@ -2,7 +2,7 @@ import { Service } from "../service.js";
 import { Response } from "../response.js";
 import SteamStrategy from "passport-steam";
 import passport from "passport";
-import { getBackendDomain } from "../settings.js";
+import { getBackendDomain, getFrontendDomain } from "../utils.js";
 
 export class LoginService extends Service {
     constructor(app) {
@@ -36,7 +36,7 @@ export class LoginService extends Service {
             passport.authenticate("steam", { failureRedirect: "/" }),
             (req, res) => {
                 console.log(`Hello, ${req.user.displayName || "Steam user"}!`);
-                res.redirect("https://localhost:5174");
+                res.redirect(getFrontendDomain());
             },
         );
     }

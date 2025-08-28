@@ -14,6 +14,7 @@
     gap: 12px;
 
     --cover-art-width: 450px;
+    --cover-art-height: calc(var(--cover-art-width) * 1.5);
     --container-shadow: 0 0 20px rgba(0, 0, 0, 1);
     --border: var(--pf-border-700);
     --outer-border: var(--pf-border-700);
@@ -31,8 +32,43 @@
         background-position: center;
         background-color: var(--container-bg);
         padding: 20px;
+
         &.cover-art-selector {
-            aspect-ratio: 1 / 1.5;
+            height: var(--cover-art-height);
+            max-height: var(--cover-art-height);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 10px;
+            --covers-gallery-padding: 16px; /* padding to give space for selection highlight */
+            /* TODO: there's probably a better way to make sure outline/glow doesn't get cut off than this padding. some margin and z-index? */
+
+            fieldset {
+                padding: 0 10px;
+            }
+
+            .rx-scrollbar {
+                padding: var(--covers-gallery-padding) 0; /* scrollbar aligns with the start/end of the covers */
+            }
+
+            .covers-gallery {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+                padding: var(--covers-gallery-padding);
+                max-width: var(--cover-art-width);
+
+                img {
+                    width: 100%;
+                    outline: 4px solid transparent;
+                    outline-offset: -2px;
+                    transition: 0.25s ease;
+
+                    &.selected-cover {
+                        outline: 4px solid var(--pf-border-color-primary);
+                        box-shadow: 0 0 12px 2px var(--pf-fg-link);
+                    }
+                }
+            }
         }
     }
 }

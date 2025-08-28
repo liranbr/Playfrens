@@ -51,6 +51,8 @@ export const DialogBase = observer(({ children, open, onOpenChange, contentProps
         <Dialog.Content
             {...contentProps}
             className={contentProps?.className ? contentProps.className : "rx-dialog"}
+            onWheel={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
         >
             {children}
         </Dialog.Content>

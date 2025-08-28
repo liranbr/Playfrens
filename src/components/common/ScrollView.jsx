@@ -18,7 +18,11 @@ export function ScrollView({
     ...rest
 }) {
     return (
-        <ScrollArea.Root type={type} className={`rx-scroll-area ${rootClassName}`} {...rest}>
+        <ScrollArea.Root
+            type={type || "auto"}
+            className={`rx-scroll-area ${rootClassName}`}
+            {...rest}
+        >
             <ScrollArea.Viewport asChild className={`rx-scroll-viewport ${viewportClassName}`}>
                 {children}
             </ScrollArea.Viewport>

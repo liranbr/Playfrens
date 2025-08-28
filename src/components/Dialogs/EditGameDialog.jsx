@@ -1,7 +1,7 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Dialogs, dialogStore, useDataStore } from "@/stores";
-import { Button } from "@/components";
+import { Button, ScrollView } from "@/components";
 import { DialogBase } from "./DialogRoot.jsx";
 import { useEffect, useRef, useState } from "react";
 import "./GamePageDialog.css";
@@ -60,24 +60,6 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
             onOpenChange={handleHide}
             contentProps={{ forceMount: !game, className: "rx-dialog edit-game-dialog" }}
         >
-            <div className="card-dialog cover-art-selector">
-                <Dialog.Title>Cover Art</Dialog.Title>
-                <fieldset>
-                    <input
-                        ref={gameCoverInputRef}
-                        id="gameCoverInput"
-                        onKeyDown={saveOnEnter}
-                        defaultValue={game ? game.coverImageURL : ""}
-                        placeholder="Enter URL, or choose from title-based suggestions"
-                    />
-                </fieldset>
-                <SteamGridDBImages
-                    key={gameName}
-                    gameName={gameName}
-                    gameCoverInputRef={gameCoverInputRef}
-                />
-            </div>
-
             <div className="card-dialog">
                 <Dialog.Title>{dialogTitle}</Dialog.Title>
                 <VisuallyHidden>
@@ -112,6 +94,24 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                     </Button>
                 </div>
             </div>
+
+            <div className="card-dialog cover-art-selector">
+                <Dialog.Title>Cover Art</Dialog.Title>
+                <fieldset>
+                    <input
+                        ref={gameCoverInputRef}
+                        id="gameCoverInput"
+                        onKeyDown={saveOnEnter}
+                        defaultValue={game ? game.coverImageURL : ""}
+                        placeholder="Enter URL, or choose from title-based suggestions"
+                    />
+                </fieldset>
+                <SteamGridDBImages
+                    key={gameName}
+                    gameName={gameName}
+                    gameCoverInputRef={gameCoverInputRef}
+                />
+            </div>
         </DialogBase>
     );
 }
@@ -119,6 +119,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
 function SteamGridDBImages({ gameName, gameCoverInputRef }) {
     const [images, setImages] = useState([]);
     const [error, setError] = useState("");
+    const [selectedURL, setSelectedURL] = useState("");
 
     useEffect(() => {
         if (!gameName) return;
@@ -134,34 +135,23 @@ function SteamGridDBImages({ gameName, gameCoverInputRef }) {
     }, [gameName]);
 
     if (error) return <div>Error: {error}</div>;
-    if (images.length == 0) return <></>;
+    if (images.length === 0) return <></>;
     return (
-        <div>
-            or choose one of these images:
-            <div
-                style={{
-                    display: "flex",
-                    alignItems: "center",
-                    alignContent: "center",
-                    justifyContent: "space-evenly",
-                    flex: "0 0 33.333%",
-                    flexWrap: "wrap",
-                }}
-            >
-                {images.slice(0, 6).map((img) => (
+        <ScrollView>
+            <div className="covers-gallery">
+                {images.slice(0, 32).map((img) => (
                     <img
-                        style={{ marginTop: 8 }}
                         key={img.url}
                         src={img.preview}
                         alt=""
-                        width={100}
-                        height={150}
                         onClick={() => {
+                            setSelectedURL(img.url);
                             gameCoverInputRef.current.value = img.url;
                         }}
+                        className={selectedURL === img.url ? "selected-cover" : ""}
                     />
                 ))}
             </div>
-        </div>
+        </ScrollView>
     );
 }

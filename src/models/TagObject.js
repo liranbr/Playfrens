@@ -37,6 +37,8 @@ export const tagTypeStrings = {
  * @property {String} type
  * @property {String} name
  * @property {String} id
+ * @property {Number} filteredGamesCount
+ * @property {Number} totalGamesCount
  * @property {TagTypeStrings} typeStrings
  */
 export class TagObject {
@@ -44,6 +46,7 @@ export class TagObject {
     name;
     id;
     filteredGamesCount;
+    totalGamesCount;
     constructor({ type, name, id }) {
         if (!tagTypes[type]) throw new Error(`Invalid tag type: ${type}`);
         if (!name || typeof name !== "string" || !name.trim())
@@ -55,6 +58,7 @@ export class TagObject {
         this.name = name;
         this.id = id ?? crypto.randomUUID();
         this.filteredGamesCount = 0;
+        this.totalGamesCount = 0;
         makeAutoObservable(this);
     }
 
@@ -70,10 +74,6 @@ export class TagObject {
             this.type === other.type &&
             this.name === other.name
         );
-    }
-
-    setFilteredGamesCount(amount) {
-        this.filteredGamesCount = amount;
     }
 
     toJSON() {
@@ -104,5 +104,11 @@ export function compareTagNamesAZ(a, b) {
 export function compareTagFilteredGamesCount(a, b) {
     const comparison = a.filteredGamesCount - b.filteredGamesCount;
     if (comparison !== 0) return comparison;
-    return compareTagNamesAZ(a, b);
+    else return compareTagNamesAZ(a, b);
+}
+
+export function compareTagTotalGamesCount(a, b) {
+    const comparison = a.totalGamesCount - b.totalGamesCount;
+    if (comparison !== 0) return comparison;
+    else return compareTagNamesAZ(a, b);
 }

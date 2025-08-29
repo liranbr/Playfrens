@@ -1,16 +1,17 @@
 import { createContext, useContext } from "react";
 import { action, autorun, makeAutoObservable, ObservableMap, reaction, runInAction } from "mobx";
-import { compareGameTitlesAZ, compareTagNamesAZ, GameObject, TagObject, tagTypes } from "@/models";
 import {
-    loadFromStorage,
-    saveToStorage,
-    setToastSilence,
-    toastError,
-    toastSuccess,
-} from "@/Utils.jsx";
-import { globalSettingsStore, settingsStorageKey, useSettingsStore } from "@/stores";
+    compareGameTitlesAZ,
+    compareTagNamesAZ,
+    GameObject,
+    TagObject,
+    tagTypes,
+    compareTagFilteredGamesCount,
+    compareTagTotalGamesCount,
+} from "@/models";
+import { loadFromStorage, saveToStorage, toastError, toastSuccess } from "@/Utils.jsx";
+import { globalSettingsStore, settingsStorageKey } from "@/stores";
 import { version } from "/package.json";
-import { compareTagFilteredGamesCount } from "@/models/TagObject.js";
 import { SortingReaction } from "@/stores/SortingReaction.js";
 
 const tT = tagTypes; // Short alias for convenience, used a lot here
@@ -55,6 +56,12 @@ export class DataStore {
         autorun(() => saveToStorage(storageKeys[tT.category], this.allTags[tT.category]));
         autorun(() => saveToStorage(storageKeys[tT.status], this.allTags[tT.status]));
         autorun(() => saveToStorage(storageKeys.games, this.allGames));
+        // when any game is added/removed, update the totalGamesCounter in every tag
+        reaction(
+            () => this.allGames.keys(),
+            () => this.updateAllTagTotalGamesCounters(),
+            { fireImmediately: true },
+        );
     }
 
     populateTagsFromTagNames(tagCollection) {
@@ -178,13 +185,28 @@ export class DataStore {
         return toastSuccess(`Updated ${oldName} to ${newName} in ${tag.typeStrings.plural} list`);
     }
 
+    allTagsFlatForEach(callbackfn) {
+        for (const tagType in this.allTags) this.allTags[tagType].forEach(callbackfn);
+    }
+
+    updateAllTagTotalGamesCounters() {
+        this.allTagsFlatForEach(
+            (t) =>
+                (t.totalGamesCount = [...this.allGames.values()].filter((game) =>
+                    game.hasTag(t),
+                ).length),
+        );
+    }
+
+    updateTagTotalGamesCounter(tag) {
+        const t = this.allTags[tag.type].get(tag.id);
+        t.totalGamesCount = [...this.allGames.values()].filter((game) => game.hasTag(t)).length;
+    }
+
     updateAllTagFilteredGamesCounters(filteredGames) {
-        for (const tagType in this.allTags) {
-            this.allTags[tagType].forEach(
-                (t) =>
-                    (t.filteredGamesCount = filteredGames.filter((game) => game.hasTag(t)).length),
-            );
-        }
+        this.allTagsFlatForEach(
+            (t) => (t.filteredGamesCount = filteredGames.filter((game) => game.hasTag(t)).length),
+        );
     }
 
     updateTagFilteredGamesCounter(tag, filteredGames) {
@@ -314,11 +336,18 @@ function setTagSorting(tagType, sortSetting, sortDirection) {
                 dataStore.sortTagsByMethod(tagType, compareTagNamesAZ, isDescending);
             },
         );
-    } else if (sortSetting === "count") {
+    } else if (sortSetting === "countFiltered") {
         sortingReactions[tagType] = new SortingReaction(
             () => [[...dataStore.allTags[tagType]].map(([id, tag]) => tag.filteredGamesCount)],
             () => {
                 dataStore.sortTagsByMethod(tagType, compareTagFilteredGamesCount, isDescending);
+            },
+        );
+    } else if (sortSetting === "countTotal") {
+        sortingReactions[tagType] = new SortingReaction(
+            () => [[...dataStore.allTags[tagType]].map(([id, tag]) => tag.totalGamesCount)],
+            () => {
+                dataStore.sortTagsByMethod(tagType, compareTagTotalGamesCount, isDescending);
             },
         );
     }

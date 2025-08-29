@@ -156,6 +156,7 @@ reaction(
 );
 // and this is a wrapper function to update the other cases that can change this counter;
 // used when adding/removing a tag from a game
-export function updateTagFilteredGamesCounter(tag) {
+export function updateTagBothGameCounters(tag) {
     globalDataStore.updateTagFilteredGamesCounter(tag, filterStore.filteredGames);
+    globalDataStore.updateTagTotalGamesCounter(tag);
 }

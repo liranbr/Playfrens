@@ -6,7 +6,7 @@ import {
     useSettingsStore,
     Dialogs,
     globalDialogStore,
-    updateTagFilteredGamesCounter,
+    updateTagBothGameCounters,
 } from "@/stores";
 import { TagObject } from "@/models";
 import { ScrollView } from "@/components";
@@ -35,7 +35,7 @@ const GameCard = observer(({ game }) => {
         const tag = new TagObject(JSON.parse(e.dataTransfer.getData("application/json")));
         setDraggedOver(false);
         game.addTag(tag);
-        updateTagFilteredGamesCounter(tag);
+        updateTagBothGameCounters(tag);
     };
     const openGamePageDialog = () => {
         globalDialogStore.open(Dialogs.GamePage, { game });

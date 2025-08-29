@@ -5,7 +5,7 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert, MdRemove } from "react-icons/md";
 import { CenterAndEdgesRow, IconButton, ScrollView } from "@/components";
-import { Dialogs, globalDialogStore, updateTagFilteredGamesCounter, useDataStore } from "@/stores";
+import { Dialogs, globalDialogStore, updateTagBothGameCounters, useDataStore } from "@/stores";
 import { tagTypes, tagTypeStrings } from "@/models";
 import { useValidatedImage } from "@/hooks/useValidatedImage.js";
 import { DialogBase } from "./DialogRoot.jsx";
@@ -39,7 +39,7 @@ const AddTagButton = ({ tagType, game }) => {
                                     key={t.id}
                                     onClick={() => {
                                         game.addTag(t);
-                                        updateTagFilteredGamesCounter(t);
+                                        updateTagBothGameCounters(t);
                                     }}
                                 >
                                     <span className="item-label">{t.name}</span>
@@ -57,7 +57,7 @@ const GPTagButton = observer(({ game, tag }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const handleRemove = () => {
         game.removeTag(tag);
-        updateTagFilteredGamesCounter(tag);
+        updateTagBothGameCounters(tag);
     };
     const handleClick = () => setDropdownOpen(true);
 

@@ -24,13 +24,13 @@ export class Response {
      *  @param {object} payload - An Object to responsd with
      */
     static send = (res, status, payload = {}) => {
-        res.status(status).json(payload);
+        return res.status(status).json(payload);
     };
     /**
      * @param {import('express').Response} res - Express response
      * @param {number} status - HTTP response status code
      */
     static sendMessage = (res, status, message) => {
-        res.status(status).send(message);
+        return res.status(status).send(message);
     };
 }

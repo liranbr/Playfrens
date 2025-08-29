@@ -5,7 +5,7 @@ import { GamePageDialog } from "@/components/Dialogs/GamePageDialog.jsx";
 import { DeleteWarningDialog } from "@/components/Dialogs/DeleteWarningDialog.jsx";
 import { SettingsDialog } from "@/components/Dialogs/SettingsDialog.jsx";
 import { AboutDialog } from "@/components/Dialogs/AboutDialog.jsx";
-import { List, Item } from 'linked-list'
+import { List, Item } from "linked-list";
 
 export const Dialogs = {
     DeleteWarning: DeleteWarningDialog,
@@ -17,7 +17,6 @@ export const Dialogs = {
 };
 
 class DialogList extends List {
-
     detachFirst() {
         return this.head?.detach();
     }
@@ -32,9 +31,8 @@ class DialogList extends List {
 }
 
 class DialogItem extends Item {
-
     constructor(value) {
-        super()
+        super();
         this.value = value;
     }
 
@@ -43,25 +41,32 @@ class DialogItem extends Item {
     }
 
     getAllValues() {
-        let item = this.head
-        const result = []
+        let item = this.head;
+        const result = [];
 
         while (item) {
-            result.push(item.value)
-            item = item.next
+            result.push(item.value);
+            item = item.next;
         }
 
-        return result
+        return result;
     }
 
-    get dialog() { return this.value.dialog; }
-    get props() { return this.value.props; }
-    get open() { return this.value.open; }
-    set open(b) { this.value.open = b }
+    get dialog() {
+        return this.value.dialog;
+    }
+    get props() {
+        return this.value.props;
+    }
+    get open() {
+        return this.value.open;
+    }
+    set open(b) {
+        this.value.open = b;
+    }
 }
 
 class DialogStore {
-
     dialogList = new DialogList();
 
     activeDialog = null;
@@ -75,9 +80,7 @@ class DialogStore {
         window.addEventListener("load", () => {
             const computedStyle = getComputedStyle(document.documentElement);
             this.dialogFadeDuration =
-                computedStyle
-                    .getPropertyValue("--dialog-fade-duration")
-                    .replace("ms", "") || "0";
+                computedStyle.getPropertyValue("--dialog-fade-duration").replace("ms", "") || "0";
         });
     }
 
@@ -93,52 +96,48 @@ class DialogStore {
         this.onTransitionComplete(() => {
             this.dialogList.detachLast();
             this.setActiveDialog(this.dialogList.getLast());
-            if (this.activeDialog)
-                this.activeIsOpen = true;
+            if (this.activeDialog) this.activeIsOpen = true;
         });
-
     };
 
     setActiveDialog = (dialogItem) => {
         this.activeDialog = dialogItem;
         this.prevDialog = dialogItem?.prev ?? null;
-    }
+    };
 
     doDialogTransition = (backwards = false, forcePrevClose = false) => {
         if (this.activeDialog) {
             this.activeDialog.open = !backwards;
             this.activeIsOpen = this.activeDialog.open;
-        }
-        else
-            this.activeIsOpen = false;
+        } else this.activeIsOpen = false;
 
         if (this.activeDialog.prev) {
             this.activeDialog.prev.open = backwards && !forcePrevClose;
             this.prevIsOpen = this.activeDialog.prev.open;
-        }
-        else
-            this.prevIsOpen = false;
-    }
+        } else this.prevIsOpen = false;
+    };
 
     insertPrevious = (dialog, props = {}) => {
         const tail = this.dialogList.getLast();
         if (!tail) return;
         tail.prepend(new DialogItem({ dialog, props, open: false }));
         this.setActiveDialog(tail);
-    }
+    };
 
     closePrevious = () => {
         const tail = this.dialogList.getLast();
         tail.prev && tail.prev.detach();
         this.prevDialog = null;
         this.setActiveDialog(tail);
-    }
+    };
 
     // Useful when you don't want the previous one to open when closing current,
     // e.g., after deleting a game, close the confirmation dialog and the game dialog
     closeMultiple = (amount = 1) => {
         if (amount <= 0) {
-            console.warn(".closeMultiple(); called with 0 or less amount! Attempting to close only 1.");
+            console.warn(
+                ".closeMultiple(); called with 0 or less amount! Attempting to close only 1.",
+            );
             amount = 1;
         }
 
@@ -184,19 +183,18 @@ class DialogStore {
             tail.prev?.detach();
             this.dialogList.detachLast();
             this.setActiveDialog(this.dialogList.getLast());
-            if (this.activeDialog)
-                this.activeIsOpen = true;
+            if (this.activeDialog) this.activeIsOpen = true;
         });
-    }
+    };
 
     onTransitionComplete = (callback) => {
         setTimeout(
             action(() => {
                 callback();
             }),
-            +this.dialogFadeDuration
+            +this.dialogFadeDuration,
         );
-    }
+    };
 
     clearAll() {
         this.activeDialog = null;
@@ -206,7 +204,9 @@ class DialogStore {
         this.dialogList = new DialogList();
     }
 
-    isDialogValid(dialog) { return Object.values(Dialogs).includes(dialog); }
+    isDialogValid(dialog) {
+        return Object.values(Dialogs).includes(dialog);
+    }
 }
 
-export const dialogStore = new DialogStore();
+export const globalDialogStore = new DialogStore();

@@ -8,7 +8,7 @@ import {
     MdMoreVert,
     MdOutlineSearchOff,
 } from "react-icons/md";
-import { useFilterStore, Dialogs, dialogStore, useDataStore } from "@/stores";
+import { useFilterStore, Dialogs, globalDialogStore, useDataStore } from "@/stores";
 import { IconButton } from "@/components";
 import "./TagButton.css";
 
@@ -80,12 +80,12 @@ const SidebarTBMenuButton = observer(({ tag, filterStore, dropdownOpen, setDropd
     const toggleExclusion = () => filterStore.toggleTagExclusion(tag);
 
     const openEditDialog = () => {
-        dialogStore.open(Dialogs.EditTag, {
+        globalDialogStore.open(Dialogs.EditTag, {
             editingTag: tag,
         });
     };
     const openDeleteDialog = () => {
-        dialogStore.open(Dialogs.DeleteWarning, {
+        globalDialogStore.open(Dialogs.DeleteWarning, {
             itemName: tag.name,
             deleteFunction: () => {
                 filterStore.removeFiltersOfTag(tag);

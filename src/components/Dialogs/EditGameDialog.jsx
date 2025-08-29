@@ -1,6 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { Dialogs, dialogStore, useDataStore } from "@/stores";
+import { Dialogs, globalDialogStore, useDataStore } from "@/stores";
 import { Button, ScrollView, Spinner } from "@/components";
 import { DialogBase } from "./DialogRoot.jsx";
 import { useEffect, useRef, useState } from "react";
@@ -34,7 +34,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
         } else {
             const newGame = dataStore.addGame(gameTitle, gameCoverPath, gameSortingTitle);
             if (newGame) {
-                dialogStore.insertPrevious(Dialogs.GamePage, { game: newGame });
+                globalDialogStore.insertPrevious(Dialogs.GamePage, { game: newGame });
                 handleHide();
             }
         }

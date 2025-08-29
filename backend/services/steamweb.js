@@ -17,6 +17,7 @@ export class SteamWebService extends Service {
         this.app.get("/api/steamweb/getOwnedGames/:id", this.getOwnedGames.bind(this));
         this.app.get("/api/steamweb/getFriends/:id", this.getFriends.bind(this));
         this.app.get("/api/steamweb/getSteamCapsules/:id", this.getSteamCapsules.bind(this));
+        this.app.get("/api/steamweb/getStorefront/:query", this.getGamesFromStorefront.bind(this));
     }
 
     async getOwnedGames(req, res) {
@@ -113,6 +114,28 @@ export class SteamWebService extends Service {
                 };
             });
             return Response.send(res, OK, grids);
+        } catch (error) {
+            return Response.send(res, INTERNAL_SERVER_ERROR, error);
+        }
+    }
+    /**
+     *
+     * @param {Object} req
+     * @param {Object} res
+     * @returns A list of games from Steam's storefront.
+     */
+    async getGamesFromStorefront(req, res) {
+        const { query } = req.params;
+        const { OK, NOT_FOUND, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+        const response = await fetch(
+            `https://store.steampowered.com/api/storesearch/?term=${query}&l=en&cc=US`,
+        );
+        try {
+            if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+            const data = await response.json();
+            if (data.length === 0)
+                return Response.send(res, NOT_FOUND, `No games were found using "${query}"`);
+            return Response.send(res, OK, data);
         } catch (error) {
             return Response.send(res, INTERNAL_SERVER_ERROR, error);
         }

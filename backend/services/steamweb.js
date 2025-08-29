@@ -14,14 +14,14 @@ export class SteamWebService extends Service {
 
     listen() {
         super.listen();
-        this.app.get("/api/steamweb/getOwnedGames/:id", this.getOwnedGames.bind(this));
-        this.app.get("/api/steamweb/getFriends/:id", this.getFriends.bind(this));
-        this.app.get("/api/steamweb/getSteamCapsules/:id", this.getSteamCapsules.bind(this));
+        this.app.get("/api/steamweb/getOwnedGames", this.getOwnedGames.bind(this));
+        this.app.get("/api/steamweb/getFriends", this.getFriends.bind(this));
+        this.app.get("/api/steamweb/getSteamCapsules", this.getSteamCapsules.bind(this));
         this.app.get("/api/steamweb/getStorefront", this.getGamesFromStorefront.bind(this));
     }
 
     async getOwnedGames(req, res) {
-        const { id } = req.params;
+        const { id } = req.query;
         const { OK, BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
 
         if (!this.isSteamID(id))
@@ -44,7 +44,7 @@ export class SteamWebService extends Service {
     }
 
     async getFriends(req, res) {
-        const { id } = req.params;
+        const { id } = req.query;
         const { OK, BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
         if (!this.isSteamID(id))
             return Response.sendMessage(res, BAD_REQUEST, `Invalid SteamID64 passed: ${id}`);
@@ -86,7 +86,7 @@ export class SteamWebService extends Service {
      */
 
     async getSteamCapsules(req, res) {
-        const { id } = req.params;
+        const { id } = req.query;
         const { OK, BAD_REQUEST, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
 
         if (!this.isSteamID(id))

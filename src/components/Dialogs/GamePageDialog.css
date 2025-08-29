@@ -119,6 +119,10 @@
                     &.dd-open .tag-button {
                         background-color: var(--pf-bg-300);
                     }
+                    &.dd-open .icon-button,
+                    .icon-button:hover {
+                        background-color: var(--pf-bg-500);
+                    }
                 }
             }
 

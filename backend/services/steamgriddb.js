@@ -20,12 +20,12 @@ export class SteamGridDBService extends Service {
 
     listen() {
         super.listen();
-        this.app.get("/api/steamgriddb/getGrids/:query", this.getGrids.bind(this));
-        this.app.get("/api/steamgriddb/getGames/:query", this.getGames.bind(this));
+        this.app.get("/api/steamgriddb/getGrids", this.getGrids.bind(this));
+        this.app.get("/api/steamgriddb/getGames", this.getGames.bind(this));
     }
 
     async getGrids(req, res) {
-        const { query } = req.params;
+        const { query } = req.query;
         const { NOT_FOUND, INTERNAL_SERVER_ERROR, OK } = Response.HttpStatus;
         const client = this.connect();
 
@@ -62,7 +62,7 @@ export class SteamGridDBService extends Service {
     }
 
     async getGames(req, res) {
-        const { query } = req.params;
+        const { query } = req.query;
         const { NOT_FOUND, INTERNAL_SERVER_ERROR, OK } = Response.HttpStatus;
         const client = this.connect();
 

@@ -130,7 +130,7 @@ function SteamGridDBImages({ gameName, gameCoverInputRef, loadingCovers, setLoad
 
     useEffect(() => {
         if (!gameName) return;
-        fetch(`/api/steamgriddb/getGrids/${encodeURIComponent(gameName)}`)
+        fetch(`/api/steamgriddb/getGrids?query=${encodeURIComponent(gameName)}`)
             .then((res) => {
                 setLoadingCovers(false);
                 if (!res.ok) throw new Error("No results");

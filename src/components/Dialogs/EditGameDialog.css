@@ -43,17 +43,28 @@
             /* TODO: there's probably a better way to make sure outline/glow doesn't get cut off than this padding. some margin and z-index? */
 
             fieldset {
-                padding: 0 10px;
+                padding: 10px;
             }
 
             .rx-scrollbar {
-                padding: var(--covers-gallery-padding) 0; /* scrollbar aligns with the start/end of the covers */
+                /* scrollbar aligns with the start/end of the covers */
+                padding-top: var(--covers-gallery-padding);
+                padding-bottom: var(--covers-gallery-padding);
+            }
+
+            .covers-gallery-container {
+                height: 100% !important;
+                width: 100% !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: center !important;
+                align-items: center !important;
             }
 
             .covers-gallery {
                 display: grid;
                 grid-template-columns: repeat(2, 1fr);
-                gap: 20px;
+                gap: 24px;
                 padding: var(--covers-gallery-padding);
                 max-width: var(--cover-art-width);
 

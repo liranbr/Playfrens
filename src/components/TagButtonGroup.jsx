@@ -11,7 +11,7 @@ import {
     TagFilterLogicOptions,
     TagSortOptions,
     Dialogs,
-    dialogStore,
+    globalDialogStore,
     useDataStore,
 } from "@/stores";
 import { SidebarTagButton, IconButton, CenterAndEdgesRow, ScrollView } from "@/components";
@@ -21,7 +21,7 @@ export const SidebarTagButtonGroup = observer(({ tagType }) => {
     const { allTags } = useDataStore();
     const title = tagTypeStrings[tagType].plural.toUpperCase();
     const handleAddButtonClick = () => {
-        dialogStore.open(Dialogs.EditTag, { addingTagOfType: tagType });
+        globalDialogStore.open(Dialogs.EditTag, { addingTagOfType: tagType });
     };
     return (
         <div className="tag-button-group">

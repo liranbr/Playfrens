@@ -131,7 +131,7 @@
         }
 
         &.dd-open .icon-button,
-        &:hover .icon-button:hover {
+        .icon-button:hover {
             background-color: var(--pf-bg-200);
         }
     }

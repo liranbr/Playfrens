@@ -1,9 +1,9 @@
 import { observer } from "mobx-react-lite";
 import * as Dialog from "@radix-ui/react-dialog";
-import { dialogStore } from "@/stores";
+import { globalDialogStore } from "@/stores";
 
 export const DialogRoot = observer(() => {
-    const store = dialogStore;
+    const store = globalDialogStore;
     const active = store.activeDialog;
     const size = active?.list?.size ?? 0;
     const prev = store.prevDialog;

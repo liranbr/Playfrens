@@ -14,7 +14,13 @@ import {
     MdPerson,
 } from "react-icons/md";
 import { tagTypes } from "@/models";
-import { useFilterStore, backupToFile, restoreFromFile, Dialogs, dialogStore } from "@/stores";
+import {
+    useFilterStore,
+    backupToFile,
+    restoreFromFile,
+    Dialogs,
+    globalDialogStore,
+} from "@/stores";
 import { SidebarTagButtonGroup, IconButton, CenterAndEdgesRow, GamesGrid } from "@/components";
 import { DialogRoot } from "@/components/Dialogs/DialogRoot.jsx";
 import "./App.css";
@@ -59,10 +65,10 @@ function AppMenu() {
                         <a href="https://trello.com/b/H9Cln6UD/playfrens" target="_blank">
                             <DropdownMenu.Item>Trello</DropdownMenu.Item>
                         </a>
-                        <DropdownMenu.Item onClick={() => dialogStore.open(Dialogs.Settings)}>
+                        <DropdownMenu.Item onClick={() => globalDialogStore.open(Dialogs.Settings)}>
                             Settings
                         </DropdownMenu.Item>
-                        <DropdownMenu.Item onClick={() => dialogStore.open(Dialogs.About)}>
+                        <DropdownMenu.Item onClick={() => globalDialogStore.open(Dialogs.About)}>
                             About
                         </DropdownMenu.Item>
                     </DropdownMenu.Content>
@@ -113,7 +119,7 @@ const AppHeader = observer(() => {
             <div>
                 <button
                     className="new-game-button"
-                    onClick={() => dialogStore.open(Dialogs.EditGame)}
+                    onClick={() => globalDialogStore.open(Dialogs.EditGame)}
                 >
                     <MdOutlineGamepad />
                     Add Game
@@ -162,7 +168,6 @@ function ToastRoot() {
 }
 
 export default function App() {
-
     return (
         <>
             <AppHeader />

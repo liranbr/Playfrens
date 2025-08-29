@@ -5,7 +5,7 @@ import {
     useFilterStore,
     useSettingsStore,
     Dialogs,
-    dialogStore,
+    globalDialogStore,
     updateTagFilteredGamesCounter,
 } from "@/stores";
 import { TagObject } from "@/models";
@@ -38,7 +38,7 @@ const GameCard = observer(({ game }) => {
         updateTagFilteredGamesCounter(tag);
     };
     const openGamePageDialog = () => {
-        dialogStore.open(Dialogs.GamePage, { game });
+        globalDialogStore.open(Dialogs.GamePage, { game });
     };
 
     return (

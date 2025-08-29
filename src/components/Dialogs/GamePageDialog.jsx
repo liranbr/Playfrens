@@ -5,7 +5,7 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert, MdRemove } from "react-icons/md";
 import { CenterAndEdgesRow, IconButton, ScrollView } from "@/components";
-import { Dialogs, dialogStore, updateTagFilteredGamesCounter, useDataStore } from "@/stores";
+import { Dialogs, globalDialogStore, updateTagFilteredGamesCounter, useDataStore } from "@/stores";
 import { tagTypes, tagTypeStrings } from "@/models";
 import { useValidatedImage } from "@/hooks/useValidatedImage.js";
 import { DialogBase } from "./DialogRoot.jsx";
@@ -152,7 +152,7 @@ function GameOptionsButton({ game }) {
                 >
                     <DropdownMenu.Item
                         onClick={() => {
-                            dialogStore.open(Dialogs.EditGame, { game });
+                            globalDialogStore.open(Dialogs.EditGame, { game });
                         }}
                     >
                         <MdEdit /> Edit
@@ -160,11 +160,11 @@ function GameOptionsButton({ game }) {
                     <DropdownMenu.Item
                         data-danger
                         onClick={() => {
-                            dialogStore.open(Dialogs.DeleteWarning, {
+                            globalDialogStore.open(Dialogs.DeleteWarning, {
                                 itemName: game.title,
                                 deleteFunction: () => {
                                     dataStore.removeGame(game);
-                                    dialogStore.closeMultiple(2);
+                                    globalDialogStore.closeMultiple(2);
                                 },
                             });
                         }}

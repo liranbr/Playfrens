@@ -15,20 +15,22 @@ export class SteamWebService extends Service {
     listen() {
         super.listen();
         this.app.get("/api/steamweb/getOwnedGames/:id", this.getOwnedGames.bind(this));
+        this.app.get("/api/steamweb/getFriends/:id", this.getFriends.bind(this));
         this.app.get("/api/steamweb/getSteamCapsules/:id", this.getSteamCapsules.bind(this));
     }
+
     async getOwnedGames(req, res) {
         const { id } = req.params;
         const { OK, BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
 
-        if (!this.isIDDigitsOnly(id))
+        if (!this.isSteamID(id))
             return Response.sendMessage(res, BAD_REQUEST, `Invalid SteamID64 passed: ${id}`);
 
         const client = this.connect();
 
         try {
             const games = await client.getUserOwnedGames(id, { includeExtendedAppInfo: true });
-            return games.length == 0
+            return games.length === 0
                 ? Response.sendMessage(
                       res,
                       NOT_FOUND,
@@ -40,6 +42,27 @@ export class SteamWebService extends Service {
         }
     }
 
+    async getFriends(req, res) {
+        const { id } = req.params;
+        const { OK, BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+        if (!this.isSteamID(id))
+            return Response.sendMessage(res, BAD_REQUEST, `Invalid SteamID64 passed: ${id}`);
+
+        const client = this.connect();
+
+        try {
+            const friends = await client.getUserFriends(id);
+            return friends.length === 0
+                ? Response.sendMessage(
+                      res,
+                      NOT_FOUND,
+                      `Couldn't find any friends using SteamID64 ${id}`,
+                  )
+                : Response.send(res, OK, friends);
+        } catch (error) {
+            return Response.send(res, INTERNAL_SERVER_ERROR, error);
+        }
+    }
     // Capsules are the grids used to showcase games through your Steam Library
     /** Example code with 0 OPTIMIZATIONS!!!
      *
@@ -65,12 +88,8 @@ export class SteamWebService extends Service {
         const { id } = req.params;
         const { OK, BAD_REQUEST, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
 
-        if (!this.isIDDigitsOnly(id) || id.length != 17)
-            return Response.sendMessage(
-                res,
-                BAD_REQUEST,
-                `Invalid SteamID64: ${id} (length: ${id.length})`,
-            );
+        if (!this.isSteamID(id))
+            return Response.sendMessage(res, BAD_REQUEST, `Invalid SteamID64 passed: ${id}`);
 
         const client = this.connect();
 
@@ -99,7 +118,11 @@ export class SteamWebService extends Service {
         }
     }
 
-    isIDDigitsOnly(id) {
-        return /^\d+$/.test(id);
+    /**
+     * @param {string} id - string of numbers only
+     * @returns {boolean} true if valid Steam ID
+     */
+    isSteamID(id) {
+        return id.length === 17 && /^\d+$/.test(id);
     }
 }

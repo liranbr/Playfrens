@@ -28,6 +28,11 @@ export const SortDirectionOptions = {
     asc: "Ascending",
     desc: "Descending",
 };
+export const TagGameCounterOptions = {
+    countFiltered: "Game Count (with current filters)",
+    countTotal: "Game Count (total)",
+    none: "None",
+};
 
 class SettingsStore {
     // Default values, overridden by settings loaded from storage
@@ -49,6 +54,7 @@ class SettingsStore {
     };
     gameSortMethod = "title";
     gameSortDirection = "asc";
+    tagGameCounterDisplay = "countFiltered";
 
     constructor(settings = {}) {
         makeAutoObservable(this);
@@ -73,6 +79,11 @@ class SettingsStore {
     setTagSortDirection(tagType, option) {
         if (SortDirectionOptions[option]) this.tagSortDirection[tagType] = option;
         else console.warn(`Invalid TagSortDirection option for ${tagType}: ${option}`);
+    }
+
+    setTagGameCounterDisplay(option) {
+        if (TagGameCounterOptions[option]) this.tagGameCounterDisplay = option;
+        else console.warn(`Invalid TagGameCounterDisplay option: ${option}`);
     }
 }
 

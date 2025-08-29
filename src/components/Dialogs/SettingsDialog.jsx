@@ -2,7 +2,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import * as RadioGroup from "@radix-ui/react-radio-group";
 import { Button } from "@/components";
-import { TagHoverGameHighlightOptions, useSettingsStore } from "@/stores";
+import { TagGameCounterOptions, TagHoverGameHighlightOptions, useSettingsStore } from "@/stores";
 import "./SettingsDialog.css";
 
 export const SettingsDialog = ({ open, closeDialog }) => {
@@ -32,6 +32,22 @@ export const SettingsDialog = ({ open, closeDialog }) => {
                             </label>
                         ))}
                     </RadioGroup.Root>
+                    <div className="spacer" />
+
+                    <p>Show a Game Counter next to each Tag in the Sidebar</p>
+                    <RadioGroup.Root
+                        defaultValue={settingsStore.tagGameCounterDisplay}
+                        className="rx-radio-group"
+                        onValueChange={(option) => settingsStore.setTagGameCounterDisplay(option)}
+                    >
+                        {Object.keys(TagGameCounterOptions).map((option) => (
+                            <label htmlFor={option} key={option}>
+                                <RadioGroup.Item value={option} id={option} autoFocus />
+                                {TagGameCounterOptions[option]}
+                            </label>
+                        ))}
+                    </RadioGroup.Root>
+
                     <div className="rx-dialog-footer">
                         <Button variant="secondary" onClick={handleHide}>
                             Close

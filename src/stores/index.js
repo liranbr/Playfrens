@@ -5,6 +5,7 @@ export {
     TagFilterLogicOptions,
     TagSortOptions,
     GameSortOptions,
+    TagGameCounterOptions,
     globalSettingsStore,
 } from "./SettingsStore.jsx";
 export { globalDataStore, useDataStore, backupToFile, restoreFromFile } from "./DataStore.jsx";

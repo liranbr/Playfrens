@@ -8,17 +8,31 @@ import {
     MdMoreVert,
     MdOutlineSearchOff,
 } from "react-icons/md";
-import { useFilterStore, Dialogs, globalDialogStore, useDataStore } from "@/stores";
+import {
+    useFilterStore,
+    Dialogs,
+    globalDialogStore,
+    useDataStore,
+    useSettingsStore,
+} from "@/stores";
 import { IconButton } from "@/components";
 import "./TagButton.css";
 
 export const SidebarTagButton = observer(({ tag }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const filterStore = useFilterStore();
+    const settingsStore = useSettingsStore();
     const isSelected = filterStore.isTagSelected(tag) ? " selected" : "";
     const isExcluded = filterStore.isTagExcluded(tag) ? " excluded" : "";
     const isBeingDragged = filterStore.draggedTag?.id === tag.id ? " being-dragged" : "";
     const isDropdownOpen = dropdownOpen ? " dd-open" : "";
+    const gameCounterType = settingsStore.tagGameCounterDisplay;
+    const gameCounter =
+        gameCounterType === "countFiltered"
+            ? tag.filteredGamesCount
+            : gameCounterType === "countTotal"
+              ? tag.totalGamesCount
+              : 0; // for the "none" option, show nothing - 0 is not displayed
 
     const onClick = () => {
         filterStore.toggleTagSelection(tag);
@@ -61,7 +75,7 @@ export const SidebarTagButton = observer(({ tag }) => {
                 onDragEnd={() => filterStore.setDraggedTag(null)}
             >
                 <span className="tag-name">{tag.name}</span>
-                <label>{tag.filteredGamesCount !== 0 ? tag.filteredGamesCount : ""}</label>
+                <label>{gameCounter !== 0 ? gameCounter : ""}</label>
                 <MdDragHandle className="hover-drag-indicator" />
             </span>
             <SidebarTBMenuButton

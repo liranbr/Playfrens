@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import { autorun, makeAutoObservable, reaction } from "mobx";
+import { makeAutoObservable, reaction } from "mobx";
 import { TagObject, tagTypes } from "@/models";
 import { globalDataStore, globalSettingsStore } from "@/stores";
 

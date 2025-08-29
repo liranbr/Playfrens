@@ -47,10 +47,6 @@
         font-size: 14px;
     }
 
-    .spacer {
-        margin-bottom: 16px;
-    }
-
     .rx-select-trigger {
         width: var(--select-width);
         max-width: var(--select-width);

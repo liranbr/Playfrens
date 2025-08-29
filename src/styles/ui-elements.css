@@ -70,3 +70,7 @@ fieldset {
         margin: 12px;
     }
 }
+
+.spacer {
+    margin-bottom: 16px;
+}

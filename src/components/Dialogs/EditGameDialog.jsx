@@ -109,7 +109,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                         placeholder="Enter URL, or choose from title-based suggestions"
                     />
                 </fieldset>
-                <ScrollView viewportClassName="covers-gallery-container">
+                <ScrollView>
                     <SteamGridDBImages
                         key={gameName}
                         gameName={gameName}

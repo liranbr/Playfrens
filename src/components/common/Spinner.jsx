@@ -2,5 +2,9 @@ import "./Spinner.css";
 import { FaSpinner } from "react-icons/fa";
 
 export function Spinner() {
-    return <FaSpinner className="spinner" aria-label="Loading" role="status" />;
+    return (
+        <div className="centered-flex">
+            <FaSpinner className="spinner" aria-label="Loading" role="status" />
+        </div>
+    );
 }

@@ -52,15 +52,6 @@
                 padding-bottom: var(--covers-gallery-padding);
             }
 
-            .covers-gallery-container {
-                height: 100% !important;
-                width: 100% !important;
-                display: flex !important;
-                flex-direction: column !important;
-                justify-content: center !important;
-                align-items: center !important;
-            }
-
             .covers-gallery {
                 display: grid;
                 grid-template-columns: repeat(2, 1fr);

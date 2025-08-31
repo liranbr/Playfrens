@@ -9,7 +9,13 @@ import {
     compareTagFilteredGamesCount,
     compareTagTotalGamesCount,
 } from "@/models";
-import { loadFromStorage, saveToStorage, toastError, toastSuccess } from "@/Utils.jsx";
+import {
+    deleteItemFromArray,
+    loadFromStorage,
+    saveToStorage,
+    toastError,
+    toastSuccess,
+} from "@/Utils.jsx";
 import { globalSettingsStore, settingsStorageKey } from "@/stores";
 import { version } from "/package.json";
 import { SortingReaction } from "@/stores/SortingReaction.js";
@@ -23,6 +29,7 @@ const storageKeys = {
     settings: settingsStorageKey,
     version: "version",
     visited: "visited",
+    tagsCustomOrders: "tagsCustomOrders",
 };
 
 // #============#
@@ -41,6 +48,12 @@ export class DataStore {
         [tT.status]: new ObservableMap(),
     };
     allGames = new ObservableMap();
+    // Custom Orders are saved as an array of Tag IDs, initialized from their current order when Custom Sort is first chosen
+    tagsCustomOrders = {
+        [tT.friend]: [],
+        [tT.category]: [],
+        [tT.status]: [],
+    };
 
     constructor() {
         this.populateTags({
@@ -49,6 +62,7 @@ export class DataStore {
             [tT.status]: loadFromStorage(storageKeys[tT.status], []),
         });
         this.populateGames(loadFromStorage(storageKeys.games, []));
+        this.populateTagsCustomOrders(loadFromStorage(storageKeys.tagsCustomOrders, {}));
         makeAutoObservable(this);
 
         // on any change to tags or games, save them
@@ -56,6 +70,7 @@ export class DataStore {
         autorun(() => saveToStorage(storageKeys[tT.category], this.allTags[tT.category]));
         autorun(() => saveToStorage(storageKeys[tT.status], this.allTags[tT.status]));
         autorun(() => saveToStorage(storageKeys.games, this.allGames));
+        autorun(() => saveToStorage(storageKeys.tagsCustomOrders, this.tagsCustomOrders));
         // when any game is added/removed, update the totalGamesCounter in every tag
         reaction(
             () => this.allGames.keys(),
@@ -138,6 +153,19 @@ export class DataStore {
         );
     }
 
+    populateTagsCustomOrders(tagOrderJsons) {
+        this.tagsCustomOrders = {
+            [tT.friend]: [],
+            [tT.category]: [],
+            [tT.status]: [],
+        };
+        if (typeof tagOrderJsons !== "object")
+            return console.warn("Skipping invalid tagOrderJsons.");
+        if (Object.keys(tagOrderJsons).length === 0)
+            return console.warn("Skipping empty tagOrderJsons.");
+        this.tagsCustomOrders = tagOrderJsons;
+    }
+
     getTagByID(id, tagType = null) {
         if (tagType) return this.allTags[tagType].get(id);
         // as there's only a few tagTypes, and Map.get is O(1), this remains O(1)
@@ -155,6 +183,8 @@ export class DataStore {
             return toastError(`${tag.name} already exists in ${tag.typeStrings.plural} list`);
 
         fullList.set(tag.id, tag);
+        const orderList = this.tagsCustomOrders[tag.type];
+        if (orderList && orderList.length > 0) orderList.push(tag.id);
         return toastSuccess(`Added ${tag.name} to ${tag.typeStrings.plural} list`);
     }
 
@@ -165,6 +195,7 @@ export class DataStore {
 
         this.allGames.forEach((game) => game.silentRemoveTag(tag));
         this.allTags[tag.type].delete(tag.id);
+        deleteItemFromArray(this.tagsCustomOrders[tag.type], tag.id);
         return toastSuccess(`Removed ${tag.name} from ${tag.typeStrings.plural} list`);
     }
 
@@ -272,6 +303,21 @@ export class DataStore {
         runInAction(() => this.allTags[tagType].replace(entriesArray));
     }
 
+    sortTagsByCustomOrder(tagType, isDescending) {
+        const orderArray = this.tagsCustomOrders[tagType];
+        if (!(orderArray.length > 0)) {
+            orderArray.push(...this.allTags[tagType].keys());
+            return;
+        } // if no custom order yet, make one from the current order
+
+        const entriesArray = new Array(orderArray.length);
+        for (const [i, tagID] of this.tagsCustomOrders[tagType].entries())
+            entriesArray[i] = [tagID, this.allTags[tagType].get(tagID)];
+        if (isDescending) entriesArray.reverse();
+
+        runInAction(() => this.allTags[tagType].replace(entriesArray));
+    }
+
     sortGamesByMethod(sortMethod, isDescending) {
         // console.log("Sorting games, by method " + sortMethod.name);
         const entriesArray = [...this.allGames.entries()];
@@ -328,27 +374,24 @@ function setTagSorting(tagType, sortSetting, sortDirection) {
     const isDescending = sortDirection === "desc";
 
     if (sortSetting === "custom") {
-        // custom sort not implemented yet, so just does nothing
+        sortingReactions[tagType] = new SortingReaction(
+            () => dataStore.tagsCustomOrders[tagType],
+            () => dataStore.sortTagsByCustomOrder(tagType, isDescending),
+        );
     } else if (sortSetting === "name") {
         sortingReactions[tagType] = new SortingReaction(
             () => [[...dataStore.allTags[tagType]].map(([id, tag]) => tag.name)],
-            () => {
-                dataStore.sortTagsByMethod(tagType, compareTagNamesAZ, isDescending);
-            },
+            () => dataStore.sortTagsByMethod(tagType, compareTagNamesAZ, isDescending),
         );
     } else if (sortSetting === "countFiltered") {
         sortingReactions[tagType] = new SortingReaction(
             () => [[...dataStore.allTags[tagType]].map(([id, tag]) => tag.filteredGamesCount)],
-            () => {
-                dataStore.sortTagsByMethod(tagType, compareTagFilteredGamesCount, isDescending);
-            },
+            () => dataStore.sortTagsByMethod(tagType, compareTagFilteredGamesCount, isDescending),
         );
     } else if (sortSetting === "countTotal") {
         sortingReactions[tagType] = new SortingReaction(
             () => [[...dataStore.allTags[tagType]].map(([id, tag]) => tag.totalGamesCount)],
-            () => {
-                dataStore.sortTagsByMethod(tagType, compareTagTotalGamesCount, isDescending);
-            },
+            () => dataStore.sortTagsByMethod(tagType, compareTagTotalGamesCount, isDescending),
         );
     }
     sortingReactions[tagType]?.enable();
@@ -358,9 +401,7 @@ function setGameSorting(sortSetting, sortDirection) {
     sortingReactions.games?.disable();
     const isDescending = sortDirection === "desc";
 
-    if (sortSetting === "custom") {
-        // custom sort not implemented yet, so just does nothing
-    } else if (sortSetting === "title") {
+    if (sortSetting === "title") {
         sortingReactions.games = new SortingReaction(
             () => [[...dataStore.allGames].map(([id, game]) => [game.title, game.sortingTitle])],
             () => {
@@ -384,6 +425,7 @@ export function backupToFile() {
         [storageKeys.games]: dataStore.allGames,
         [storageKeys.settings]: loadFromStorage(storageKeys.settings, {}),
         [storageKeys.version]: version,
+        [storageKeys.tagsCustomOrders]: dataStore.tagsCustomOrders,
     };
     const blob = new Blob([JSON.stringify(data, null, 4)], {
         type: "application/json",
@@ -416,6 +458,7 @@ export function restoreFromFile(file) {
             dataStore.populateTags(tagCollection);
             dataStore.populateGames(data[storageKeys.games]);
         }
+        dataStore.populateTagsCustomOrders(data[storageKeys.tagsCustomOrders]);
         // Load the settings to localstorage, and reload, which also populates the SettingsStore
         saveToStorage(storageKeys.settings, data[storageKeys.settings]);
         window.location.reload();

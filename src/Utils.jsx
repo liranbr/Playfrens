@@ -24,23 +24,6 @@ export function toastError(message) {
     return false;
 }
 
-// /**
-//  * Inserts the item into and sorts the array in place, based on the orderArray
-//  * @template T
-//  * @param {T} item
-//  * @param {T[]} array
-//  * @param {T[]} orderArray
-//  * @returns {T[]} The reference to the original array
-//  */
-// export function insertAndSortByOrder(item, array, orderArray) {
-//     if (!orderArray || !orderArray.includes(item)) {
-//         console.error(`Item ${item} is not in the order array`);
-//         return array;
-//     }
-//     array.push(item);
-//     return array.sort((a, b) => orderArray.indexOf(a) - orderArray.indexOf(b));
-// } TODO: Reimplement sorting
-
 export function compareAlphaIgnoreCase(a, b) {
     return a.localeCompare(b, undefined, { sensitivity: "base" });
 }
@@ -56,4 +39,9 @@ export function loadFromStorage(key, fallback) {
 
 export function saveToStorage(key, value) {
     localStorage.setItem(key, JSON.stringify(value, null, 4));
+}
+
+export function deleteItemFromArray(arr, item) {
+    const index = arr.indexOf(item);
+    if (index > -1) arr.splice(index, 1);
 }

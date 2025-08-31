@@ -40,7 +40,6 @@
             flex-direction: column;
             padding: 20px 10px;
             --covers-gallery-padding: 16px; /* padding to give space for selection highlight */
-            /* TODO: there's probably a better way to make sure outline/glow doesn't get cut off than this padding. some margin and z-index? */
 
             fieldset {
                 padding: 10px;

@@ -22,7 +22,6 @@ export const TagSortOptions = {
 };
 export const GameSortOptions = {
     title: "Title",
-    custom: "Custom Order",
 };
 export const SortDirectionOptions = {
     asc: "Ascending",

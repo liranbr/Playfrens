@@ -135,4 +135,25 @@
             background-color: var(--pf-bg-200);
         }
     }
+
+    &.dragged-over::before {
+        content: "";
+        position: absolute;
+        top: -8px;
+        height: 12px;
+        background: var(--pf-btn-primary);
+        border: 2px dashed var(--pf-fg-100);
+        border-radius: 4px;
+        animation: appear 0.15s forwards;
+    }
+}
+@keyframes appear {
+    from {
+        width: 0;
+        left: 50%;
+    }
+    to {
+        width: 100%;
+        left: 0;
+    }
 }

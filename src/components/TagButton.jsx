@@ -17,18 +17,47 @@ import {
 } from "@/stores";
 import { IconButton } from "@/components";
 import "./TagButton.css";
+import { TagObject } from "@/models/index.js";
 
 export const SidebarTagButton = observer(({ tag }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
-
+    const [draggedOver, setDraggedOver] = useState(false);
     const filterStore = useFilterStore();
+    const settingsStore = useSettingsStore();
+    const dataStore = useDataStore();
+
+    // CSS for button different states
     const classes = ["tag-button-container", "sidebar-tbc"];
     if (filterStore.isTagSelected(tag)) classes.push("selected");
     if (filterStore.isTagExcluded(tag)) classes.push("excluded");
     if (filterStore.draggedTag?.id === tag.id) classes.push("being-dragged");
     if (dropdownOpen) classes.push("dd-open");
 
-    const gameCounterType = useSettingsStore().tagGameCounterDisplay;
+    // Handling Custom Sorting, when another tag is being dragged over this one
+    const draggedTag = filterStore.draggedTag;
+    let onDrop = undefined;
+    let onDragOver = undefined;
+    let onDragLeave = undefined;
+    if (
+        draggedTag &&
+        settingsStore.tagSortMethods[tag.type] === "custom" &&
+        draggedTag.type === tag.type &&
+        draggedTag.id !== tag.id
+    ) {
+        onDrop = () => {
+            setDraggedOver(false);
+            dataStore.moveTagCustomPosition(draggedTag, tag);
+        };
+        onDragOver = (e) => {
+            setDraggedOver(true);
+            e.preventDefault();
+        };
+        onDragLeave = () => setDraggedOver(false);
+        if (draggedOver) classes.push("dragged-over");
+    }
+
+    // Handling the tag's Game Count display
+    const gameCounterType = settingsStore.tagGameCounterDisplay;
     const gameCounter = {
         countFiltered: tag.filteredGamesCount,
         countTotal: tag.totalGamesCount,
@@ -41,7 +70,12 @@ export const SidebarTagButton = observer(({ tag }) => {
     };
 
     return (
-        <div className={classes.join(" ")}>
+        <div
+            className={classes.join(" ")}
+            onDrop={onDrop}
+            onDragOver={onDragOver}
+            onDragLeave={onDragLeave}
+        >
             <span
                 role="button"
                 className={"tag-button"}

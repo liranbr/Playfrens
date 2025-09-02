@@ -18,7 +18,7 @@ export const TagSortOptions = {
     name: "Name",
     countFiltered: "Game Count (Filtered)",
     countTotal: "Game Count (Total)",
-    custom: "Custom Order",
+    custom: "Custom (drag to rearrange)",
 };
 export const GameSortOptions = {
     title: "Title",

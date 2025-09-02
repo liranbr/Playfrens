@@ -12,6 +12,7 @@ import {
 import {
     deleteItemFromArray,
     loadFromStorage,
+    moveItemInArray,
     saveToStorage,
     toastError,
     toastSuccess,
@@ -164,6 +165,23 @@ export class DataStore {
         if (Object.keys(tagOrderJsons).length === 0)
             return console.warn("Skipping empty tagOrderJsons.");
         this.tagsCustomOrders = tagOrderJsons;
+    }
+
+    moveTagCustomPosition(tagDragged, tagDroppedOn) {
+        const validTagsToReposition =
+            tagDragged &&
+            tagDroppedOn &&
+            tagDragged instanceof TagObject &&
+            tagDroppedOn instanceof TagObject &&
+            tagDragged.type === tagDroppedOn.type;
+        if (!validTagsToReposition)
+            return console.warn(`Invalid tag reposition, tags: ${tagDragged}, ${tagDroppedOn}`);
+
+        const orderArray = this.tagsCustomOrders[tagDragged.type];
+        const indexDragged = orderArray.indexOf(tagDragged.id);
+        const indexDroppedOn = orderArray.indexOf(tagDroppedOn.id);
+        moveItemInArray(orderArray, indexDragged, indexDroppedOn);
+        this.tagsCustomOrders[tagDragged.type] = [...orderArray]; // triggers reaction
     }
 
     getTagByID(id, tagType = null) {

@@ -218,6 +218,7 @@ export class DataStore {
     }
 
     editTag(tag, newName) {
+        if (tag.name === newName) return true; // nothing to do here, until adding more fields to edit
         // Editing needs to be in the DataStore rather than the object itself, to prevent duplicate names
         if (!(tag instanceof TagObject)) return toastError("Invalid tag object: " + tag);
         const storedTag = this.allTags[tag.type].get(tag.id);

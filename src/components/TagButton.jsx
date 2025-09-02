@@ -20,19 +20,20 @@ import "./TagButton.css";
 
 export const SidebarTagButton = observer(({ tag }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
+
     const filterStore = useFilterStore();
-    const settingsStore = useSettingsStore();
-    const isSelected = filterStore.isTagSelected(tag) ? " selected" : "";
-    const isExcluded = filterStore.isTagExcluded(tag) ? " excluded" : "";
-    const isBeingDragged = filterStore.draggedTag?.id === tag.id ? " being-dragged" : "";
-    const isDropdownOpen = dropdownOpen ? " dd-open" : "";
-    const gameCounterType = settingsStore.tagGameCounterDisplay;
-    const gameCounter =
-        gameCounterType === "countFiltered"
-            ? tag.filteredGamesCount
-            : gameCounterType === "countTotal"
-              ? tag.totalGamesCount
-              : 0; // for the "none" option, show nothing - 0 is not displayed
+    const classes = ["tag-button-container", "sidebar-tbc"];
+    if (filterStore.isTagSelected(tag)) classes.push("selected");
+    if (filterStore.isTagExcluded(tag)) classes.push("excluded");
+    if (filterStore.draggedTag?.id === tag.id) classes.push("being-dragged");
+    if (dropdownOpen) classes.push("dd-open");
+
+    const gameCounterType = useSettingsStore().tagGameCounterDisplay;
+    const gameCounter = {
+        countFiltered: tag.filteredGamesCount,
+        countTotal: tag.totalGamesCount,
+        none: 0, // 0 is not displayed, so for the "none" option, this shows nothing
+    }[gameCounterType];
 
     const onClick = () => {
         filterStore.toggleTagSelection(tag);
@@ -40,15 +41,7 @@ export const SidebarTagButton = observer(({ tag }) => {
     };
 
     return (
-        <div
-            className={
-                "tag-button-container sidebar-tbc" +
-                isSelected +
-                isExcluded +
-                isDropdownOpen +
-                isBeingDragged
-            }
-        >
+        <div className={classes.join(" ")}>
             <span
                 role="button"
                 className={"tag-button"}

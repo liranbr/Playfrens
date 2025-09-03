@@ -48,13 +48,34 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
     };
 
     const handleTitleChange = (title) => {
-
         if (timer.current) clearTimeout(timer.current);
         const timerDelay = title ? 500 : 0; // if there's a title, wait for it to be typed,
         setLoadingCovers(!!title); // and show a spinner while typing and requesting
         timer.current = setTimeout(() => {
             setGameName(title);
         }, timerDelay);
+    };
+
+    const onQuery = (query, setResults) => {
+        if (query === "") {
+            setResults([]);
+            return;
+        }
+        fetch(`/api/steamweb/getStorefront?term=${query}`)
+            .then((res) => {
+                if (!res.ok) throw new Error("No results");
+                return res.json();
+            })
+            .then((json) => {
+                console.log(json);
+                const results = json?.items.map((obj) => {
+                    return obj?.name;
+                });
+                setResults(results ?? []);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
     };
 
     return (
@@ -75,25 +96,9 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                         id="gameTitleInput"
                         value={game ? game.title : ""}
                         autoFocus
-                        onQuery={async (query, setResults) => {
-                            handleTitleChange(query)
-                            if (query === "") {
-                                setResults([]);
-                                return;
-                            }
-                            fetch(`/api/steamweb/getStorefront?term=${query}`).then((res) => {
-                                if (!res.ok) throw new Error("No results");
-                                return res.json();
-                            }).then((json) => {
-                                console.log(json)
-                                const results = json?.items.map((obj) => {
-                                    return obj?.name;
-                                })
-                                setResults(results ?? []);
-                            }).catch((err) => {
-                                console.log(err)
-                            })
-                        }}
+                        placeholder="Enter game title"
+                        onQuery={onQuery}
+                        onKeyDown={saveOnEnter}
                         onSelect={handleTitleChange}
                     />
                     <label>

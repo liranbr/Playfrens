@@ -56,3 +56,12 @@ export function useDebouncedCallback(callback, delay) {
         }, delay);
     };
 }
+export function moveItemInArray(arr, fromIndex, toIndex) {
+    if (fromIndex < 0 || fromIndex >= arr.length || toIndex < 0 || toIndex >= arr.length)
+        throw new Error("Index out of bounds");
+
+    const [element] = arr.splice(fromIndex, 1); // remove element
+    if (fromIndex < toIndex) toIndex--; // adjusts to avoid the index shifting, to always end up in the same direction
+    arr.splice(toIndex, 0, element); // insert at new position
+    return arr;
+}

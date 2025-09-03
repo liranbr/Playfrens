@@ -31,11 +31,10 @@ const GameCard = observer(({ game }) => {
     if (draggedOver) classes.push("dragged-over");
 
     const gameCover = useValidatedImage(game.coverImageURL);
-    const handleDrop = (e) => {
-        const tag = new TagObject(JSON.parse(e.dataTransfer.getData("application/json")));
+    const handleDrop = () => {
         setDraggedOver(false);
-        game.addTag(tag);
-        updateTagBothGameCounters(tag);
+        game.addTag(draggedTag);
+        updateTagBothGameCounters(draggedTag);
     };
     const openGamePageDialog = () => {
         globalDialogStore.open(Dialogs.GamePage, { game });

@@ -12,6 +12,7 @@ import {
 import {
     deleteItemFromArray,
     loadFromStorage,
+    moveItemInArray,
     saveToStorage,
     toastError,
     toastSuccess,
@@ -166,6 +167,23 @@ export class DataStore {
         this.tagsCustomOrders = tagOrderJsons;
     }
 
+    moveTagCustomPosition(tagDragged, tagDroppedOn) {
+        const validTagsToReposition =
+            tagDragged &&
+            tagDroppedOn &&
+            tagDragged instanceof TagObject &&
+            tagDroppedOn instanceof TagObject &&
+            tagDragged.type === tagDroppedOn.type;
+        if (!validTagsToReposition)
+            return console.warn(`Invalid tag reposition, tags: ${tagDragged}, ${tagDroppedOn}`);
+
+        const orderArray = this.tagsCustomOrders[tagDragged.type];
+        const indexDragged = orderArray.indexOf(tagDragged.id);
+        const indexDroppedOn = orderArray.indexOf(tagDroppedOn.id);
+        moveItemInArray(orderArray, indexDragged, indexDroppedOn);
+        this.tagsCustomOrders[tagDragged.type] = [...orderArray]; // triggers reaction
+    }
+
     getTagByID(id, tagType = null) {
         if (tagType) return this.allTags[tagType].get(id);
         // as there's only a few tagTypes, and Map.get is O(1), this remains O(1)
@@ -200,6 +218,7 @@ export class DataStore {
     }
 
     editTag(tag, newName) {
+        if (tag.name === newName) return true; // nothing to do here, until adding more fields to edit
         // Editing needs to be in the DataStore rather than the object itself, to prevent duplicate names
         if (!(tag instanceof TagObject)) return toastError("Invalid tag object: " + tag);
         const storedTag = this.allTags[tag.type].get(tag.id);

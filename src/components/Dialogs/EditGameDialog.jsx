@@ -87,7 +87,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                 <fieldset>
                     <label>Game Title</label>
                     <SearchSelect
-                        delay={500}
+                        delay={250}
                         id="gameTitleInput"
                         value={game ? game.title : ""}
                         autoFocus
@@ -145,6 +145,12 @@ function SteamGridDBImages({ gameName, gameCoverInputRef, loadingCovers, setLoad
     const [images, setImages] = useState([]);
     const [error, setError] = useState("");
     const [selectedURL, setSelectedURL] = useState("");
+
+    useEffect(() => {
+        if (!selectedURL) return;
+        const img = new Image();
+        img.src = selectedURL;
+    }, [selectedURL]); // preload to cache full version of the selected cover
 
     useEffect(() => {
         if (!gameName) return;

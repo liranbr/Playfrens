@@ -67,7 +67,6 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                 return res.json();
             })
             .then((json) => {
-                console.log(json);
                 const results = json?.items.map((obj) => {
                     return obj?.name;
                 });
@@ -92,7 +91,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                 <fieldset>
                     <label>Game Title</label>
                     <SearchSelect
-                        delay={500}
+                        delay={250}
                         id="gameTitleInput"
                         value={game ? game.title : ""}
                         autoFocus
@@ -152,6 +151,12 @@ function SteamGridDBImages({ gameName, gameCoverInputRef, loadingCovers, setLoad
     const [selectedURL, setSelectedURL] = useState("");
 
     useEffect(() => {
+        if (!selectedURL) return;
+        const img = new Image();
+        img.src = selectedURL;
+    }, [selectedURL]); // preload to cache full version of the selected cover
+
+    useEffect(() => {
         if (!gameName) return;
         fetch(`/api/steamgriddb/getGrids?query=${encodeURIComponent(gameName)}`)
             .then((res) => {
@@ -160,7 +165,6 @@ function SteamGridDBImages({ gameName, gameCoverInputRef, loadingCovers, setLoad
                 return res.json();
             })
             .then((data) => {
-                setLoadingCovers(false);
                 setImages(data);
             })
             .catch((err) => {

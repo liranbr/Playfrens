@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { toast } from "react-toastify";
 
 let silentToasts = false;
@@ -44,4 +45,14 @@ export function saveToStorage(key, value) {
 export function deleteItemFromArray(arr, item) {
     const index = arr.indexOf(item);
     if (index > -1) arr.splice(index, 1);
+}
+
+export function useDebouncedCallback(callback, delay) {
+    const timeoutRef = useRef();
+    return (...args) => {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        timeoutRef.current = setTimeout(() => {
+            callback(...args);
+        }, delay);
+    };
 }

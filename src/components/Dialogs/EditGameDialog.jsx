@@ -56,26 +56,21 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
         }, timerDelay);
     };
 
-    const onQuery = (query, setResults) => {
+    const onQuery = async (query, setResults) => {
         if (query === "") {
             setResults([]);
             return;
         }
-        fetch(`/api/steamweb/getStorefront?term=${query}`)
-            .then((res) => {
-                if (!res.ok) throw new Error("No results");
-                return res.json();
-            })
-            .then((json) => {
-                console.log(json);
-                const results = json?.items.map((obj) => {
-                    return obj?.name;
-                });
-                setResults(results ?? []);
-            })
-            .catch((err) => {
-                console.log(err);
-            });
+        try {
+            const res = await fetch(`/api/steamweb/getStorefront?term=${query}`);
+            if (!res.ok) throw new Error("No results");
+            const json = await res.json();
+            const results = json?.items.map((obj) => obj?.name);
+            setResults(results ?? []);
+        } catch (err) {
+            console.log(err);
+            setResults([]);
+        }
     };
 
     return (
@@ -153,21 +148,20 @@ function SteamGridDBImages({ gameName, gameCoverInputRef, loadingCovers, setLoad
 
     useEffect(() => {
         if (!gameName) return;
-        fetch(`/api/steamgriddb/getGrids?query=${encodeURIComponent(gameName)}`)
-            .then((res) => {
+        const fetchImages = async () => {
+            try {
+                const res = await fetch(`/api/steamgriddb/getGrids?query=${encodeURIComponent(gameName)}`);
                 setLoadingCovers(false);
                 if (!res.ok) throw new Error("No results");
-                return res.json();
-            })
-            .then((data) => {
-                setLoadingCovers(false);
+                const data = await res.json();
                 setImages(data);
-            })
-            .catch((err) => {
+            } catch (err) {
                 setLoadingCovers(false);
                 setError(err.message);
                 setImages([]);
-            });
+            }
+        };
+        fetchImages();
     }, [gameName]);
 
     if (loadingCovers) return <Spinner />;

@@ -1,7 +1,7 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Dialogs, globalDialogStore, useDataStore } from "@/stores";
-import { Button, ScrollView, Spinner } from "@/components";
+import { Button, ScrollView, Spinner, SearchSelect } from "@/components";
 import { DialogBase } from "./DialogRoot.jsx";
 import { useEffect, useRef, useState } from "react";
 import "./GamePageDialog.css";
@@ -47,8 +47,8 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
         }
     };
 
-    const handleTitleChange = (e) => {
-        const title = e.target.value;
+    const handleTitleChange = (title) => {
+
         if (timer.current) clearTimeout(timer.current);
         const timerDelay = title ? 500 : 0; // if there's a title, wait for it to be typed,
         setLoadingCovers(!!title); // and show a spinner while typing and requesting
@@ -70,14 +70,32 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                 </VisuallyHidden>
                 <fieldset>
                     <label>Game Title</label>
-                    <input
+                    <SearchSelect
+                        delay={500}
                         id="gameTitleInput"
-                        onKeyDown={saveOnEnter}
-                        defaultValue={game ? game.title : ""}
+                        value={game ? game.title : ""}
                         autoFocus
-                        onChange={handleTitleChange}
+                        onQuery={async (query, setResults) => {
+                            handleTitleChange(query)
+                            if (query === "") {
+                                setResults([]);
+                                return;
+                            }
+                            fetch(`/api/steamweb/getStorefront?term=${query}`).then((res) => {
+                                if (!res.ok) throw new Error("No results");
+                                return res.json();
+                            }).then((json) => {
+                                console.log(json)
+                                const results = json?.items.map((obj) => {
+                                    return obj?.name;
+                                })
+                                setResults(results ?? []);
+                            }).catch((err) => {
+                                console.log(err)
+                            })
+                        }}
+                        onSelect={handleTitleChange}
                     />
-
                     <label>
                         Sorting Title<small> (optional)</small>
                     </label>

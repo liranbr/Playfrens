@@ -306,10 +306,12 @@ export class DataStore {
             return toastError(`${title} already exists in the games list`);
         if (!coverImageURL) return toastError("Cannot save a game without a cover image");
 
+        const oldTitle = storedGame.title;
         storedGame.title = title;
         storedGame.coverImageURL = coverImageURL;
         storedGame.sortingTitle = sortingTitle;
-        return toastSuccess(`Updated ${storedGame.title}`);
+        if (oldTitle !== title) return toastSuccess(`Updated ${oldTitle} to ${storedGame.title}`);
+        else return toastSuccess(`Updated ${storedGame.title}`);
     }
 
     sortTagsByMethod(tagType, sortMethod, isDescending) {

@@ -29,7 +29,10 @@ export function SearchSelect({ onQuery, delay = 0, onSelect, ...inputRest }) {
     };
 
     const handleKeyDown = (e) => {
-        if (results.length === 0 || !showDropdown) return;
+        if (results.length === 0 || !showDropdown) {
+            inputRest?.onKeyDown?.(e);
+            return;
+        }
         let skipInputKeyDown = false;
         if (e.key === "ArrowDown") {
             e.preventDefault();
@@ -37,12 +40,11 @@ export function SearchSelect({ onQuery, delay = 0, onSelect, ...inputRest }) {
         } else if (e.key === "ArrowUp") {
             e.preventDefault();
             setHighlighted((h) => Math.max(h - 1, 0));
-        } else if (e.key === "Enter" && highlighted >= 0) {
-            e.preventDefault();
-            if (showDropdown) skipInputKeyDown = true;
-            setShowDropdown(false);
+        } else if (e.key === "Enter" && highlighted >= 0 && showDropdown) {
+            skipInputKeyDown = true;
             onSelect(results[highlighted]);
             setQuery(results[highlighted]);
+            setShowDropdown(false);
         }
         if (!skipInputKeyDown) inputRest?.onKeyDown?.(e);
     };

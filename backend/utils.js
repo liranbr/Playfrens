@@ -10,5 +10,6 @@ export function getBackendDomain() {
 
 export function parseBoolean(s) {
     const value = s.toLowerCase();
-    return value === "true" || value === "1" || value === "yes";
+    const n = Number(s);
+    return value === "true" || (!isNaN(n) && n > 0);
 }

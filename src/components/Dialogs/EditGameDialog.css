@@ -8,14 +8,15 @@
         display: flex;
         flex-direction: row;
         gap: 20px; /* same as the dialog's padding */
+        height: 100%;
 
         .edit-game-fields {
             width: 350px;
         }
         .cover-art-selector {
             width: 350px;
-            height: 600px;
-            max-height: 600px;
+            height: 525px;
+            max-height: 525px;
             display: flex;
             flex-direction: column;
             --covers-gallery-padding: 16px; /* padding to give space for selection highlight */

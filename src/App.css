@@ -103,3 +103,8 @@
 .app-header-center {
     gap: 16px;
 }
+
+.dialog-hidden {
+    opacity: 0;
+    pointer-events: none;
+}

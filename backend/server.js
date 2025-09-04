@@ -8,7 +8,7 @@ import session from "express-session";
 import passport from "passport";
 import https from "https";
 import selfsigned from "selfsigned";
-import { getBackendDomain, getFrontendDomain, parseBoolean } from "./utils.js";
+import { getBackendDomain, getFrontendDomain, strToBool } from "./utils.js";
 
 // Load environment keys first before anything else!
 dotenv.config({ debug: true, path: ".env" });
@@ -37,7 +37,7 @@ app.use(
         resave: false,
         saveUninitialized: false,
         cookie: {
-            secure: parseBoolean(env.USE_HTTPS), // http vs https
+            secure: strToBool(env.USE_HTTPS), // http vs https
             httpOnly: true,
             sameSite: "none",
             maxAge: 24 * 60 * 60 * 1000, // 1 day
@@ -59,7 +59,7 @@ export const main = () => {
 };
 
 // Finally we set up the server to be ready and listening
-if (parseBoolean(env.USE_HTTPS)) {
+if (strToBool(env.USE_HTTPS)) {
     const pems = selfsigned.generate([{ name: "commonName", value: "localhost" }], {
         days: 365,
         keySize: 2048,

@@ -36,6 +36,12 @@ fieldset {
     border-top: var(--pf-border-500);
 }
 
+.separator-vertical {
+    width: 0;
+    flex-shrink: 0;
+    border-left: var(--pf-border-500);
+}
+
 .ui-card {
     max-width: var(--ui-card-width);
     min-width: var(--ui-card-width);

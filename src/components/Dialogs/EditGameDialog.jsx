@@ -79,63 +79,67 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
             onOpenChange={handleHide}
             contentProps={{ forceMount: !game, className: "rx-dialog edit-game-dialog" }}
         >
-            <div className="card-dialog">
-                <Dialog.Title>{dialogTitle}</Dialog.Title>
-                <VisuallyHidden>
-                    <Dialog.Description>{dialogDescription}</Dialog.Description>
-                </VisuallyHidden>
-                <fieldset>
-                    <label>Game Title</label>
-                    <SearchSelect
-                        delay={250}
-                        id="gameTitleInput"
-                        value={game ? game.title : ""}
-                        autoFocus
-                        placeholder="Enter game title"
-                        onQuery={onQuery}
-                        onKeyDown={saveOnEnter}
-                        onSelect={handleTitleChange}
-                    />
-                    <label>
-                        Sorting Title<small> (optional)</small>
-                    </label>
-                    <input
-                        id="gameSortingTitleInput"
-                        onKeyDown={saveOnEnter}
-                        defaultValue={game ? game.sortingTitle : ""}
-                    />
-                </fieldset>
+            <Dialog.Title>{dialogTitle}</Dialog.Title>
+            <VisuallyHidden>
+                <Dialog.Description>{dialogDescription}</Dialog.Description>
+            </VisuallyHidden>
+            <div className="edit-game-body">
+                <div className="edit-game-fields">
+                    <fieldset>
+                        <label>Game Title</label>
+                        <SearchSelect
+                            delay={250}
+                            id="gameTitleInput"
+                            value={game ? game.title : ""}
+                            autoFocus
+                            placeholder="Enter game title to search for covers"
+                            onQuery={onQuery}
+                            onKeyDown={saveOnEnter}
+                            onSelect={handleTitleChange}
+                        />
+                        <label>
+                            Sorting Title<small> (optional)</small>
+                        </label>
+                        <input
+                            id="gameSortingTitleInput"
+                            onKeyDown={saveOnEnter}
+                            defaultValue={game ? game.sortingTitle : ""}
+                        />
+                    </fieldset>
+                </div>
 
-                <div className="rx-dialog-footer">
-                    <Button variant="secondary" onClick={handleHide}>
-                        Cancel
-                    </Button>
-                    <Button variant="primary" onClick={handleSave}>
-                        Save
-                    </Button>
+                <div className="separator-vertical" />
+
+                <div className="cover-art-selector">
+                    <fieldset>
+                        <label>Cover Art</label>
+                        <input
+                            ref={gameCoverInputRef}
+                            id="gameCoverInput"
+                            onKeyDown={saveOnEnter}
+                            defaultValue={game ? game.coverImageURL : ""}
+                            placeholder="Enter URL, or choose from the suggestions"
+                        />
+                    </fieldset>
+                    <ScrollView>
+                        <SteamGridDBImages
+                            key={gameName}
+                            gameName={gameName}
+                            gameCoverInputRef={gameCoverInputRef}
+                            loadingCovers={loadingCovers}
+                            setLoadingCovers={setLoadingCovers}
+                        />
+                    </ScrollView>
                 </div>
             </div>
 
-            <div className="card-dialog cover-art-selector">
-                <Dialog.Title>Cover Art</Dialog.Title>
-                <fieldset>
-                    <input
-                        ref={gameCoverInputRef}
-                        id="gameCoverInput"
-                        onKeyDown={saveOnEnter}
-                        defaultValue={game ? game.coverImageURL : ""}
-                        placeholder="Enter URL, or choose from title-based suggestions"
-                    />
-                </fieldset>
-                <ScrollView>
-                    <SteamGridDBImages
-                        key={gameName}
-                        gameName={gameName}
-                        gameCoverInputRef={gameCoverInputRef}
-                        loadingCovers={loadingCovers}
-                        setLoadingCovers={setLoadingCovers}
-                    />
-                </ScrollView>
+            <div className="rx-dialog-footer">
+                <Button variant="secondary" onClick={handleHide}>
+                    Cancel
+                </Button>
+                <Button variant="primary" onClick={handleSave}>
+                    Save
+                </Button>
             </div>
         </DialogBase>
     );
@@ -156,7 +160,9 @@ function SteamGridDBImages({ gameName, gameCoverInputRef, loadingCovers, setLoad
         if (!gameName) return;
         const fetchImages = async () => {
             try {
-                const res = await fetch(`/api/steamgriddb/getGrids?query=${encodeURIComponent(gameName)}`);
+                const res = await fetch(
+                    `/api/steamgriddb/getGrids?query=${encodeURIComponent(gameName)}`,
+                );
                 setLoadingCovers(false);
                 if (!res.ok) throw new Error("No results");
                 const data = await res.json();

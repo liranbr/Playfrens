@@ -1,62 +1,41 @@
 .rx-dialog.edit-game-dialog {
-    pointer-events: none !important; /* to make sure clicking outside the dialogs closes it, due to irregular shape */
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     width: fit-content;
     height: fit-content;
-    align-items: center;
-    background: none;
-    padding: 0;
-    border: none;
-    outline: none;
-    overflow: unset;
-    box-shadow: none;
-    gap: 12px;
 
-    --cover-art-width: 450px;
-    --cover-art-height: calc(var(--cover-art-width) * 1.5);
-    --container-shadow: 0 0 20px rgba(0, 0, 0, 1);
-    --border: var(--pf-border-700);
-    --outer-border: var(--pf-border-700);
-    --border-radius: 20px;
-    --container-bg: var(--pf-bg-900);
-    --element-bg: var(--pf-bg-700);
+    .edit-game-body {
+        display: flex;
+        flex-direction: row;
+        gap: 20px; /* same as the dialog's padding */
+        height: 100%;
 
-    .card-dialog {
-        pointer-events: auto;
-        width: var(--cover-art-width);
-        border: var(--outer-border);
-        border-radius: var(--border-radius);
-        box-shadow: var(--container-shadow);
-        background-size: cover;
-        background-position: center;
-        background-color: var(--container-bg);
-        padding: 20px;
-
-        &.cover-art-selector {
-            height: var(--cover-art-height);
-            max-height: var(--cover-art-height);
+        .edit-game-fields {
+            width: 350px;
+        }
+        .cover-art-selector {
+            width: 350px;
+            height: 525px;
+            max-height: 525px;
             display: flex;
             flex-direction: column;
-            padding: 20px 10px;
             --covers-gallery-padding: 16px; /* padding to give space for selection highlight */
 
-            fieldset {
-                padding: 10px;
+            input {
+                margin-bottom: 8px;
             }
 
             .rx-scrollbar {
                 /* scrollbar aligns with the start/end of the covers */
-                padding-top: var(--covers-gallery-padding);
-                padding-bottom: var(--covers-gallery-padding);
+                padding-top: 16px;
+                padding-bottom: 16px;
             }
 
             .covers-gallery {
                 display: grid;
                 grid-template-columns: repeat(2, 1fr);
                 gap: 24px;
-                padding: var(--covers-gallery-padding);
-                max-width: var(--cover-art-width);
+                padding: 16px 12px;
 
                 img {
                     width: 100%;

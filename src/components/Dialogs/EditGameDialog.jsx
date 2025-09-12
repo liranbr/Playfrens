@@ -181,6 +181,7 @@ function CoverSelector({ option, gameCoverInputRef, loadingCovers, setLoadingCov
                 setLoadingCovers(false);
                 if (!res.ok) throw new Error("No results");
                 const data = await res.json();
+                onSelectedURL(data[0].url);
                 setImages(data);
             } catch (err) {
                 setLoadingCovers(false);
@@ -190,6 +191,11 @@ function CoverSelector({ option, gameCoverInputRef, loadingCovers, setLoadingCov
         };
         fetchImages();
     }, [option.name]);
+
+    const onSelectedURL = (url) => {
+        setSelectedURL(url);
+        gameCoverInputRef.current.value = url;
+    }
 
     if (loadingCovers) return <Spinner />;
     if (error) return <div>Error: {error}</div>;
@@ -201,10 +207,7 @@ function CoverSelector({ option, gameCoverInputRef, loadingCovers, setLoadingCov
                     key={img.url}
                     src={img.preview}
                     alt=""
-                    onClick={() => {
-                        setSelectedURL(img.url);
-                        gameCoverInputRef.current.value = img.url;
-                    }}
+                    onClick={() => onSelectedURL(img.url)}
                     className={selectedURL === img.url ? "selected-cover" : ""}
                 />
             ))}

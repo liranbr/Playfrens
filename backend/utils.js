@@ -13,3 +13,12 @@ export function strToBool(s) {
     const n = Number(s);
     return value === "true" || (!isNaN(n) && n > 0);
 }
+
+export async function isImageUrlValid(url) {
+    try {
+        const res = await fetch(url, { method: "HEAD" });
+        return res.ok && res.headers.get("content-type")?.startsWith("image/");
+    } catch {
+        return false;
+    }
+}

@@ -12,6 +12,22 @@
 
         .edit-game-fields {
             width: 350px;
+
+            .title-and-toggle {
+                display: flex;
+                flex-direction: column;
+
+                .rx-toggle-group button {
+                    border-bottom-left-radius: 0;
+                    border-bottom-right-radius: 0;
+                    border: none;
+                }
+
+                input {
+                    border-top-left-radius: 0;
+                    border-top-right-radius: 0;
+                }
+            }
         }
         .cover-art-selector {
             width: 350px;

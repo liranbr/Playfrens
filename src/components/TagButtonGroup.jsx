@@ -83,7 +83,7 @@ const SidebarTBGMenu = observer(({ tagType }) => {
                     </Select.Root>
                     <ToggleGroup.Root
                         type="single"
-                        className="sort-order-toggle"
+                        className="rx-toggle-group"
                         value={settingsStore.tagSortDirection[tagType]}
                         onValueChange={(option) =>
                             settingsStore.setTagSortDirection(tagType, option)

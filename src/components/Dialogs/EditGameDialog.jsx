@@ -49,6 +49,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
     };
 
     const handleSelectChange = (selectedOption) => {
+        if (selectedOption == option) return;
         if (timer.current) clearTimeout(timer.current);
         const timerDelay = selectedOption ? 500 : 0; // if there's a title, wait for it to be typed,
         setLoadingCovers(!!selectedOption); // and show a spinner while typing and requesting

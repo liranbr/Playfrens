@@ -9,7 +9,7 @@ import "./EditGameDialog.css";
 
 export function EditGameDialog({ open, closeDialog, game = null }) {
     const dataStore = useDataStore();
-    const [gameName, setGameName] = useState("");
+    const [option, setOption] = useState("");
     const [loadingCovers, setLoadingCovers] = useState(false);
     const timer = useRef(null);
 
@@ -47,12 +47,12 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
         }
     };
 
-    const handleTitleChange = (title) => {
+    const handleSelectChange = (selectedOption) => {
         if (timer.current) clearTimeout(timer.current);
-        const timerDelay = title ? 500 : 0; // if there's a title, wait for it to be typed,
-        setLoadingCovers(!!title); // and show a spinner while typing and requesting
+        const timerDelay = selectedOption ? 500 : 0; // if there's a title, wait for it to be typed,
+        setLoadingCovers(!!selectedOption); // and show a spinner while typing and requesting
         timer.current = setTimeout(() => {
-            setGameName(title);
+            setOption(selectedOption);
         }, timerDelay);
     };
 
@@ -65,7 +65,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
             const res = await fetch(`/api/steamweb/getStorefront?term=${query}`);
             if (!res.ok) throw new Error("No results");
             const json = await res.json();
-            const results = json?.items.map((obj) => obj?.name);
+            const results = json?.items.map((obj) => { return { name: obj?.name, data: obj } });
             setResults(results ?? []);
         } catch (err) {
             console.log(err);
@@ -95,7 +95,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                             placeholder="Enter game title to search for covers"
                             onQuery={onQuery}
                             onKeyDown={saveOnEnter}
-                            onSelect={handleTitleChange}
+                            onSelect={handleSelectChange}
                         />
                         <label>
                             Sorting Title<small> (optional)</small>
@@ -122,9 +122,9 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                         />
                     </fieldset>
                     <ScrollView>
-                        <SteamGridDBImages
-                            key={gameName}
-                            gameName={gameName}
+                        <CoverSelector
+                            key={option.name}
+                            option={option}
                             gameCoverInputRef={gameCoverInputRef}
                             loadingCovers={loadingCovers}
                             setLoadingCovers={setLoadingCovers}
@@ -145,7 +145,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
     );
 }
 
-function SteamGridDBImages({ gameName, gameCoverInputRef, loadingCovers, setLoadingCovers }) {
+function CoverSelector({ option, gameCoverInputRef, loadingCovers, setLoadingCovers }) {
     const [images, setImages] = useState([]);
     const [error, setError] = useState("");
     const [selectedURL, setSelectedURL] = useState("");
@@ -157,11 +157,11 @@ function SteamGridDBImages({ gameName, gameCoverInputRef, loadingCovers, setLoad
     }, [selectedURL]); // preload to cache full version of the selected cover
 
     useEffect(() => {
-        if (!gameName) return;
+        if (!option.name) return;
         const fetchImages = async () => {
             try {
                 const res = await fetch(
-                    `/api/steamgriddb/getGrids?query=${encodeURIComponent(gameName)}`,
+                    `/api/steamgriddb/getGrids?query=${encodeURIComponent(option.name)}${option.data?.id ? ("&steamID=" + option.data.id) : ""}`,
                 );
                 setLoadingCovers(false);
                 if (!res.ok) throw new Error("No results");
@@ -174,7 +174,7 @@ function SteamGridDBImages({ gameName, gameCoverInputRef, loadingCovers, setLoad
             }
         };
         fetchImages();
-    }, [gameName]);
+    }, [option.name]);
 
     if (loadingCovers) return <Spinner />;
     if (error) return <div>Error: {error}</div>;

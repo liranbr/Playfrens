@@ -42,9 +42,7 @@ export function SearchSelect({ onQuery, delay = 0, onSelect, ...inputRest }) {
             setHighlighted((h) => Math.max(h - 1, 0));
         } else if (e.key === "Enter" && highlighted >= 0 && showDropdown) {
             skipInputKeyDown = true;
-            onSelect(results[highlighted]);
-            setQuery(results[highlighted]);
-            setShowDropdown(false);
+            handleOptionClick(results[highlighted]);
         }
         if (!skipInputKeyDown) inputRest?.onKeyDown?.(e);
     };
@@ -52,13 +50,13 @@ export function SearchSelect({ onQuery, delay = 0, onSelect, ...inputRest }) {
     const handleOptionClick = (option) => {
         setShowDropdown(false);
         onSelect(option);
-        setQuery(option);
+        setQuery(option.name);
     };
 
     const handleMouseDown = (e) => {
         setShowDropdown(
             (inputRef.current && inputRef.current.contains(e.target)) ||
-                (resultsRef.current && resultsRef.current.contains(e.target)),
+            (resultsRef.current && resultsRef.current.contains(e.target)),
         );
     };
 
@@ -96,10 +94,10 @@ export function SearchSelect({ onQuery, delay = 0, onSelect, ...inputRest }) {
                         <li
                             tabIndex={idx}
                             className={"list-item" + (highlighted === idx ? " highlighted" : "")}
-                            key={option}
+                            key={option.name}
                             onMouseDown={() => handleOptionClick(option)}
                         >
-                            {option}
+                            {option.name}
                         </li>
                     ))}
                 </ul>

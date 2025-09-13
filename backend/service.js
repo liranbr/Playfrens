@@ -1,5 +1,4 @@
-import { asyncHandler } from "./utils.js";
-
+import { asyncHandler, ConsoleColor } from "./utils.js";
 /**
  * @class
  * @property {import('express').application} app
@@ -20,9 +19,8 @@ export class Service {
     }
     async connect() {}
     listen() {
-        const cyan = "\x1b[36m";
-        const reset = "\x1b[0m";
-        console.log(`Listening to ${cyan}${this.constructor.name}${reset}.`);
+        const { FgCyan, Reset } = ConsoleColor;
+        console.log(`Listening to ${FgCyan}${this.constructor.name}${Reset}.`);
     }
 
     /**
@@ -31,10 +29,12 @@ export class Service {
      */
     registerRoutes(routes) {
         for (const { method, path, handler } of routes) {
-            this.app[method](path, Service.asyncHandler(handler));
-            const cyan = "\x1b[36m";
-            const reset = "\x1b[0m";
-            console.log(`\t* Binding ${cyan}${handler.name.replace(/^bound\s*/, "")}${reset}.`);
+            const handlers = Array.isArray(handler) ? handler : [handler];
+            this.app[method](path, ...handlers);
+            const {} = ConsoleColor;
+            const { FgCyan, FgYellow, Reset } = ConsoleColor;
+            const name = handlers.map((fn) => fn.name?.replace(/^bound\s*/, "") || "anonymous");
+            console.log(`\t* Binding ${FgYellow}[${FgCyan}${name}${FgYellow}]${Reset}.`);
         }
     }
 

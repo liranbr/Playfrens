@@ -14,55 +14,65 @@ export class SteamWebService extends Service {
 
     listen() {
         super.listen();
-        this.app.get("/api/steamweb/getOwnedGames", this.getOwnedGames.bind(this));
-        this.app.get("/api/steamweb/getFriends", this.getFriends.bind(this));
-        this.app.get("/api/steamweb/getSteamCapsules", this.getSteamCapsules.bind(this));
-        this.app.get("/api/steamweb/getStorefront", this.getGamesFromStorefront.bind(this));
+        this.registerRoutes([
+            {
+                method: "get",
+                path: "/api/steamweb/getOwnedGames",
+                handler: this.getOwnedGames.bind(this),
+            },
+            {
+                method: "get",
+                path: "/api/steamweb/getFriends",
+                handler: this.getFriends.bind(this),
+            },
+            {
+                method: "get",
+                path: "/api/steamweb/getSteamCapsules",
+                handler: this.getSteamCapsules.bind(this),
+            },
+            {
+                method: "get",
+                path: "/api/steamweb/getStorefront",
+                handler: this.getGamesFromStorefront.bind(this),
+            },
+        ]);
     }
 
     async getOwnedGames(req, res) {
         const { id } = req.query;
-        const { OK, BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+        const { OK, BAD_REQUEST, NOT_FOUND } = Response.HttpStatus;
 
         if (!this.isSteamID(id))
             return Response.sendMessage(res, BAD_REQUEST, `Invalid SteamID64 passed: ${id}`);
 
         const client = this.connect();
 
-        try {
-            const games = await client.getUserOwnedGames(id, { includeExtendedAppInfo: true });
-            return games.length === 0
-                ? Response.sendMessage(
-                      res,
-                      NOT_FOUND,
-                      `Couldn't find any games using SteamID64 ${id}`,
-                  )
-                : Response.send(res, OK, games);
-        } catch (error) {
-            return Response.send(res, INTERNAL_SERVER_ERROR, error);
-        }
+        const games = await client.getUserOwnedGames(id, { includeExtendedAppInfo: true });
+        if (games.length === 0)
+            return Response.sendMessage(
+                res,
+                NOT_FOUND,
+                `Couldn't find any games using SteamID64 ${id}`,
+            );
+        Response.send(res, OK, games);
     }
 
     async getFriends(req, res) {
         const { id } = req.query;
-        const { OK, BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+        const { OK, BAD_REQUEST, NOT_FOUND } = Response.HttpStatus;
         if (!this.isSteamID(id))
             return Response.sendMessage(res, BAD_REQUEST, `Invalid SteamID64 passed: ${id}`);
 
         const client = this.connect();
 
-        try {
-            const friends = await client.getUserFriends(id);
-            return friends.length === 0
-                ? Response.sendMessage(
-                      res,
-                      NOT_FOUND,
-                      `Couldn't find any friends using SteamID64 ${id}`,
-                  )
-                : Response.send(res, OK, friends);
-        } catch (error) {
-            return Response.send(res, INTERNAL_SERVER_ERROR, error);
-        }
+        const friends = await client.getUserFriends(id);
+        if (friends.length === 0)
+            return Response.sendMessage(
+                res,
+                NOT_FOUND,
+                `Couldn't find any friends using SteamID64 ${id}`,
+            );
+        Response.send(res, OK, friends);
     }
     /**
      *
@@ -73,36 +83,32 @@ export class SteamWebService extends Service {
 
     async getSteamCapsules(req, res) {
         const { id } = req.query;
-        const { OK, BAD_REQUEST, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+        const { OK, BAD_REQUEST } = Response.HttpStatus;
 
         if (!this.isSteamID(id))
             return Response.sendMessage(res, BAD_REQUEST, `Invalid SteamID64 passed: ${id}`);
 
         const client = this.connect();
 
-        try {
-            const games = await client.getUserOwnedGames(id, { includeExtendedAppInfo: true });
+        const games = await client.getUserOwnedGames(id, { includeExtendedAppInfo: true });
 
-            const grids = games.map((game) => {
-                const { id, capsuleFilename, name } = game.game;
-                const gridImage = (() => {
-                    if (
-                        capsuleFilename.includes("library_capsule.jpg") ||
-                        capsuleFilename.includes("library_600x900.jpg")
-                    )
-                        return capsuleFilename.replace(".jpg", "_2x.jpg");
-                    else return capsuleFilename;
-                })();
-                return {
-                    name: name,
-                    id: id,
-                    image: `https://shared.steamstatic.com/store_item_assets/steam/apps/${id}/${gridImage}`,
-                };
-            });
-            return Response.send(res, OK, grids);
-        } catch (error) {
-            return Response.send(res, INTERNAL_SERVER_ERROR, error);
-        }
+        const grids = games.map((game) => {
+            const { id, capsuleFilename, name } = game.game;
+            const gridImage = (() => {
+                if (
+                    capsuleFilename.includes("library_capsule.jpg") ||
+                    capsuleFilename.includes("library_600x900.jpg")
+                )
+                    return capsuleFilename.replace(".jpg", "_2x.jpg");
+                else return capsuleFilename;
+            })();
+            return {
+                name: name,
+                id: id,
+                image: `https://shared.steamstatic.com/store_item_assets/steam/apps/${id}/${gridImage}`,
+            };
+        });
+        Response.send(res, OK, grids);
     }
     /**
      * Search for games using Steam Storefront API, queries: term, lang, cc (country code)
@@ -112,19 +118,15 @@ export class SteamWebService extends Service {
      */
     async getGamesFromStorefront(req, res) {
         const { term, lang = "en", cc = "US" } = req.query;
-        const { OK, NOT_FOUND, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+        const { OK, NOT_FOUND } = Response.HttpStatus;
         const response = await fetch(
             `https://store.steampowered.com/api/storesearch/?term=${term}&l=${lang}&cc=${cc}`,
         );
-        try {
-            if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
-            const data = await response.json();
-            if (data.length === 0)
-                return Response.send(res, NOT_FOUND, `No games were found using "${query}"`);
-            return Response.send(res, OK, data);
-        } catch (error) {
-            return Response.send(res, INTERNAL_SERVER_ERROR, error);
-        }
+        if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+        const data = await response.json();
+        if (data.length === 0)
+            return Response.send(res, NOT_FOUND, `No games were found using "${query}"`);
+        return Response.send(res, OK, data);
     }
 
     /**

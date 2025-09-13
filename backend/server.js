@@ -73,4 +73,9 @@ if (strToBool(env.USE_HTTPS)) {
     });
 }
 
+// Error logging
+app.use((err, req, res, next) => {
+    res.status(500).json({ error: err.message });
+});
+
 main();

@@ -1,3 +1,5 @@
+import { asyncHandler } from "./utils.js";
+
 /**
  * @class
  * @property {import('express').application} app
@@ -18,6 +20,23 @@ export class Service {
     }
     async connect() {}
     listen() {
-        console.log(`Listening to ${this.constructor.name}`);
+        const cyan = "\x1b[36m";
+        const reset = "\x1b[0m";
+        console.log(`Listening to ${cyan}${this.constructor.name}${reset}.`);
     }
+
+    /**
+     * Helper to register multiple routes in a DRY way
+     * @param {Array<{ method: string, path: string, handler: Function }>} routes
+     */
+    registerRoutes(routes) {
+        for (const { method, path, handler } of routes) {
+            this.app[method](path, Service.asyncHandler(handler));
+            const cyan = "\x1b[36m";
+            const reset = "\x1b[0m";
+            console.log(`\t* Binding ${cyan}${handler.name.replace(/^bound\s*/, "")}${reset}.`);
+        }
+    }
+
+    static asyncHandler = asyncHandler;
 }

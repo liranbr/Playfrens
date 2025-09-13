@@ -10,7 +10,7 @@ import * as ToggleGroup from "@radix-ui/react-toggle-group";
 
 export function EditGameDialog({ open, closeDialog, game = null }) {
     const dataStore = useDataStore();
-    const [option, setOption] = useState("");
+    const [selectedGameEntry, setSelectedGameEntry] = useState(""); // TODO: auto-select from the game's data if available
     const [loadingCovers, setLoadingCovers] = useState(false);
     const timer = useRef(null);
 
@@ -49,12 +49,12 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
     };
 
     const handleSelectChange = (selectedOption) => {
-        if (selectedOption == option) return;
+        if (selectedOption.data?.id === selectedGameEntry.data?.id) return;
         if (timer.current) clearTimeout(timer.current);
         const timerDelay = selectedOption ? 500 : 0; // if there's a title, wait for it to be typed,
         setLoadingCovers(!!selectedOption); // and show a spinner while typing and requesting
         timer.current = setTimeout(() => {
-            setOption(selectedOption);
+            setSelectedGameEntry(selectedOption);
         }, timerDelay);
     };
 
@@ -67,7 +67,9 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
             const res = await fetch(`/api/steamweb/getStorefront?term=${query}`);
             if (!res.ok) throw new Error("No results");
             const json = await res.json();
-            const results = json?.items.map((obj) => { return { name: obj?.name, data: obj } });
+            const results = json?.items.map((obj) => {
+                return { name: obj?.name, data: obj };
+            });
             setResults(results ?? []);
         } catch (err) {
             console.log(err);
@@ -138,8 +140,8 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                     </fieldset>
                     <ScrollView>
                         <CoverSelector
-                            key={option.name}
-                            option={option}
+                            key={selectedGameEntry.name}
+                            gameEntry={selectedGameEntry}
                             gameCoverInputRef={gameCoverInputRef}
                             loadingCovers={loadingCovers}
                             setLoadingCovers={setLoadingCovers}
@@ -160,7 +162,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
     );
 }
 
-function CoverSelector({ option, gameCoverInputRef, loadingCovers, setLoadingCovers }) {
+function CoverSelector({ gameEntry, gameCoverInputRef, loadingCovers, setLoadingCovers }) {
     const [images, setImages] = useState([]);
     const [error, setError] = useState("");
     const [selectedURL, setSelectedURL] = useState("");
@@ -172,16 +174,17 @@ function CoverSelector({ option, gameCoverInputRef, loadingCovers, setLoadingCov
     }, [selectedURL]); // preload to cache full version of the selected cover
 
     useEffect(() => {
-        if (!option.name) return;
+        if (!gameEntry.name) return;
         const fetchImages = async () => {
             try {
                 const res = await fetch(
-                    `/api/steamgriddb/getGrids?query=${encodeURIComponent(option.name)}${option.data?.id ? ("&steamID=" + option.data.id) : ""}`,
+                    `/api/steamgriddb/getGrids?query=${encodeURIComponent(gameEntry.name)}${gameEntry.data?.id ? "&steamID=" + gameEntry.data.id : ""}`,
                 );
                 setLoadingCovers(false);
                 if (!res.ok) throw new Error("No results");
                 const data = await res.json();
-                onSelectedURL(data[0].url);
+                if (data[0].url.includes("steamstatic.com") && !gameCoverInputRef.current.value)
+                    onSelectedURL(data[0].url);
                 setImages(data);
             } catch (err) {
                 setLoadingCovers(false);
@@ -190,12 +193,12 @@ function CoverSelector({ option, gameCoverInputRef, loadingCovers, setLoadingCov
             }
         };
         fetchImages();
-    }, [option.name]);
+    }, [gameEntry.name]);
 
     const onSelectedURL = (url) => {
         setSelectedURL(url);
         gameCoverInputRef.current.value = url;
-    }
+    };
 
     if (loadingCovers) return <Spinner />;
     if (error) return <div>Error: {error}</div>;

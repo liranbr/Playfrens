@@ -1,6 +1,6 @@
 const env = process.env;
 
-export class ConsoleColor {
+export class ConsoleColors {
     static Reset = "\x1b[0m";
     static Bright = "\x1b[1m";
     static Dim = "\x1b[2m";

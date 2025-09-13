@@ -38,23 +38,20 @@ export class LoginService extends Service {
                 path: "/auth/logout",
                 handler: this.logout.bind(this),
             },
-        ]);
-        this.app.get("/auth/me", this.getRequestIdentity.bind(this));
-        this.app.get("/auth/logout", this.logout.bind(this));
-
-        this.app.get("/auth/steam", passport.authenticate("steam", { failureRedirect: "/" }));
-        this.app.get(
-            "/auth/steam/return",
-            passport.authenticate("steam", { failureRedirect: "/" }),
-            (req, res) => {
-                try {
-                    console.log(`Hello, ${req.user.displayName || "Steam user"}!`);
-                    res.redirect(getFrontendDomain());
-                } catch (error) {
-                    Response.send(res, Response.HttpStatus.INTERNAL_SERVER_ERROR, error);
-                }
+            {
+                method: "get",
+                path: "/auth/steam",
+                handler: passport.authenticate("steam", { failureRedirect: "/" }),
             },
-        );
+            {
+                method: "get",
+                path: "/auth/steam/return",
+                handler: [
+                    passport.authenticate("steam", { failureRedirect: "/" }),
+                    this.steamReturn.bind(this),
+                ],
+            },
+        ]);
     }
 
     async logout(req, res, next) {
@@ -84,5 +81,10 @@ export class LoginService extends Service {
         } else {
             Response.send(res, UNAUTHORIZED, { error: "Not logged in" });
         }
+    }
+
+    async steamReturn(req, res) {
+        console.log(`Hello, ${req.user?.displayName || "Steam user"}!`);
+        res.redirect(getFrontendDomain());
     }
 }

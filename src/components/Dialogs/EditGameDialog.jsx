@@ -67,7 +67,9 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
             const res = await fetch(`/api/steamweb/getStorefront?term=${query}`);
             if (!res.ok) throw new Error("No results");
             const json = await res.json();
-            const results = json?.items.map((obj) => { return { name: obj?.name, data: obj } });
+            const results = json?.items.map((obj) => {
+                return { name: obj?.name, data: obj };
+            });
             setResults(results ?? []);
         } catch (err) {
             console.log(err);
@@ -176,12 +178,13 @@ function CoverSelector({ option, gameCoverInputRef, loadingCovers, setLoadingCov
         const fetchImages = async () => {
             try {
                 const res = await fetch(
-                    `/api/steamgriddb/getGrids?query=${encodeURIComponent(option.name)}${option.data?.id ? ("&steamID=" + option.data.id) : ""}`,
+                    `/api/steamgriddb/getGrids?query=${encodeURIComponent(option.name)}${option.data?.id ? "&steamID=" + option.data.id : ""}`,
                 );
                 setLoadingCovers(false);
                 if (!res.ok) throw new Error("No results");
                 const data = await res.json();
-                onSelectedURL(data[0].url);
+                if (data[0].url.includes("steamstatic.com") && !selectedURL)
+                    onSelectedURL(data[0].url);
                 setImages(data);
             } catch (err) {
                 setLoadingCovers(false);
@@ -195,7 +198,7 @@ function CoverSelector({ option, gameCoverInputRef, loadingCovers, setLoadingCov
     const onSelectedURL = (url) => {
         setSelectedURL(url);
         gameCoverInputRef.current.value = url;
-    }
+    };
 
     if (loadingCovers) return <Spinner />;
     if (error) return <div>Error: {error}</div>;

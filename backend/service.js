@@ -28,11 +28,10 @@ export class Service {
      * @param {Array<{ method: string, path: string, handler: Function }>} routes
      */
     registerRoutes(routes) {
+        const { FgCyan, FgYellow, Reset } = ConsoleColors;
         for (const { method, path, handler } of routes) {
             const handlers = Array.isArray(handler) ? handler : [handler];
             this.app[method](path, ...handlers);
-            const {} = ConsoleColors;
-            const { FgCyan, FgYellow, Reset } = ConsoleColors;
             const name = handlers.map((fn) => fn.name?.replace(/^bound\s*/, "") || "anonymous");
             console.log(`\t* Binding ${FgYellow}[${FgCyan}${name}${FgYellow}]${Reset}.`);
         }

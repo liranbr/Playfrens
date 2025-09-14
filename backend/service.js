@@ -1,4 +1,4 @@
-import { asyncHandler, ConsoleColors } from "./utils.js";
+import { asyncHandler, ConsoleColors, getBackendDomain, getFrontendDomain } from "./utils.js";
 /**
  * @class
  * @property {import('express').application} app
@@ -32,9 +32,11 @@ export class Service {
         for (const { method, path, handler } of routes) {
             const handlers = Array.isArray(handler) ? handler : [handler];
             this.app[method](path, ...handlers);
-            const name = handlers.map((fn) => fn.name?.replace(/^bound\s*/, "") || "anonymous");
+            const name = handlers
+                .map((fn) => fn.name?.replace(/^bound\s*/, "") || "anonymous")
+                .join(", ");
             console.log(
-                `  ${FgCyan}${name}()${Reset} ${FgGreen}${method.toUpperCase()} ${FgRGB(255, 192, 203)}${path}`,
+                `  ${FgCyan}[${name}]${Reset} ${FgGreen}${method.toUpperCase()} ${FgRGB(255, 192, 203)}${getFrontendDomain()}${path}`,
             );
         }
     }

@@ -28,6 +28,11 @@ export class SteamGridDBService extends Service {
             },
             {
                 method: "get",
+                path: "/api/steamgriddb/getGame",
+                handler: this.getGame.bind(this),
+            },
+            {
+                method: "get",
                 path: "/api/steamgriddb/getGames",
                 handler: this.getGames.bind(this),
             },
@@ -38,57 +43,38 @@ export class SteamGridDBService extends Service {
         const { query, steamID, nsfw = false } = req.query;
         const { NOT_FOUND, OK } = Response.HttpStatus;
         const client = this.connect();
-        let game;
-        if (steamID) {
-            game = await client.getGameBySteamAppId(steamID);
-        } else {
-            const games = await client.searchGame(query);
-            if (games.length !== 0) {
-                return Response.sendMessage(
-                    res,
-                    NOT_FOUND,
-                    `No games were found with the query: ${query}`,
-                );
-            }
-            game = games[0];
-        }
-        const id = game.id ?? -1;
 
-        if (id === -1)
-            return Response.sendMessage(
-                res,
-                NOT_FOUND,
-                `ID-less game with the query: ${query}, cannot proceed.`,
-            );
+        const game = await this.findGame({ query, steamID }, client);
+        if (!game)
+            return Response.send(res, NOT_FOUND, `No games were found with the query: ${query}`);
+
+        const id = game.id ?? -1;
+        if (id === -1) return Response.sendMessage(res, NOT_FOUND, `ID-less game, cannot proceed.`);
 
         const grids = await client.getGrids({ ...this.gridOptions, id, nsfw });
         if (!grids.length)
-            return Response.sendMessage(
-                res,
-                NOT_FOUND,
-                `No games were found with the query: ${query}`,
-            );
+            return Response.sendMessage(res, NOT_FOUND, `No grids were found for this game.`);
 
         const result = grids.map((grid) => ({ url: grid.url, preview: grid.thumb }));
-        // Steam only, fetch the original capsule art from Steam
-        const getSteamAssetCapsule = async (appId) => {
-            const base = `https://shared.steamstatic.com/store_item_assets/steam/apps/${appId}/`;
-            const urlSuffixes = [
-                "library_capsule_600x900_2x.jpg",
-                "library_600x900_2x.jpg",
-                "portrait.png",
-            ];
-            for (const suffix of urlSuffixes) {
-                const url = base + suffix;
-                if (await isImageUrlValid(url)) return url;
-            }
-            return null;
-        };
+
+        // Steam only, gets the capsule art
         if (game.types.includes("steam") && steamID) {
-            const capsule = await getSteamAssetCapsule(steamID);
-            result.unshift({ url: capsule, preview: capsule });
+            const capsule = await this.getSteamAssetCapsule(steamID);
+            if (capsule) result.unshift({ url: capsule, preview: capsule });
         }
+
         Response.send(res, OK, result);
+    }
+
+    async getGame(req, res) {
+        const { query, steamID } = req.query;
+        const { OK, NOT_FOUND } = Response.HttpStatus;
+
+        const game = await this.findGame({ query, steamID });
+        if (!game)
+            return Response.send(res, NOT_FOUND, `No games were found with the query: ${query}`);
+
+        Response.send(res, OK, game);
     }
 
     async getGames(req, res) {
@@ -104,5 +90,45 @@ export class SteamGridDBService extends Service {
                 `No games were found with the query: ${query}`,
             );
         Response.send(res, OK, games);
+    }
+
+    /**
+     * #######
+     * Helpers
+     * #######
+     */
+    /**
+     * Returns a game based on query or passed steamID.
+     */
+    async findGame({ query, steamID }, client = null) {
+        !client && (client = this.connect());
+
+        let game;
+
+        if (steamID) {
+            game = await client.getGameBySteamAppId(steamID);
+        } else if (query) {
+            const games = await client.searchGame(query);
+            if (games.length === 0) return null;
+            game = games[0];
+        }
+        return game;
+    }
+
+    /**
+     * Returns an image capsule of a Steam game using a Steam App ID.
+     */
+    async getSteamAssetCapsule(appId) {
+        const base = `https://shared.steamstatic.com/store_item_assets/steam/apps/${appId}/`;
+        const urlSuffixes = [
+            "library_capsule_600x900_2x.jpg",
+            "library_600x900_2x.jpg",
+            "portrait.png",
+        ];
+        for (const suffix of urlSuffixes) {
+            const url = base + suffix;
+            if (await isImageUrlValid(url)) return url;
+        }
+        return null;
     }
 }

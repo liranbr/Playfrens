@@ -1,9 +1,10 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv-safe";
+import { GeneralService } from "./services/general.js";
+import { LoginService } from "./services/login.js";
 import { SteamGridDBService } from "./services/steamgriddb.js";
 import { SteamWebService } from "./services/steamweb.js";
-import { LoginService } from "./services/login.js";
 import session from "express-session";
 import passport from "passport";
 import https from "https";
@@ -25,9 +26,6 @@ app.use(
         credentials: true,
     }),
 );
-
-// Sanity test
-app.get("/", (_, res) => res.status(200).send("Hello from Playfrens! 🕹️"));
 
 // For login purposes, see ./services/login.js
 // Allows express to manage sessions
@@ -53,6 +51,7 @@ passport.deserializeUser((obj, done) => done(null, obj));
 // Holds all services we provide into classes
 const services = [];
 export const main = () => {
+    services.push(new GeneralService(app));
     services.push(new LoginService(app));
     services.push(new SteamGridDBService(app));
     services.push(new SteamWebService(app));
@@ -74,7 +73,7 @@ if (strToBool(env.USE_HTTPS)) {
 }
 
 // Error logging
-app.use((err, req, res, next) => {
+app.use((err, _req, res, _next) => {
     res.status(500).json({ error: err.message });
 });
 

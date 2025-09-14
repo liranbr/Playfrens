@@ -12,7 +12,7 @@ export class Service {
      * @param {import('express').Express} app
      * @param {string} environment_key
      */
-    constructor(app, environment_key) {
+    constructor(app, environment_key = "") {
         this.app = app;
         this.environment_key = environment_key;
         this.listen();

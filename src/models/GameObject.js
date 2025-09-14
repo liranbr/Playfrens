@@ -2,6 +2,15 @@ import { makeAutoObservable } from "mobx";
 import { toastSuccess, toastError, compareAlphaIgnoreCase } from "@/Utils.jsx";
 import { TagObject, tagTypes } from "@/models";
 
+export const storeTypes = Object.freeze({
+    steam: "Steam",
+    gog: "GOG",
+    xbox: "Xbox",
+    egs: "Epic Games Store",
+    bnet: "Battle.net",
+    sgdb: "SteamGridDB",
+});
+
 /**
  * @class
  * @property {string} title - The title of the game.
@@ -9,6 +18,8 @@ import { TagObject, tagTypes } from "@/models";
  * @property {string} sortingTitle - The (optional) title used for sorting the game.
  * @property {{[key: string]: Set<String>}} tagIDs - For each tagType, a set holds the game's contained tags by their ID
  * @property {string} note - A custom note for this game.
+ * @property {string} storeType - Store that the game is from, options in storeTypes, like 'steam', 'gog'. Can be none.
+ * @property {string} storeID - ID of the Game on its store
  * @property {string} id - A UUID identifier for the game object.
  */
 export class GameObject {
@@ -21,9 +32,11 @@ export class GameObject {
         [tagTypes.status]: new Set(),
     };
     note = "";
-    id;
+    storeType = "";
+    storeID = "";
+    id; // UUID
 
-    constructor({ title, coverImageURL, sortingTitle, tagIDs, note, id }) {
+    constructor({ title, coverImageURL, sortingTitle, tagIDs, note, storeType, storeID, id }) {
         if (!title || !title.trim()) {
             throw new Error("GameObject must have a title");
         }
@@ -32,6 +45,8 @@ export class GameObject {
         this.sortingTitle = sortingTitle ?? this.sortingTitle;
         this.tagIDs = tagIDs ?? this.tagIDs;
         this.note = note ?? this.note;
+        this.storeType = storeType ?? this.storeType;
+        this.storeID = storeID ?? this.storeID;
         this.id = id ?? crypto.randomUUID();
         makeAutoObservable(this);
     }

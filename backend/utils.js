@@ -26,6 +26,13 @@ export class ConsoleColors {
     static BgMagenta = "\x1b[45m";
     static BgCyan = "\x1b[46m";
     static BgWhite = "\x1b[47m";
+
+    static FgRGB(r, g, b) {
+        return `\x1b[38;2;${r};${g};${b}m`;
+    }
+    static BgRGB(r, g, b) {
+        return `\x1b[48;2;${r};${g};${b}m`;
+    }
 }
 
 export function getFrontendDomain() {

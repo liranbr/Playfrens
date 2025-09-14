@@ -19,8 +19,8 @@ export class Service {
     }
     async connect() {}
     listen() {
-        const { FgCyan, Reset } = ConsoleColors;
-        console.log(`Listening to ${FgCyan}${this.constructor.name}${Reset}.`);
+        const { FgYellow, Reset } = ConsoleColors;
+        console.log(`${FgYellow}${this.constructor.name}${Reset} \\`);
     }
 
     /**
@@ -28,12 +28,14 @@ export class Service {
      * @param {Array<{ method: string, path: string, handler: Function }>} routes
      */
     registerRoutes(routes) {
-        const { FgCyan, FgYellow, Reset } = ConsoleColors;
+        const { FgCyan, FgGreen, Reset, FgRGB } = ConsoleColors;
         for (const { method, path, handler } of routes) {
             const handlers = Array.isArray(handler) ? handler : [handler];
             this.app[method](path, ...handlers);
             const name = handlers.map((fn) => fn.name?.replace(/^bound\s*/, "") || "anonymous");
-            console.log(`\t* Binding ${FgYellow}[${FgCyan}${name}${FgYellow}]${Reset}.`);
+            console.log(
+                `  ${FgCyan}${name}()${Reset} ${FgGreen}${method.toUpperCase()} ${FgRGB(255, 192, 203)}${path}`,
+            );
         }
     }
 

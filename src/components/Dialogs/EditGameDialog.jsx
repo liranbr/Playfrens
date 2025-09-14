@@ -10,7 +10,16 @@ import * as ToggleGroup from "@radix-ui/react-toggle-group";
 
 export function EditGameDialog({ open, closeDialog, game = null }) {
     const dataStore = useDataStore();
-    const [selectedGameEntry, setSelectedGameEntry] = useState(""); // TODO: auto-select from the game's data if available
+    const [selectedGameEntry, setSelectedGameEntry] = useState(
+        game
+            ? {
+                  title: game.title,
+                  storeType: game.storeType,
+                  storeID: game.storeID,
+              }
+            : null, // TODO auto-search for covers if there is a selectedgameentry already.
+    );
+    const [isSteamGame, setIsSteamGame] = useState(game ? game.storeType === "steam" : true);
     const [loadingCovers, setLoadingCovers] = useState(false);
     const timer = useRef(null);
 
@@ -49,7 +58,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
     };
 
     const handleSelectChange = (selectedOption) => {
-        if (selectedOption.data?.id === selectedGameEntry.data?.id) return;
+        if (selectedOption.storeID === selectedGameEntry.storeID) return;
         if (timer.current) clearTimeout(timer.current);
         const timerDelay = selectedOption ? 500 : 0; // if there's a title, wait for it to be typed,
         setLoadingCovers(!!selectedOption); // and show a spinner while typing and requesting
@@ -67,9 +76,12 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
             const res = await fetch(`/api/steamweb/getStorefront?term=${query}`);
             if (!res.ok) throw new Error("No results");
             const json = await res.json();
-            const results = json?.items.map((obj) => {
-                return { name: obj?.name, data: obj };
-            });
+            const results = json?.items.map((item) => ({
+                name: item.name, // built-in field for displaying text in the Select component
+                title: item.name,
+                storeType: "steam",
+                storeID: item.id,
+            }));
             setResults(results ?? []);
         } catch (err) {
             console.log(err);
@@ -95,7 +107,10 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                             <ToggleGroup.Root
                                 type="single"
                                 className="rx-toggle-group"
-                                defaultValue="steam-game"
+                                value={isSteamGame ? "steam-game" : "non-steam-game"}
+                                onValueChange={(value) => {
+                                    setIsSteamGame(value === "steam-game");
+                                }}
                             >
                                 <ToggleGroup.Item value="steam-game">Steam Game</ToggleGroup.Item>
                                 <ToggleGroup.Item value="non-steam-game">
@@ -139,13 +154,15 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                         />
                     </fieldset>
                     <ScrollView>
-                        <CoverSelector
-                            key={selectedGameEntry.name}
-                            gameEntry={selectedGameEntry}
-                            gameCoverInputRef={gameCoverInputRef}
-                            loadingCovers={loadingCovers}
-                            setLoadingCovers={setLoadingCovers}
-                        />
+                        {selectedGameEntry && (
+                            <CoverSelector
+                                key={selectedGameEntry.title}
+                                gameEntry={selectedGameEntry}
+                                gameCoverInputRef={gameCoverInputRef}
+                                loadingCovers={loadingCovers}
+                                setLoadingCovers={setLoadingCovers}
+                            />
+                        )}
                     </ScrollView>
                 </div>
             </div>
@@ -174,11 +191,11 @@ function CoverSelector({ gameEntry, gameCoverInputRef, loadingCovers, setLoading
     }, [selectedURL]); // preload to cache full version of the selected cover
 
     useEffect(() => {
-        if (!gameEntry.name) return;
+        if (!gameEntry.title) return;
         const fetchImages = async () => {
             try {
                 const res = await fetch(
-                    `/api/steamgriddb/getGrids?query=${encodeURIComponent(gameEntry.name)}${gameEntry.data?.id ? "&steamID=" + gameEntry.data.id : ""}`,
+                    `/api/steamgriddb/getGrids?query=${encodeURIComponent(gameEntry.title)}${gameEntry.storeType === "steam" ? "&steamID=" + gameEntry.storeID : ""}`,
                 );
                 setLoadingCovers(false);
                 if (!res.ok) throw new Error("No results");
@@ -193,7 +210,7 @@ function CoverSelector({ gameEntry, gameCoverInputRef, loadingCovers, setLoading
             }
         };
         fetchImages();
-    }, [gameEntry.name]);
+    }, [gameEntry.title]);
 
     const onSelectedURL = (url) => {
         setSelectedURL(url);

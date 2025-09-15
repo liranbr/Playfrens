@@ -40,16 +40,26 @@ export class SteamGridDBService extends Service {
     }
 
     async getGrids(req, res) {
-        const { query, steamID, nsfw = false } = req.query;
+        const { query, steamID, sgdbID, nsfw = false } = req.query;
         const { NOT_FOUND, OK } = Response.HttpStatus;
         const client = this.connect();
 
-        const game = await this.findGame({ query, steamID }, client);
-        if (!game)
-            return Response.send(res, NOT_FOUND, `No games were found with the query: ${query}`);
+        let id;
+        if (sgdbID) {
+            id = sgdbID;
+        } else {
+            const game = await this.findGame({ query, steamID }, client);
+            if (!game)
+                return Response.send(
+                    res,
+                    NOT_FOUND,
+                    `No games were found with the query: ${query}`,
+                );
 
-        const id = game.id ?? -1;
-        if (id === -1) return Response.sendMessage(res, NOT_FOUND, `ID-less game, cannot proceed.`);
+            id = game.id ?? -1;
+            if (id === -1)
+                return Response.sendMessage(res, NOT_FOUND, `ID-less game, cannot proceed.`);
+        }
 
         const grids = await client.getGrids({ ...this.gridOptions, id, nsfw });
         if (!grids.length)
@@ -58,7 +68,7 @@ export class SteamGridDBService extends Service {
         const result = grids.map((grid) => ({ url: grid.url, preview: grid.thumb }));
 
         // Steam only, gets the capsule art
-        if (game.types.includes("steam") && steamID) {
+        if (steamID && game.types.includes("steam")) {
             const capsule = await this.getSteamAssetCapsule(steamID);
             if (capsule) result.unshift({ url: capsule, preview: capsule });
         }
@@ -98,6 +108,7 @@ export class SteamGridDBService extends Service {
      * #######
      */
     /**
+     * @param {SGDB} client
      * Returns a game based on query or passed steamID.
      */
     async findGame({ query, steamID }, client = null) {

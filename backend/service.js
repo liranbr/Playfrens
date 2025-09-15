@@ -31,7 +31,7 @@ export class Service {
         const { FgCyan, FgGreen, Reset, FgRGB } = ConsoleColors;
         for (const { method, path, handler } of routes) {
             const handlers = Array.isArray(handler) ? handler : [handler];
-            this.app[method](path, ...handlers);
+            this.app[method](path, ...handlers.map(asyncHandler));
             const name = handlers
                 .map((fn) => fn.name?.replace(/^bound\s*/, "") || "anonymous")
                 .join(", ");
@@ -40,6 +40,4 @@ export class Service {
             );
         }
     }
-
-    static asyncHandler = asyncHandler;
 }

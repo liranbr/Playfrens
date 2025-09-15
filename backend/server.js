@@ -72,9 +72,9 @@ if (strToBool(env.USE_HTTPS)) {
     });
 }
 
-// Error logging
-app.use((err, _req, res, _next) => {
+main();
+
+// Error logging listener after everything initialized
+app.use(async (err, _req, res, _next) => {
     res.status(500).json({ error: err.message });
 });
-
-main();

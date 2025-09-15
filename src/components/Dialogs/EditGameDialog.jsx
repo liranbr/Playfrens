@@ -13,10 +13,10 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
     const [selectedGameEntry, setSelectedGameEntry] = useState(
         game
             ? {
-                  title: game.title,
-                  storeType: game.storeType,
-                  storeID: game.storeID,
-              }
+                title: game.title,
+                storeType: game.storeType,
+                storeID: game.storeID,
+            }
             : null, // TODO auto-search for covers if there is a selectedgameentry already.
     );
     const [isSteamGame, setIsSteamGame] = useState(game ? game.storeType === "steam" : true);
@@ -58,7 +58,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
     };
 
     const handleSelectChange = (selectedOption) => {
-        if (selectedOption.storeID === selectedGameEntry.storeID) return;
+        if (selectedOption.storeID === selectedGameEntry?.storeID) return;
         if (timer.current) clearTimeout(timer.current);
         const timerDelay = selectedOption ? 500 : 0; // if there's a title, wait for it to be typed,
         setLoadingCovers(!!selectedOption); // and show a spinner while typing and requesting
@@ -67,24 +67,28 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
         }, timerDelay);
     };
 
+    const doFetch = async (query) => {
+        return await (isSteamGame ? fetch(`/api/steamweb/getStorefront?term=${query}`) : fetch(`/api/steamgriddb/getGames?query=${query}`));
+    }
+
     const onQuery = async (query, setResults) => {
         if (query === "") {
             setResults([]);
             return;
         }
         try {
-            const res = await fetch(`/api/steamweb/getStorefront?term=${query}`);
+            const res = await doFetch(query);
             if (!res.ok) throw new Error("No results");
             const json = await res.json();
-            const results = json?.items.map((item) => ({
+            const results = (isSteamGame ? (json?.items) : json)?.map((item) => ({
                 name: item.name, // built-in field for displaying text in the Select component
                 title: item.name,
-                storeType: "steam",
+                // Empty string for none-steam games until further notice
+                storeType: isSteamGame ? "steam" : "",
                 storeID: item.id,
             }));
             setResults(results ?? []);
         } catch (err) {
-            console.log(err);
             setResults([]);
         }
     };
@@ -119,6 +123,8 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                             </ToggleGroup.Root>
                             <SearchSelect
                                 delay={250}
+                                // Remount when switching so we can clear setResults and query, relevant when adding new games.
+                                key={"searchselect-" + isSteamGame}
                                 id="gameTitleInput"
                                 value={game ? game.title : ""}
                                 autoFocus
@@ -195,7 +201,7 @@ function CoverSelector({ gameEntry, gameCoverInputRef, loadingCovers, setLoading
         const fetchImages = async () => {
             try {
                 const res = await fetch(
-                    `/api/steamgriddb/getGrids?query=${encodeURIComponent(gameEntry.title)}${gameEntry.storeType === "steam" ? "&steamID=" + gameEntry.storeID : ""}`,
+                    `/api/steamgriddb/getGrids?query=${encodeURIComponent(gameEntry.title)}${gameEntry.storeType === "steam" ? ("&steamID=" + gameEntry.storeID) : ("&sgdbID=" + gameEntry.storeID)}`,
                 );
                 setLoadingCovers(false);
                 if (!res.ok) throw new Error("No results");

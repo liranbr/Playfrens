@@ -50,7 +50,6 @@ export class SteamGridDBService extends Service {
             id = sgdbID;
         } else {
             game = await this.findGame({ query, steamID }, client);
-            console.log(game);
             if (!game)
                 return Response.send(
                     res,
@@ -74,7 +73,6 @@ export class SteamGridDBService extends Service {
             const capsule = await this.getSteamAssetCapsule(steamID);
             if (capsule) result.unshift({ url: capsule, preview: capsule });
         }
-        console.log(result);
 
         Response.send(res, OK, result);
     }

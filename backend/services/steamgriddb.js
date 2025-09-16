@@ -45,10 +45,12 @@ export class SteamGridDBService extends Service {
         const client = this.connect();
 
         let id;
+        let game;
         if (sgdbID) {
             id = sgdbID;
         } else {
-            const game = await this.findGame({ query, steamID }, client);
+            game = await this.findGame({ query, steamID }, client);
+            console.log(game);
             if (!game)
                 return Response.send(
                     res,
@@ -68,10 +70,11 @@ export class SteamGridDBService extends Service {
         const result = grids.map((grid) => ({ url: grid.url, preview: grid.thumb }));
 
         // Steam only, gets the capsule art
-        if (steamID && game.types.includes("steam")) {
+        if (steamID && game?.types.includes("steam")) {
             const capsule = await this.getSteamAssetCapsule(steamID);
             if (capsule) result.unshift({ url: capsule, preview: capsule });
         }
+        console.log(result);
 
         Response.send(res, OK, result);
     }

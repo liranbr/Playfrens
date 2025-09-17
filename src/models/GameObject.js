@@ -6,9 +6,9 @@ export const storeTypes = Object.freeze({
     steam: "Steam",
     gog: "GOG",
     xbox: "Xbox",
-    egs: "Epic Games Store",
+    egs: "the Epic Games Store",
     bnet: "Battle.net",
-    sgdb: "SteamGridDB",
+    custom: "Custom",
 });
 
 /**
@@ -19,7 +19,8 @@ export const storeTypes = Object.freeze({
  * @property {{[key: string]: Set<String>}} tagIDs - For each tagType, a set holds the game's contained tags by their ID
  * @property {string} note - A custom note for this game.
  * @property {string} storeType - Store that the game is from, options in storeTypes, like 'steam', 'gog'. Can be none.
- * @property {string} storeID - ID of the Game on its store
+ * @property {string} storeID - ID of the Game on its store.
+ * @property {string} sgdbID - ID of the Game on SteamGridDB. Usually derived from storeType+ID, but can be independent.
  * @property {string} id - A UUID identifier for the game object.
  */
 export class GameObject {
@@ -32,14 +33,22 @@ export class GameObject {
         [tagTypes.status]: new Set(),
     };
     note = "";
-    storeType = "";
+    storeType = "custom";
     storeID = "";
+    sgdbID = "";
     id; // UUID
 
-    constructor({ title, coverImageURL, sortingTitle, tagIDs, note, storeType, storeID, id }) {
-        if (!title || !title.trim()) {
-            throw new Error("GameObject must have a title");
-        }
+    constructor({
+        title,
+        coverImageURL,
+        sortingTitle,
+        tagIDs,
+        note,
+        storeType,
+        storeID,
+        sgdbID,
+        id,
+    }) {
         this.title = title;
         this.coverImageURL = coverImageURL ?? this.coverImageURL;
         this.sortingTitle = sortingTitle ?? this.sortingTitle;
@@ -47,6 +56,7 @@ export class GameObject {
         this.note = note ?? this.note;
         this.storeType = storeType ?? this.storeType;
         this.storeID = storeID ?? this.storeID;
+        this.sgdbID = sgdbID ?? this.sgdbID;
         this.id = id ?? crypto.randomUUID();
         makeAutoObservable(this);
     }

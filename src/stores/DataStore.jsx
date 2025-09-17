@@ -8,6 +8,7 @@ import {
     tagTypes,
     compareTagFilteredGamesCount,
     compareTagTotalGamesCount,
+    storeTypes,
 } from "@/models";
 import {
     deleteItemFromArray,
@@ -265,7 +266,7 @@ export class DataStore {
         t.filteredGamesCount = filteredGames.filter((game) => game.hasTag(t)).length;
     }
 
-    addGame(title, coverImageURL, sortingTitle = "") {
+    addGame(title, coverImageURL, sortingTitle, storeType, storeID, sgdbID) {
         if (!title) {
             toastError("Cannot save a game without a title");
             return null;
@@ -278,11 +279,20 @@ export class DataStore {
             toastError("Cannot save a game without a cover image");
             return null;
         }
+        if (storeType !== "custom" && !storeID) {
+            toastError(
+                `Cannot save a ${storeTypes[storeType]} game without selecting it from its search`,
+            );
+            return null;
+        }
 
         const newGame = new GameObject({
             title: title,
             coverImageURL: coverImageURL,
             sortingTitle: sortingTitle,
+            storeType: storeType,
+            storeID: storeID,
+            sgdbID: sgdbID,
         });
         this.allGames.set(newGame.id, newGame);
         toastSuccess("Added " + title + " to games list");
@@ -295,7 +305,7 @@ export class DataStore {
         return toastSuccess(`Removed ${game.title} from games list`);
     }
 
-    editGame(game, title, coverImageURL, sortingTitle) {
+    editGame(game, title, coverImageURL, sortingTitle, storeType, storeID, sgdbID) {
         // Editing needs to be in the DataStore rather than the object itself, to prevent duplicate names
         if (!(game instanceof GameObject)) return toastError("Invalid game object: " + game);
         const storedGame = this.allGames.get(game.id);
@@ -310,6 +320,9 @@ export class DataStore {
         storedGame.title = title;
         storedGame.coverImageURL = coverImageURL;
         storedGame.sortingTitle = sortingTitle;
+        storedGame.storeType = storeType;
+        storedGame.storeID = storeID;
+        storedGame.sgdbID = sgdbID;
         if (oldTitle !== title) return toastSuccess(`Updated ${oldTitle} to ${storedGame.title}`);
         else return toastSuccess(`Updated ${storedGame.title}`);
     }

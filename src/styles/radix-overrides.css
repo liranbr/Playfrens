@@ -382,6 +382,11 @@
             border: var(--pf-border-300);
         }
 
+        &[disabled=""] {
+            background-color: var(--pf-bg-700);
+            color: var(--pf-fg-900);
+            cursor: auto;
+        }
         &:first-child {
             border-top-left-radius: 8px;
             border-bottom-left-radius: 8px;

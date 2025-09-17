@@ -7,4 +7,4 @@ export {
     compareTagFilteredGamesCount,
     compareTagTotalGamesCount,
 } from "./TagObject.js";
-export { GameObject, compareGameTitlesAZ } from "./GameObject.js";
+export { GameObject, compareGameTitlesAZ, storeTypes } from "./GameObject.js";

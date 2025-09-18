@@ -13,10 +13,10 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
     const [selectedGameEntry, setSelectedGameEntry] = useState(
         game
             ? {
-                title: game.title,
-                storeType: game.storeType,
-                storeID: game.storeID,
-            }
+                  title: game.title,
+                  storeType: game.storeType,
+                  storeID: game.storeID,
+              }
             : null, // TODO auto-search for covers if there is a selectedgameentry already.
     );
     const [isSteamGame, setIsSteamGame] = useState(game ? game.storeType === "steam" : true);
@@ -58,7 +58,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
     };
 
     const handleSelectChange = (selectedOption) => {
-        if (selectedOption.storeID === selectedGameEntry?.storeID) return;
+        if (!selectedOption.sgdbID && selectedOption.storeID === selectedGameEntry?.storeID) return;
         if (timer.current) clearTimeout(timer.current);
         const timerDelay = selectedOption ? 500 : 0; // if there's a title, wait for it to be typed,
         setLoadingCovers(!!selectedOption); // and show a spinner while typing and requesting
@@ -67,9 +67,11 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
         }, timerDelay);
     };
 
-    const doFetch = async (query) => {
-        return await (isSteamGame ? fetch(`/api/steamweb/getStorefront?term=${query}`) : fetch(`/api/steamgriddb/getGames?query=${query}`));
-    }
+    const searchGameTitle = async (query) => {
+        return await (isSteamGame
+            ? fetch(`/api/steamweb/getStorefront?term=${query}`)
+            : fetch(`/api/steamgriddb/searchTitle?query=${query}`));
+    };
 
     const onQuery = async (query, setResults) => {
         if (query === "") {
@@ -77,17 +79,26 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
             return;
         }
         try {
-            const res = await doFetch(query);
+            const res = await searchGameTitle(query);
             if (!res.ok) throw new Error("No results");
             const json = await res.json();
-            const results = (isSteamGame ? (json?.items) : json)?.map((item) => ({
-                name: item.name, // built-in field for displaying text in the Select component
-                title: item.name,
-                // Empty string for none-steam games until further notice
-                storeType: isSteamGame ? "steam" : "",
-                storeID: item.id,
-            }));
-            setResults(results ?? []);
+            if (isSteamGame) {
+                const results = json?.items?.map((item) => ({
+                    name: item.name, // built-in field for displaying text in the Select component
+                    title: item.name,
+                    storeType: "steam",
+                    storeID: item.id,
+                }));
+                setResults(results ?? []);
+            } else {
+                const results = json?.map((item) => ({
+                    name: item.name, // built-in field for displaying text in the Select component
+                    title: item.name,
+                    storeType: "custom",
+                    sgdbID: item.id,
+                }));
+                setResults(results ?? []);
+            }
         } catch (err) {
             setResults([]);
         }
@@ -196,13 +207,22 @@ function CoverSelector({ gameEntry, gameCoverInputRef, loadingCovers, setLoading
         img.src = selectedURL;
     }, [selectedURL]); // preload to cache full version of the selected cover
 
+    // TODO: Whatever gets grids from SGDB, also needs to get the official grid, and the current GameObject's grid
     useEffect(() => {
         if (!gameEntry.title) return;
         const fetchImages = async () => {
             try {
-                const res = await fetch(
-                    `/api/steamgriddb/getGrids?query=${encodeURIComponent(gameEntry.title)}${gameEntry.storeType === "steam" ? ("&steamID=" + gameEntry.storeID) : ("&sgdbID=" + gameEntry.storeID)}`,
-                );
+                if (!gameEntry.sgdbID && gameEntry.storeType && gameEntry.storeID) {
+                    const res = await fetch(
+                        `/api/steamgriddb/getGameFromStore?storeType=${gameEntry.storeType}&storeID=${gameEntry.storeID}`,
+                    );
+                    if (!res.ok) throw new Error("Couldn't find SGDB game from the Store game");
+                    const data = await res.json();
+                    gameEntry.sgdbID = data.id;
+                    gameEntry.sgdbTitle = data.name;
+                }
+
+                const res = await fetch(`/api/steamgriddb/getGrids?sgdbID=${gameEntry.sgdbID}`);
                 setLoadingCovers(false);
                 if (!res.ok) throw new Error("No results");
                 const data = await res.json();

@@ -6,8 +6,8 @@ export const storeTypes = Object.freeze({
     steam: "Steam",
     gog: "GOG",
     xbox: "Xbox",
-    egs: "the Epic Games Store",
-    bnet: "Battle.net",
+    egs: "Epic",
+    // bnet: "Battle.net",
     custom: "Custom",
 });
 

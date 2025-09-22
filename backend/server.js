@@ -4,7 +4,7 @@ import dotenv from "dotenv-safe";
 import { GeneralService } from "./services/general.js";
 import { LoginService } from "./services/login.js";
 import { SteamGridDBService } from "./services/steamgriddb.js";
-import { SteamWebService } from "./services/steamweb.js";
+import { SteamWebService } from "./services/steam.js";
 import session from "express-session";
 import passport from "passport";
 import https from "https";

@@ -125,7 +125,7 @@ export class SteamWebService extends Service {
         if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
         const data = await response.json();
         if (data.length === 0)
-            return Response.send(res, NOT_FOUND, `No games were found using "${query}"`);
+            return Response.send(res, NOT_FOUND, `No Steam games were found using "${term}"`);
         return Response.send(res, OK, data);
     }
 

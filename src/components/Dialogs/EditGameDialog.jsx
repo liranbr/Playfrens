@@ -8,6 +8,7 @@ import "./GamePageDialog.css";
 import "./EditGameDialog.css";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import { storeTypes } from "@/models/index.js";
+import { searchTitleOnStore } from "@/APIUtils.js";
 
 const GameEntryContext = createContext(null);
 
@@ -75,54 +76,12 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
         setSgdbTitle(selectedOption.sgdbTitle);
     };
 
-    const searchGameTitle = async (query) => {
-        switch (storeType) {
-            case "steam":
-                return await fetch(`/api/steam/searchTitle?term=${query}`);
-            case "custom":
-                return await fetch(`/api/steamgriddb/searchTitle?query=${query}`);
-            default:
-                console.error("StoreType " + storeType + " does not have a supported search yet");
-        }
-    };
-
-    const onQuery = async (query, setResults) => {
+    const searchTitle = async (query, setResults) => {
         if (query === "") {
             setResults([]);
             return;
         }
-        try {
-            const response = await searchGameTitle(query);
-            if (!response.ok) throw new Error("No results");
-            const json = await response.json();
-            let results;
-            switch (storeType) {
-                case "steam":
-                    results = json?.items?.map((item) => ({
-                        ...item,
-                        title: item.name,
-                        storeType: "steam",
-                        storeID: item.id,
-                    }));
-                    break;
-                case "custom":
-                    results = json?.map((item) => ({
-                        ...item,
-                        title: item.name,
-                        storeType: "custom",
-                        sgdbID: item.id,
-                        sgdbTitle: item.name,
-                    }));
-                    break;
-                default:
-                    console.error(
-                        "StoreType " + storeType + " does not have a supported search yet",
-                    );
-            }
-            setResults(results ?? []);
-        } catch (err) {
-            setResults([]);
-        }
+        setResults(await searchTitleOnStore(query, storeType));
     };
 
     return (
@@ -179,7 +138,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                                     initialValue={game ? game.title : ""}
                                     autoFocus
                                     placeholder={titlePlaceholder}
-                                    onQuery={onQuery}
+                                    onQuery={searchTitle}
                                     onKeyDown={saveOnEnter}
                                     onSelect={handleGameSelected}
                                 />
@@ -236,18 +195,7 @@ function CoverSelector({ saveOnEnter }) {
             setResults([]);
             return;
         }
-        fetch(`/api/steamgriddb/searchTitle?query=${query}`)
-            .then((res) => {
-                if (!res.ok) throw new Error("Failed to search for SGDB games using the title");
-                return res.json();
-            })
-            .then((json) => {
-                setResults(json ?? []);
-            })
-            .catch((err) => {
-                setResults([]);
-                console.error(err);
-            });
+        setResults(await searchTitleOnStore(query, "custom"));
     };
 
     useEffect(() => {

@@ -3,49 +3,54 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Dialogs, globalDialogStore, useDataStore } from "@/stores";
 import { Button, ScrollView, Spinner, SearchSelect } from "@/components";
 import { DialogBase } from "./DialogRoot.jsx";
-import { useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import "./GamePageDialog.css";
 import "./EditGameDialog.css";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
+import { storeTypes } from "@/models";
+import { getOfficialCoverImageURL, searchTitleOnStore } from "@/APIUtils.js";
+
+const GameEntryContext = createContext(null);
 
 export function EditGameDialog({ open, closeDialog, game = null }) {
     const dataStore = useDataStore();
-    const [selectedGameEntry, setSelectedGameEntry] = useState(
-        game
-            ? {
-                title: game.title,
-                storeType: game.storeType,
-                storeID: game.storeID,
-            }
-            : null, // TODO auto-search for covers if there is a selectedgameentry already.
-    );
-    const [isSteamGame, setIsSteamGame] = useState(game ? game.storeType === "steam" : true);
-    const [loadingCovers, setLoadingCovers] = useState(false);
-    const timer = useRef(null);
+    const [title, setTitle] = useState(game?.title ?? "");
+    const [coverImageURL, setCoverImageURL] = useState(game?.coverImageURL ?? "");
+    const [sortingTitle, setSortingTitle] = useState(game?.sortingTitle ?? "");
+    const [storeType, setStoreType] = useState(game?.storeType ?? "steam");
+    const [storeID, setStoreID] = useState(game?.storeID ?? "");
+    const [sgdbID, setSgdbID] = useState(game?.sgdbID ?? "");
+    const [sgdbTitle, setSgdbTitle] = useState("");
 
-    const gameCoverInputRef = useRef(null);
     const dialogTitle = game ? "Edit Game Details" : "Add Game";
     const dialogDescription = game ? `Editing ${game.title}` : "Adding a new game";
+    const titlePlaceholder =
+        storeType === "custom" ? "Enter title" : `Search for a ${storeTypes[storeType]} game`;
 
-    const handleHide = () => {
-        closeDialog();
-    };
     const handleSave = () => {
-        const getVal = (id) => document.getElementById(id).value;
-        const gameTitle = getVal("gameTitleInput");
-        const gameCoverPath = getVal("gameCoverInput");
-        const gameSortingTitle = getVal("gameSortingTitleInput");
-
         if (game) {
-            const edited = dataStore.editGame(game, gameTitle, gameCoverPath, gameSortingTitle);
-            if (edited) {
-                handleHide();
-            }
+            const editedSuccess = dataStore.editGame(
+                game,
+                title,
+                coverImageURL,
+                sortingTitle,
+                storeType,
+                storeID,
+                sgdbID,
+            );
+            if (editedSuccess) closeDialog();
         } else {
-            const newGame = dataStore.addGame(gameTitle, gameCoverPath, gameSortingTitle);
+            const newGame = dataStore.addGame(
+                title,
+                coverImageURL,
+                sortingTitle,
+                storeType,
+                storeID,
+                sgdbID,
+            );
             if (newGame) {
                 globalDialogStore.insertPrevious(Dialogs.GamePage, { game: newGame });
-                handleHide();
+                closeDialog();
             }
         }
     };
@@ -57,184 +62,264 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
         }
     };
 
-    const handleSelectChange = (selectedOption) => {
-        if (selectedOption.storeID === selectedGameEntry?.storeID) return;
-        if (timer.current) clearTimeout(timer.current);
-        const timerDelay = selectedOption ? 500 : 0; // if there's a title, wait for it to be typed,
-        setLoadingCovers(!!selectedOption); // and show a spinner while typing and requesting
-        timer.current = setTimeout(() => {
-            setSelectedGameEntry(selectedOption);
-        }, timerDelay);
-    };
+    const handleGameSelected = (selectedOption) => {
+        setTitle(selectedOption.title);
+        setStoreType(selectedOption.storeType);
+        setStoreID(selectedOption.storeID);
 
-    const doFetch = async (query) => {
-        return await (isSteamGame ? fetch(`/api/steamweb/getStorefront?term=${query}`) : fetch(`/api/steamgriddb/getGames?query=${query}`));
-    }
-
-    const onQuery = async (query, setResults) => {
-        if (query === "") {
-            setResults([]);
-            return;
-        }
-        try {
-            const res = await doFetch(query);
-            if (!res.ok) throw new Error("No results");
-            const json = await res.json();
-            const results = (isSteamGame ? (json?.items) : json)?.map((item) => ({
-                name: item.name, // built-in field for displaying text in the Select component
-                title: item.name,
-                // Empty string for none-steam games until further notice
-                storeType: isSteamGame ? "steam" : "",
-                storeID: item.id,
-            }));
-            setResults(results ?? []);
-        } catch (err) {
-            setResults([]);
+        if (selectedOption.storeType === "custom") {
+            setSgdbID(selectedOption.sgdbID);
+            setSgdbTitle(selectedOption.sgdbTitle);
         }
     };
+
+    const searchTitle = async (query, setResults) =>
+        setResults(await searchTitleOnStore(query, storeType));
 
     return (
-        <DialogBase
-            open={open}
-            onOpenChange={handleHide}
-            contentProps={{ forceMount: !game, className: "rx-dialog edit-game-dialog" }}
+        <GameEntryContext
+            value={{
+                title,
+                setTitle,
+                coverImageURL,
+                setCoverImageURL,
+                sortingTitle,
+                setSortingTitle,
+                storeType,
+                setStoreType,
+                storeID,
+                setStoreID,
+                sgdbID,
+                setSgdbID,
+                sgdbTitle,
+                setSgdbTitle,
+            }}
         >
-            <Dialog.Title>{dialogTitle}</Dialog.Title>
-            <VisuallyHidden>
-                <Dialog.Description>{dialogDescription}</Dialog.Description>
-            </VisuallyHidden>
-            <div className="edit-game-body">
-                <div className="edit-game-fields">
-                    <fieldset>
-                        <div className="title-and-toggle">
-                            <label>Game Title</label>
-                            <ToggleGroup.Root
-                                type="single"
-                                className="rx-toggle-group"
-                                value={isSteamGame ? "steam-game" : "non-steam-game"}
-                                onValueChange={(value) => {
-                                    setIsSteamGame(value === "steam-game");
-                                }}
-                            >
-                                <ToggleGroup.Item value="steam-game">Steam Game</ToggleGroup.Item>
-                                <ToggleGroup.Item value="non-steam-game">
-                                    Non-Steam Game
-                                </ToggleGroup.Item>
-                            </ToggleGroup.Root>
-                            <SearchSelect
-                                delay={250}
-                                // Remount when switching so we can clear setResults and query, relevant when adding new games.
-                                key={"searchselect-" + isSteamGame}
-                                id="gameTitleInput"
-                                value={game ? game.title : ""}
-                                autoFocus
-                                placeholder="Enter game title to search for covers"
-                                onQuery={onQuery}
+            <DialogBase
+                open={open}
+                onOpenChange={closeDialog}
+                contentProps={{ forceMount: !game, className: "rx-dialog edit-game-dialog" }}
+            >
+                <Dialog.Title>{dialogTitle}</Dialog.Title>
+                <VisuallyHidden>
+                    <Dialog.Description>{dialogDescription}</Dialog.Description>
+                </VisuallyHidden>
+                <div className="edit-game-body">
+                    <div className="edit-game-fields">
+                        <fieldset>
+                            <div className="title-and-toggle">
+                                <label>Game Title</label>
+                                <ToggleGroup.Root
+                                    type="single"
+                                    className="rx-toggle-group"
+                                    value={storeType}
+                                    onValueChange={(value) => {
+                                        if (value) setStoreType(value); // to avoid empty values
+                                    }}
+                                >
+                                    {Object.entries(storeTypes).map(([key, value]) => (
+                                        <ToggleGroup.Item
+                                            key={key}
+                                            value={key}
+                                            disabled={key !== "steam" && key !== "custom"}
+                                        >
+                                            {value}
+                                        </ToggleGroup.Item>
+                                    ))}
+                                </ToggleGroup.Root>
+                                <SearchSelect
+                                    delay={250}
+                                    key={"searchselect-" + storeType} // Remount when switching so we can clear setResults and query, relevant when adding new games.
+                                    value={title}
+                                    onValueChange={setTitle}
+                                    autoFocus
+                                    placeholder={titlePlaceholder}
+                                    onQuery={searchTitle}
+                                    onKeyDown={saveOnEnter}
+                                    onSelect={handleGameSelected}
+                                />
+                            </div>
+
+                            <label>
+                                Sorting Title<small> (optional)</small>
+                            </label>
+                            <input
+                                value={sortingTitle}
+                                onChange={(e) => setSortingTitle(e.target.value)}
                                 onKeyDown={saveOnEnter}
-                                onSelect={handleSelectChange}
                             />
-                        </div>
+                        </fieldset>
+                    </div>
 
-                        <label>
-                            Sorting Title<small> (optional)</small>
-                        </label>
-                        <input
-                            id="gameSortingTitleInput"
-                            onKeyDown={saveOnEnter}
-                            defaultValue={game ? game.sortingTitle : ""}
-                        />
-                    </fieldset>
+                    <div className="separator-vertical" />
+
+                    <CoverSelector saveOnEnter={saveOnEnter} />
                 </div>
 
-                <div className="separator-vertical" />
-
-                <div className="cover-art-selector">
-                    <fieldset>
-                        <label>Cover Art</label>
-                        <input
-                            ref={gameCoverInputRef}
-                            id="gameCoverInput"
-                            onKeyDown={saveOnEnter}
-                            defaultValue={game ? game.coverImageURL : ""}
-                            placeholder="Enter URL, or choose from the suggestions"
-                        />
-                    </fieldset>
-                    <ScrollView>
-                        {selectedGameEntry && (
-                            <CoverSelector
-                                key={selectedGameEntry.title}
-                                gameEntry={selectedGameEntry}
-                                gameCoverInputRef={gameCoverInputRef}
-                                loadingCovers={loadingCovers}
-                                setLoadingCovers={setLoadingCovers}
-                            />
-                        )}
-                    </ScrollView>
+                <div className="rx-dialog-footer">
+                    <Button variant="secondary" onClick={closeDialog}>
+                        Cancel
+                    </Button>
+                    <Button variant="primary" onClick={handleSave}>
+                        Save
+                    </Button>
                 </div>
-            </div>
-
-            <div className="rx-dialog-footer">
-                <Button variant="secondary" onClick={handleHide}>
-                    Cancel
-                </Button>
-                <Button variant="primary" onClick={handleSave}>
-                    Save
-                </Button>
-            </div>
-        </DialogBase>
+            </DialogBase>
+        </GameEntryContext>
     );
 }
 
-function CoverSelector({ gameEntry, gameCoverInputRef, loadingCovers, setLoadingCovers }) {
-    const [images, setImages] = useState([]);
-    const [error, setError] = useState("");
-    const [selectedURL, setSelectedURL] = useState("");
+function CoverSelector({ saveOnEnter }) {
+    const {
+        coverImageURL,
+        setCoverImageURL,
+        storeType,
+        storeID,
+        sgdbID,
+        setSgdbID,
+        sgdbTitle,
+        setSgdbTitle,
+    } = useContext(GameEntryContext);
+    const [loadingCovers, setLoadingCovers] = useState(false);
 
-    useEffect(() => {
-        if (!selectedURL) return;
-        const img = new Image();
-        img.src = selectedURL;
-    }, [selectedURL]); // preload to cache full version of the selected cover
+    const searchSgdbTitle = async (query, setResults) =>
+        setResults(await searchTitleOnStore(query, "custom"));
 
-    useEffect(() => {
-        if (!gameEntry.title) return;
-        const fetchImages = async () => {
-            try {
-                const res = await fetch(
-                    `/api/steamgriddb/getGrids?query=${encodeURIComponent(gameEntry.title)}${gameEntry.storeType === "steam" ? ("&steamID=" + gameEntry.storeID) : ("&sgdbID=" + gameEntry.storeID)}`,
-                );
-                setLoadingCovers(false);
-                if (!res.ok) throw new Error("No results");
-                const data = await res.json();
-                if (data[0].url.includes("steamstatic.com") && !gameCoverInputRef.current.value)
-                    onSelectedURL(data[0].url);
-                setImages(data);
-            } catch (err) {
-                setLoadingCovers(false);
-                setError(err.message);
-                setImages([]);
-            }
-        };
-        fetchImages();
-    }, [gameEntry.title]);
-
-    const onSelectedURL = (url) => {
-        setSelectedURL(url);
-        gameCoverInputRef.current.value = url;
+    // activated on selecting a Store Game, or selecting an SGDB entry in the SearchSelect below
+    const selectSgdbGame = (SgdbGame) => {
+        setSgdbID(SgdbGame.id);
+        setSgdbTitle(SgdbGame.name);
     };
 
+    // When a Store game is selected, retrieve its sgdb entry and select it
+    useEffect(() => {
+        if (!(storeType && storeID)) return;
+        setLoadingCovers(true); // starting the fetch process. next step is fetching the entry's covers.
+        fetch(`/api/steamgriddb/getGameFromStore?storeType=${storeType}&storeID=${storeID}`)
+            .then((res) => {
+                if (!res.ok) throw new Error("Failed to fetch game");
+                return res.json();
+            })
+            .then(selectSgdbGame)
+            .catch((err) => console.error(err))
+            .finally(() => setLoadingCovers(false));
+    }, [storeID]);
+
+    return (
+        <div className="cover-art-selector">
+            <fieldset>
+                <label>Cover Art Database Search</label>
+                <SearchSelect
+                    delay={250}
+                    value={sgdbTitle}
+                    onValueChange={setSgdbTitle}
+                    placeholder="Enter a [Game Title], or search here directly"
+                    onQuery={searchSgdbTitle}
+                    onKeyDown={saveOnEnter}
+                    onSelect={selectSgdbGame}
+                />
+
+                <label>Cover Art URL</label>
+                <input
+                    value={coverImageURL}
+                    onChange={(e) => setCoverImageURL(e.target.value)}
+                    onKeyDown={saveOnEnter}
+                    placeholder="Choose a cover, or manually enter URL"
+                />
+            </fieldset>
+
+            <ScrollView>
+                <CoversGallery loadingCovers={loadingCovers} setLoadingCovers={setLoadingCovers} />
+            </ScrollView>
+        </div>
+    );
+}
+
+function CoversGallery({ loadingCovers, setLoadingCovers }) {
+    const currentCoverImage = () => {
+        return { url: coverImageURL, preview: coverImageURL };
+    };
+    const [error, setError] = useState("");
+    const {
+        title,
+        coverImageURL,
+        setCoverImageURL,
+        storeType,
+        storeID,
+        sgdbID,
+        setSgdbID,
+        sgdbTitle,
+        setSgdbTitle,
+    } = useContext(GameEntryContext);
+    const [images, setImages] = useState(coverImageURL ? [currentCoverImage()] : []);
+
+    useEffect(() => {
+        if (!coverImageURL) return;
+        const img = new Image();
+        img.src = coverImageURL;
+    }, [coverImageURL]); // preload to cache full version of the selected cover
+
+    // Known issue: if selecting a SGDB game, then selecting its equivalent store game, this useEffect isn't re-triggered so it doesn't add official store cover
+    useEffect(() => {
+        if ((!title && !sgdbTitle) || (!storeID && !sgdbID)) return;
+        setLoadingCovers(true);
+        setImages([]);
+
+        const officialCoverReq = getOfficialCoverImageURL(storeType, storeID);
+
+        const sgdbReq = fetch(`/api/steamgriddb/getGrids?sgdbID=${sgdbID}`).then((res) => {
+            if (!res.ok) {
+                if (res.status === 404) return []; // no results is fine
+                throw new Error(`Status ${res.status}, failed to fetch grids for id ${sgdbID}`);
+            }
+            return res.json();
+        });
+
+        // Request the store's cover, and SGDB covers. Then assemble the covers to display;
+        // If there is already a selected cover, it will always be inserted first.
+        // Next is the store's cover. If there is no selected cover yet, select it.
+        // Then all the sgdb covers
+        Promise.all([officialCoverReq, sgdbReq])
+            .then(([officialCoverImage, sgdbImages]) => {
+                let covers = [];
+                if (officialCoverImage) {
+                    if (!coverImageURL) setCoverImageURL(officialCoverImage.url);
+                    covers.push(officialCoverImage);
+                }
+                if (sgdbImages?.length) {
+                    covers.push(...sgdbImages);
+                }
+                if (coverImageURL) {
+                    covers = [
+                        currentCoverImage(),
+                        ...covers.filter((img) => img.url !== coverImageURL),
+                    ];
+                }
+                setImages(covers);
+            })
+            .catch((err) => {
+                console.warn(err);
+                setError(err);
+            })
+            .finally(() => setLoadingCovers(false));
+    }, [sgdbID]);
+
     if (loadingCovers) return <Spinner />;
-    if (error) return <div>Error: {error}</div>;
-    if (images.length === 0) return <div />;
+    if (!images.length) {
+        if (error) return <div>{"" + error}</div>;
+        if (sgdbID) return <div>Entry has no covers</div>;
+        else return <div />; // no selected entry and no error, means no search has been done yet
+    }
+
     return (
         <div className="covers-gallery">
             {images.slice(0, 32).map((img) => (
                 <img
                     key={img.url}
                     src={img.preview}
-                    alt=""
-                    onClick={() => onSelectedURL(img.url)}
-                    className={selectedURL === img.url ? "selected-cover" : ""}
+                    alt={sgdbTitle + " cover"}
+                    onClick={() => setCoverImageURL(img.url)}
+                    className={img.url === coverImageURL ? "selected-cover" : ""}
                 />
             ))}
         </div>

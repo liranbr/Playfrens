@@ -6,12 +6,25 @@ import "./SearchSelect.css";
  * @param {{
  *   onQuery: (newQuery: string, setSelected: React.Dispatch<string[]>) => void,
  *   delay: number,
+ *   defaultValue: string,
+ *   value: string,
+ *   onValueChange: (string) => void,
  *   onSelect: (string) => void,
  * } & React.InputHTMLAttributes} props
  * @returns {JSX.Element}
  */
-export function SearchSelect({ onQuery, delay = 0, onSelect, ...inputRest }) {
-    const [query, setQuery] = useState(inputRest?.value ?? "");
+export function SearchSelect({
+    onQuery,
+    delay = 0,
+    defaultValue = "",
+    value,
+    onValueChange,
+    onSelect,
+    ...inputRest
+}) {
+    const [internalQuery, setInternalQuery] = useState(defaultValue);
+    const query = value !== undefined ? value : internalQuery; // prefer external value
+    const setQuery = value !== undefined ? onValueChange : setInternalQuery;
     const [showDropdown, setShowDropdown] = useState(false);
     const [highlighted, setHighlighted] = useState(-1);
     const [results, setResults] = useState([]);
@@ -19,6 +32,7 @@ export function SearchSelect({ onQuery, delay = 0, onSelect, ...inputRest }) {
     const inputRef = useRef(null);
     const resultsRef = useRef(null);
     const debouncedQuery = useDebouncedCallback(onQuery, delay);
+    debouncedQuery(query, setResults); // activate query on render
 
     const handleInputChange = (e) => {
         const newQuery = e.target.value;
@@ -51,12 +65,13 @@ export function SearchSelect({ onQuery, delay = 0, onSelect, ...inputRest }) {
         setShowDropdown(false);
         onSelect(option);
         setQuery(option.name);
+        debouncedQuery(option.name, setResults);
     };
 
     const handleMouseDown = (e) => {
         setShowDropdown(
             (inputRef.current && inputRef.current.contains(e.target)) ||
-            (resultsRef.current && resultsRef.current.contains(e.target)),
+                (resultsRef.current && resultsRef.current.contains(e.target)),
         );
     };
 
@@ -66,13 +81,8 @@ export function SearchSelect({ onQuery, delay = 0, onSelect, ...inputRest }) {
                 ref={inputRef}
                 {...inputRest}
                 value={query}
-                onChange={(e) => {
-                    handleInputChange(e);
-                    inputRest?.onChange?.(e);
-                }}
-                onKeyDown={(e) => {
-                    handleKeyDown(e);
-                }}
+                onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
                 onFocus={(e) => {
                     setShowDropdown(true);
                     inputRest?.onFocus?.(e);
@@ -94,7 +104,7 @@ export function SearchSelect({ onQuery, delay = 0, onSelect, ...inputRest }) {
                         <li
                             tabIndex={idx}
                             className={"list-item" + (highlighted === idx ? " highlighted" : "")}
-                            key={option.name}
+                            key={option.name + "-id-" + option.id}
                             onMouseDown={() => handleOptionClick(option)}
                         >
                             {option.name}

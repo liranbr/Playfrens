@@ -29,6 +29,7 @@ export class Response {
     /**
      * @param {import('express').Response} res - Express response
      * @param {number} status - HTTP response status code
+     * @param {string} message - Message to send
      */
     static sendMessage = (res, status, message) => {
         return res.status(status).send(message);

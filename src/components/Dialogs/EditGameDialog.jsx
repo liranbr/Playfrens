@@ -63,16 +63,14 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
     };
 
     const handleGameSelected = (selectedOption) => {
-        if (
-            selectedOption.sgdbID === sgdbID ||
-            (selectedOption.storeType !== "custom" && selectedOption.storeID === storeID)
-        )
-            return; // avoid re-loading the same option
-        setSgdbID(selectedOption.sgdbID);
-        setSgdbTitle(selectedOption.sgdbTitle);
+        setTitle(selectedOption.title);
         setStoreType(selectedOption.storeType);
         setStoreID(selectedOption.storeID);
-        setTitle(selectedOption.title);
+
+        if (selectedOption.storeType === "custom") {
+            setSgdbID(selectedOption.sgdbID);
+            setSgdbTitle(selectedOption.sgdbTitle);
+        }
     };
 
     const searchTitle = async (query, setResults) =>
@@ -177,6 +175,7 @@ function CoverSelector({ saveOnEnter }) {
         setCoverImageURL,
         storeType,
         storeID,
+        sgdbID,
         setSgdbID,
         sgdbTitle,
         setSgdbTitle,
@@ -186,6 +185,7 @@ function CoverSelector({ saveOnEnter }) {
     const searchSgdbTitle = async (query, setResults) =>
         setResults(await searchTitleOnStore(query, "custom"));
 
+    // activated on selecting a Store Game, or selecting an SGDB entry in the SearchSelect below
     const selectSgdbGame = (SgdbGame) => {
         setSgdbID(SgdbGame.id);
         setSgdbTitle(SgdbGame.name);
@@ -235,7 +235,9 @@ function CoverSelector({ saveOnEnter }) {
 }
 
 function CoversGallery({ loadingCovers, setLoadingCovers }) {
-    const [images, setImages] = useState([]);
+    const currentCoverImage = () => {
+        return { url: coverImageURL, preview: coverImageURL };
+    };
     const [error, setError] = useState("");
     const {
         title,
@@ -248,6 +250,7 @@ function CoversGallery({ loadingCovers, setLoadingCovers }) {
         sgdbTitle,
         setSgdbTitle,
     } = useContext(GameEntryContext);
+    const [images, setImages] = useState(coverImageURL ? [currentCoverImage()] : []);
 
     useEffect(() => {
         if (!coverImageURL) return;
@@ -255,49 +258,40 @@ function CoversGallery({ loadingCovers, setLoadingCovers }) {
         img.src = coverImageURL;
     }, [coverImageURL]); // preload to cache full version of the selected cover
 
-    // TODO: Whatever gets grids from SGDB, also needs to get the official grid, and the current GameObject's grid
-
-    // TODO: Convert this into a Promise with .then .catch etc. Probably two separate useEffects. maybe a useMemo on sgdbID to prevent refreshes.
-
     useEffect(() => {
-        if ((!title && !sgdbTitle) || (!storeType && !sgdbID)) return;
+        if ((!title && !sgdbTitle) || (!storeID && !sgdbID)) return;
         setLoadingCovers(true);
-        let sgdbData = { id: sgdbID, name: sgdbTitle }; // TODO: probably won't need this after switching to .then()
-
-        const fetchImages = async () => {
-            try {
-                if (!sgdbID && storeType && storeID) {
-                    const res = await fetch(
-                        `/api/steamgriddb/getGameFromStore?storeType=${storeType}&storeID=${storeID}`,
-                    );
-                    if (!res.ok) throw new Error("Couldn't find SGDB game from the Store game");
-                    sgdbData = await res.json();
-                    setSgdbID(sgdbData.id);
-                    setSgdbTitle(sgdbData.name);
-                }
-
-                const res = await fetch(`/api/steamgriddb/getGrids?sgdbID=${sgdbData.id}`);
-                if (!res.ok) throw new Error("No results");
-                const data = await res.json();
-
-                // TODO: re-implement requesting official cover directly, with data[0].coverType === 'official'
-                // if (
-                //     storeType === "steam" &&
-                //     data[0].url.includes("steamstatic.com") &&
-                //     !coverImageURL
-                // )
-                //     setCoverImageURL(data[0].url);
+        fetch(`/api/steamgriddb/getGrids?sgdbID=${sgdbID}`)
+            .then((res) => {
+                if (!res.ok)
+                    throw new Error(`Status ${res.status}, failed to fetch grids for id ${sgdbID}`);
+                return res.json();
+            })
+            .then((data) => {
+                // If there is already a selected cover art, always make it first
+                if (coverImageURL)
+                    data = [
+                        currentCoverImage(),
+                        ...data.filter((img) => img.url !== coverImageURL),
+                    ];
 
                 setImages(data);
                 setLoadingCovers(false);
-                setError("");
-            } catch (err) {
-                setLoadingCovers(false);
-                setError(err.message);
+            })
+            .catch((err) => {
+                console.error(err);
+                setError(err);
                 setImages([]);
-            }
-        };
-        fetchImages();
+            });
+
+        // TODO: Whatever gets grids from SGDB, also needs to get the official grid, and the current GameObject's grid
+        // TODO: re-implement requesting official cover directly, with data[0].coverType === 'official'
+        // if (
+        //     storeType === "steam" &&
+        //     data[0].url.includes("steamstatic.com") &&
+        //     !coverImageURL
+        // )
+        //     setCoverImageURL(data[0].url);
     }, [sgdbID]);
 
     if (loadingCovers) return <Spinner />;

@@ -54,7 +54,7 @@ export class GameObject {
         this.sortingTitle = sortingTitle ?? this.sortingTitle;
         this.tagIDs = tagIDs ?? this.tagIDs;
         this.note = note ?? this.note;
-        this.storeType = storeType ?? this.storeType;
+        this.storeType = storeType ? storeType : this.storeType; // if empty, make it the default "custom"
         this.storeID = storeID ?? this.storeID;
         this.sgdbID = sgdbID ?? this.sgdbID;
         this.id = id ?? crypto.randomUUID();

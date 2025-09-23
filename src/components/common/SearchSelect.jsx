@@ -32,6 +32,7 @@ export function SearchSelect({
     const inputRef = useRef(null);
     const resultsRef = useRef(null);
     const debouncedQuery = useDebouncedCallback(onQuery, delay);
+    debouncedQuery(query, setResults); // activate query on render
 
     const handleInputChange = (e) => {
         const newQuery = e.target.value;

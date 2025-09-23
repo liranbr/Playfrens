@@ -117,15 +117,13 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                                         if (value) setStoreType(value); // to avoid empty values
                                     }}
                                 >
-                                    {Object.entries(storeTypes).map(([key, value]) => (
-                                        <ToggleGroup.Item
-                                            key={key}
-                                            value={key}
-                                            disabled={key !== "steam" && key !== "custom"}
-                                        >
-                                            {value}
-                                        </ToggleGroup.Item>
-                                    ))}
+                                    {Object.entries(storeTypes)
+                                        .filter(([key, value]) => ["steam", "custom"].includes(key)) // other store types not supported yet
+                                        .map(([key, value]) => (
+                                            <ToggleGroup.Item key={key} value={key}>
+                                                {value}
+                                            </ToggleGroup.Item>
+                                        ))}
                                 </ToggleGroup.Root>
                                 <SearchSelect
                                     delay={250}

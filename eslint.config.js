@@ -33,4 +33,11 @@ export default [
             "react/prop-types": "off",
         },
     },
+    {
+        languageOptions: {
+            globals: {
+                ...globals.node,
+            },
+        },
+    },
 ];

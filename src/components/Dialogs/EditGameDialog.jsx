@@ -261,10 +261,13 @@ function CoversGallery({ loadingCovers, setLoadingCovers }) {
     useEffect(() => {
         if ((!title && !sgdbTitle) || (!storeID && !sgdbID)) return;
         setLoadingCovers(true);
+        setImages([]);
         fetch(`/api/steamgriddb/getGrids?sgdbID=${sgdbID}`)
             .then((res) => {
-                if (!res.ok)
+                if (!res.ok) {
+                    if (res.status === 404) return []; // no results is fine
                     throw new Error(`Status ${res.status}, failed to fetch grids for id ${sgdbID}`);
+                }
                 return res.json();
             })
             .then((data) => {
@@ -274,15 +277,13 @@ function CoversGallery({ loadingCovers, setLoadingCovers }) {
                         currentCoverImage(),
                         ...data.filter((img) => img.url !== coverImageURL),
                     ];
-
                 setImages(data);
-                setLoadingCovers(false);
             })
             .catch((err) => {
-                console.error(err);
+                console.warn(err);
                 setError(err);
-                setImages([]);
-            });
+            })
+            .finally(() => setLoadingCovers(false));
 
         // TODO: Whatever gets grids from SGDB, also needs to get the official grid, and the current GameObject's grid
         // TODO: re-implement requesting official cover directly, with data[0].coverType === 'official'
@@ -296,8 +297,9 @@ function CoversGallery({ loadingCovers, setLoadingCovers }) {
 
     if (loadingCovers) return <Spinner />;
     if (!images.length) {
-        if (error) return <div>Error: {error}</div>;
-        else return <div />; // not loading and no images or error yet, means no search has been done yet
+        if (error) return <div>{"" + error}</div>;
+        if (sgdbID) return <div>Entry has no covers</div>;
+        else return <div />; // no selected entry and no error, means no search has been done yet
     }
 
     return (

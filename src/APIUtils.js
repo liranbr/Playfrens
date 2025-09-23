@@ -40,3 +40,7 @@ export async function searchTitleOnStore(title, storeType, lang = "en", cc = "US
     }
     return results;
 }
+
+export async function getOfficialCoverImageURL(storeType, storeID) {
+    if (!storeType || !storeID) return "";
+}

@@ -64,6 +64,7 @@ export function SearchSelect({
         setShowDropdown(false);
         onSelect(option);
         setQuery(option.name);
+        debouncedQuery(option.name, setResults);
     };
 
     const handleMouseDown = (e) => {

@@ -3,7 +3,7 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Dialogs, globalDialogStore, useDataStore } from "@/stores";
 import { Button, ScrollView, Spinner, SearchSelect } from "@/components";
 import { DialogBase } from "./DialogRoot.jsx";
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import "./GamePageDialog.css";
 import "./EditGameDialog.css";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
@@ -63,6 +63,11 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
     };
 
     const handleGameSelected = (selectedOption) => {
+        if (
+            selectedOption.sgdbID === sgdbID ||
+            (selectedOption.storeType !== "custom" && selectedOption.storeID === storeID)
+        )
+            return; // avoid re-loading the same option
         setSgdbID(selectedOption.sgdbID);
         setSgdbTitle(selectedOption.sgdbTitle);
         setStoreType(selectedOption.storeType);
@@ -189,7 +194,7 @@ function CoverSelector({ saveOnEnter }) {
     // When a Store game is selected, retrieve its sgdb entry and select it
     useEffect(() => {
         if (!(storeType && storeID)) return;
-        setLoadingCovers(true);
+        setLoadingCovers(true); // starting the fetch process. next step is fetching the entry's covers.
         fetch(`/api/steamgriddb/getGameFromStore?storeType=${storeType}&storeID=${storeID}`)
             .then((res) => {
                 if (!res.ok) throw new Error("Failed to fetch game");
@@ -221,6 +226,7 @@ function CoverSelector({ saveOnEnter }) {
                     placeholder="Choose a cover, or manually enter URL"
                 />
             </fieldset>
+
             <ScrollView>
                 <CoversGallery loadingCovers={loadingCovers} setLoadingCovers={setLoadingCovers} />
             </ScrollView>
@@ -251,14 +257,15 @@ function CoversGallery({ loadingCovers, setLoadingCovers }) {
 
     // TODO: Whatever gets grids from SGDB, also needs to get the official grid, and the current GameObject's grid
 
-    // TODO: Convert this into a Promise with .then .catch etc
+    // TODO: Convert this into a Promise with .then .catch etc. Probably two separate useEffects. maybe a useMemo on sgdbID to prevent refreshes.
 
     useEffect(() => {
         if ((!title && !sgdbTitle) || (!storeType && !sgdbID)) return;
+        setLoadingCovers(true);
+        let sgdbData = { id: sgdbID, name: sgdbTitle }; // TODO: probably won't need this after switching to .then()
+
         const fetchImages = async () => {
             try {
-                setLoadingCovers(true);
-                let sgdbData = { id: sgdbID, name: sgdbTitle }; // TODO: probably won't need this after switching to .then()
                 if (!sgdbID && storeType && storeID) {
                     const res = await fetch(
                         `/api/steamgriddb/getGameFromStore?storeType=${storeType}&storeID=${storeID}`,
@@ -270,16 +277,20 @@ function CoversGallery({ loadingCovers, setLoadingCovers }) {
                 }
 
                 const res = await fetch(`/api/steamgriddb/getGrids?sgdbID=${sgdbData.id}`);
-                setLoadingCovers(false);
                 if (!res.ok) throw new Error("No results");
                 const data = await res.json();
-                if (
-                    storeType === "steam" &&
-                    data[0].url.includes("steamstatic.com") &&
-                    !coverImageURL
-                )
-                    setCoverImageURL(data[0].url);
+
+                // TODO: re-implement requesting official cover directly, with data[0].coverType === 'official'
+                // if (
+                //     storeType === "steam" &&
+                //     data[0].url.includes("steamstatic.com") &&
+                //     !coverImageURL
+                // )
+                //     setCoverImageURL(data[0].url);
+
                 setImages(data);
+                setLoadingCovers(false);
+                setError("");
             } catch (err) {
                 setLoadingCovers(false);
                 setError(err.message);
@@ -290,17 +301,20 @@ function CoversGallery({ loadingCovers, setLoadingCovers }) {
     }, [sgdbID]);
 
     if (loadingCovers) return <Spinner />;
-    if (error) return <div>Error: {error}</div>;
-    if (images.length === 0) return <div />;
+    if (!images.length) {
+        if (error) return <div>Error: {error}</div>;
+        else return <div />; // not loading and no images or error yet, means no search has been done yet
+    }
+
     return (
         <div className="covers-gallery">
             {images.slice(0, 32).map((img) => (
                 <img
                     key={img.url}
                     src={img.preview}
-                    alt=""
+                    alt={sgdbTitle + " cover"}
                     onClick={() => setCoverImageURL(img.url)}
-                    className={coverImageURL === img.url ? "selected-cover" : ""}
+                    className={img.url === coverImageURL ? "selected-cover" : ""}
                 />
             ))}
         </div>

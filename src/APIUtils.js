@@ -11,7 +11,7 @@ export async function searchTitleOnStore(title, storeType, lang = "en", cc = "US
             fetchResponse = await fetch(`/api/steamgriddb/searchTitle?query=${title}`);
             break;
         default:
-            return console.error(`StoreType ${storeType} is not supported in GenericStoreService`);
+            return console.error(`StoreType ${storeType} doesn't have a supported search.`);
     }
     const json = await fetchResponse.json();
     if (!fetchResponse.ok) return console.error("Error: " + json);

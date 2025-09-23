@@ -379,6 +379,7 @@
 
         &[data-state="on"] {
             color: var(--pf-fg-100);
+            font-weight: 500;
             background-color: var(--pf-bg-300);
             border: var(--pf-border-300);
         }

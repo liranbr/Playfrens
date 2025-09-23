@@ -1,7 +1,6 @@
 import { Response } from "../response.js";
 import SGDB from "../../node_modules/steamgriddb/dist/index.js";
 import { Service } from "../service.js";
-import { isImageUrlValid } from "../utils.js";
 
 export class SteamGridDBService extends Service {
     constructor(app) {
@@ -85,20 +84,5 @@ export class SteamGridDBService extends Service {
                 `No games were found with the query: ${query}`,
             );
         Response.send(res, OK, games);
-    }
-
-    /** Returns an image capsule of a Steam game using a Steam App ID */
-    async getSteamAssetCapsule(appId) {
-        const base = `https://shared.steamstatic.com/store_item_assets/steam/apps/${appId}/`;
-        const urlSuffixes = [
-            "library_capsule_600x900_2x.jpg",
-            "library_600x900_2x.jpg",
-            "portrait.png",
-        ];
-        for (const suffix of urlSuffixes) {
-            const url = base + suffix;
-            if (await isImageUrlValid(url)) return url;
-        }
-        return null;
     }
 }

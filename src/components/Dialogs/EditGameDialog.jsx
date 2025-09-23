@@ -7,8 +7,8 @@ import { createContext, useContext, useEffect, useState } from "react";
 import "./GamePageDialog.css";
 import "./EditGameDialog.css";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
-import { storeTypes } from "@/models/index.js";
-import { searchTitleOnStore } from "@/APIUtils.js";
+import { storeTypes } from "@/models";
+import { getOfficialCoverImageURL, searchTitleOnStore } from "@/APIUtils.js";
 
 const GameEntryContext = createContext(null);
 
@@ -201,7 +201,8 @@ function CoverSelector({ saveOnEnter }) {
                 return res.json();
             })
             .then(selectSgdbGame)
-            .catch((err) => console.error(err));
+            .catch((err) => console.error(err))
+            .finally(() => setLoadingCovers(false));
     }, [storeID]);
 
     return (
@@ -258,41 +259,49 @@ function CoversGallery({ loadingCovers, setLoadingCovers }) {
         img.src = coverImageURL;
     }, [coverImageURL]); // preload to cache full version of the selected cover
 
+    // Known issue: if selecting a SGDB game, then selecting its equivalent store game, this useEffect isn't re-triggered so it doesn't add official store cover
     useEffect(() => {
         if ((!title && !sgdbTitle) || (!storeID && !sgdbID)) return;
         setLoadingCovers(true);
         setImages([]);
-        fetch(`/api/steamgriddb/getGrids?sgdbID=${sgdbID}`)
-            .then((res) => {
-                if (!res.ok) {
-                    if (res.status === 404) return []; // no results is fine
-                    throw new Error(`Status ${res.status}, failed to fetch grids for id ${sgdbID}`);
+
+        const officialCoverReq = getOfficialCoverImageURL(storeType, storeID);
+
+        const sgdbReq = fetch(`/api/steamgriddb/getGrids?sgdbID=${sgdbID}`).then((res) => {
+            if (!res.ok) {
+                if (res.status === 404) return []; // no results is fine
+                throw new Error(`Status ${res.status}, failed to fetch grids for id ${sgdbID}`);
+            }
+            return res.json();
+        });
+
+        // Request the store's cover, and SGDB covers. Then assemble the covers to display;
+        // If there is already a selected cover, it will always be inserted first.
+        // Next is the store's cover. If there is no selected cover yet, select it.
+        // Then all the sgdb covers
+        Promise.all([officialCoverReq, sgdbReq])
+            .then(([officialCoverImage, sgdbImages]) => {
+                let covers = [];
+                if (officialCoverImage) {
+                    if (!coverImageURL) setCoverImageURL(officialCoverImage.url);
+                    covers.push(officialCoverImage);
                 }
-                return res.json();
-            })
-            .then((data) => {
-                // If there is already a selected cover art, always make it first
-                if (coverImageURL)
-                    data = [
+                if (sgdbImages?.length) {
+                    covers.push(...sgdbImages);
+                }
+                if (coverImageURL) {
+                    covers = [
                         currentCoverImage(),
-                        ...data.filter((img) => img.url !== coverImageURL),
+                        ...covers.filter((img) => img.url !== coverImageURL),
                     ];
-                setImages(data);
+                }
+                setImages(covers);
             })
             .catch((err) => {
                 console.warn(err);
                 setError(err);
             })
             .finally(() => setLoadingCovers(false));
-
-        // TODO: Whatever gets grids from SGDB, also needs to get the official grid, and the current GameObject's grid
-        // TODO: re-implement requesting official cover directly, with data[0].coverType === 'official'
-        // if (
-        //     storeType === "steam" &&
-        //     data[0].url.includes("steamstatic.com") &&
-        //     !coverImageURL
-        // )
-        //     setCoverImageURL(data[0].url);
     }, [sgdbID]);
 
     if (loadingCovers) return <Spinner />;

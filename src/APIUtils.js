@@ -14,7 +14,7 @@ export async function searchTitleOnStore(title, storeType, lang = "en", cc = "US
             return console.error(`StoreType ${storeType} doesn't have a supported search.`);
     }
     const json = await fetchResponse.json();
-    if (!fetchResponse.ok) return console.error("Error: " + json);
+    if (!fetchResponse.ok) return console.error(json);
     if (json.length === 0) return console.error(`No ${storeType} games were found using ${title}`);
 
     let results = [];
@@ -43,4 +43,17 @@ export async function searchTitleOnStore(title, storeType, lang = "en", cc = "US
 
 export async function getOfficialCoverImageURL(storeType, storeID) {
     if (!storeType || !storeID) return "";
+    let fetchResponse;
+    switch (storeType) {
+        case "steam":
+            fetchResponse = await fetch(`/api/steam/getGameCover?appId=${storeID}`);
+            break;
+        default:
+            return console.error(
+                `StoreType ${storeType} doesn't have a supported game cover fetcher.`,
+            );
+    }
+    const json = await fetchResponse.json();
+    if (!fetchResponse.ok) return console.error(json);
+    return json;
 }

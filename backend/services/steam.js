@@ -1,6 +1,7 @@
 import { Response } from "../response.js";
 import { Service } from "../service.js";
 import SteamAPI from "steamapi";
+import { isImageUrlValid } from "../utils.js";
 
 export class SteamWebService extends Service {
     constructor(app) {
@@ -34,6 +35,11 @@ export class SteamWebService extends Service {
                 method: "get",
                 path: "/api/steam/searchTitle",
                 handler: this.searchTitle.bind(this),
+            },
+            {
+                method: "get",
+                path: "/api/steam/getGameCover",
+                handler: this.getGameCover.bind(this),
             },
         ]);
     }
@@ -127,6 +133,24 @@ export class SteamWebService extends Service {
         if (data.length === 0)
             return Response.send(res, NOT_FOUND, `No Steam games were found using "${term}"`);
         return Response.send(res, OK, data);
+    }
+
+    /** Returns an image capsule of a Steam game using a Steam App ID */
+    async getGameCover(req, res) {
+        const { appId } = req.query;
+        const { OK, NOT_FOUND } = Response.HttpStatus;
+        const base = `https://shared.steamstatic.com/store_item_assets/steam/apps/${appId}/`;
+        const urlSuffixes = [
+            "library_capsule_600x900_2x.jpg",
+            "library_600x900_2x.jpg",
+            "portrait.png",
+        ];
+        for (const suffix of urlSuffixes) {
+            const url = base + suffix;
+            if (await isImageUrlValid(url))
+                return Response.send(res, OK, { url: url, preview: url });
+        }
+        return Response.send(res, NOT_FOUND, `No official Steam cover was found for id ${appId}`);
     }
 
     /**

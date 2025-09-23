@@ -2,6 +2,7 @@ import { makeAutoObservable } from "mobx";
 import { toastSuccess, toastError, compareAlphaIgnoreCase } from "@/Utils.jsx";
 import { TagObject, tagTypes } from "@/models";
 
+// TODO: replace hardcoded cases like the frequent "steam" with storeTypes.steam etc
 export const storeTypes = Object.freeze({
     steam: "Steam",
     gog: "GOG",

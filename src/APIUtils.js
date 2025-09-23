@@ -1,4 +1,5 @@
 export async function searchTitleOnStore(title, storeType, lang = "en", cc = "US") {
+    if (!title || typeof title !== "string" || !title.trim()) return [];
     let fetchResponse;
     switch (storeType) {
         case "steam":

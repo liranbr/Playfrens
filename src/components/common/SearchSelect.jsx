@@ -6,9 +6,9 @@ import "./SearchSelect.css";
  * @param {{
  *   onQuery: (newQuery: string, setSelected: React.Dispatch<string[]>) => void,
  *   delay: number,
- *   initialValue: string,
+ *   defaultValue: string,
  *   value: string,
- *   onChange: (string) => void,
+ *   onValueChange: (string) => void,
  *   onSelect: (string) => void,
  * } & React.InputHTMLAttributes} props
  * @returns {JSX.Element}
@@ -16,15 +16,15 @@ import "./SearchSelect.css";
 export function SearchSelect({
     onQuery,
     delay = 0,
-    initialValue = "",
+    defaultValue = "",
     value,
-    onChange,
+    onValueChange,
     onSelect,
     ...inputRest
 }) {
-    const [internalQuery, setInternalQuery] = useState(initialValue);
+    const [internalQuery, setInternalQuery] = useState(defaultValue);
     const query = value !== undefined ? value : internalQuery; // prefer external value
-    const setQuery = value !== undefined ? onChange : setInternalQuery;
+    const setQuery = value !== undefined ? onValueChange : setInternalQuery;
     const [showDropdown, setShowDropdown] = useState(false);
     const [highlighted, setHighlighted] = useState(-1);
     const [results, setResults] = useState([]);
@@ -79,13 +79,8 @@ export function SearchSelect({
                 ref={inputRef}
                 {...inputRest}
                 value={query}
-                onChange={(e) => {
-                    handleInputChange(e);
-                    inputRest?.onChange?.(e);
-                }}
-                onKeyDown={(e) => {
-                    handleKeyDown(e);
-                }}
+                onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
                 onFocus={(e) => {
                     setShowDropdown(true);
                     inputRest?.onFocus?.(e);

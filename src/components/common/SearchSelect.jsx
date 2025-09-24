@@ -91,7 +91,7 @@ export function SearchSelect({
                     setShowDropdown(false);
                     inputRest?.onBlur?.(e);
                 }}
-                style={{ width: "100%" }}
+                style={{ width: "100%", ...inputRest.style }}
                 type="text"
             />
             {results.length > 0 && showDropdown && (

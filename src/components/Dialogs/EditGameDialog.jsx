@@ -21,6 +21,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
     const [storeID, setStoreID] = useState(game?.storeID ?? "");
     const [sgdbID, setSgdbID] = useState(game?.sgdbID ?? "");
     const [sgdbTitle, setSgdbTitle] = useState("");
+    const [advancedView, setAdvancedView] = useState(false);
 
     const dialogTitle = game ? "Edit Game Details" : "Add Game";
     const dialogDescription = game ? `Editing ${game.title}` : "Adding a new game";
@@ -93,6 +94,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                 setSgdbID,
                 sgdbTitle,
                 setSgdbTitle,
+                advancedView,
             }}
         >
             <DialogBase
@@ -138,14 +140,26 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                                 />
                             </div>
 
-                            <label>
-                                Sorting Title<small> (optional)</small>
-                            </label>
-                            <input
-                                value={sortingTitle}
-                                onChange={(e) => setSortingTitle(e.target.value)}
-                                onKeyDown={saveOnEnter}
-                            />
+                            {(advancedView || sortingTitle) && (
+                                <>
+                                    <label>
+                                        Sorting Title<small> (optional)</small>
+                                    </label>
+                                    <input
+                                        value={sortingTitle}
+                                        onChange={(e) => setSortingTitle(e.target.value)}
+                                        onKeyDown={saveOnEnter}
+                                    />
+                                </>
+                            )}
+                            {advancedView && storeType !== "custom" && (
+                                <>
+                                    <label style={{ color: "#777" }}>
+                                        {storeTypes[storeType] + " Game ID"}
+                                    </label>
+                                    <input disabled value={storeID} />
+                                </>
+                            )}
                         </fieldset>
                     </div>
 
@@ -155,12 +169,17 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                 </div>
 
                 <div className="rx-dialog-footer">
-                    <Button variant="secondary" onClick={closeDialog}>
-                        Cancel
+                    <Button variant="secondary" onClick={() => setAdvancedView(!advancedView)}>
+                        {advancedView ? "Simple" : "Advanced"}
                     </Button>
-                    <Button variant="primary" onClick={handleSave}>
-                        Save
-                    </Button>
+                    <div className="inner-footer">
+                        <Button variant="secondary" onClick={closeDialog}>
+                            Cancel
+                        </Button>
+                        <Button variant="primary" onClick={handleSave}>
+                            Save
+                        </Button>
+                    </div>
                 </div>
             </DialogBase>
         </GameEntryContext>
@@ -173,10 +192,10 @@ function CoverSelector({ saveOnEnter }) {
         setCoverImageURL,
         storeType,
         storeID,
-        sgdbID,
         setSgdbID,
         sgdbTitle,
         setSgdbTitle,
+        advancedView,
     } = useContext(GameEntryContext);
     const [loadingCovers, setLoadingCovers] = useState(false);
 
@@ -206,24 +225,29 @@ function CoverSelector({ saveOnEnter }) {
     return (
         <div className="cover-art-selector">
             <fieldset>
-                <label>Cover Art Database Search</label>
-                <SearchSelect
-                    delay={250}
-                    value={sgdbTitle}
-                    onValueChange={setSgdbTitle}
-                    placeholder="Enter a [Game Title], or search here directly"
-                    onQuery={searchSgdbTitle}
-                    onKeyDown={saveOnEnter}
-                    onSelect={selectSgdbGame}
-                />
+                {!advancedView && <label>Cover Art</label>}
+                {advancedView && (
+                    <>
+                        <label>Cover Art Database Search</label>
+                        <SearchSelect
+                            delay={250}
+                            value={sgdbTitle}
+                            onValueChange={setSgdbTitle}
+                            placeholder="Enter a [Game Title], or search here directly"
+                            onQuery={searchSgdbTitle}
+                            onKeyDown={saveOnEnter}
+                            onSelect={selectSgdbGame}
+                        />
 
-                <label>Cover Art URL</label>
-                <input
-                    value={coverImageURL}
-                    onChange={(e) => setCoverImageURL(e.target.value)}
-                    onKeyDown={saveOnEnter}
-                    placeholder="Choose a cover, or manually enter URL"
-                />
+                        <label>Cover Art URL</label>
+                        <input
+                            value={coverImageURL}
+                            onChange={(e) => setCoverImageURL(e.target.value)}
+                            onKeyDown={saveOnEnter}
+                            placeholder="Choose a cover, or manually enter URL"
+                        />
+                    </>
+                )}
             </fieldset>
 
             <ScrollView>
@@ -238,17 +262,8 @@ function CoversGallery({ loadingCovers, setLoadingCovers }) {
         return { url: coverImageURL, preview: coverImageURL };
     };
     const [error, setError] = useState("");
-    const {
-        title,
-        coverImageURL,
-        setCoverImageURL,
-        storeType,
-        storeID,
-        sgdbID,
-        setSgdbID,
-        sgdbTitle,
-        setSgdbTitle,
-    } = useContext(GameEntryContext);
+    const { title, coverImageURL, setCoverImageURL, storeType, storeID, sgdbID, sgdbTitle } =
+        useContext(GameEntryContext);
     const [images, setImages] = useState(coverImageURL ? [currentCoverImage()] : []);
 
     useEffect(() => {
@@ -306,7 +321,8 @@ function CoversGallery({ loadingCovers, setLoadingCovers }) {
     if (!images.length) {
         if (error) return <div>{"" + error}</div>;
         if (sgdbID) return <div>Entry has no covers</div>;
-        else return <div />; // no selected entry and no error, means no search has been done yet
+        else
+            return <div style={{ userSelect: "none" }}>To browse covers, first select a game.</div>; // no selected entry and no error, means no search has been done yet
     }
 
     return (

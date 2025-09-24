@@ -67,4 +67,13 @@
             }
         }
     }
+
+    .rx-dialog-footer {
+        justify-content: space-between;
+
+        .inner-footer {
+            display: flex;
+            gap: 16px;
+        }
+    }
 }

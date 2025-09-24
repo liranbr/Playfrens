@@ -9,7 +9,7 @@ export const storeTypes = Object.freeze({
     xbox: "Xbox",
     egs: "Epic",
     // bnet: "Battle.net",
-    custom: "Custom",
+    custom: "Other",
 });
 
 /**

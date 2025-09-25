@@ -30,19 +30,22 @@ export async function searchTitleOnStore(title, storeType, lang = "en", cc = "US
             break;
         case "custom":
             results = json?.map((item) => {
-                const date = new Date(item.release_date * 1000);
-                const year = date.getFullYear();
                 return {
                     id: item.id,
-                    name: `${item.name} (${year})`,
+                    name: sgdbDatedTitle(item), // name is what's displayed in SearchSelect results
                     title: item.name,
                     storeType: "custom",
                     sgdbID: item.id,
-                    sgdbTitle: item.name,
+                    sgdbTitle: sgdbDatedTitle(item),
                 };
             });
     }
     return results;
+}
+
+export function sgdbDatedTitle(SGDBGame) {
+    const year = new Date(SGDBGame.release_date * 1000).getFullYear();
+    return `${SGDBGame.name} (${year})`;
 }
 
 export async function getOfficialCoverImageURL(storeType, storeID) {

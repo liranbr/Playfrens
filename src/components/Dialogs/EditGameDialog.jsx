@@ -8,7 +8,7 @@ import "./GamePageDialog.css";
 import "./EditGameDialog.css";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import { storeTypes } from "@/models";
-import { getOfficialCoverImageURL, searchTitleOnStore } from "@/APIUtils.js";
+import { getOfficialCoverImageURL, searchTitleOnStore, sgdbDatedTitle } from "@/APIUtils.js";
 
 const GameEntryContext = createContext(null);
 
@@ -205,7 +205,7 @@ function CoverSelector({ saveOnEnter }) {
     // activated on selecting a Store Game, or selecting an SGDB entry in the SearchSelect below
     const selectSgdbGame = (SgdbGame) => {
         setSgdbID(SgdbGame.id);
-        setSgdbTitle(SgdbGame.name);
+        setSgdbTitle(sgdbDatedTitle(SgdbGame));
     };
 
     // When a Store game is selected, retrieve its sgdb entry and select it

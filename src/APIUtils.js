@@ -29,14 +29,18 @@ export async function searchTitleOnStore(title, storeType, lang = "en", cc = "US
             }));
             break;
         case "custom":
-            results = json?.map((item) => ({
-                id: item.id,
-                name: item.name,
-                title: item.name,
-                storeType: "custom",
-                sgdbID: item.id,
-                sgdbTitle: item.name,
-            }));
+            results = json?.map((item) => {
+                const date = new Date(item.release_date * 1000);
+                const year = date.getFullYear();
+                return {
+                    id: item.id,
+                    name: `${item.name} (${year})`,
+                    title: item.name,
+                    storeType: "custom",
+                    sgdbID: item.id,
+                    sgdbTitle: item.name,
+                };
+            });
     }
     return results;
 }

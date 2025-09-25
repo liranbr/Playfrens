@@ -28,11 +28,15 @@ export function SearchSelect({
     const [showDropdown, setShowDropdown] = useState(false);
     const [highlighted, setHighlighted] = useState(-1);
     const [results, setResults] = useState([]);
+    const [initialized, setInitialized] = useState(false);
 
     const inputRef = useRef(null);
     const resultsRef = useRef(null);
     const debouncedQuery = useDebouncedCallback(onQuery, delay);
-    debouncedQuery(query, setResults); // activate query on render
+    if (!initialized) {
+        debouncedQuery(query, setResults); // activate query on initial render
+        setInitialized(true);
+    }
 
     const handleInputChange = (e) => {
         const newQuery = e.target.value;

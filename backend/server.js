@@ -9,7 +9,13 @@ import session from "express-session";
 import passport from "passport";
 import https from "https";
 import selfsigned from "selfsigned";
-import { getBackendDomain, getFrontendDomain, strToBool } from "./utils.js";
+import path from "path";
+import { fileURLToPath } from "url";
+import { ConsoleColors, getBackendDomain, getFrontendDomain, strToBool } from "./utils.js";
+
+// === Support for __dirname in ES modules ===
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Load environment keys first before anything else!
 dotenv.config({ debug: true, path: ".env" });
@@ -64,15 +70,28 @@ if (strToBool(env.USE_HTTPS)) {
         keySize: 2048,
     });
     https.createServer({ key: pems.private, cert: pems.cert }, app).listen(env.BACKEND_PORT, () => {
-        console.log(`HTTPS server running @ ${getBackendDomain()}`);
+        console.log(`${ConsoleColors.FgRGB(191, 255, 0)} Playfrens HTTPS server running @ ${getBackendDomain()}${ConsoleColors.Reset}`);
     });
 } else {
     app.listen(env.PORT, () => {
-        console.log(`Listening to ${getBackendDomain()}`);
+        console.log(`${ConsoleColors.FgRGB(191, 255, 0)} Playfrens HTTP server running @ ${getBackendDomain()}${ConsoleColors.Reset}`);
     });
 }
 
 main();
+
+// Serve static frontend build
+app.use(express.static(path.join(__dirname, "public")));
+
+// SPA fallback — only for non-API routes
+app.use((req, res, next) => {
+    const apiPrefixes = ["/api", "/auth"];
+    if (apiPrefixes.some(prefix => req.path.startsWith(prefix))) {
+        return next(); // let backend handle these
+    }
+    res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
 
 // Error logging listener after everything initialized
 app.use(async (err, _req, res, _next) => {

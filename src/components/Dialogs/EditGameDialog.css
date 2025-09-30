@@ -1,8 +1,9 @@
 .rx-dialog.edit-game-dialog {
     display: flex;
     flex-direction: column;
-    width: fit-content;
-    height: fit-content;
+    width: 900px;
+    max-width: 85vw;
+    height: 100%;
 
     .edit-game-body {
         display: flex;
@@ -11,7 +12,7 @@
         height: 100%;
 
         .edit-game-fields {
-            width: 350px;
+            width: 100%;
 
             .title-and-toggle {
                 display: flex;
@@ -30,9 +31,9 @@
             }
         }
         .cover-art-selector {
-            width: 350px;
-            height: 525px;
-            max-height: 525px;
+            width: 100%;
+            height: 100%;
+            max-height: calc(85vh - 130px); /* TODO: temp until scrollview -> overflow switch */
             display: flex;
             flex-direction: column;
             --covers-gallery-padding: 16px; /* padding to give space for selection highlight */

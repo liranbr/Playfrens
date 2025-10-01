@@ -1,5 +1,6 @@
 import { makeAutoObservable } from "mobx";
 import { compareAlphaIgnoreCase } from "@/Utils.jsx";
+import { v4 as randomUUID } from "uuid";
 
 export const tagTypes = {
     friend: "friend",
@@ -56,7 +57,7 @@ export class TagObject {
 
         this.type = type;
         this.name = name;
-        this.id = id ?? crypto.randomUUID();
+        this.id = id ?? randomUUID();
         this.filteredGamesCount = 0;
         this.totalGamesCount = 0;
         makeAutoObservable(this);

@@ -1,29 +1,25 @@
+# This is just a fallback just in case the Alpine Node stops working.
+
 # -------- Build Stage --------
-FROM node:20-alpine AS build
+FROM node:20 AS build
 WORKDIR /app
 
-# Install build tools (needed to compile some deps during npm install)
-RUN apk add --no-cache python3 make g++
-
-# Copy package.json and lockfile
+# Copy package.json and lockfile first (cache-friendly install)
 COPY package*.json ./
 
-# Install ALL deps (including dev, needed for building frontend)
+# Install ALL deps (prod + dev) so we can build frontend
 RUN npm install
 
-# Copy everything
+# Copy the rest of the project
 COPY . .
 
-# Build frontend -> /app/dist
+# Build frontend -> outputs into /app/dist
 RUN npm run build
 
 
 # -------- Backend Stage --------
-FROM node:20-alpine AS backend-build
+FROM node:20 AS backend-build
 WORKDIR /app
-
-# Install build tools for backend install
-RUN apk add --no-cache python3 make g++
 
 # Copy backend source (flattened into /app)
 COPY backend/ ./ 
@@ -34,21 +30,18 @@ COPY --from=build /app/dist ./public
 # Copy only package.json + lockfile
 COPY package*.json ./
 
-# Install ONLY production dependencies
+# Install ONLY production deps
 RUN npm install --omit=dev --ignore-scripts && npm cache clean --force
-
-# Remove build tools to slim down
-RUN apk del python3 make g++
 
 
 # -------- Final Runtime Stage --------
-FROM node:20-alpine
+FROM node:20-slim
 WORKDIR /app
 
-# Copy app + node_modules from backend-build
+# Copy backend code + frontend build + node_modules from backend-build
 COPY --from=backend-build /app /app
 
-# Copy env files
+# Copy environment files from host
 COPY .env .env
 COPY .env.example .env.example
 COPY .env.public .env.public

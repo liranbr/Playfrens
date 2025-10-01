@@ -36,7 +36,7 @@ export class Service {
                 .map((fn) => fn.name?.replace(/^bound\s*/, "") || "anonymous")
                 .join(", ");
             console.log(
-                `  ${FgCyan}[${name}]${Reset} ${FgGreen}${method.toUpperCase()} ${FgRGB(255, 192, 203)}${getFrontendDomain()}${path}`,
+                `  ${FgCyan}[${name}]${Reset} ${FgGreen}${method.toUpperCase()} ${FgRGB(255, 192, 203)}${path}`,
             );
         }
     }

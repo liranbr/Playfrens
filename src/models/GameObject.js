@@ -1,6 +1,7 @@
 import { makeAutoObservable } from "mobx";
 import { toastSuccess, toastError, compareAlphaIgnoreCase } from "@/Utils.jsx";
 import { TagObject, tagTypes } from "@/models";
+import { v4 as randomUUID } from "uuid";
 
 // TODO: replace hardcoded cases like the frequent "steam" with storeTypes.steam etc
 export const storeTypes = Object.freeze({
@@ -58,7 +59,7 @@ export class GameObject {
         this.storeType = storeType ? storeType : this.storeType; // if empty, make it the default "custom"
         this.storeID = storeID ?? this.storeID;
         this.sgdbID = sgdbID ?? this.sgdbID;
-        this.id = id ?? crypto.randomUUID();
+        this.id = id ?? randomUUID();
         makeAutoObservable(this);
     }
 

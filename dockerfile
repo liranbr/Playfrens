@@ -2,48 +2,47 @@
 FROM node:20 AS build
 WORKDIR /app
 
-# Copy package.json and lockfile
+# Copy package.json and lockfile first (for cache-friendly install)
 COPY package*.json ./
+
+# Install ALL deps (prod + dev) so we can build frontend
 RUN npm install
 
-# Copy everything
+# Copy the rest of the project
 COPY . .
 
-# Build frontend
+# Build frontend -> outputs into /app/dist
 RUN npm run build
+
 
 # -------- Backend Stage --------
 FROM node:20 AS backend-build
-WORKDIR /app/backend
+WORKDIR /app
 
-# Copy backend source
-COPY backend/ .
+# Copy backend source (flattened into /app)
+COPY backend/ ./ 
 
-# Copy node_modules from build stage
-COPY --from=build /app/node_modules /app/node_modules
+# Copy frontend build into /app/public
+COPY --from=build /app/dist ./public
 
-# Copy frontend build output into backend/public
-COPY --from=build /app/dist /app/backend/public
+# Copy only package.json + lockfile
+COPY package*.json ./
 
-# Copy .env from build stage
-COPY --from=build /app/.env /app/.env
+# Install ONLY production deps
+RUN npm install --omit=dev --ignore-scripts && npm cache clean --force
+
 
 # -------- Final Runtime Stage --------
 FROM node:20-slim
 WORKDIR /app
 
-# Copy backend source
-COPY --from=backend-build /app/backend /app/backend
+# Copy backend code + frontend build + node_modules from backend-build
+COPY --from=backend-build /app /app
 
-# Copy node_modules
-COPY --from=backend-build /app/node_modules /app/node_modules
-
-# Copy environment files into /app/backend
-COPY .env /app/backend/.env
-COPY .env.example /app/backend/.env.example
-COPY .env.public /app/backend/.env.public
-
-WORKDIR /app/backend
+# Copy environment files from host
+COPY .env .env
+COPY .env.example .env.example
+COPY .env.public .env.public
 
 EXPOSE 3000
 CMD ["node", "server.js"]

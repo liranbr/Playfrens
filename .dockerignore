@@ -1,6 +1,27 @@
+# Ignore dependencies
 node_modules
-.git
-Dockerfile
-*.log
-*.md
+npm-debug.log
+yarn.lock
+pnpm-lock.yaml
+
+# Ignore build outputs
 dist
+public
+coverage
+
+# Ignore system / editor files
+.DS_Store
+*.swp
+*.swo
+
+# Ignore Git / CI
+.git
+.gitignore
+.gitattributes
+
+# Ignore Docker build files
+Dockerfile
+.dockerignore
+
+# Ignore misc
+*.log

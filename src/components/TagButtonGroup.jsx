@@ -5,6 +5,7 @@ import * as Popover from "@radix-ui/react-popover";
 import * as RadioGroup from "@radix-ui/react-radio-group";
 import * as Select from "@radix-ui/react-select";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
+import * as Tooltip from "@radix-ui/react-tooltip";
 import { tagTypeStrings } from "@/models";
 import {
     useSettingsStore,
@@ -14,12 +15,19 @@ import {
     globalDialogStore,
     useDataStore,
 } from "@/stores";
-import { SidebarTagButton, IconButton, CenterAndEdgesRow, ScrollView } from "@/components";
+import {
+    SidebarTagButton,
+    IconButton,
+    CenterAndEdgesRow,
+    ScrollView,
+    SimpleTooltip,
+} from "@/components";
 import "./TagButtonGroup.css";
 
 export const SidebarTagButtonGroup = observer(({ tagType }) => {
     const { allTags } = useDataStore();
-    const title = tagTypeStrings[tagType].plural.toUpperCase();
+    const typeStrings = tagTypeStrings[tagType];
+    const title = typeStrings.plural.toUpperCase();
     const handleAddButtonClick = () => {
         globalDialogStore.open(Dialogs.EditTag, { addingTagOfType: tagType });
     };
@@ -27,8 +35,10 @@ export const SidebarTagButtonGroup = observer(({ tagType }) => {
         <div className="tag-button-group">
             <CenterAndEdgesRow className="ui-card-header">
                 <SidebarTBGMenu tagType={tagType} />
-                <h4>{title}</h4>
-                <IconButton icon={<MdAdd />} onClick={handleAddButtonClick} />
+                <h4>{typeStrings.plural.toUpperCase()}</h4>
+                <SimpleTooltip message={"Add a new " + typeStrings.single}>
+                    <IconButton icon={<MdAdd />} onClick={handleAddButtonClick} />
+                </SimpleTooltip>
             </CenterAndEdgesRow>
             <ScrollView>
                 <div className="tag-button-list">
@@ -43,6 +53,7 @@ export const SidebarTagButtonGroup = observer(({ tagType }) => {
 
 const SidebarTBGMenu = observer(({ tagType }) => {
     const settingsStore = useSettingsStore();
+    const pluralString = tagTypeStrings[tagType].plural;
     return (
         <Popover.Root>
             <Popover.Trigger asChild>
@@ -53,9 +64,9 @@ const SidebarTBGMenu = observer(({ tagType }) => {
                     <Popover.Close asChild>
                         <IconButton className="popover-close" icon={<MdClose />} />
                     </Popover.Close>
-                    <h3>{tagTypeStrings[tagType].plural} Settings</h3>
+                    <h3>{pluralString} Settings</h3>
 
-                    <p>Sort {tagTypeStrings[tagType].plural} by</p>
+                    <p>Sort {pluralString} by</p>
                     <Select.Root
                         value={settingsStore.tagSortMethods[tagType]}
                         className="rx-select"
@@ -94,7 +105,7 @@ const SidebarTBGMenu = observer(({ tagType }) => {
                     </ToggleGroup.Root>
                     <div className="spacer" />
 
-                    <p>Selecting {tagTypeStrings[tagType].plural} will filter for games that</p>
+                    <p>Selecting {pluralString} will filter for games that</p>
                     <RadioGroup.Root
                         defaultValue={settingsStore.tagFilterLogic[tagType]}
                         className="rx-radio-group"

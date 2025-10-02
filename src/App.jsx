@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { observer } from "mobx-react-lite";
 import { ToastContainer } from "react-toastify";
-import { TooltipProvider } from "@radix-ui/react-tooltip";
+import * as Tooltip from "@radix-ui/react-tooltip";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Avatar from "@radix-ui/react-avatar";
 import {
@@ -22,7 +22,13 @@ import {
     Dialogs,
     globalDialogStore,
 } from "@/stores";
-import { SidebarTagButtonGroup, IconButton, CenterAndEdgesRow, GamesGrid } from "@/components";
+import {
+    SidebarTagButtonGroup,
+    IconButton,
+    CenterAndEdgesRow,
+    GamesGrid,
+    SimpleTooltip,
+} from "@/components";
 import { DialogRoot } from "@/components/Dialogs/DialogRoot.jsx";
 import "./App.css";
 
@@ -126,12 +132,14 @@ const AppHeader = observer(() => {
                     Add Game
                 </button>
 
-                <Avatar.Root className="rx-avatar">
-                    <Avatar.Image />
-                    <Avatar.Fallback>
-                        <MdPerson />
-                    </Avatar.Fallback>
-                </Avatar.Root>
+                <SimpleTooltip message="Accounts not implemented yet">
+                    <Avatar.Root className="rx-avatar">
+                        <Avatar.Image />
+                        <Avatar.Fallback>
+                            <MdPerson />
+                        </Avatar.Fallback>
+                    </Avatar.Root>
+                </SimpleTooltip>
             </div>
         </CenterAndEdgesRow>
     );
@@ -170,7 +178,7 @@ function ToastRoot() {
 
 export default function App() {
     return (
-        <TooltipProvider delayDuration={1000}>
+        <Tooltip.Provider delayDuration={750} disableHoverableContent={true}>
             <AppHeader />
             <div id="main-content">
                 <AppSidebar />
@@ -178,6 +186,6 @@ export default function App() {
             </div>
             <DialogRoot />
             <ToastRoot />
-        </TooltipProvider>
+        </Tooltip.Provider>
     );
 }

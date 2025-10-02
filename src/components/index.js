@@ -4,6 +4,7 @@ export { IconButton } from "./common/IconButton.jsx";
 export { CenterAndEdgesRow } from "./common/CenterAndEdgesRow.jsx";
 export { ScrollView } from "./common/ScrollView.jsx";
 export { Spinner } from "./common/Spinner.jsx";
+export { SimpleTooltip } from "./common/SimpleTooltip.jsx";
 export { GamesGrid } from "./GameGrid.jsx";
 export { SidebarTagButton } from "./TagButton.jsx";
 export { SidebarTagButtonGroup } from "./TagButtonGroup.jsx";

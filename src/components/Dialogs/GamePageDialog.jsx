@@ -6,7 +6,7 @@ import * as Tooltip from "@radix-ui/react-tooltip";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert, MdRemove } from "react-icons/md";
 
-import { CenterAndEdgesRow, IconButton, ScrollView } from "@/components";
+import { CenterAndEdgesRow, IconButton, ScrollView, SimpleTooltip } from "@/components";
 import { Dialogs, globalDialogStore, updateTagBothGameCounters, useDataStore } from "@/stores";
 import { tagTypes, tagTypeStrings } from "@/models";
 import { useValidatedImage } from "@/hooks/useValidatedImage.js";
@@ -71,12 +71,9 @@ const AddTagButton = ({ tagType, game }) => {
         }
         if (openDropdown) setOpenDropdown(false);
         return (
-            <Tooltip.Root delayDuration={300}>
-                <Tooltip.Trigger asChild>
-                    <IconButton icon={<MdAdd />} disabled />
-                </Tooltip.Trigger>
-                <Tooltip.Content className="rx-tooltip">{message}</Tooltip.Content>
-            </Tooltip.Root>
+            <SimpleTooltip delayDuration={300} message={message}>
+                <IconButton icon={<MdAdd />} disabled />
+            </SimpleTooltip>
         );
     }
 };

@@ -25,6 +25,9 @@ const env = process.env;
 // Init express
 const app = express();
 
+// Holds all services we provide into classes
+const services = [];
+
 // Enable Cross-Origin Resource Sharing
 app.use(
     cors({
@@ -54,51 +57,47 @@ app.use(passport.session());
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
-// Holds all services we provide into classes
-const services = [];
 export const main = () => {
+    // Production should not release with HTTPS, this is mostly for testing purposes.
+    const makeHTTPS = (app) => {
+        const pems = selfsigned.generate([{ name: "commonName", value: env.DOMAIN }], {
+            days: 365,
+            keySize: 2048,
+        });
+        return https.createServer({ key: pems.private, cert: pems.cert }, app);
+    };
+    // First we set up the server to be ready and listening
+    const isHTTPS = strToBool(env.USE_HTTPS);
+    (isHTTPS ? makeHTTPS(app) : app).listen(env.BACKEND_PORT, env.DOMAIN, () => {
+        console.log(
+            `${ConsoleColors.FgRGB(191, 255, 0)} Playfrens server running @ ${getBackendDomain()}${ConsoleColors.Reset}`,
+        );
+    });
+
+    // Push all the services we provide.
     services.push(new GeneralService(app));
     services.push(new LoginService(app));
     services.push(new SteamGridDBService(app));
     services.push(new SteamWebService(app));
+
+    // NOTICE: The follow 2 calls down below assumes we have a public folder for server.js
+    // In normal development, we use Vite instead, making both of these only functional when publishing.
+    // Serve static frontend build
+    app.use(express.static(path.join(__dirname, "public")));
+
+    // SPA fallback — only for non-API routes
+    app.use((req, res, next) => {
+        const apiPrefixes = ["/api", "/auth"];
+        if (apiPrefixes.some((prefix) => req.path.startsWith(prefix))) {
+            return next(); // let backend handle these
+        }
+        res.sendFile(path.join(__dirname, "public", "index.html"));
+    });
+
+    // Error logging listener after everything initialized
+    app.use(async (err, _req, res, _next) => {
+        res.status(500).json({ error: err.message });
+    });
 };
 
-// Finally we set up the server to be ready and listening
-if (strToBool(env.USE_HTTPS)) {
-    const pems = selfsigned.generate([{ name: "commonName", value: env.DOMAIN }], {
-        days: 365,
-        keySize: 2048,
-    });
-    https
-        .createServer({ key: pems.private, cert: pems.cert }, app)
-        .listen("3000", env.DOMAIN, () => {
-            console.log(
-                `${ConsoleColors.FgRGB(191, 255, 0)} Playfrens HTTPS server running @ ${getBackendDomain()}${ConsoleColors.Reset}`,
-            );
-        });
-} else {
-    app.listen("3000", env.DOMAIN, () => {
-        console.log(
-            `${ConsoleColors.FgRGB(191, 255, 0)} Playfrens HTTP server running @ ${getBackendDomain()}${ConsoleColors.Reset}`,
-        );
-    });
-}
-
 main();
-
-// Serve static frontend build
-app.use(express.static(path.join(__dirname, "public")));
-
-// SPA fallback — only for non-API routes
-app.use((req, res, next) => {
-    const apiPrefixes = ["/api", "/auth"];
-    if (apiPrefixes.some((prefix) => req.path.startsWith(prefix))) {
-        return next(); // let backend handle these
-    }
-    res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-
-// Error logging listener after everything initialized
-app.use(async (err, _req, res, _next) => {
-    res.status(500).json({ error: err.message });
-});

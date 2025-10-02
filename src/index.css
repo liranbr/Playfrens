@@ -69,6 +69,7 @@
     padding: 0;
     box-sizing: border-box;
     scrollbar-width: thin;
+    scrollbar-color: var(--pf-fg-700) transparent;
     font-family: inherit;
 
     &:focus-visible {

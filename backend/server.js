@@ -65,19 +65,19 @@ export const main = () => {
 
 // Finally we set up the server to be ready and listening
 if (strToBool(env.USE_HTTPS)) {
-    const pems = selfsigned.generate([{ name: "commonName", value: "0.0.0.0" }], {
+    const pems = selfsigned.generate([{ name: "commonName", value: env.DOMAIN }], {
         days: 365,
         keySize: 2048,
     });
     https
         .createServer({ key: pems.private, cert: pems.cert }, app)
-        .listen("3000", "0.0.0.0", () => {
+        .listen("3000", env.DOMAIN, () => {
             console.log(
                 `${ConsoleColors.FgRGB(191, 255, 0)} Playfrens HTTPS server running @ ${getBackendDomain()}${ConsoleColors.Reset}`,
             );
         });
 } else {
-    app.listen("3000", "0.0.0.0", () => {
+    app.listen("3000", env.DOMAIN, () => {
         console.log(
             `${ConsoleColors.FgRGB(191, 255, 0)} Playfrens HTTP server running @ ${getBackendDomain()}${ConsoleColors.Reset}`,
         );

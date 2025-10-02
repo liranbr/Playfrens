@@ -67,8 +67,8 @@ export function SearchSelect({
 
     const handleOptionClick = (option) => {
         setShowDropdown(false);
-        onSelect(option);
         setQuery(option.name);
+        onSelect(option);
         debouncedQuery(option.name, setResults);
     };
 

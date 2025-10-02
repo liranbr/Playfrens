@@ -2,13 +2,16 @@ import { useState } from "react";
 import { observer } from "mobx-react-lite";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import * as Tooltip from "@radix-ui/react-tooltip";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert, MdRemove } from "react-icons/md";
+
 import { CenterAndEdgesRow, IconButton, ScrollView } from "@/components";
 import { Dialogs, globalDialogStore, updateTagBothGameCounters, useDataStore } from "@/stores";
 import { tagTypes, tagTypeStrings } from "@/models";
 import { useValidatedImage } from "@/hooks/useValidatedImage.js";
 import { DialogBase } from "./DialogRoot.jsx";
+
 import "@/components/TagButtonGroup.css";
 import "@/components/TagButton.css";
 import "./GamePageDialog.css";
@@ -16,25 +19,33 @@ import "./GamePageDialog.css";
 const AddTagButton = ({ tagType, game }) => {
     const dataStore = useDataStore();
     const allTagsOfType = [...dataStore.allTags[tagType].values()];
+    const tagsGameDoesntHave = allTagsOfType.filter((t) => !game.hasTag(t));
     const [openDropdown, setOpenDropdown] = useState(false);
+    const typeStrings = tagTypeStrings[tagType];
 
-    return (
-        <DropdownMenu.Root onOpenChange={setOpenDropdown}>
-            <DropdownMenu.Trigger asChild>
-                <IconButton icon={<MdAdd />} activate={openDropdown} />
-            </DropdownMenu.Trigger>
+    if (tagsGameDoesntHave.length !== 0)
+        return (
+            <DropdownMenu.Root onOpenChange={setOpenDropdown}>
+                <Tooltip.Root>
+                    <Tooltip.Trigger asChild>
+                        <DropdownMenu.Trigger asChild>
+                            <IconButton icon={<MdAdd />} activate={openDropdown} />
+                        </DropdownMenu.Trigger>
+                    </Tooltip.Trigger>
+                    <Tooltip.Content className="rx-tooltip">
+                        {`Add a ${typeStrings.single} to the game`}
+                    </Tooltip.Content>
+                </Tooltip.Root>
 
-            <DropdownMenu.Portal>
-                <DropdownMenu.Content
-                    className="rx-dropdown-menu"
-                    align={"start"}
-                    side={"bottom"}
-                    sideOffset={5}
-                >
-                    <ScrollView>
-                        {allTagsOfType
-                            .filter((t) => !game.hasTag(t))
-                            .map((t) => (
+                <DropdownMenu.Portal>
+                    <DropdownMenu.Content
+                        className="rx-dropdown-menu"
+                        align={"start"}
+                        side={"bottom"}
+                        sideOffset={5}
+                    >
+                        <ScrollView>
+                            {tagsGameDoesntHave.map((t) => (
                                 <DropdownMenu.Item
                                     key={t.id}
                                     onClick={() => {
@@ -42,15 +53,32 @@ const AddTagButton = ({ tagType, game }) => {
                                         updateTagBothGameCounters(t);
                                     }}
                                 >
-                                    <span className="item-label">{t.name}</span>
+                                    <span className="item-label">{t.name}</span>{" "}
+                                    {/* Dropdown items need a text wrapper (span) to prevent overflow */}
                                 </DropdownMenu.Item>
                             ))}
-                        {/* Variable-length dropdown items need text wrapper (span) to prevent overflow */}
-                    </ScrollView>
-                </DropdownMenu.Content>
-            </DropdownMenu.Portal>
-        </DropdownMenu.Root>
-    );
+                        </ScrollView>
+                    </DropdownMenu.Content>
+                </DropdownMenu.Portal>
+            </DropdownMenu.Root>
+        );
+    else {
+        const message =
+            allTagsOfType.length === 0
+                ? `No ${typeStrings.plural} added yet`
+                : `Game already has all ${typeStrings.plural}`;
+        if (dataStore.allTags[tagType].values().length > 0) {
+        }
+        if (openDropdown) setOpenDropdown(false);
+        return (
+            <Tooltip.Root delayDuration={300}>
+                <Tooltip.Trigger asChild>
+                    <IconButton icon={<MdAdd />} disabled />
+                </Tooltip.Trigger>
+                <Tooltip.Content className="rx-tooltip">{message}</Tooltip.Content>
+            </Tooltip.Root>
+        );
+    }
 };
 
 const GPTagButton = observer(({ game, tag }) => {

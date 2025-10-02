@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { observer } from "mobx-react-lite";
 import { ToastContainer } from "react-toastify";
+import { TooltipProvider } from "@radix-ui/react-tooltip";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Avatar from "@radix-ui/react-avatar";
 import {
@@ -169,7 +170,7 @@ function ToastRoot() {
 
 export default function App() {
     return (
-        <>
+        <TooltipProvider delayDuration={1000}>
             <AppHeader />
             <div id="main-content">
                 <AppSidebar />
@@ -177,6 +178,6 @@ export default function App() {
             </div>
             <DialogRoot />
             <ToastRoot />
-        </>
+        </TooltipProvider>
     );
 }

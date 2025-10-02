@@ -400,6 +400,17 @@
     }
 }
 
+.rx-tooltip {
+    background-color: var(--pf-bg-700);
+    color: var(--pf-fg-500);
+    border-radius: 4px;
+    border: var(--pf-border-700);
+    padding: 4px;
+    cursor: default;
+    animation: fadeIn 250ms ease-in;
+    z-index: 105;
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;

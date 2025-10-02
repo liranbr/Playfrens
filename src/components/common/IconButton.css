@@ -26,4 +26,16 @@
     &.activate {
         background-color: #66666666;
     }
+
+    &:disabled {
+        cursor: auto;
+        color: var(--pf-bg-100);
+
+        &:hover,
+        &:active,
+        &:focus,
+        &.activate {
+            background-color: #55555500;
+        }
+    }
 }

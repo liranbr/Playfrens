@@ -331,7 +331,7 @@ function CoversGallery({ loadingCovers, setLoadingCovers }) {
                 <img
                     key={img.url}
                     src={img.preview}
-                    alt={sgdbTitle + " cover"}
+                    alt="Game Cover Art"
                     onClick={() => setCoverImageURL(img.url)}
                     className={img.url === coverImageURL ? "selected-cover" : ""}
                 />

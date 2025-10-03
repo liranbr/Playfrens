@@ -3,7 +3,6 @@
     min-height: 164px; /* meant to fit 3 buttons */
     display: flex;
     flex-direction: column;
-    overflow: hidden;
     flex-shrink: 1;
     flex-grow: 1;
     flex-basis: auto;
@@ -16,8 +15,10 @@
     .tag-button-list {
         display: flex;
         flex-direction: column;
+        overflow-y: auto;
+        scrollbar-gutter: stable both-edges;
         gap: 4px;
-        padding: 0 12px;
+        padding: 0 calc(12px - 8px); /* TODO: change 8px to var that measures scrollbar width */
     }
 }
 

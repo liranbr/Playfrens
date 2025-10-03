@@ -112,7 +112,7 @@
             }
 
             .tag-button-group {
-                min-height: fit-content;
+                min-height: 0;
 
                 .tag-button-container {
                     &:hover .tag-button,

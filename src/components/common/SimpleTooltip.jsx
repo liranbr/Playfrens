@@ -14,7 +14,9 @@ export function SimpleTooltip({ message, delayDuration = 750, className = "", ch
     return (
         <Tooltip.Root delayDuration={delayDuration}>
             <Tooltip.Trigger asChild>{children}</Tooltip.Trigger>
-            <Tooltip.Content className={`rx-tooltip ${className}`}>{message}</Tooltip.Content>
+            <Tooltip.Content sideOffset={5} className={`rx-tooltip ${className}`}>
+                {message}
+            </Tooltip.Content>
         </Tooltip.Root>
     );
 }

@@ -1,3 +1,9 @@
+.games-grid-container {
+    width: 100%;
+    overflow-y: auto;
+    scrollbar-gutter: stable both-edges;
+    padding: 30px calc(30px - 8px); /* TODO: Replace 8px with scrollbar width var */
+}
 .games-grid {
     width: 100%;
     display: grid;
@@ -6,7 +12,6 @@
     column-gap: 20px;
     /* column-gap is the minimum, actual gap determined by space-between */
     row-gap: 30px;
-    padding: 30px;
     grid-template-columns: repeat(auto-fit, var(--game-card-width));
 }
 

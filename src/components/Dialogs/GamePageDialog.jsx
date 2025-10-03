@@ -6,7 +6,7 @@ import * as Tooltip from "@radix-ui/react-tooltip";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert, MdRemove } from "react-icons/md";
 
-import { CenterAndEdgesRow, IconButton, ScrollView, SimpleTooltip } from "@/components";
+import { CenterAndEdgesRow, IconButton, SimpleTooltip } from "@/components";
 import { Dialogs, globalDialogStore, updateTagBothGameCounters, useDataStore } from "@/stores";
 import { tagTypes, tagTypeStrings } from "@/models";
 import { useValidatedImage } from "@/hooks/useValidatedImage.js";
@@ -26,16 +26,9 @@ const AddTagButton = ({ tagType, game }) => {
     if (tagsGameDoesntHave.length !== 0)
         return (
             <DropdownMenu.Root onOpenChange={setOpenDropdown}>
-                <Tooltip.Root>
-                    <Tooltip.Trigger asChild>
-                        <DropdownMenu.Trigger asChild>
-                            <IconButton icon={<MdAdd />} activate={openDropdown} />
-                        </DropdownMenu.Trigger>
-                    </Tooltip.Trigger>
-                    <Tooltip.Content className="rx-tooltip">
-                        {`Add a ${typeStrings.single} to the game`}
-                    </Tooltip.Content>
-                </Tooltip.Root>
+                <DropdownMenu.Trigger asChild>
+                    <IconButton icon={<MdAdd />} activate={openDropdown} />
+                </DropdownMenu.Trigger>
 
                 <DropdownMenu.Portal>
                     <DropdownMenu.Content
@@ -44,26 +37,24 @@ const AddTagButton = ({ tagType, game }) => {
                         side={"bottom"}
                         sideOffset={5}
                     >
-                        <ScrollView>
-                            {tagsGameDoesntHave.map((t) => (
-                                <DropdownMenu.Item
-                                    key={t.id}
-                                    onClick={() => {
-                                        game.addTag(t);
-                                        updateTagBothGameCounters(t);
-                                    }}
-                                >
-                                    <span className="item-label">{t.name}</span>{" "}
-                                    {/* Dropdown items need a text wrapper (span) to prevent overflow */}
-                                </DropdownMenu.Item>
-                            ))}
-                        </ScrollView>
+                        {tagsGameDoesntHave.map((t) => (
+                            <DropdownMenu.Item
+                                key={t.id}
+                                onClick={() => {
+                                    game.addTag(t);
+                                    updateTagBothGameCounters(t);
+                                }}
+                            >
+                                <span className="item-label">{t.name}</span>{" "}
+                                {/* Dropdown items need a text wrapper (span) to prevent overflow */}
+                            </DropdownMenu.Item>
+                        ))}
                     </DropdownMenu.Content>
                 </DropdownMenu.Portal>
             </DropdownMenu.Root>
         );
     else {
-        const message =
+        const issueMessage =
             allTagsOfType.length === 0
                 ? `No ${typeStrings.plural} added yet`
                 : `Game already has all ${typeStrings.plural}`;
@@ -71,7 +62,7 @@ const AddTagButton = ({ tagType, game }) => {
         }
         if (openDropdown) setOpenDropdown(false);
         return (
-            <SimpleTooltip delayDuration={300} message={message}>
+            <SimpleTooltip delayDuration={300} message={issueMessage}>
                 <IconButton icon={<MdAdd />} disabled />
             </SimpleTooltip>
         );
@@ -148,13 +139,11 @@ const GPTagButtonGroup = observer(({ game, tagType }) => {
                 <h4>{title}</h4>
                 <AddTagButton tagType={tagType} game={game} />
             </CenterAndEdgesRow>
-            <ScrollView>
-                <div className="tag-button-list">
-                    {tags.map((tag) => (
-                        <GPTagButton key={tag.id} game={game} tag={tag} />
-                    ))}
-                </div>
-            </ScrollView>
+            <div className="tag-button-list">
+                {tags.map((tag) => (
+                    <GPTagButton key={tag.id} game={game} tag={tag} />
+                ))}
+            </div>
         </div>
     );
 });

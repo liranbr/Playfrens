@@ -15,13 +15,7 @@ import {
     globalDialogStore,
     useDataStore,
 } from "@/stores";
-import {
-    SidebarTagButton,
-    IconButton,
-    CenterAndEdgesRow,
-    ScrollView,
-    SimpleTooltip,
-} from "@/components";
+import { SidebarTagButton, IconButton, CenterAndEdgesRow, SimpleTooltip } from "@/components";
 import "./TagButtonGroup.css";
 
 export const SidebarTagButtonGroup = observer(({ tagType }) => {
@@ -40,13 +34,11 @@ export const SidebarTagButtonGroup = observer(({ tagType }) => {
                     <IconButton icon={<MdAdd />} onClick={handleAddButtonClick} />
                 </SimpleTooltip>
             </CenterAndEdgesRow>
-            <ScrollView>
-                <div className="tag-button-list">
-                    {[...allTags[tagType]].map(([id, tag], index) => (
-                        <SidebarTagButton key={index} tag={tag} />
-                    ))}
-                </div>
-            </ScrollView>
+            <div className="tag-button-list">
+                {[...allTags[tagType]].map(([id, tag], index) => (
+                    <SidebarTagButton key={index} tag={tag} />
+                ))}
+            </div>
         </div>
     );
 });

@@ -108,14 +108,16 @@ const AppHeader = observer(() => {
             </div>
 
             <CenterAndEdgesRow className="app-header-center">
-                <IconButton
-                    icon={<MdFilterAltOff />}
-                    style={{
-                        visibility: filterStore.areFiltersActive ? "visible" : "hidden",
-                        transition: "visibility 0s",
-                    }}
-                    onClick={() => filterStore.resetFilters()}
-                />
+                <SimpleTooltip message="Reset filters" delayDuration={300}>
+                    <IconButton
+                        icon={<MdFilterAltOff />}
+                        style={{
+                            visibility: filterStore.areFiltersActive ? "visible" : "hidden",
+                            transition: "visibility 0s",
+                        }}
+                        onClick={() => filterStore.resetFilters()}
+                    />
+                </SimpleTooltip>
                 <div className={"game-search" + (search ? " has-value" : "")}>
                     <input value={search} onChange={updateSearch} placeholder="Search" />
                     <IconButton icon={<MdClose />} type="reset" onClick={updateSearch} />

@@ -250,9 +250,7 @@ function CoverSelector({ saveOnEnter }) {
                 )}
             </fieldset>
 
-            <ScrollView>
-                <CoversGallery loadingCovers={loadingCovers} setLoadingCovers={setLoadingCovers} />
-            </ScrollView>
+            <CoversGallery loadingCovers={loadingCovers} setLoadingCovers={setLoadingCovers} />
         </div>
     );
 }

@@ -5,7 +5,7 @@
     max-height: var(--dd-max-height);
     min-width: 150px;
     max-width: 300px;
-    overflow-y: hidden;
+    overflow-y: auto;
     background-color: var(--pf-bg-700);
     border: var(--pf-border-700);
     border-radius: 8px;
@@ -97,11 +97,6 @@
             color: var(--pf-fg-link-hover);
         }
     }
-
-    .rx-scroll-area {
-        /* fix needed because dropdowns are portal based */
-        max-height: calc(var(--dd-max-height) - 2 * var(--dd-padding));
-    }
 }
 
 .rx-dialog-overlay {
@@ -125,10 +120,11 @@
     justify-content: center;
     background-color: var(--pf-bg-900);
     width: 425px;
-    padding: 20px;
+    padding: 20px calc(20px - 8px); /* TODO: replace 8px w/ scrollbar var */
     height: fit-content;
     max-height: 85vh;
     overflow-y: auto;
+    scrollbar-gutter: stable both-edges;
     border: var(--pf-border-700);
     border-radius: 12px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 1);
@@ -402,8 +398,8 @@
 
 .rx-tooltip {
     background-color: var(--pf-bg-700);
-    color: var(--pf-fg-500);
-    border-radius: 4px;
+    color: var(--pf-fg-400);
+    border-radius: 8px;
     border: var(--pf-border-700);
     padding: 4px;
     cursor: default;

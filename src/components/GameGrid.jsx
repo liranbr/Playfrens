@@ -9,7 +9,6 @@ import {
     updateTagBothGameCounters,
 } from "@/stores";
 import { TagObject } from "@/models";
-import { ScrollView } from "@/components";
 import { useValidatedImage } from "@/hooks/useValidatedImage.js";
 import "../App.css";
 import "./GameGrid.css";
@@ -84,12 +83,12 @@ export const GamesGrid = observer(() => {
     }, [filteredGames]);
 
     return (
-        <ScrollView>
+        <div className="games-grid-container">
             <div className="games-grid" ref={gridRef}>
                 {filteredGames.map((game, index) => (
                     <GameCard game={game} key={index} />
                 ))}
             </div>
-        </ScrollView>
+        </div>
     );
 });

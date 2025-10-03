@@ -52,7 +52,10 @@
                 display: grid;
                 grid-template-columns: repeat(2, 1fr);
                 gap: 24px;
-                padding: 16px 12px;
+                padding: 16px calc(12px - 8px); /* TODO: replace 8px with scrollbar var */
+                max-height: 100%;
+                overflow-y: auto;
+                scrollbar-gutter: stable both-edges;
 
                 img {
                     width: 100%;

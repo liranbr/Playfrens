@@ -1,5 +1,5 @@
 import { Response } from "../response.js";
-import SGDB from "../../node_modules/steamgriddb/dist/index.js";
+import SGDB from "steamgriddb";
 import { Service } from "../service.js";
 
 export class SteamGridDBService extends Service {

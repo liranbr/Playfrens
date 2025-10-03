@@ -8,7 +8,7 @@ dotenv.config({ path: ".env.public" });
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), "");
-    const { VITE_PORT, USE_HTTPS, BACKEND_PORT, DOMAIN } = env;
+    const { USE_HTTPS, DOMAIN } = env;
 
     const parseBoolean = (s) => {
         const value = s.toLowerCase();
@@ -16,13 +16,13 @@ export default defineConfig(({ mode }) => {
     };
     const useHttps = parseBoolean(USE_HTTPS);
 
-    const target = `http${useHttps ? "s" : ""}://${DOMAIN}:${BACKEND_PORT}`;
+    const target = `http${useHttps ? "s" : ""}://0.0.0.0:3000`;
 
     return {
         plugins: [react(), useHttps ? mkcert() : undefined],
         server: {
             host: "0.0.0.0",
-            port: Number(VITE_PORT), // for developing - stable is running on 5173
+            port: 5174, // for developing - stable is running on 5173
             https: useHttps,
             sourcemap: true,
             proxy: {

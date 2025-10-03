@@ -58,8 +58,6 @@ const AddTagButton = ({ tagType, game }) => {
             allTagsOfType.length === 0
                 ? `No ${typeStrings.plural} added yet`
                 : `Game already has all ${typeStrings.plural}`;
-        if (dataStore.allTags[tagType].values().length > 0) {
-        }
         if (openDropdown) setOpenDropdown(false);
         return (
             <SimpleTooltip delayDuration={300} message={issueMessage}>

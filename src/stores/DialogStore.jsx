@@ -94,7 +94,6 @@ class DialogStore {
 
     close = () => {
         this.doDialogTransition(true);
-        console.log("closing...")
         this.onTransitionComplete(() => {
             this.dialogList.detachLast();
             this.setActiveDialog(this.dialogList.getLast());
@@ -190,11 +189,8 @@ class DialogStore {
     };
 
     onTransitionComplete = (callback) => {
-        console.log(this.dialogFadeDuration)
-        console.log(+this.dialogFadeDuration)
         setTimeout(
             action(() => {
-                console.log("complete!")
                 callback();
             }),
             +this.dialogFadeDuration,

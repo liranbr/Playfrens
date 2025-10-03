@@ -47,7 +47,6 @@ export const DialogRoot = observer(() => {
 
 // The base that dialog components use
 export const DialogBase = observer(({ children, open, onOpenChange, contentProps = undefined }) => {
-    console.log(open);
     return <Dialog.Root open={open} onOpenChange={onOpenChange}>
         <Dialog.Content
             {...contentProps}

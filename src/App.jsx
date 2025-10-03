@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { ToastContainer } from "react-toastify";
 import * as Tooltip from "@radix-ui/react-tooltip";
@@ -178,7 +178,40 @@ function ToastRoot() {
     );
 }
 
+function useScrollbarMeasure() {
+    // This measures the width of the user's scrollbar, which varies between OSs and browsers.
+    // It then sets this px value as a global CSS variable, used wherever a scrollbar is expected with centered content.
+    useEffect(() => {
+        function measureScrollbar() {
+            const outer = document.createElement("div");
+            outer.style.visibility = "hidden";
+            outer.style.overflow = "scroll";
+            outer.style.position = "absolute";
+            outer.style.top = "-9999px";
+            document.body.appendChild(outer);
+            const inner = document.createElement("div");
+            outer.appendChild(inner);
+
+            const width = outer.offsetWidth - inner.offsetWidth;
+            outer.remove();
+            document.documentElement.style.setProperty("--scrollbar-width", `${width}px`);
+        }
+
+        measureScrollbar();
+        // Measure initially, and re-measure on zoom change. Mounted on the root App().
+        let lastRatio = window.devicePixelRatio;
+        window.addEventListener("resize", () => {
+            if (window.devicePixelRatio !== lastRatio) {
+                lastRatio = window.devicePixelRatio;
+                measureScrollbar();
+            }
+        });
+    }, []);
+}
+
 export default function App() {
+    useScrollbarMeasure();
+
     return (
         <Tooltip.Provider delayDuration={750} disableHoverableContent={true}>
             <AppHeader />

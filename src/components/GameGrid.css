@@ -2,7 +2,7 @@
     width: 100%;
     overflow-y: auto;
     scrollbar-gutter: stable both-edges;
-    padding: 30px calc(30px - 8px); /* TODO: Replace 8px with scrollbar width var */
+    padding: 30px calc(30px - var(--scrollbar-width));
 }
 .games-grid {
     width: 100%;

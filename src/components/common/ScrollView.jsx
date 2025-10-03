@@ -2,6 +2,7 @@ import * as ScrollArea from "@radix-ui/react-scroll-area";
 import { useEffect, useRef } from "react";
 
 /**
+ * Only use if a feature is necessary. Default to overflow otherwise.
  * A vertically scrollable view component. Should put a div inside it if styling is needed.
  * @param {{
  *   type?: "auto" | "always" | "scroll" | "hover",

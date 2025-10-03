@@ -12,6 +12,7 @@
     --game-card-border-radius: 0;
     --icon-size: 30px; /* for icon buttons like ⋮ or + */
     --dialog-fade-duration: 250ms;
+    --scrollbar-width: 0; /* a default value, overridden by the scrollbar measuring function in App */
 
     color-scheme: dark;
 

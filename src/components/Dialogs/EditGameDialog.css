@@ -52,7 +52,7 @@
                 display: grid;
                 grid-template-columns: repeat(2, 1fr);
                 gap: 24px;
-                padding: 16px calc(12px - 8px); /* TODO: replace 8px with scrollbar var */
+                padding: 16px calc(12px - var(--scrollbar-width));
                 max-height: 100%;
                 overflow-y: auto;
                 scrollbar-gutter: stable both-edges;

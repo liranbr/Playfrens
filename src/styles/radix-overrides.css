@@ -120,7 +120,7 @@
     justify-content: center;
     background-color: var(--pf-bg-900);
     width: 425px;
-    padding: 20px calc(20px - 8px); /* TODO: replace 8px w/ scrollbar var */
+    padding: 20px calc(20px - var(--scrollbar-width));
     height: fit-content;
     max-height: 85vh;
     overflow-y: auto;

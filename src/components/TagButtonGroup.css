@@ -18,7 +18,7 @@
         overflow-y: auto;
         scrollbar-gutter: stable both-edges;
         gap: 4px;
-        padding: 0 calc(12px - 8px); /* TODO: change 8px to var that measures scrollbar width */
+        padding: 0 calc(12px - var(--scrollbar-width));
     }
 }
 

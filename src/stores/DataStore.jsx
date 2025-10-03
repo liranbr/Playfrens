@@ -243,9 +243,9 @@ export class DataStore {
     updateAllTagTotalGamesCounters() {
         this.allTagsFlatForEach(
             (t) =>
-                (t.totalGamesCount = [...this.allGames.values()].filter((game) =>
-                    game.hasTag(t),
-                ).length),
+            (t.totalGamesCount = [...this.allGames.values()].filter((game) =>
+                game.hasTag(t),
+            ).length),
         );
     }
 
@@ -505,11 +505,18 @@ export function restoreFromFile(file) {
 // #==========================#
 const firstVisit = loadFromStorage(storageKeys.visited, false) === false;
 if (firstVisit && dataStore.allGames.size === 0) {
-    dataStore.populateTagsFromTagNames({
+    const defaultTagsSample = {
         [tT.friend]: [],
         [tT.category]: ["Playthrough", "Round-based", "Persistent World"],
         [tT.status]: ["Playing", "LFG", "Paused", "Backlog", "Abandoned", "Finished"],
-    });
+    }
+    dataStore.populateTagsFromTagNames(defaultTagsSample);
+    const sortMethods = globalSettingsStore.tagSortMethods;
+    for (const tagType in sortMethods) {
+        if (sortMethods[tagType] === "custom") {
+            dataStore.tagsCustomOrders[tagType].push(...dataStore.allTags[tagType].keys());
+        }
+    }
 }
 saveToStorage(storageKeys.visited, true);
 saveToStorage(storageKeys.version, version);

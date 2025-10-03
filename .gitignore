@@ -31,3 +31,5 @@ package-lock.json
 .env
 # For certificates
 *.pem
+# For dev:backend testing
+backend/public

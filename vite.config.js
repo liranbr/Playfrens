@@ -48,5 +48,8 @@ export default defineConfig(({ mode }) => {
                 "@": "/src",
             },
         },
+        build: {
+            outDir: "backend/public",
+        },
     };
 });

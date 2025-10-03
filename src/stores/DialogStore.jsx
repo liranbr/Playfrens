@@ -6,6 +6,7 @@ import { DeleteWarningDialog } from "@/components/Dialogs/DeleteWarningDialog.js
 import { SettingsDialog } from "@/components/Dialogs/SettingsDialog.jsx";
 import { AboutDialog } from "@/components/Dialogs/AboutDialog.jsx";
 import { List, Item } from "linked-list";
+import { parseDuration } from "@/Utils";
 
 export const Dialogs = {
     DeleteWarning: DeleteWarningDialog,
@@ -79,8 +80,8 @@ class DialogStore {
         makeAutoObservable(this);
         window.addEventListener("load", () => {
             const computedStyle = getComputedStyle(document.documentElement);
-            this.dialogFadeDuration =
-                computedStyle.getPropertyValue("--dialog-fade-duration").replace("ms", "") || "0";
+
+            this.dialogFadeDuration = parseDuration(computedStyle.getPropertyValue("--dialog-fade-duration"));
         });
     }
 
@@ -93,6 +94,7 @@ class DialogStore {
 
     close = () => {
         this.doDialogTransition(true);
+        console.log("closing...")
         this.onTransitionComplete(() => {
             this.dialogList.detachLast();
             this.setActiveDialog(this.dialogList.getLast());
@@ -188,8 +190,11 @@ class DialogStore {
     };
 
     onTransitionComplete = (callback) => {
+        console.log(this.dialogFadeDuration)
+        console.log(+this.dialogFadeDuration)
         setTimeout(
             action(() => {
+                console.log("complete!")
                 callback();
             }),
             +this.dialogFadeDuration,

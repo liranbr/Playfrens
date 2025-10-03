@@ -46,8 +46,9 @@ export const DialogRoot = observer(() => {
 });
 
 // The base that dialog components use
-export const DialogBase = observer(({ children, open, onOpenChange, contentProps = undefined }) => (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+export const DialogBase = observer(({ children, open, onOpenChange, contentProps = undefined }) => {
+    console.log(open);
+    return <Dialog.Root open={open} onOpenChange={onOpenChange}>
         <Dialog.Content
             {...contentProps}
             className={`${contentProps?.className ? contentProps.className : "rx-dialog"} ${open ? "" : "dialog-hidden"}`}
@@ -57,4 +58,4 @@ export const DialogBase = observer(({ children, open, onOpenChange, contentProps
             {children}
         </Dialog.Content>
     </Dialog.Root>
-));
+});

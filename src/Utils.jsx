@@ -65,3 +65,11 @@ export function moveItemInArray(arr, fromIndex, toIndex) {
     arr.splice(toIndex, 0, element); // insert at new position
     return arr;
 }
+
+// CSS defined durations converted into milliseconds
+export function parseDuration(str) {
+    str = str.trim();
+    if (str.endsWith("ms")) return parseFloat(str);
+    if (str.endsWith("s")) return parseFloat(str) * 1000;
+    return 0;
+}

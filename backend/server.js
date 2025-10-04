@@ -78,8 +78,8 @@ export const main = () => {
     app.locals.services = {};
     app.locals.services.general = new GeneralService(app);
     app.locals.services.login = new LoginService(app);
-    app.locals.services.steam = new SteamGridDBService(app);
-    app.locals.services.steamgriddb = new SteamWebService(app);
+    app.locals.services.steam = new SteamWebService(app);
+    app.locals.services.steamgriddb = new SteamGridDBService(app);
 
     // Push all the services we provide.
     services.push(...Object.values(app.locals.services));

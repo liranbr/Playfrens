@@ -2,13 +2,13 @@ import { Service } from "../service.js";
 import { Response } from "../response.js";
 import SteamStrategy from "passport-steam";
 import passport from "passport";
-import { getBackendDomain, getFrontendDomain } from "../utils.js";
+import { resolveBaseURL } from "../utils.js";
 
 export class LoginService extends Service {
     constructor(app) {
         super(app, process.env.SESSION_SECRET);
 
-        const URL = getBackendDomain();
+        const URL = resolveBaseURL("frontend");
         passport.use(
             new SteamStrategy(
                 {
@@ -85,6 +85,6 @@ export class LoginService extends Service {
 
     async steamReturn(req, res) {
         console.log(`Hello, ${req.user?.displayName || "Steam user"}!`);
-        res.redirect(getFrontendDomain());
+        res.redirect(resolveBaseURL("frontend"));
     }
 }

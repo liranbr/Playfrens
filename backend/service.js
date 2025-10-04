@@ -1,4 +1,4 @@
-import { asyncHandler, ConsoleColors, getBackendDomain, getFrontendDomain } from "./utils.js";
+import { asyncHandler, ConsoleColors, resolveBaseURL } from "./utils.js";
 /**
  * @class
  * @property {import('express').application} app
@@ -20,7 +20,7 @@ export class Service {
     async connect() {}
     listen() {
         const { FgYellow, Reset } = ConsoleColors;
-        console.log(`${FgYellow}${this.constructor.name}${Reset} \\`);
+        console.log(`${FgYellow}${this.constructor.name}${Reset}`);
     }
 
     /**
@@ -36,7 +36,7 @@ export class Service {
                 .map((fn) => fn.name?.replace(/^bound\s*/, "") || "anonymous")
                 .join(", ");
             console.log(
-                `  ${FgCyan}[${name}]${Reset} ${FgGreen}${method.toUpperCase()} ${FgRGB(255, 192, 203)}${path}`,
+                `  ${FgCyan}[${name}]${Reset} ${FgGreen}${method.toUpperCase()} ${FgRGB(255, 165, 0)}${resolveBaseURL("frontend") + path}`,
             );
         }
     }

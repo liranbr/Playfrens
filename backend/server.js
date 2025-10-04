@@ -11,7 +11,7 @@ import https from "https";
 import selfsigned from "selfsigned";
 import path from "path";
 import { fileURLToPath } from "url";
-import { ConsoleColors, getBackendDomain, getFrontendDomain, strToBool } from "./utils.js";
+import { ConsoleColors, resolveBaseURL, strToBool } from "./utils.js";
 
 // === Support for __dirname in ES modules ===
 const __filename = fileURLToPath(import.meta.url);
@@ -31,7 +31,7 @@ const services = [];
 // Enable Cross-Origin Resource Sharing
 app.use(
     cors({
-        origin: getFrontendDomain(),
+        origin: resolveBaseURL("frontend"),
         credentials: true,
     }),
 );
@@ -70,15 +70,19 @@ export const main = () => {
     const isHTTPS = strToBool(env.USE_HTTPS);
     (isHTTPS ? makeHTTPS(app) : app).listen(env.BACKEND_PORT, env.DOMAIN, () => {
         console.log(
-            `${ConsoleColors.FgRGB(191, 255, 0)} Playfrens server running @ ${getBackendDomain()}${ConsoleColors.Reset}`,
+            `${ConsoleColors.FgRGB(191, 255, 0)} Playfrens server running @ ${resolveBaseURL()}${ConsoleColors.Reset}`,
         );
     });
 
+    // Initialize all services
+    app.locals.services = {};
+    app.locals.services.general = new GeneralService(app);
+    app.locals.services.login = new LoginService(app);
+    app.locals.services.steam = new SteamGridDBService(app);
+    app.locals.services.steamgriddb = new SteamWebService(app);
+
     // Push all the services we provide.
-    services.push(new GeneralService(app));
-    services.push(new LoginService(app));
-    services.push(new SteamGridDBService(app));
-    services.push(new SteamWebService(app));
+    services.push(...Object.values(app.locals.services));
 
     // NOTICE: The follow 2 calls down below assumes we have a public folder for server.js
     // In normal development, we use Vite instead, making both of these only functional when publishing.
@@ -95,7 +99,7 @@ export const main = () => {
     });
 
     // Error logging listener after everything initialized
-    app.use(async (err, _req, res, _next) => {
+    app.use(async (err, _req, res) => {
         res.status(500).json({ error: err.message });
     });
 };

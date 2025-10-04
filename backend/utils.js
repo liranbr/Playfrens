@@ -36,11 +36,20 @@ export class ConsoleColors {
 }
 
 export function getFrontendDomain() {
-    return `http${strToBool(env.USE_HTTPS) ? "s" : ""}://${env.DOMAIN}:${env.VITE_PORT}`;
+    return `http${strToBool(env.USE_HTTPS) ? "s" : ""}://${env.DOMAIN}:5174`;
 }
 
 export function getBackendDomain() {
     return `http${strToBool(env.USE_HTTPS) ? "s" : ""}://${env.DOMAIN}:${env.BACKEND_PORT}`;
+}
+
+// Returns environment url or the backend, whichever is defined.
+// 'target' may be "frontend" or "backend" — used as a fallback when BASE_URL is not set.
+export function resolveBaseURL(target = "backend") {
+    if (process.env.BASE_URL) return process.env.BASE_URL;
+    const t = target.toLowerCase();
+    if (t === "frontend") return getFrontendDomain();
+    return getBackendDomain();
 }
 
 export function strToBool(s) {

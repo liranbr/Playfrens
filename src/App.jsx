@@ -95,8 +95,20 @@ function AppMenu() {
 
 const AppHeader = observer(() => {
     const filterStore = useFilterStore();
+    const [avatar, setAvatar] = useState(undefined);
     const search = filterStore.search;
     const updateSearch = (e) => filterStore.setSearch(e.target.value);
+
+    if (!avatar)
+        fetch("/auth/me")
+            .then((res) => {
+                console.log("response")
+                if (!res.ok) throw new Error("Failed to fetch game");
+                return res.json();
+            })
+            .then((res) => { console.log(res); setAvatar(res.user?.photos[0].value ?? undefined) })
+            .catch((err) => console.error(err));
+
     return (
         <CenterAndEdgesRow className="app-header">
             <div>
@@ -136,7 +148,7 @@ const AppHeader = observer(() => {
 
                 <SimpleTooltip message="Accounts not implemented yet">
                     <Avatar.Root className="rx-avatar">
-                        <Avatar.Image />
+                        <Avatar.Image src={avatar} />
                         <Avatar.Fallback>
                             <MdPerson />
                         </Avatar.Fallback>

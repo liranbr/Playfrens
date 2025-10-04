@@ -16,7 +16,7 @@ export default defineConfig(({ mode }) => {
     };
     const useHttps = parseBoolean(USE_HTTPS);
 
-    const target = `http${useHttps ? "s" : ""}://0.0.0.0:3000`;
+    const target = `http${useHttps ? "s" : ""}://${DOMAIN}:3000`;
 
     return {
         plugins: [react(), useHttps ? mkcert() : undefined],

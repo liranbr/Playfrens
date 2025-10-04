@@ -95,7 +95,7 @@ function AppMenu() {
 
 const AppHeader = observer(() => {
     const filterStore = useFilterStore();
-    const [avatar, setAvatar] = useState(undefined);
+    // const [avatar, setAvatar] = useState(undefined);
     const search = filterStore.search;
     const updateSearch = (e) => filterStore.setSearch(e.target.value);
 

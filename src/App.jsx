@@ -146,7 +146,7 @@ const AppHeader = observer(() => {
 
                 <SimpleTooltip message="Accounts not implemented yet">
                     <Avatar.Root className="rx-avatar">
-                        <Avatar.Image src={avatar} />
+                        <Avatar.Image /*src={avatar}*/ />
                         <Avatar.Fallback>
                             <MdPerson />
                         </Avatar.Fallback>

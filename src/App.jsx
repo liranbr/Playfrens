@@ -99,15 +99,13 @@ const AppHeader = observer(() => {
     const search = filterStore.search;
     const updateSearch = (e) => filterStore.setSearch(e.target.value);
 
-    if (!avatar)
-        fetch("/auth/me")
-            .then((res) => {
-                console.log("response")
-                if (!res.ok) throw new Error("Failed to fetch game");
-                return res.json();
-            })
-            .then((res) => { console.log(res); setAvatar(res.user?.photos[0].value ?? undefined) })
-            .catch((err) => console.error(err));
+    // if (!avatar)
+    // fetch("/auth/me")
+    // .then((res) => {
+    // if (!res.ok) return undefined;
+    // return res.json();
+    // })
+    // .then((res) => { setAvatar(res?.user?.photos[0].value ?? undefined) });
 
     return (
         <CenterAndEdgesRow className="app-header">

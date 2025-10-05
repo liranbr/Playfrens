@@ -202,7 +202,8 @@ function useScrollbarMeasure() {
             const inner = document.createElement("div");
             outer.appendChild(inner);
 
-            const width = outer.offsetWidth - inner.offsetWidth;
+            let width = outer.offsetWidth - inner.offsetWidth;
+            if (width > 11) width = 8; // means 'thin scrollbar' CSS hasn't fully loaded when measuring. Let's guess instead of causing shifting through rerenders.
             outer.remove();
             document.documentElement.style.setProperty("--scrollbar-width", `${width}px`);
         }

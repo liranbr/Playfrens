@@ -168,7 +168,7 @@ export class DataStore {
         this.tagsCustomOrders = tagOrderJsons;
     }
 
-    moveTagCustomPosition(tagDragged, tagDroppedOn) {
+    moveTagCustomPosition(tagDragged, tagDroppedOn, direction) {
         const validTagsToReposition =
             tagDragged &&
             tagDroppedOn &&
@@ -181,7 +181,8 @@ export class DataStore {
         const orderArray = this.tagsCustomOrders[tagDragged.type];
         const indexDragged = orderArray.indexOf(tagDragged.id);
         const indexDroppedOn = orderArray.indexOf(tagDroppedOn.id);
-        moveItemInArray(orderArray, indexDragged, indexDroppedOn);
+        const indexToGoTo = indexDroppedOn + (direction === "bottom" ? 1 : 0);
+        moveItemInArray(orderArray, indexDragged, indexToGoTo);
         this.tagsCustomOrders[tagDragged.type] = [...orderArray]; // triggers reaction
     }
 
@@ -243,9 +244,9 @@ export class DataStore {
     updateAllTagTotalGamesCounters() {
         this.allTagsFlatForEach(
             (t) =>
-            (t.totalGamesCount = [...this.allGames.values()].filter((game) =>
-                game.hasTag(t),
-            ).length),
+                (t.totalGamesCount = [...this.allGames.values()].filter((game) =>
+                    game.hasTag(t),
+                ).length),
         );
     }
 
@@ -509,7 +510,7 @@ if (firstVisit && dataStore.allGames.size === 0) {
         [tT.friend]: [],
         [tT.category]: ["Playthrough", "Round-based", "Persistent World"],
         [tT.status]: ["Playing", "LFG", "Paused", "Backlog", "Abandoned", "Finished"],
-    }
+    };
     dataStore.populateTagsFromTagNames(defaultTagsSample);
     const sortMethods = globalSettingsStore.tagSortMethods;
     for (const tagType in sortMethods) {

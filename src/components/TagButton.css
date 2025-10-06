@@ -62,7 +62,7 @@
         transform: translate(-50%, -50%);
         width: 24px;
         height: 24px;
-        color: var(--pf-fg-300);
+        cursor: grab;
         border-radius: 50%;
         opacity: 0;
     }
@@ -136,15 +136,22 @@
         }
     }
 
-    &.dragged-over::before {
-        content: "";
+    &::before {
         position: absolute;
-        top: -8px;
         height: 12px;
+        width: 100%;
         background: var(--pf-btn-primary);
         border: 2px dashed var(--pf-fg-100);
         border-radius: 4px;
-        animation: appear 0.15s forwards;
+        /*animation: appear 0.15s forwards;*/
+    }
+    &.dragged-over-top::before {
+        content: "";
+        top: -8px;
+    }
+    &.dragged-over-bottom::before {
+        content: "";
+        bottom: -8px;
     }
 }
 @keyframes appear {

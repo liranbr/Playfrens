@@ -1,13 +1,8 @@
 import { useState } from "react";
 import { observer } from "mobx-react-lite";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import {
-    MdDeleteOutline,
-    MdDragHandle,
-    MdEdit,
-    MdMoreVert,
-    MdOutlineSearchOff,
-} from "react-icons/md";
+import { MdDeleteOutline, MdEdit, MdMoreVert, MdOutlineSearchOff } from "react-icons/md";
+import { RxDragHandleHorizontal } from "react-icons/rx";
 import {
     useFilterStore,
     Dialogs,
@@ -20,7 +15,7 @@ import "./TagButton.css";
 
 export const SidebarTagButton = observer(({ tag }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
-    const [draggedOver, setDraggedOver] = useState(false);
+    const [draggedOver, setDraggedOver] = useState("");
     const filterStore = useFilterStore();
     const settingsStore = useSettingsStore();
     const dataStore = useDataStore();
@@ -43,16 +38,22 @@ export const SidebarTagButton = observer(({ tag }) => {
         draggedTag.type === tag.type &&
         draggedTag.id !== tag.id
     ) {
-        onDrop = () => {
-            setDraggedOver(false);
-            dataStore.moveTagCustomPosition(draggedTag, tag);
+        const handlePosition = (e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            return e.clientY > rect.top + rect.height / 2 ? "bottom" : "top";
+        };
+
+        onDrop = (e) => {
+            const dropDirection = handlePosition(e);
+            dataStore.moveTagCustomPosition(draggedTag, tag, dropDirection);
+            setDraggedOver("");
         };
         onDragOver = (e) => {
-            setDraggedOver(true);
+            setDraggedOver(handlePosition(e));
             e.preventDefault();
         };
-        onDragLeave = () => setDraggedOver(false);
-        if (draggedOver) classes.push("dragged-over");
+        onDragLeave = () => setDraggedOver("");
+        if (draggedOver) classes.push("dragged-over-" + draggedOver);
     }
 
     // Handling the tag's Game Count display
@@ -102,7 +103,7 @@ export const SidebarTagButton = observer(({ tag }) => {
             >
                 <span className="tag-name">{tag.name}</span>
                 <label>{gameCounter !== 0 ? gameCounter : ""}</label>
-                <MdDragHandle className="hover-drag-indicator" />
+                <RxDragHandleHorizontal className="hover-drag-indicator" />
             </span>
             <SidebarTBMenuButton
                 tag={tag}

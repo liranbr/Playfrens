@@ -12,6 +12,11 @@
     box-shadow: none;
     gap: 12px;
 
+    pointer-events: none !important; /* so when the dialog grows taller than the cover art, clicking above/below it but inside the dialog, will close it */
+    & > * {
+        pointer-events: auto;
+    }
+
     --cover-art-height: 675px;
     --container-shadow: 0 0 20px rgba(0, 0, 0, 1);
     --element-shadow: 0 0 8px 3px rgba(0, 0, 0, 0.3);
@@ -42,9 +47,7 @@
         display: flex;
         flex-direction: column;
         min-height: var(--cover-art-height);
-        height: var(--cover-art-height);
-        /*height: fit-content;*/
-        /* ^ works to allow the GamePage to grow, but need to make clicking the background above or below the cover art to also close the dialog. */
+        height: fit-content;
         max-height: inherit;
         overflow: hidden;
         background-color: var(--container-bg);

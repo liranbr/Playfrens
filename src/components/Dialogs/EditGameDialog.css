@@ -3,17 +3,18 @@
     flex-direction: column;
     width: 900px;
     max-width: 85vw;
-    height: 65vh;
+    height: 825px; /* fits a little over two rows of covers, to indicate scrolling */
+    max-height: 85vh;
     overflow: hidden;
 
     h2 {
         flex: 0 1 fit-content;
     }
     .edit-game-body {
+        flex: 1 1 0;
         display: flex;
         flex-direction: row;
         gap: 20px; /* same as the dialog's padding */
-        flex: 1 1 0;
         overflow: hidden;
 
         .edit-game-fields {
@@ -43,12 +44,6 @@
 
             input {
                 margin-bottom: 8px;
-            }
-
-            .rx-scrollbar {
-                /* scrollbar aligns with the start/end of the covers */
-                padding-top: 16px;
-                padding-bottom: 16px;
             }
 
             .covers-gallery {

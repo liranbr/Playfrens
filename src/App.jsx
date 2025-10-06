@@ -96,17 +96,32 @@ function AppMenu() {
 
 const AppHeader = observer(() => {
     const filterStore = useFilterStore();
-    // const [avatar, setAvatar] = useState(undefined);
+    const [user, setUser] = useState(undefined);
     const search = filterStore.search;
     const updateSearch = (e) => filterStore.setSearch(e.target.value);
 
-    // if (!avatar)
-    // fetch("/auth/me")
-    // .then((res) => {
-    // if (!res.ok) return undefined;
-    // return res.json();
-    // })
-    // .then((res) => { setAvatar(res?.user?.photos[0].value ?? undefined) });
+    useEffect(() => {
+        let mounted = true;
+        const ac = new AbortController();
+        (async () => {
+            try {
+                const res = await fetch("/auth/me", { credentials: "include", signal: ac.signal });
+                if (!mounted || !res.ok) return;
+                const data = await res.json();
+                if (!mounted) return;
+                setUser(data?.user ?? undefined);
+            } catch {
+                console.error("Failed to get user data.")
+            }
+        })();
+        return () => {
+            mounted = false;
+            ac.abort();
+        };
+    }, []);
+
+    const login = () => window.open("/auth/steam", "_self");
+    const logout = () => window.open("/auth/logout", "_self");
 
     return (
         <CenterAndEdgesRow className="app-header">
@@ -146,12 +161,38 @@ const AppHeader = observer(() => {
                 </button>
 
                 <SimpleTooltip message="Accounts not implemented yet">
-                    <Avatar.Root className="rx-avatar">
-                        <Avatar.Image /*src={avatar}*/ />
-                        <Avatar.Fallback>
-                            <MdPerson />
-                        </Avatar.Fallback>
-                    </Avatar.Root>
+                    <DropdownMenu.Root>
+                        <DropdownMenu.Trigger asChild className="rx-avatar">
+                            <Avatar.Root>
+                                <Avatar.Image src={user?.photos?.[0]?.value ?? undefined} />
+                                <Avatar.Fallback className="rx-avatarless" asChild>
+                                    <MdPerson />
+                                </Avatar.Fallback>
+                            </Avatar.Root>
+                        </DropdownMenu.Trigger>
+                        <DropdownMenu.Portal>
+                            <DropdownMenu.Content
+                                className="rx-dropdown-menu"
+                                align={"start"}
+                                side={"bottom"}
+                                sideOffset={5}
+                            >
+                                {
+                                    !user &&
+                                    <DropdownMenu.Item onClick={login}>
+                                        Login
+                                    </DropdownMenu.Item>
+                                }
+                                {
+                                    user &&
+                                    <DropdownMenu.Item onClick={logout}>
+                                        Logout
+                                    </DropdownMenu.Item>
+                                }
+                            </DropdownMenu.Content>
+                        </DropdownMenu.Portal>
+                    </DropdownMenu.Root>
+
                 </SimpleTooltip>
             </div>
         </CenterAndEdgesRow>

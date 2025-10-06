@@ -207,7 +207,12 @@
     border-radius: 50%;
     border: var(--pf-border-700);
 
-    & span {
+    & img {
+        width: 100%;
+        object-fit: fill;
+    }
+
+    & svg.rx-avatarless {
         width: 100%;
         height: 100%;
         display: flex;
@@ -219,6 +224,10 @@
         padding: 0;
         line-height: 1;
         font-weight: 500;
+    }
+
+    &:hover {
+        cursor: pointer;
     }
 }
 

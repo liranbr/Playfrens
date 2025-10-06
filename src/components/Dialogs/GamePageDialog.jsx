@@ -2,7 +2,6 @@ import { useState } from "react";
 import { observer } from "mobx-react-lite";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import * as Tooltip from "@radix-ui/react-tooltip";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert, MdRemove } from "react-icons/md";
 
@@ -16,6 +15,8 @@ import "@/components/TagButtonGroup.css";
 import "@/components/TagButton.css";
 import "./GamePageDialog.css";
 
+const DD = DropdownMenu;
+
 const AddTagButton = ({ tagType, game }) => {
     const dataStore = useDataStore();
     const allTagsOfType = [...dataStore.allTags[tagType].values()];
@@ -25,20 +26,20 @@ const AddTagButton = ({ tagType, game }) => {
 
     if (tagsGameDoesntHave.length !== 0)
         return (
-            <DropdownMenu.Root onOpenChange={setOpenDropdown}>
-                <DropdownMenu.Trigger asChild>
+            <DD.Root onOpenChange={setOpenDropdown}>
+                <DD.Trigger asChild>
                     <IconButton icon={<MdAdd />} activate={openDropdown} />
-                </DropdownMenu.Trigger>
+                </DD.Trigger>
 
-                <DropdownMenu.Portal>
-                    <DropdownMenu.Content
+                <DD.Portal>
+                    <DD.Content
                         className="rx-dropdown-menu"
                         align={"start"}
                         side={"bottom"}
                         sideOffset={5}
                     >
                         {tagsGameDoesntHave.map((t) => (
-                            <DropdownMenu.Item
+                            <DD.Item
                                 key={t.id}
                                 onClick={() => {
                                     game.addTag(t);
@@ -47,11 +48,11 @@ const AddTagButton = ({ tagType, game }) => {
                             >
                                 <span className="item-label">{t.name}</span>{" "}
                                 {/* Dropdown items need a text wrapper (span) to prevent overflow */}
-                            </DropdownMenu.Item>
+                            </DD.Item>
                         ))}
-                    </DropdownMenu.Content>
-                </DropdownMenu.Portal>
-            </DropdownMenu.Root>
+                    </DD.Content>
+                </DD.Portal>
+            </DD.Root>
         );
     else {
         const issueMessage =
@@ -95,26 +96,26 @@ const GPTagButton = observer(({ game, tag }) => {
                 <span className="tag-name">{tag.name}</span>
             </span>
 
-            <DropdownMenu.Root open={dropdownOpen} onOpenChange={setDropdownOpen}>
-                <DropdownMenu.Trigger asChild>
+            <DD.Root open={dropdownOpen} onOpenChange={setDropdownOpen}>
+                <DD.Trigger asChild>
                     <IconButton>
                         <MdMoreVert />
                     </IconButton>
-                </DropdownMenu.Trigger>
+                </DD.Trigger>
 
-                <DropdownMenu.Portal>
-                    <DropdownMenu.Content
+                <DD.Portal>
+                    <DD.Content
                         className="rx-dropdown-menu"
                         align={"start"}
                         side={"bottom"}
                         sideOffset={5}
                     >
-                        <DropdownMenu.Item data-danger onClick={handleRemove}>
+                        <DD.Item data-danger onClick={handleRemove}>
                             <MdRemove /> Remove
-                        </DropdownMenu.Item>
-                    </DropdownMenu.Content>
-                </DropdownMenu.Portal>
-            </DropdownMenu.Root>
+                        </DD.Item>
+                    </DD.Content>
+                </DD.Portal>
+            </DD.Root>
         </div>
     );
 });
@@ -150,26 +151,26 @@ function GameOptionsButton({ game }) {
     const dataStore = useDataStore();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     return (
-        <DropdownMenu.Root onOpenChange={setDropdownOpen}>
-            <DropdownMenu.Trigger asChild>
+        <DD.Root onOpenChange={setDropdownOpen}>
+            <DD.Trigger asChild>
                 <IconButton icon={<MdMoreVert />} activate={dropdownOpen} />
-            </DropdownMenu.Trigger>
+            </DD.Trigger>
 
-            <DropdownMenu.Portal>
-                <DropdownMenu.Content
+            <DD.Portal>
+                <DD.Content
                     className="rx-dropdown-menu"
                     align={"start"}
                     side={"bottom"}
                     sideOffset={5}
                 >
-                    <DropdownMenu.Item
+                    <DD.Item
                         onClick={() => {
                             globalDialogStore.open(Dialogs.EditGame, { game });
                         }}
                     >
                         <MdEdit /> Edit
-                    </DropdownMenu.Item>
-                    <DropdownMenu.Item
+                    </DD.Item>
+                    <DD.Item
                         data-danger
                         onClick={() => {
                             globalDialogStore.open(Dialogs.DeleteWarning, {
@@ -182,10 +183,10 @@ function GameOptionsButton({ game }) {
                         }}
                     >
                         <MdDeleteOutline /> Delete
-                    </DropdownMenu.Item>
-                </DropdownMenu.Content>
-            </DropdownMenu.Portal>
-        </DropdownMenu.Root>
+                    </DD.Item>
+                </DD.Content>
+            </DD.Portal>
+        </DD.Root>
     );
 }
 

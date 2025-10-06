@@ -17,7 +17,6 @@ import {
 } from "@/stores";
 import { IconButton } from "@/components";
 import "./TagButton.css";
-import { TagObject } from "@/models/index.js";
 
 export const SidebarTagButton = observer(({ tag }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -135,32 +134,33 @@ const SidebarTBMenuButton = observer(({ tag, filterStore, dropdownOpen, setDropd
         });
     };
 
+    const DD = DropdownMenu;
     return (
-        <DropdownMenu.Root open={dropdownOpen} onOpenChange={setDropdownOpen}>
-            <DropdownMenu.Trigger asChild>
+        <DD.Root open={dropdownOpen} onOpenChange={setDropdownOpen}>
+            <DD.Trigger asChild>
                 <IconButton>
                     <MdMoreVert />
                 </IconButton>
-            </DropdownMenu.Trigger>
+            </DD.Trigger>
 
-            <DropdownMenu.Portal>
-                <DropdownMenu.Content
+            <DD.Portal>
+                <DD.Content
                     className="rx-dropdown-menu"
                     align={"start"}
                     side={"bottom"}
                     sideOffset={5}
                 >
-                    <DropdownMenu.Item onClick={toggleExclusion}>
+                    <DD.Item onClick={toggleExclusion}>
                         <MdOutlineSearchOff /> {excludeLabel}
-                    </DropdownMenu.Item>
-                    <DropdownMenu.Item onClick={openEditDialog}>
+                    </DD.Item>
+                    <DD.Item onClick={openEditDialog}>
                         <MdEdit /> Edit
-                    </DropdownMenu.Item>
-                    <DropdownMenu.Item data-danger onClick={openDeleteDialog}>
+                    </DD.Item>
+                    <DD.Item data-danger onClick={openDeleteDialog}>
                         <MdDeleteOutline /> Delete
-                    </DropdownMenu.Item>
-                </DropdownMenu.Content>
-            </DropdownMenu.Portal>
-        </DropdownMenu.Root>
+                    </DD.Item>
+                </DD.Content>
+            </DD.Portal>
+        </DD.Root>
     );
 });

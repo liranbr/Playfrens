@@ -34,53 +34,54 @@ import "./App.css";
 
 function AppMenu() {
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const DD = DropdownMenu;
     return (
         <>
-            <DropdownMenu.Root onOpenChange={setDropdownOpen}>
-                <DropdownMenu.Trigger asChild>
+            <DD.Root onOpenChange={setDropdownOpen}>
+                <DD.Trigger asChild>
                     <IconButton icon={<MdMenu />} activate={dropdownOpen} />
-                </DropdownMenu.Trigger>
-                <DropdownMenu.Portal>
-                    <DropdownMenu.Content
+                </DD.Trigger>
+                <DD.Portal>
+                    <DD.Content
                         className="rx-dropdown-menu"
                         align={"start"}
                         side={"bottom"}
                         sideOffset={5}
                     >
-                        <DropdownMenu.Sub>
-                            <DropdownMenu.SubTrigger>
+                        <DD.Sub>
+                            <DD.SubTrigger>
                                 File
                                 <MdChevronRight className="rx-dropdown-right-slot" />
-                            </DropdownMenu.SubTrigger>
-                            <DropdownMenu.SubContent className="rx-dropdown-menu" sideOffset={5}>
-                                <DropdownMenu.Item
+                            </DD.SubTrigger>
+                            <DD.SubContent className="rx-dropdown-menu" sideOffset={5}>
+                                <DD.Item
                                     onClick={() => {
                                         document.getElementById("json-selector").click();
                                     }}
                                 >
                                     <MdOutlineFileUpload /> Restore
-                                </DropdownMenu.Item>
-                                <DropdownMenu.Item onClick={backupToFile}>
+                                </DD.Item>
+                                <DD.Item onClick={backupToFile}>
                                     <MdOutlineFileDownload /> Backup
-                                </DropdownMenu.Item>
-                            </DropdownMenu.SubContent>
-                        </DropdownMenu.Sub>
-                        <DropdownMenu.Separator />
+                                </DD.Item>
+                            </DD.SubContent>
+                        </DD.Sub>
+                        <DD.Separator />
                         <a href="https://github.com/liranbr/Playfrens" target="_blank">
-                            <DropdownMenu.Item>GitHub</DropdownMenu.Item>
+                            <DD.Item>GitHub</DD.Item>
                         </a>
                         <a href="https://trello.com/b/H9Cln6UD/playfrens" target="_blank">
-                            <DropdownMenu.Item>Trello</DropdownMenu.Item>
+                            <DD.Item>Trello</DD.Item>
                         </a>
-                        <DropdownMenu.Item onClick={() => globalDialogStore.open(Dialogs.Settings)}>
+                        <DD.Item onClick={() => globalDialogStore.open(Dialogs.Settings)}>
                             Settings
-                        </DropdownMenu.Item>
-                        <DropdownMenu.Item onClick={() => globalDialogStore.open(Dialogs.About)}>
+                        </DD.Item>
+                        <DD.Item onClick={() => globalDialogStore.open(Dialogs.About)}>
                             About
-                        </DropdownMenu.Item>
-                    </DropdownMenu.Content>
-                </DropdownMenu.Portal>
-            </DropdownMenu.Root>
+                        </DD.Item>
+                    </DD.Content>
+                </DD.Portal>
+            </DD.Root>
 
             <input
                 type="file"

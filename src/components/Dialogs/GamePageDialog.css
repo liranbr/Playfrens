@@ -2,6 +2,7 @@
     display: flex;
     flex-direction: row;
     width: fit-content;
+    max-width: 90vw;
     height: fit-content;
     align-items: center;
     background: none;
@@ -17,7 +18,8 @@
         pointer-events: auto;
     }
 
-    --cover-art-height: 675px;
+    --cover-art-width: 450px;
+    --cover-art-height: calc(var(--cover-art-width) * 1.5);
     --container-shadow: 0 0 20px rgba(0, 0, 0, 1);
     --element-shadow: 0 0 8px 3px rgba(0, 0, 0, 0.3);
     --header-height: 48px;
@@ -31,8 +33,9 @@
     /* gp = Game Page */
 
     .gp-cover-art {
+        width: var(--cover-art-width);
+        min-width: 200px;
         box-sizing: content-box;
-        height: var(--cover-art-height);
         aspect-ratio: 1 / 1.5;
         border: var(--outer-border);
         border-radius: var(--border-radius);
@@ -40,6 +43,13 @@
         background-size: cover;
         background-position: center;
         user-select: none;
+        transition: 0.1s;
+    }
+    @media (max-width: 888px) {
+        .gp-cover-art {
+            min-width: 0;
+            width: 0;
+        }
     }
 
     .gp-container {
@@ -49,6 +59,7 @@
         min-height: var(--cover-art-height);
         height: fit-content;
         max-height: inherit;
+        min-width: fit-content;
         overflow: hidden;
         background-color: var(--container-bg);
         border: var(--outer-border);

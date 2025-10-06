@@ -124,7 +124,6 @@
     height: fit-content;
     max-height: 85vh;
     overflow-y: auto;
-    scrollbar-gutter: stable both-edges;
     border: var(--pf-border-700);
     border-radius: 12px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 1);

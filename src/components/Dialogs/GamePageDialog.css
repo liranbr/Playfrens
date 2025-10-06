@@ -127,7 +127,10 @@
 
             .game-note-container {
                 border-radius: var(--border-radius);
-                padding-top: 20px;
+
+                .ui-card-header {
+                    height: 30px; /* aligns it with the Friends header to its left */
+                }
 
                 .game-note {
                     width: 100%;

@@ -12,8 +12,7 @@
     box-shadow: none;
     gap: 12px;
 
-    --cover-art-width: 450px; /* for game page dialog */
-    --cover-art-height: calc(var(--cover-art-width) * 1.5);
+    --cover-art-height: 675px;
     --container-shadow: 0 0 20px rgba(0, 0, 0, 1);
     --element-shadow: 0 0 8px 3px rgba(0, 0, 0, 0.3);
     --header-height: 48px;
@@ -27,9 +26,9 @@
     /* gp = Game Page */
 
     .gp-cover-art {
-        width: calc(var(--cover-art-width) + 2px);
-        min-width: calc(var(--cover-art-width) + 2px); /* 2px for 1px borders */
-        height: calc(var(--cover-art-height) + 2px);
+        box-sizing: content-box;
+        height: var(--cover-art-height);
+        aspect-ratio: 1 / 1.5;
         border: var(--outer-border);
         border-radius: var(--border-radius);
         box-shadow: var(--container-shadow);
@@ -39,27 +38,30 @@
     }
 
     .gp-container {
+        box-sizing: content-box;
+        display: flex;
         flex-direction: column;
+        min-height: var(--cover-art-height);
+        height: var(--cover-art-height);
+        /*height: fit-content;*/
+        /* ^ works to allow the GamePage to grow, but need to make clicking the background above or below the cover art to also close the dialog. */
+        max-height: inherit;
+        overflow: hidden;
         background-color: var(--container-bg);
         border: var(--outer-border);
         border-radius: var(--border-radius);
         padding: 0;
         width: fit-content;
-        max-width: calc(
-            var(--ui-card-width) * var(--cols-amount) + 12px * (var(--cols-amount) - 1) + 24px
-        ); /* two columns, padding and gap */
-        height: fit-content;
         box-shadow: var(--container-shadow);
 
         .gp-header {
-            height: var(--header-height);
+            flex: 0 0 var(--header-height);
             padding: 0 12px;
             background-color: inherit;
             border-top-left-radius: var(--border-radius);
             border-top-right-radius: var(--border-radius);
             border-bottom: var(--border);
-            /* below are needed for the shadow */
-            position: relative;
+            /* z-index needed for the header-shadow to only go down */
             z-index: 1;
 
             .gp-title {
@@ -83,21 +85,15 @@
         }
 
         .gp-body {
+            flex: 1 1 fit-content;
             display: flex;
             flex-direction: row;
-            width: 100%;
-            height: calc(var(--cover-art-height) - var(--header-height));
-            position: relative;
             overflow: hidden;
             gap: 12px;
             padding: 12px;
 
             .gp-column {
-                height: fit-content;
-                max-height: 100%;
                 width: var(--ui-card-width);
-                display: flex;
-                flex-direction: column;
                 gap: 12px;
             }
 

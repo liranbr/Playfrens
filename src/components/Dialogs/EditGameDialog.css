@@ -3,18 +3,21 @@
     flex-direction: column;
     width: 900px;
     max-width: 85vw;
-    height: 85vh;
+    height: 65vh;
     overflow: hidden;
 
+    h2 {
+        flex: 0 1 fit-content;
+    }
     .edit-game-body {
         display: flex;
         flex-direction: row;
         gap: 20px; /* same as the dialog's padding */
-        height: 100%;
-        max-height: calc(85vh - 131px); /* 131px for header, footer, padding */
+        flex: 1 1 0;
+        overflow: hidden;
 
         .edit-game-fields {
-            width: 100%;
+            flex: 1;
 
             .title-and-toggle {
                 display: flex;
@@ -33,7 +36,7 @@
             }
         }
         .cover-art-selector {
-            width: 100%;
+            flex: 1;
             display: flex;
             flex-direction: column;
             --covers-gallery-padding: 16px; /* padding to give space for selection highlight */
@@ -51,9 +54,8 @@
             .covers-gallery {
                 display: grid;
                 grid-template-columns: repeat(2, 1fr);
-                gap: 24px;
+                gap: 16px;
                 padding: 16px calc(12px - var(--scrollbar-width));
-                max-height: 100%;
                 overflow-y: auto;
                 scrollbar-gutter: stable both-edges;
 
@@ -74,6 +76,7 @@
     }
 
     .rx-dialog-footer {
+        flex: 0 1 fit-content;
         justify-content: space-between;
 
         .inner-footer {

@@ -1,3 +1,7 @@
+/**
+ * Do not change this file (especially URL), this is suppose to test the connectivity to Steam Login and its services.
+ * This will be run by the server and not locally by the user.
+ */
 import express from "express";
 import session from "express-session";
 import passport from "passport";

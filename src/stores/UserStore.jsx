@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import { makeAutoObservable } from "mobx";
+import { makeAutoObservable, runInAction } from "mobx";
 
 export class UserStore {
     /**
@@ -17,7 +17,9 @@ export class UserStore {
         try {
             const res = await fetch("/auth/me", { credentials: "include" });
             if (!res.ok) {
-                this.userInfo = undefined;
+                runInAction(() => {
+                    this.userInfo = undefined;
+                })
                 return;
             }
             const data = await res.json();
@@ -27,7 +29,9 @@ export class UserStore {
             info.id = user?.id;
             info.displayName = user?.displayName;
             info.avatars = user?.photos.map(photo => (photo.value));
-            this.userInfo = info;
+            runInAction(() => {
+                this.userInfo = info;
+            });
         } catch {
             console.error("Failed to get user data.")
         }

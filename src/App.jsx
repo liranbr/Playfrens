@@ -4,6 +4,7 @@ import { ToastContainer } from "react-toastify";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Avatar from "@radix-ui/react-avatar";
+import { toJS } from "mobx"
 import {
     MdChevronRight,
     MdClose,
@@ -21,6 +22,7 @@ import {
     restoreFromFile,
     Dialogs,
     globalDialogStore,
+    useUserStore
 } from "@/stores";
 import {
     SidebarTagButtonGroup,
@@ -96,32 +98,8 @@ function AppMenu() {
 
 const AppHeader = observer(() => {
     const filterStore = useFilterStore();
-    const [user, setUser] = useState(undefined);
     const search = filterStore.search;
     const updateSearch = (e) => filterStore.setSearch(e.target.value);
-
-    useEffect(() => {
-        let mounted = true;
-        const ac = new AbortController();
-        (async () => {
-            try {
-                const res = await fetch("/auth/me", { credentials: "include", signal: ac.signal });
-                if (!mounted || !res.ok) return;
-                const data = await res.json();
-                if (!mounted) return;
-                setUser(data?.user ?? undefined);
-            } catch {
-                console.error("Failed to get user data.")
-            }
-        })();
-        return () => {
-            mounted = false;
-            ac.abort();
-        };
-    }, []);
-
-    const login = () => window.open("/auth/steam", "_self");
-    const logout = () => window.open("/auth/logout", "_self");
 
     return (
         <CenterAndEdgesRow className="app-header">
@@ -159,44 +137,49 @@ const AppHeader = observer(() => {
                     <MdOutlineGamepad />
                     Add Game
                 </button>
-
-                <SimpleTooltip message="Accounts not implemented yet">
-                    <DropdownMenu.Root>
-                        <DropdownMenu.Trigger asChild className="rx-avatar">
-                            <Avatar.Root>
-                                <Avatar.Image src={user?.photos?.[0]?.value ?? undefined} />
-                                <Avatar.Fallback className="rx-avatarless" asChild>
-                                    <MdPerson />
-                                </Avatar.Fallback>
-                            </Avatar.Root>
-                        </DropdownMenu.Trigger>
-                        <DropdownMenu.Portal>
-                            <DropdownMenu.Content
-                                className="rx-dropdown-menu"
-                                align={"start"}
-                                side={"bottom"}
-                                sideOffset={5}
-                            >
-                                {
-                                    !user &&
-                                    <DropdownMenu.Item onClick={login}>
-                                        Login
-                                    </DropdownMenu.Item>
-                                }
-                                {
-                                    user &&
-                                    <DropdownMenu.Item onClick={logout}>
-                                        Logout
-                                    </DropdownMenu.Item>
-                                }
-                            </DropdownMenu.Content>
-                        </DropdownMenu.Portal>
-                    </DropdownMenu.Root>
-
-                </SimpleTooltip>
+                <AppUserAvatar />
             </div>
         </CenterAndEdgesRow>
     );
+});
+
+const AppUserAvatar = observer(() => {
+    const userStore = useUserStore();
+    const { userInfo } = userStore;
+    return (<SimpleTooltip message="Accounts not implemented yet">
+        <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild className="rx-avatar">
+                <Avatar.Root>
+                    <Avatar.Image src={userInfo?.avatars?.[0] ?? undefined} />
+                    <Avatar.Fallback className="rx-avatarless" asChild>
+                        <MdPerson />
+                    </Avatar.Fallback>
+                </Avatar.Root>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+                <DropdownMenu.Content
+                    className="rx-dropdown-menu"
+                    align={"start"}
+                    side={"bottom"}
+                    sideOffset={5}
+                >
+                    {
+                        !userInfo &&
+                        <DropdownMenu.Item onClick={() => userStore.login()}>
+                            Login
+                        </DropdownMenu.Item>
+                    }
+                    {
+                        userInfo &&
+                        <DropdownMenu.Item onClick={() => userStore.logout()}>
+                            Logout
+                        </DropdownMenu.Item>
+                    }
+                </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+        </DropdownMenu.Root>
+
+    </SimpleTooltip>);
 });
 
 function AppSidebar() {

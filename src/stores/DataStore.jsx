@@ -186,6 +186,24 @@ export class DataStore {
         this.tagsCustomOrders[tagDragged.type] = [...orderArray]; // triggers reaction
     }
 
+    isDraggedTagDropzoneNotOnSelf(tagDragged, tagDraggedOver, direction) {
+        // If dragging a tag during custom-sort rearrangement, and you're hovering on the top of the neighbor tag right below you, this lets you know there's no need to show an effect
+        const validTagsToCheck =
+            tagDragged &&
+            tagDraggedOver &&
+            tagDragged instanceof TagObject &&
+            tagDraggedOver instanceof TagObject &&
+            tagDragged.type === tagDraggedOver.type;
+        if (!validTagsToCheck) return;
+
+        const orderArray = this.tagsCustomOrders[tagDragged.type];
+        const indexDragged = orderArray.indexOf(tagDragged.id);
+        const indexDraggedOver = orderArray.indexOf(tagDraggedOver.id);
+        const indexToGoTo = indexDraggedOver + (direction === "bottom" ? 1 : 0);
+
+        return !(indexToGoTo === indexDragged || indexToGoTo === indexDragged + 1); // +1 is also self because of the shifting array calculation. -1 isn't.
+    }
+
     getTagByID(id, tagType = null) {
         if (tagType) return this.allTags[tagType].get(id);
         // as there's only a few tagTypes, and Map.get is O(1), this remains O(1)

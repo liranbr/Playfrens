@@ -130,8 +130,10 @@ class FilterStore {
     }
 
     setDraggedTag(tag = null) {
-        if (tag instanceof TagObject) this.draggedTag = tag;
-        else this.draggedTag = null;
+        if (tag instanceof TagObject) {
+            this.draggedTag = tag;
+            this.setHoveredTag(null);
+        } else this.draggedTag = null;
     }
 
     get areFiltersActive() {

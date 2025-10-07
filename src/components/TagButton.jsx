@@ -15,7 +15,7 @@ import "./TagButton.css";
 
 export const SidebarTagButton = observer(({ tag }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
-    const [draggedOver, setDraggedOver] = useState("");
+    const [draggedOverDirection, setDraggedOverDirection] = useState(""); // another tag is being dragged over the "bottom" or "top" half of this one, or not ("")
     const filterStore = useFilterStore();
     const settingsStore = useSettingsStore();
     const dataStore = useDataStore();
@@ -46,14 +46,18 @@ export const SidebarTagButton = observer(({ tag }) => {
         onDrop = (e) => {
             const dropDirection = handlePosition(e);
             dataStore.moveTagCustomPosition(draggedTag, tag, dropDirection);
-            setDraggedOver("");
+            setDraggedOverDirection("");
         };
         onDragOver = (e) => {
-            setDraggedOver(handlePosition(e));
+            setDraggedOverDirection(handlePosition(e));
             e.preventDefault();
         };
-        onDragLeave = () => setDraggedOver("");
-        if (draggedOver) classes.push("dragged-over-" + draggedOver);
+        onDragLeave = () => setDraggedOverDirection("");
+        if (
+            draggedOverDirection &&
+            dataStore.isDraggedTagDropzoneNotOnSelf(draggedTag, tag, draggedOverDirection)
+        )
+            classes.push("dragged-over-" + draggedOverDirection);
     }
 
     // Handling the tag's Game Count display
@@ -94,11 +98,7 @@ export const SidebarTagButton = observer(({ tag }) => {
                 onMouseEnter={() => filterStore.setHoveredTag(tag)}
                 onMouseLeave={() => filterStore.setHoveredTag(null)}
                 draggable="true"
-                onDragStart={(e) => {
-                    filterStore.setHoveredTag(null);
-                    filterStore.setDraggedTag(tag);
-                    e.dataTransfer.setData("application/json", JSON.stringify(tag));
-                }}
+                onDragStart={() => filterStore.setDraggedTag(tag)} // instead of e.dataTransfer, has more functionality
                 onDragEnd={() => filterStore.setDraggedTag(null)}
             >
                 <span className="tag-name">{tag.name}</span>

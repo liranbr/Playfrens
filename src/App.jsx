@@ -4,7 +4,6 @@ import { ToastContainer } from "react-toastify";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Avatar from "@radix-ui/react-avatar";
-import { toJS } from "mobx"
 import {
     MdChevronRight,
     MdClose,
@@ -13,6 +12,7 @@ import {
     MdOutlineFileDownload,
     MdOutlineFileUpload,
     MdOutlineGamepad,
+    MdOutlineNotifications,
     MdPerson,
 } from "react-icons/md";
 import { tagTypes } from "@/models";
@@ -22,7 +22,7 @@ import {
     restoreFromFile,
     Dialogs,
     globalDialogStore,
-    useUserStore
+    useUserStore,
 } from "@/stores";
 import {
     SidebarTagButtonGroup,
@@ -129,7 +129,7 @@ const AppHeader = observer(() => {
                 <div />
             </CenterAndEdgesRow>
 
-            <div>
+            <div className="app-header-right">
                 <button
                     className="new-game-button"
                     onClick={() => globalDialogStore.open(Dialogs.EditGame)}
@@ -137,6 +137,11 @@ const AppHeader = observer(() => {
                     <MdOutlineGamepad />
                     Add Game
                 </button>
+
+                <button className="notifications">
+                    <MdOutlineNotifications />
+                </button>
+
                 <AppUserAvatar />
             </div>
         </CenterAndEdgesRow>
@@ -146,40 +151,39 @@ const AppHeader = observer(() => {
 const AppUserAvatar = observer(() => {
     const userStore = useUserStore();
     const { userInfo } = userStore;
-    return (<SimpleTooltip message="Accounts not implemented yet">
-        <DropdownMenu.Root>
-            <DropdownMenu.Trigger asChild className="rx-avatar">
-                <Avatar.Root>
-                    <Avatar.Image src={userInfo?.avatars?.[0] ?? undefined} />
-                    <Avatar.Fallback className="rx-avatarless" asChild>
-                        <MdPerson />
-                    </Avatar.Fallback>
-                </Avatar.Root>
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Portal>
-                <DropdownMenu.Content
-                    className="rx-dropdown-menu"
-                    align={"start"}
-                    side={"bottom"}
-                    sideOffset={5}
-                >
-                    {
-                        !userInfo &&
-                        <DropdownMenu.Item onClick={() => userStore.login()}>
-                            Login
-                        </DropdownMenu.Item>
-                    }
-                    {
-                        userInfo &&
-                        <DropdownMenu.Item onClick={() => userStore.logout()}>
-                            Logout
-                        </DropdownMenu.Item>
-                    }
-                </DropdownMenu.Content>
-            </DropdownMenu.Portal>
-        </DropdownMenu.Root>
-
-    </SimpleTooltip>);
+    return (
+        <SimpleTooltip message="Accounts not implemented yet">
+            <DropdownMenu.Root>
+                <DropdownMenu.Trigger asChild className="rx-avatar">
+                    <Avatar.Root>
+                        <Avatar.Image src={userInfo?.avatars?.[0] ?? undefined} />
+                        <Avatar.Fallback className="rx-avatarless" asChild>
+                            <MdPerson />
+                        </Avatar.Fallback>
+                    </Avatar.Root>
+                </DropdownMenu.Trigger>
+                <DropdownMenu.Portal>
+                    <DropdownMenu.Content
+                        className="rx-dropdown-menu"
+                        align={"start"}
+                        side={"bottom"}
+                        sideOffset={5}
+                    >
+                        {!userInfo && (
+                            <DropdownMenu.Item onClick={() => userStore.login()}>
+                                Login
+                            </DropdownMenu.Item>
+                        )}
+                        {userInfo && (
+                            <DropdownMenu.Item onClick={() => userStore.logout()}>
+                                Logout
+                            </DropdownMenu.Item>
+                        )}
+                    </DropdownMenu.Content>
+                </DropdownMenu.Portal>
+            </DropdownMenu.Root>
+        </SimpleTooltip>
+    );
 });
 
 function AppSidebar() {

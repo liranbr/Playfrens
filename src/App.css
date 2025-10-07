@@ -74,29 +74,42 @@
     }
 }
 
-.new-game-button {
-    margin: 0 16px 0 auto;
-    height: var(--app-header-element-height);
-    width: fit-content;
+.app-header-right {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--pf-fg-300);
-    background-color: var(--pf-bg-500);
-    border-radius: 16px;
-    border: var(--pf-border-700);
-    gap: 4px;
-    padding: 0 8px;
-    font-size: 14px;
-    font-weight: 500;
+    gap: 12px;
 
-    svg {
-        font-size: 26px;
+    button,
+    .rx-avatar {
+        display: flex;
+        height: var(--app-header-element-height);
+        align-items: center;
+        justify-content: center;
+        background-color: var(--pf-bg-500);
+        border: var(--pf-border-700);
+        color: var(--pf-fg-300);
+
+        svg {
+            font-size: 26px;
+        }
+
+        &:hover {
+            color: #fff;
+            background-color: var(--pf-bg-300);
+        }
     }
 
-    &:hover {
-        color: #fff;
-        background-color: var(--pf-bg-300);
+    .new-game-button {
+        width: fit-content;
+        border-radius: 16px;
+        gap: 4px;
+        padding: 0 8px;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .notifications {
+        aspect-ratio: 1;
+        border-radius: 50%;
     }
 }
 

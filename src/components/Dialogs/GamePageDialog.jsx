@@ -248,6 +248,26 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
                                 onChange={(e) => game.setNote(e.target.value)}
                             />
                         </div>
+
+                        <div className="ui-card">
+                            <CenterAndEdgesRow className="ui-card-header">
+                                <div />
+                                <h4>REMINDERS</h4>
+                                <IconButton icon={<MdAdd />} />
+                            </CenterAndEdgesRow>
+
+                            <div className="reminders-container">
+                                <span className="reminder">
+                                    <label>2030-01-01</label>
+                                    <p>Did they add Kiriko yet?</p>
+                                </span>
+
+                                <span className="reminder">
+                                    <label>2031-01-01</label>
+                                    <p>what about now?</p>
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

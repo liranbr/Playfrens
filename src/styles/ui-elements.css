@@ -58,6 +58,7 @@ fieldset {
     .ui-card-header {
         background-color: inherit;
         margin-bottom: 8px;
+        height: 30px;
 
         h4 {
             font-size: 20px;

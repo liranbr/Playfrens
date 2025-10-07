@@ -45,12 +45,6 @@
         user-select: none;
         transition: 0.1s;
     }
-    @media (max-width: 888px) {
-        .gp-cover-art {
-            min-width: 0;
-            width: 0;
-        }
-    }
 
     .gp-container {
         box-sizing: content-box;
@@ -157,6 +151,16 @@
                     resize: vertical;
                 }
             }
+        }
+    }
+}
+
+@media (max-width: 888px) {
+    .rx-dialog.game-page-dialog {
+        gap: 0;
+        .gp-cover-art {
+            min-width: 0;
+            width: 0;
         }
     }
 }

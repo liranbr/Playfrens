@@ -16,7 +16,9 @@ export class UserStore {
     async getUser() {
         try {
             const res = await fetch("/auth/me", { credentials: "include" });
-            if (!res.ok) {
+            // No content? Pass
+            if (!res.ok || res.status == 204) {
+                res.status == 204 && console.info("No Content - This only happens when user is not logged in.");
                 runInAction(() => {
                     this.userInfo = undefined;
                 })

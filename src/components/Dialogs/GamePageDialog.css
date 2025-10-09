@@ -147,43 +147,64 @@
             }
 
             .reminders-container {
-                display: flex;
-                flex-direction: column;
-                gap: 12px;
+                .rx-popover {
+                    gap: 12px;
 
-                .reminder {
-                    border-radius: 12px;
-                    padding: 8px;
-
-                    &:hover,
-                    &:active {
-                        background-color: var(--pf-bg-500);
+                    .date-input {
+                        border: var(--pf-border-300);
+                        padding: 6px;
+                        border-radius: 8px;
+                        width: fit-content;
                     }
 
-                    label {
-                        color: hsl(215 60% 60%);
-                        font-weight: 500;
+                    textarea {
+                        border: var(--pf-border-300);
+                        padding: 6px;
+                        border-radius: 8px;
+                        background: none;
+                        resize: vertical;
                     }
-                    p {
-                        padding: 0 8px;
-                        color: var(--pf-fg-200);
-                    }
+                }
 
-                    &.activated {
-                        font-size: 14px;
-                        background-color: var(--pf-bg-300);
+                .reminders-list {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+
+                    .reminder {
+                        border-radius: 12px;
+                        padding: 8px;
 
                         &:hover,
                         &:active {
-                            background-color: var(--pf-bg-200);
+                            background-color: var(--pf-bg-500);
                         }
 
                         label {
-                            color: hsl(50 98% 71%);
-                            font-weight: bold;
+                            color: hsl(215 60% 60%);
+                            font-weight: 500;
                         }
                         p {
-                            color: white;
+                            padding: 0 8px;
+                            color: var(--pf-fg-200);
+                        }
+
+                        &.activated {
+                            font-size: 14px;
+                            background-color: var(--pf-bg-300);
+
+                            &:hover,
+                            &:active {
+                                background-color: var(--pf-bg-200);
+                            }
+
+                            label {
+                                color: hsl(50 98% 71%);
+                                font-weight: bold;
+                            }
+                            p {
+                                color: white;
+                            }
                         }
                     }
                 }

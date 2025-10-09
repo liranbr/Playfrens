@@ -5,7 +5,7 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert, MdRemove } from "react-icons/md";
 
-import { CenterAndEdgesRow, IconButton, SimpleTooltip } from "@/components";
+import { Button, CenterAndEdgesRow, IconButton, SimpleTooltip } from "@/components";
 import { Dialogs, globalDialogStore, updateTagBothGameCounters, useDataStore } from "@/stores";
 import { tagTypes, tagTypeStrings } from "@/models";
 import { useValidatedImage } from "@/hooks/useValidatedImage.js";
@@ -15,7 +15,6 @@ import "@/components/TagButtonGroup.css";
 import "@/components/TagButton.css";
 import "./GamePageDialog.css";
 import * as Popover from "@radix-ui/react-popover";
-import { LuSettings2 } from "react-icons/lu";
 
 const DD = DropdownMenu;
 
@@ -193,17 +192,44 @@ function GameOptionsButton({ game }) {
 }
 
 const AddReminderPopover = ({}) => {
+    const [date, setDate] = useState(null);
+    const [text, setText] = useState("");
+
+    const handleDateChange = (e) => {
+        const newDate = e.target.value ? new Date(e.target.value) : null;
+        setDate(newDate);
+    };
+
     return (
         <Popover.Root>
             <Popover.Trigger asChild>
                 <IconButton icon={<MdAdd />} />
             </Popover.Trigger>
-            <Popover.Content align="center" className="rx-popover">
-                <Popover.Close asChild>
-                    <IconButton className="popover-close" icon={<MdClose />} />
-                </Popover.Close>
-                <h3>Add Reminder</h3>
-            </Popover.Content>
+            <Popover.Portal container={document.getElementById("reminders-container")}>
+                <Popover.Content align="center" className="rx-popover">
+                    <Popover.Close asChild>
+                        <IconButton className="popover-close" icon={<MdClose />} />
+                    </Popover.Close>
+                    <h3>Add Reminder</h3>
+                    <input
+                        className="date-input"
+                        type="date"
+                        value={date ? date.toISOString().split("T")[0] : ""}
+                        onChange={handleDateChange}
+                        autoFocus
+                    />
+                    <textarea
+                        className="reminder-textarea"
+                        rows={4}
+                        spellCheck={false}
+                        value={text}
+                        placeholder="Message"
+                        onChange={(e) => setText(e.target.value)}
+                        maxLength={1000}
+                    />
+                    <Button variant="primary">Save</Button>
+                </Popover.Content>
+            </Popover.Portal>
         </Popover.Root>
     );
 };
@@ -264,17 +290,18 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
                                 spellCheck={false}
                                 value={game.note}
                                 onChange={(e) => game.setNote(e.target.value)}
+                                maxLength={2000}
                             />
                         </div>
 
-                        <div className="ui-card">
+                        <div className="ui-card reminders-container" id="reminders-container">
                             <CenterAndEdgesRow className="ui-card-header">
                                 <div />
                                 <h4>REMINDERS</h4>
                                 <AddReminderPopover />
                             </CenterAndEdgesRow>
 
-                            <div className="reminders-container">
+                            <div className="reminders-list">
                                 {game.title === "Heroes of the Storm" && ( // TODO: Temp placeholders for styling
                                     <>
                                         <span className="reminder activated">

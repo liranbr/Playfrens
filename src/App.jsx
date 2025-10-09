@@ -138,9 +138,7 @@ const AppHeader = observer(() => {
                     Add Game
                 </button>
 
-                <button className="notifications">
-                    <MdOutlineNotifications />
-                </button>
+                <Notifications />
 
                 <AppUserAvatar />
             </div>
@@ -183,6 +181,34 @@ const AppUserAvatar = observer(() => {
                 </DropdownMenu.Portal>
             </DropdownMenu.Root>
         </SimpleTooltip>
+    );
+});
+
+const Notifications = observer(() => {
+    // Check whether reminders have activated, on load and whenever the user opens the tab again
+    useEffect(() => {
+        const runReminderCheck = () => {
+            const today = new Date().toISOString().split("T")[0];
+            const last = localStorage.getItem("lastReminderCheck");
+            if (last !== today) {
+                // checkReminders(); TODO: implement
+                localStorage.setItem("lastReminderCheck", today);
+            }
+        };
+
+        runReminderCheck();
+        document.addEventListener("visibilitychange", () => {
+            if (!document.hidden) runReminderCheck();
+        });
+
+        return () => document.removeEventListener("visibilitychange", runReminderCheck);
+    }, []);
+
+    // TODO: continue implementation here
+    return (
+        <button className="notifications">
+            <MdOutlineNotifications />
+        </button>
     );
 });
 

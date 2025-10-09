@@ -73,13 +73,12 @@ export class LoginService extends Service {
 
     // Returns the user's information used to login with (e.g. Steam public data)
     async getRequestIdentity(req, res) {
-        const { OK, UNAUTHORIZED } = Response.HttpStatus;
+        const { OK, NO_CONTENT } = Response.HttpStatus;
 
         if (req.isAuthenticated()) {
             Response.send(res, OK, { user: req.user });
-            res.json();
         } else {
-            Response.send(res, UNAUTHORIZED, { error: "Not logged in" });
+            Response.send(res, NO_CONTENT, { message: "Requester is not logged in." });
         }
     }
 

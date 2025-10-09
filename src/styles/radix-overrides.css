@@ -194,6 +194,45 @@
     }
 }
 
+.rx-popover {
+    display: flex;
+    flex-direction: column;
+    min-width: var(--ui-card-width);
+    width: fit-content;
+    max-width: 500px;
+    padding: 16px 20px;
+    border-radius: 8px;
+    background-color: var(--pf-bg-500);
+    border: var(--pf-border-300);
+    box-shadow: 0 0 16px 2px rgba(0, 0, 0, 1);
+    z-index: 2; /* stay above hovered game cards */
+    gap: 4px;
+    --select-width: 250px;
+
+    .popover-close {
+        position: absolute;
+        right: 12px;
+        top: 12px;
+    }
+
+    p {
+        color: var(--pf-fg-200);
+        font-size: 14px;
+    }
+
+    .rx-select-trigger {
+        width: var(--select-width);
+        max-width: var(--select-width);
+    }
+    .rx-select-content {
+        width: var(--select-width);
+    }
+
+    .rx-toggle-group {
+        width: var(--select-width);
+    }
+}
+
 .rx-avatar {
     display: inline-flex;
     align-items: center;

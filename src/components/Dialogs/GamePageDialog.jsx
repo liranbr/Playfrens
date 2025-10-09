@@ -14,6 +14,8 @@ import { DialogBase } from "./DialogRoot.jsx";
 import "@/components/TagButtonGroup.css";
 import "@/components/TagButton.css";
 import "./GamePageDialog.css";
+import * as Popover from "@radix-ui/react-popover";
+import { LuSettings2 } from "react-icons/lu";
 
 const DD = DropdownMenu;
 
@@ -190,6 +192,22 @@ function GameOptionsButton({ game }) {
     );
 }
 
+const AddReminderPopover = ({}) => {
+    return (
+        <Popover.Root>
+            <Popover.Trigger asChild>
+                <IconButton icon={<MdAdd />} />
+            </Popover.Trigger>
+            <Popover.Content align="center" className="rx-popover">
+                <Popover.Close asChild>
+                    <IconButton className="popover-close" icon={<MdClose />} />
+                </Popover.Close>
+                <h3>Add Reminder</h3>
+            </Popover.Content>
+        </Popover.Root>
+    );
+};
+
 export const GamePageDialog = observer(({ open, closeDialog, game }) => {
     const gameCover = useValidatedImage(game.coverImageURL);
     const handleHide = () => closeDialog();
@@ -253,19 +271,23 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
                             <CenterAndEdgesRow className="ui-card-header">
                                 <div />
                                 <h4>REMINDERS</h4>
-                                <IconButton icon={<MdAdd />} />
+                                <AddReminderPopover />
                             </CenterAndEdgesRow>
 
                             <div className="reminders-container">
-                                <span className="reminder activated">
-                                    <label>2025-01-01</label>
-                                    <p>Did they add Kiriko yet?</p>
-                                </span>
+                                {game.title === "Heroes of the Storm" && ( // TODO: Temp placeholders for styling
+                                    <>
+                                        <span className="reminder activated">
+                                            <label>2025-01-01</label>
+                                            <p>Did they add Kiriko yet?</p>
+                                        </span>
 
-                                <span className="reminder">
-                                    <label>2030-01-01</label>
-                                    <p>what about now?</p>
-                                </span>
+                                        <span className="reminder">
+                                            <label>2030-01-01</label>
+                                            <p>what about now?</p>
+                                        </span>
+                                    </>
+                                )}
                             </div>
                         </div>
                     </div>

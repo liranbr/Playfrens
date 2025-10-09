@@ -52,7 +52,7 @@ const SidebarTBGMenu = observer(({ tagType }) => {
                 <IconButton icon={<LuSettings2 fontSize={18} />} />
             </Popover.Trigger>
             <Popover.Portal>
-                <Popover.Content align="start" className="sidebar-popover-content">
+                <Popover.Content align="start" className="rx-popover">
                     <Popover.Close asChild>
                         <IconButton className="popover-close" icon={<MdClose />} />
                     </Popover.Close>

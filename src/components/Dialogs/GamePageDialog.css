@@ -154,6 +154,7 @@
                 .reminder {
                     border-radius: 12px;
                     padding: 8px;
+                    /*font-size: 12px;*/
 
                     &:hover,
                     &:active {
@@ -161,11 +162,30 @@
                     }
 
                     label {
-                        color: var(--pf-fg-link);
+                        color: hsl(215 60% 60%);
                         font-weight: 500;
                     }
                     p {
                         padding: 0 8px;
+                        color: var(--pf-fg-200);
+                    }
+
+                    &.activated {
+                        font-size: 14px;
+                        background-color: var(--pf-bg-300);
+
+                        &:hover,
+                        &:active {
+                            background-color: var(--pf-bg-200);
+                        }
+
+                        label {
+                            color: hsl(50 98% 71%);
+                            font-weight: bold;
+                        }
+                        p {
+                            color: white;
+                        }
                     }
                 }
             }

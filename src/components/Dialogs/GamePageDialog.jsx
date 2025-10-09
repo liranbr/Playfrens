@@ -257,13 +257,13 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
                             </CenterAndEdgesRow>
 
                             <div className="reminders-container">
-                                <span className="reminder">
-                                    <label>2030-01-01</label>
+                                <span className="reminder activated">
+                                    <label>2025-01-01</label>
                                     <p>Did they add Kiriko yet?</p>
                                 </span>
 
                                 <span className="reminder">
-                                    <label>2031-01-01</label>
+                                    <label>2030-01-01</label>
                                     <p>what about now?</p>
                                 </span>
                             </div>

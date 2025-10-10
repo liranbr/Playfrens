@@ -18,7 +18,7 @@ export class UserStore {
             const res = await fetch("/auth/me", { credentials: "include" });
             // No content? Pass
             if (!res.ok || res.status == 204) {
-                res.status == 204 && console.info("No Content - This only happens when user is not logged in.");
+                res.status == 204 && console.info("No Content: Skipping user data — no active login.");
                 runInAction(() => {
                     this.userInfo = undefined;
                 })

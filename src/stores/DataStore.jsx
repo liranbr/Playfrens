@@ -195,7 +195,7 @@ export class DataStore {
     }
 
     removeReminder(reminder) {
-        const index = this.allReminders.findIndex((reminder) => reminder.id === reminder.id);
+        const index = this.allReminders.findIndex((r) => r.id === reminder.id);
         if (index === -1) return toastError("Error removing reminder");
         this.allReminders.splice(index, 1);
         return toastSuccess("Reminder removed");

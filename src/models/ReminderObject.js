@@ -24,7 +24,7 @@ export class ReminderObject {
     }
 
     getFormattedDate() {
-        return this.date.toISOString().split("T")[0];
+        return this.date.toLocaleDateString();
     }
 
     toString() {

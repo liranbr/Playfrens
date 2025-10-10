@@ -185,13 +185,13 @@ const AppUserAvatar = observer(() => {
 });
 
 const Notifications = observer(() => {
-    // Check whether reminders have activated, on load and whenever the user opens the tab again
+    // Check whether reminders have activated, once a day. Day checked on load and whenever the user opens the tab again
     useEffect(() => {
         const runReminderCheck = () => {
-            const today = new Date().toISOString().split("T")[0];
+            const today = new Date().toLocaleDateString();
             const last = localStorage.getItem("lastReminderCheck");
             if (last !== today) {
-                // checkReminders(); TODO: implement
+                // checkReminders(); TODO: implement, to update the (n) badge on the icon
                 localStorage.setItem("lastReminderCheck", today);
             }
         };
@@ -204,7 +204,7 @@ const Notifications = observer(() => {
         return () => document.removeEventListener("visibilitychange", runReminderCheck);
     }, []);
 
-    // TODO: continue implementation here
+    // TODO: continue implementation here, of a Popover Drawer
     return (
         <button className="notifications">
             <MdOutlineNotifications />

@@ -1,19 +1,45 @@
-.reminder {
+.reminder-container {
+    display: flex;
+    position: relative;
+    justify-content: space-between;
+    align-items: center;
     border-radius: 12px;
     padding: 8px;
 
-    &:hover,
-    &:active {
-        background-color: var(--pf-bg-500);
+    .icon-button {
+        /* ⋮ menu button */
+        /* using opacity:0 and not display/visibility, to keep in DOM for keyboard navigation */
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 0;
+        color: #fff;
     }
 
-    label {
-        color: hsl(215 60% 60%);
-        font-weight: 500;
+    &:hover,
+    &:active,
+    &.dd-open {
+        background-color: var(--pf-bg-500);
+        .icon-button {
+            opacity: 1;
+        }
     }
-    p {
-        padding: 0 8px;
-        color: var(--pf-fg-200);
+
+    &.dd-open .icon-button,
+    .icon-button:hover {
+        background-color: rgba(0, 0, 0, 0.3);
+    }
+
+    .reminder {
+        label {
+            color: hsl(215 60% 60%);
+            font-weight: 500;
+        }
+        p {
+            padding: 0 8px;
+            color: var(--pf-fg-200);
+        }
     }
 
     &.activated {
@@ -21,16 +47,19 @@
         background-color: var(--pf-bg-300);
 
         &:hover,
-        &:active {
+        &:active,
+        &.dd-open {
             background-color: var(--pf-bg-200);
         }
 
-        label {
-            color: hsl(50 98% 71%);
-            font-weight: bold;
-        }
-        p {
-            color: white;
+        .reminder {
+            label {
+                color: hsl(50 98% 71%);
+                font-weight: bold;
+            }
+            p {
+                color: white;
+            }
         }
     }
 }

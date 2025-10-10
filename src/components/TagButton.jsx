@@ -82,7 +82,7 @@ export const SidebarTagButton = observer(({ tag }) => {
         >
             <span
                 role="button"
-                className={"tag-button"}
+                className="tag-button"
                 tabIndex={0}
                 onClick={onClick}
                 onContextMenu={(e) => {
@@ -139,9 +139,7 @@ const SidebarTBMenuButton = observer(({ tag, filterStore, dropdownOpen, setDropd
     return (
         <DD.Root open={dropdownOpen} onOpenChange={setDropdownOpen}>
             <DD.Trigger asChild>
-                <IconButton>
-                    <MdMoreVert />
-                </IconButton>
+                <IconButton icon={<MdMoreVert />} />
             </DD.Trigger>
 
             <DD.Portal>

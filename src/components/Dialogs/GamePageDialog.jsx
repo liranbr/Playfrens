@@ -99,9 +99,7 @@ const GPTagButton = observer(({ game, tag }) => {
 
             <DD.Root open={dropdownOpen} onOpenChange={setDropdownOpen}>
                 <DD.Trigger asChild>
-                    <IconButton>
-                        <MdMoreVert />
-                    </IconButton>
+                    <IconButton icon={<MdMoreVert />} />
                 </DD.Trigger>
 
                 <DD.Portal>
@@ -192,6 +190,7 @@ function GameOptionsButton({ game }) {
 }
 
 const AddReminderPopover = ({ game }) => {
+    // TODO: make popover its own component, to use in Adding + Editing, in GamePage + Notifications drawer
     const [open, setOpen] = useState(false);
     const [date, setDate] = useState(null);
     const [message, setMessage] = useState("");
@@ -210,7 +209,14 @@ const AddReminderPopover = ({ game }) => {
     };
 
     return (
-        <Popover.Root open={open} onOpenChange={setOpen}>
+        <Popover.Root
+            open={open}
+            onOpenChange={(nextOpen) => {
+                setOpen(nextOpen);
+                setDate(null);
+                setMessage("");
+            }}
+        >
             <Popover.Trigger asChild>
                 <IconButton icon={<MdAdd />} />
             </Popover.Trigger>

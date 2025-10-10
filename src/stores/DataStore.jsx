@@ -202,7 +202,6 @@ export class DataStore {
     }
 
     editReminder(reminder, newDate, newMessage) {
-        // TODO: check if receiving an altered object like this works. I expect mobx action issues
         const index = this.allReminders.findIndex((r) => r.id === reminder.id);
         if (index === -1) return toastError("Error editing reminder");
         if (!(newDate instanceof Date)) return toastError("Invalid Date");
@@ -380,6 +379,7 @@ export class DataStore {
     removeGame(game) {
         const removed = this.allGames.delete(game.id);
         if (!removed) return toastError(`Failed to remove ${game.title} from games list`);
+        // TODO: remove any reminders tied to the game
         return toastSuccess(`Removed ${game.title} from games list`);
     }
 

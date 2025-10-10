@@ -324,7 +324,7 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
 
                             <div className="reminders-list">
                                 {gameReminders.map((reminder) => (
-                                    <ReminderCard reminder={reminder} />
+                                    <ReminderCard key={reminder.id} reminder={reminder} />
                                 ))}
                             </div>
                         </div>

@@ -39,6 +39,9 @@ export const ReminderCard = observer(({ reminder, onClick }) => {
 
 const ReminderMenu = observer(({ reminder, dropdownOpen, setDropdownOpen }) => {
     const dataStore = useDataStore();
+    // TODO: try an Edit item with its own Popover. If doesn't work due to popover closing immediately,
+    //  convert from Dropdown to absolute-positioned Edit and Delete buttons. Tried shared Popover with anchor refs, didn't manage,
+    //  so next will try a Popover-per-Card.
 
     const DD = DropdownMenu;
     return (

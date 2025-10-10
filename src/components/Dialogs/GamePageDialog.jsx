@@ -5,9 +5,9 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert, MdRemove } from "react-icons/md";
 
-import { Button, CenterAndEdgesRow, IconButton, SimpleTooltip } from "@/components";
+import { Button, CenterAndEdgesRow, IconButton, ReminderCard, SimpleTooltip } from "@/components";
 import { Dialogs, globalDialogStore, updateTagBothGameCounters, useDataStore } from "@/stores";
-import { tagTypes, tagTypeStrings } from "@/models";
+import { ReminderObject, tagTypes, tagTypeStrings } from "@/models";
 import { useValidatedImage } from "@/hooks/useValidatedImage.js";
 import { DialogBase } from "./DialogRoot.jsx";
 
@@ -191,17 +191,26 @@ function GameOptionsButton({ game }) {
     );
 }
 
-const AddReminderPopover = ({}) => {
+const AddReminderPopover = ({ game }) => {
+    const [open, setOpen] = useState(false);
     const [date, setDate] = useState(null);
-    const [text, setText] = useState("");
+    const [message, setMessage] = useState("");
+    const dataStore = useDataStore();
 
     const handleDateChange = (e) => {
         const newDate = e.target.value ? new Date(e.target.value) : null;
         setDate(newDate);
     };
 
+    const handleSave = () => {
+        const added = dataStore.addReminder(
+            new ReminderObject({ date: date, message: message, gameID: game.id }),
+        );
+        if (added) setOpen(false);
+    };
+
     return (
-        <Popover.Root>
+        <Popover.Root open={open} onOpenChange={setOpen}>
             <Popover.Trigger asChild>
                 <IconButton icon={<MdAdd />} />
             </Popover.Trigger>
@@ -222,12 +231,14 @@ const AddReminderPopover = ({}) => {
                         className="reminder-textarea"
                         rows={4}
                         spellCheck={false}
-                        value={text}
+                        value={message}
                         placeholder="Message"
-                        onChange={(e) => setText(e.target.value)}
+                        onChange={(e) => setMessage(e.target.value)}
                         maxLength={1000}
                     />
-                    <Button variant="primary">Save</Button>
+                    <Button variant="primary" disabled={!date || !message} onClick={handleSave}>
+                        Save
+                    </Button>
                 </Popover.Content>
             </Popover.Portal>
         </Popover.Root>
@@ -237,6 +248,10 @@ const AddReminderPopover = ({}) => {
 export const GamePageDialog = observer(({ open, closeDialog, game }) => {
     const gameCover = useValidatedImage(game.coverImageURL);
     const handleHide = () => closeDialog();
+    const dataStore = useDataStore();
+    const gameReminders = dataStore.sortedReminders.filter(
+        (reminder) => reminder.gameID === game.id,
+    );
 
     return (
         <DialogBase
@@ -298,23 +313,13 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
                             <CenterAndEdgesRow className="ui-card-header">
                                 <div />
                                 <h4>REMINDERS</h4>
-                                <AddReminderPopover />
+                                <AddReminderPopover game={game} />
                             </CenterAndEdgesRow>
 
                             <div className="reminders-list">
-                                {game.title === "Heroes of the Storm" && ( // TODO: Temp placeholders for styling
-                                    <>
-                                        <span className="reminder activated">
-                                            <label>2025-01-01</label>
-                                            <p>Did they add Kiriko yet?</p>
-                                        </span>
-
-                                        <span className="reminder">
-                                            <label>2030-01-01</label>
-                                            <p>what about now?</p>
-                                        </span>
-                                    </>
-                                )}
+                                {gameReminders.map((reminder) => (
+                                    <ReminderCard reminder={reminder} />
+                                ))}
                             </div>
                         </div>
                     </div>

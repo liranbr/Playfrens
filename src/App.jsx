@@ -4,6 +4,7 @@ import { ToastContainer } from "react-toastify";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Avatar from "@radix-ui/react-avatar";
+import * as Popover from "@radix-ui/react-popover";
 import {
     MdChevronRight,
     MdClose,
@@ -23,6 +24,7 @@ import {
     Dialogs,
     globalDialogStore,
     useUserStore,
+    useDataStore,
 } from "@/stores";
 import {
     SidebarTagButtonGroup,
@@ -30,6 +32,7 @@ import {
     CenterAndEdgesRow,
     GamesGrid,
     SimpleTooltip,
+    ReminderCard,
 } from "@/components";
 import { DialogRoot } from "@/components/Dialogs/DialogRoot.jsx";
 import "./App.css";
@@ -204,11 +207,24 @@ const Notifications = observer(() => {
         return () => document.removeEventListener("visibilitychange", runReminderCheck);
     }, []);
 
-    // TODO: continue implementation here, of a Popover Drawer
+    const dataStore = useDataStore();
+    const reminders = dataStore.sortedReminders;
+
     return (
-        <button className="notifications">
-            <MdOutlineNotifications />
-        </button>
+        <Popover.Root>
+            <Popover.Trigger asChild>
+                <button className="notifications-button">
+                    <MdOutlineNotifications />
+                </button>
+            </Popover.Trigger>
+            <Popover.Content className="rx-popover notifications-drawer" align="end" sideOffset={5}>
+                <div className="reminders-list">
+                    {reminders.map((reminder) => (
+                        <ReminderCard key={reminder.id} reminder={reminder} outsideOfGamePage />
+                    ))}
+                </div>
+            </Popover.Content>
+        </Popover.Root>
     );
 });
 

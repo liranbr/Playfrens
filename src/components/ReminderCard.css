@@ -33,16 +33,23 @@
 
     .reminder {
         overflow: hidden;
+        color: var(--pf-fg-200);
         label {
+            display: block;
             color: hsl(215 60% 60%);
             font-weight: 500;
         }
         p {
-            padding: 0 8px;
-            color: var(--pf-fg-200);
+            color: inherit;
             overflow: hidden;
             text-overflow: ellipsis;
             text-wrap: wrap;
+        }
+        .reminder-game-title {
+            font-weight: bold;
+        }
+        .reminder-message {
+            padding: 4px 8px 0 8px;
         }
     }
 
@@ -57,12 +64,10 @@
         }
 
         .reminder {
+            color: #fff;
             label {
                 color: hsl(50 98% 71%);
                 font-weight: bold;
-            }
-            p {
-                color: white;
             }
         }
     }

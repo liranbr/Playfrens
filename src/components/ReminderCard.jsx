@@ -9,9 +9,14 @@ import { ReminderObject } from "@/models";
 import "./ReminderCard.css";
 
 /** @param {ReminderObject} props.reminder */
-export const ReminderCard = observer(({ reminder }) => {
+export const ReminderCard = observer(({ reminder, outsideOfGamePage = false }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [editorOpen, setEditorOpen] = useState(false);
+    let gameTitle = "";
+    if (outsideOfGamePage) {
+        const dataStore = useDataStore();
+        gameTitle = dataStore.allGames.get(reminder.gameID).title;
+    }
 
     const classes = ["reminder-container"];
     if (reminder.date < new Date()) classes.push("activated");
@@ -31,7 +36,8 @@ export const ReminderCard = observer(({ reminder }) => {
                 draggable="false"
             >
                 <label>{reminder.getFormattedDate()}</label>
-                <p>{reminder.message}</p>
+                {outsideOfGamePage && <p className="reminder-game-title">{gameTitle}</p>}
+                <p className="reminder-message">{reminder.message}</p>
             </span>
             <ReminderMenu
                 reminder={reminder}

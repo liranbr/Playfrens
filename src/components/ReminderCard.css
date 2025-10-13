@@ -32,6 +32,7 @@
     }
 
     .reminder {
+        overflow: hidden;
         label {
             color: hsl(215 60% 60%);
             font-weight: 500;
@@ -39,6 +40,9 @@
         p {
             padding: 0 8px;
             color: var(--pf-fg-200);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-wrap: wrap;
         }
     }
 

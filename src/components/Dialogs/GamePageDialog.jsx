@@ -190,7 +190,6 @@ function GameOptionsButton({ game }) {
 }
 
 const AddReminderPopover = ({ game }) => {
-    // TODO: make popover its own component, to use in Adding + Editing, in GamePage + Notifications drawer
     const [open, setOpen] = useState(false);
     const [date, setDate] = useState(null);
     const [message, setMessage] = useState("");

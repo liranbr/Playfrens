@@ -6,7 +6,7 @@
     border-radius: 12px;
     padding: 8px;
 
-    .icon-button {
+    & > .icon-button {
         /* ⋮ menu button */
         /* using opacity:0 and not display/visibility, to keep in DOM for keyboard navigation */
         position: absolute;
@@ -21,13 +21,13 @@
     &:active,
     &.dd-open {
         background-color: var(--pf-bg-500);
-        .icon-button {
+        & > .icon-button {
             opacity: 1;
         }
     }
 
-    &.dd-open .icon-button,
-    .icon-button:hover {
+    &.dd-open > .icon-button,
+    & > .icon-button:hover {
         background-color: rgba(0, 0, 0, 0.3);
     }
 

@@ -196,9 +196,9 @@ export class DataStore {
 
     removeReminder(reminder) {
         const index = this.allReminders.findIndex((r) => r.id === reminder.id);
-        if (index === -1) return toastError("Error removing reminder");
+        if (index === -1) return toastError("Error deleting reminder");
         this.allReminders.splice(index, 1);
-        return toastSuccess("Reminder removed");
+        return toastSuccess("Reminder deleted");
     }
 
     editReminder(reminder, newDate, newMessage) {
@@ -292,7 +292,7 @@ export class DataStore {
         this.allGames.forEach((game) => game.silentRemoveTag(tag));
         this.allTags[tag.type].delete(tag.id);
         deleteItemFromArray(this.tagsCustomOrders[tag.type], tag.id);
-        return toastSuccess(`Removed ${tag.name} from ${tag.typeStrings.plural} list`);
+        return toastSuccess(`Deleted ${tag.name} from ${tag.typeStrings.plural} list`);
     }
 
     editTag(tag, newName) {

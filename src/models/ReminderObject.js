@@ -1,6 +1,13 @@
 import { makeAutoObservable } from "mobx";
 import { v4 as randomUUID } from "uuid";
 
+/**
+ * @class
+ * @property {Date} date - the Date when this reminder should be activated.
+ * @property {string} message - the text content of the reminder.
+ * @property {string} gameID - the UUID of the GameObject this Reminder is about.
+ * @property {string} id - A UUID identifier for the reminder object.
+ */
 export class ReminderObject {
     date;
     message;

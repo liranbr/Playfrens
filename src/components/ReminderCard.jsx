@@ -106,7 +106,7 @@ const ReminderEditor = observer(({ reminder, editorOpen, setEditorOpen, containe
         <Popover.Root open={editorOpen} onOpenChange={setEditorOpen}>
             <Popover.Anchor ref={containerRef} />
             <Popover.Portal container={containerRef.current}>
-                <Popover.Content align="center" className="rx-popover">
+                <Popover.Content align="center" className="rx-popover reminder-editor">
                     <Popover.Close asChild>
                         <IconButton className="popover-close" icon={<MdClose />} />
                     </Popover.Close>

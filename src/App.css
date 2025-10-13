@@ -78,7 +78,8 @@
     display: flex;
     gap: 12px;
 
-    button,
+    .new-game-button,
+    .notifications-button,
     .rx-avatar {
         display: flex;
         height: var(--app-header-element-height);

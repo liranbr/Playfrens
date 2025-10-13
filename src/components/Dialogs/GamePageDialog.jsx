@@ -220,7 +220,7 @@ const AddReminderPopover = ({ game }) => {
                 <IconButton icon={<MdAdd />} />
             </Popover.Trigger>
             <Popover.Portal container={document.getElementById("reminders-container")}>
-                <Popover.Content align="center" className="rx-popover">
+                <Popover.Content align="center" className="rx-popover reminder-editor">
                     <Popover.Close asChild>
                         <IconButton className="popover-close" icon={<MdClose />} />
                     </Popover.Close>

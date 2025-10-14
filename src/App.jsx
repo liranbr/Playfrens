@@ -172,9 +172,15 @@ const AppUserAvatar = observer(() => {
                     sideOffset={5}
                 >
                     {!userInfo && (
-                        <DropdownMenu.Item onClick={() => userStore.login()}>
-                            Login
-                        </DropdownMenu.Item>
+                        <>
+                            <DropdownMenu.Item onClick={() => userStore.login("steam")}>
+                                Steam Login
+                            </DropdownMenu.Item>
+                            <DropdownMenu.Item onClick={() => userStore.login("google")}>
+                                Google Login
+                            </DropdownMenu.Item>
+
+                        </>
                     )}
                     {userInfo && (
                         <DropdownMenu.Item onClick={() => userStore.logout()}>

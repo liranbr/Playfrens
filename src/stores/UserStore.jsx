@@ -26,6 +26,7 @@ export class UserStore {
             }
             const data = await res.json();
             const user = data?.user;
+            console.log(user);
             const info = {}
             info.provider = user?.provider;
             info.id = user?.id;

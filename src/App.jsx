@@ -16,6 +16,7 @@ import {
     MdOutlineNotifications,
     MdPerson,
 } from "react-icons/md";
+
 import { tagTypes } from "@/models";
 import {
     useFilterStore,
@@ -33,8 +34,9 @@ import {
     GamesGrid,
     SimpleTooltip,
     ReminderCard,
+    DialogRoot,
 } from "@/components";
-import { DialogRoot } from "@/components/Dialogs/DialogRoot.jsx";
+
 import "./App.css";
 
 function AppMenu() {
@@ -153,37 +155,35 @@ const AppUserAvatar = observer(() => {
     const userStore = useUserStore();
     const { userInfo } = userStore;
     return (
-        <SimpleTooltip message="Accounts not implemented yet">
-            <DropdownMenu.Root>
-                <DropdownMenu.Trigger asChild className="rx-avatar">
-                    <Avatar.Root>
-                        <Avatar.Image src={userInfo?.avatars?.[0] ?? undefined} />
-                        <Avatar.Fallback className="rx-avatarless" asChild>
-                            <MdPerson />
-                        </Avatar.Fallback>
-                    </Avatar.Root>
-                </DropdownMenu.Trigger>
-                <DropdownMenu.Portal>
-                    <DropdownMenu.Content
-                        className="rx-dropdown-menu"
-                        align={"start"}
-                        side={"bottom"}
-                        sideOffset={5}
-                    >
-                        {!userInfo && (
-                            <DropdownMenu.Item onClick={() => userStore.login()}>
-                                Login
-                            </DropdownMenu.Item>
-                        )}
-                        {userInfo && (
-                            <DropdownMenu.Item onClick={() => userStore.logout()}>
-                                Logout
-                            </DropdownMenu.Item>
-                        )}
-                    </DropdownMenu.Content>
-                </DropdownMenu.Portal>
-            </DropdownMenu.Root>
-        </SimpleTooltip>
+        <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild className="rx-avatar">
+                <Avatar.Root>
+                    <Avatar.Image src={userInfo?.avatars?.[0] ?? undefined} />
+                    <Avatar.Fallback className="rx-avatarless" asChild>
+                        <MdPerson />
+                    </Avatar.Fallback>
+                </Avatar.Root>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+                <DropdownMenu.Content
+                    className="rx-dropdown-menu"
+                    align={"start"}
+                    side={"bottom"}
+                    sideOffset={5}
+                >
+                    {!userInfo && (
+                        <DropdownMenu.Item onClick={() => userStore.login()}>
+                            Login
+                        </DropdownMenu.Item>
+                    )}
+                    {userInfo && (
+                        <DropdownMenu.Item onClick={() => userStore.logout()}>
+                            Logout
+                        </DropdownMenu.Item>
+                    )}
+                </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+        </DropdownMenu.Root>
     );
 });
 

@@ -9,3 +9,4 @@ export { GamesGrid } from "./GameGrid.jsx";
 export { SidebarTagButton } from "./TagButton.jsx";
 export { SidebarTagButtonGroup } from "./TagButtonGroup.jsx";
 export { ReminderCard } from "./ReminderCard.jsx";
+export { DialogRoot } from "./Dialogs/DialogRoot.jsx";

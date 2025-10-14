@@ -47,6 +47,8 @@
         }
         .reminder-game-title {
             font-weight: bold;
+            cursor: pointer;
+            width: fit-content;
         }
         .reminder-message {
             padding: 4px 8px 0 8px;

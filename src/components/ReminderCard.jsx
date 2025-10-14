@@ -3,7 +3,7 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Popover from "@radix-ui/react-popover";
 import { MdClose, MdDeleteOutline, MdEdit, MdMoreVert, MdRemove } from "react-icons/md";
 import { useRef, useState } from "react";
-import { useDataStore } from "@/stores";
+import { Dialogs, globalDialogStore, useDataStore } from "@/stores";
 import { Button, IconButton } from "@/components";
 import { ReminderObject } from "@/models";
 import "./ReminderCard.css";
@@ -12,10 +12,14 @@ import "./ReminderCard.css";
 export const ReminderCard = observer(({ reminder, outsideOfGamePage = false }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [editorOpen, setEditorOpen] = useState(false);
+
     let gameTitle = "";
+    let onClickGameTitle = undefined;
     if (outsideOfGamePage) {
         const dataStore = useDataStore();
-        gameTitle = dataStore.allGames.get(reminder.gameID).title;
+        const game = dataStore.allGames.get(reminder.gameID);
+        gameTitle = game.title;
+        onClickGameTitle = () => globalDialogStore.open(Dialogs.GamePage, { game });
     }
 
     const classes = ["reminder-container"];
@@ -36,7 +40,11 @@ export const ReminderCard = observer(({ reminder, outsideOfGamePage = false }) =
                 draggable="false"
             >
                 <label>{reminder.getFormattedDate()}</label>
-                {outsideOfGamePage && <p className="reminder-game-title">{gameTitle}</p>}
+                {outsideOfGamePage && (
+                    <p className="reminder-game-title" onClick={onClickGameTitle}>
+                        {gameTitle}
+                    </p>
+                )}
                 <p className="reminder-message">{reminder.message}</p>
             </span>
             <ReminderMenu

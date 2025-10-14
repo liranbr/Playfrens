@@ -1,0 +1,18 @@
+.info-icon {
+    height: 15px;
+    width: 15px;
+    border-radius: 50%;
+    color: var(--pf-fg-500);
+    margin-left: 6px;
+    border: 1px solid var(--pf-fg-500);
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 1;
+
+    &:hover {
+        color: #fff;
+    }
+}

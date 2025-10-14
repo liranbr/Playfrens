@@ -1,7 +1,7 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Dialogs, globalDialogStore, useDataStore } from "@/stores";
-import { Button, ScrollView, Spinner, SearchSelect } from "@/components";
+import { Button, ScrollView, Spinner, SearchSelect, InfoIcon } from "@/components";
 import { DialogBase } from "./DialogRoot.jsx";
 import { createContext, useContext, useEffect, useState } from "react";
 import "./GamePageDialog.css";
@@ -143,8 +143,10 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                             {(advancedView || sortingTitle) && (
                                 <>
                                     <label>
-                                        Sorting Title<small> (optional)</small>
+                                        Sorting Title
+                                        <InfoIcon message="Optional. Helps sort franchises with inconsistent titles. e.g. 'Metroid Zero Mission = Metroid 1, Super Metroid = Metroid 3'" />
                                     </label>
+
                                     <input
                                         value={sortingTitle}
                                         onChange={(e) => setSortingTitle(e.target.value)}

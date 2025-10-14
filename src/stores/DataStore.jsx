@@ -8,6 +8,7 @@ import {
     reaction,
     runInAction,
 } from "mobx";
+
 import {
     compareGameTitlesAZ,
     compareTagNamesAZ,
@@ -17,7 +18,9 @@ import {
     compareTagFilteredGamesCount,
     compareTagTotalGamesCount,
     storeTypes,
+    ReminderObject,
 } from "@/models";
+import { globalSettingsStore, settingsStorageKey, SortingReaction } from "@/stores";
 import {
     deleteItemFromArray,
     loadFromStorage,
@@ -26,10 +29,7 @@ import {
     toastError,
     toastSuccess,
 } from "@/Utils.jsx";
-import { globalSettingsStore, settingsStorageKey } from "@/stores";
 import { version } from "/package.json";
-import { SortingReaction } from "@/stores/SortingReaction.js";
-import { ReminderObject } from "@/models/ReminderObject.js";
 
 const tT = tagTypes; // Short alias for convenience, used a lot here
 const storageKeys = {
@@ -108,10 +108,7 @@ export class DataStore {
         }
     }
 
-    /**
-     * @param {{[key: string]: any[]}} tagCollection - object holding, per tagType, an array of [id, TagObject] entries
-     * Loads the resulting TagObjects into DataStore.allTags
-     */
+    /** @param {{[key: string]: any[]}} tagCollection - object holding, per tagType, an array of [id, TagObject] entries */
     populateTags(tagCollection) {
         for (const tagType in tagCollection) {
             this.allTags[tagType] = new ObservableMap(

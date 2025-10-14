@@ -191,11 +191,9 @@ const Notifications = observer(() => {
     const timeoutDuration = 15 * 60 * 1000; // Every 15 minutes, check whether reminders have activated to update the badge
     const [, forceUpdate] = useState(0);
     useEffect(() => {
-        const interval = setInterval(() => {
-            forceUpdate((n) => n + 1);
-        }, timeoutDuration);
+        const interval = setInterval(() => forceUpdate((n) => n + 1), timeoutDuration);
         return () => clearInterval(interval);
-    }, []);
+    });
 
     const dataStore = useDataStore();
     const reminders = dataStore.sortedReminders;

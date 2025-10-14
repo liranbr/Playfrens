@@ -1,5 +1,13 @@
 import { createContext, useContext } from "react";
-import { action, autorun, makeAutoObservable, ObservableMap, reaction, runInAction } from "mobx";
+import {
+    action,
+    autorun,
+    computed,
+    makeAutoObservable,
+    ObservableMap,
+    reaction,
+    runInAction,
+} from "mobx";
 import {
     compareGameTitlesAZ,
     compareTagNamesAZ,
@@ -21,6 +29,7 @@ import {
 import { globalSettingsStore, settingsStorageKey } from "@/stores";
 import { version } from "/package.json";
 import { SortingReaction } from "@/stores/SortingReaction.js";
+import { ReminderObject } from "@/models/ReminderObject.js";
 
 const tT = tagTypes; // Short alias for convenience, used a lot here
 const storageKeys = {
@@ -28,6 +37,7 @@ const storageKeys = {
     [tT.category]: "allCategories",
     [tT.status]: "allStatuses",
     games: "allGames",
+    reminders: "allReminders",
     settings: settingsStorageKey,
     version: "version",
     visited: "visited",
@@ -42,6 +52,8 @@ const storageKeys = {
  * @class
  * @property {{[key: string]: ObservableMap<String, TagObject>}} allTags
  * @property {ObservableMap<String, GameObject>} allGames
+ * @property {{[key: string]: String[]}} tagsCustomOrders
+ * @property {ReminderObject[]} allReminders
  */
 export class DataStore {
     allTags = {
@@ -56,6 +68,7 @@ export class DataStore {
         [tT.category]: [],
         [tT.status]: [],
     };
+    allReminders = [];
 
     constructor() {
         this.populateTags({
@@ -64,15 +77,18 @@ export class DataStore {
             [tT.status]: loadFromStorage(storageKeys[tT.status], []),
         });
         this.populateGames(loadFromStorage(storageKeys.games, []));
+        this.populateReminders(loadFromStorage(storageKeys.reminders, []));
         this.populateTagsCustomOrders(loadFromStorage(storageKeys.tagsCustomOrders, {}));
-        makeAutoObservable(this);
+        makeAutoObservable(this, { sortedReminders: computed });
 
         // on any change to tags or games, save them
         autorun(() => saveToStorage(storageKeys[tT.friend], this.allTags[tT.friend]));
         autorun(() => saveToStorage(storageKeys[tT.category], this.allTags[tT.category]));
         autorun(() => saveToStorage(storageKeys[tT.status], this.allTags[tT.status]));
         autorun(() => saveToStorage(storageKeys.games, this.allGames));
+        autorun(() => saveToStorage(storageKeys.reminders, this.allReminders));
         autorun(() => saveToStorage(storageKeys.tagsCustomOrders, this.tagsCustomOrders));
+
         // when any game is added/removed, update the totalGamesCounter in every tag
         reaction(
             () => this.allGames.keys(),
@@ -155,6 +171,50 @@ export class DataStore {
         );
     }
 
+    populateReminders(reminderJsons) {
+        this.allReminders = [];
+        if (typeof reminderJsons !== "object" || !Array.isArray(reminderJsons))
+            return console.warn("Skipping invalid tagOrderJsons.");
+        this.allReminders = reminderJsons
+            .filter((reminder) => !!reminder.id)
+            .map((reminder) => new ReminderObject({ ...reminder }));
+    }
+
+    /** @returns {ReminderObject[]} */
+    get sortedReminders() {
+        return this.allReminders.toSorted((a, b) => a.date - b.date);
+    }
+
+    addReminder(reminder) {
+        if (!(reminder instanceof ReminderObject))
+            return toastError("Invalid reminder object: " + reminder);
+        if (this.allReminders.some((r) => r.id === reminder.id))
+            return toastError("Reminder with this ID already exists");
+        if (reminder.message.length === 0) return toastError("Reminder must have a message");
+
+        this.allReminders.push(reminder);
+        return toastSuccess("Reminder added");
+    }
+
+    removeReminder(reminder) {
+        const index = this.allReminders.findIndex((r) => r.id === reminder.id);
+        if (index === -1) return toastError("Error deleting reminder");
+        this.allReminders.splice(index, 1);
+        return toastSuccess("Reminder deleted");
+    }
+
+    editReminder(reminder, newDate, newMessage) {
+        const index = this.allReminders.findIndex((r) => r.id === reminder.id);
+        if (index === -1) return toastError("Error editing reminder");
+        if (!(newDate instanceof Date)) return toastError("Invalid Date");
+        if (typeof newMessage !== "string" || !newMessage.trim())
+            return toastError("Invalid Message");
+
+        this.allReminders[index].date = newDate;
+        this.allReminders[index].message = newMessage;
+        return toastSuccess("Reminder edited");
+    }
+
     populateTagsCustomOrders(tagOrderJsons) {
         this.tagsCustomOrders = {
             [tT.friend]: [],
@@ -222,11 +282,11 @@ export class DataStore {
 
         fullList.set(tag.id, tag);
         const orderList = this.tagsCustomOrders[tag.type];
-        if (orderList && orderList.length > 0) orderList.push(tag.id);
+        if (orderList && orderList.length > 0) orderList.push(tag.id); // if Custom Sort was ever selected, thus an order was made
         return toastSuccess(`Added ${tag.name} to ${tag.typeStrings.plural} list`);
     }
 
-    removeTag(tag) {
+    deleteTag(tag) {
         if (!(tag instanceof TagObject)) return toastError("Invalid tag object: " + tag);
         if (!this.allTags[tag.type].has(tag.id))
             return toastError(`${tag.name} does not exist in ${tag.typeStrings.plural} list`);
@@ -234,7 +294,7 @@ export class DataStore {
         this.allGames.forEach((game) => game.silentRemoveTag(tag));
         this.allTags[tag.type].delete(tag.id);
         deleteItemFromArray(this.tagsCustomOrders[tag.type], tag.id);
-        return toastSuccess(`Removed ${tag.name} from ${tag.typeStrings.plural} list`);
+        return toastSuccess(`Deleted ${tag.name} from ${tag.typeStrings.plural} list`);
     }
 
     editTag(tag, newName) {
@@ -318,10 +378,15 @@ export class DataStore {
         return newGame; // used to open the GamePage right after adding the game
     }
 
-    removeGame(game) {
+    deleteGame(game) {
         const removed = this.allGames.delete(game.id);
-        if (!removed) return toastError(`Failed to remove ${game.title} from games list`);
-        return toastSuccess(`Removed ${game.title} from games list`);
+        if (!removed) return toastError(`Failed to delete ${game.title} from games list`);
+
+        for (const reminder of this.allReminders) {
+            if (reminder.gameID === game.id) deleteItemFromArray(this.allReminders, reminder);
+        }
+
+        return toastSuccess(`Deleted ${game.title} from games list`);
     }
 
     editGame(game, title, coverImageURL, sortingTitle, storeType, storeID, sgdbID) {
@@ -476,6 +541,7 @@ export function backupToFile() {
         [storageKeys[tT.category]]: dataStore.allTags[tT.category],
         [storageKeys[tT.status]]: dataStore.allTags[tT.status],
         [storageKeys.games]: dataStore.allGames,
+        [storageKeys.reminders]: dataStore.allReminders,
         [storageKeys.settings]: loadFromStorage(storageKeys.settings, {}),
         [storageKeys.version]: version,
         [storageKeys.tagsCustomOrders]: dataStore.tagsCustomOrders,
@@ -511,6 +577,7 @@ export function restoreFromFile(file) {
             dataStore.populateTags(tagCollection);
             dataStore.populateGames(data[storageKeys.games]);
         }
+        dataStore.populateReminders(data[storageKeys.reminders]);
         dataStore.populateTagsCustomOrders(data[storageKeys.tagsCustomOrders]);
         // Load the settings to localstorage, and reload, which also populates the SettingsStore
         saveToStorage(storageKeys.settings, data[storageKeys.settings]);

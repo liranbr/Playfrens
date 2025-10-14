@@ -4,10 +4,11 @@
     justify-content: center;
     min-width: 80px;
     width: fit-content;
+    padding: 4px 8px;
     min-height: 36px;
     height: fit-content;
     border-radius: 6px;
-    border: none;
+    border: 0 solid transparent;
     font-size: 16px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -30,6 +31,15 @@
         --pf-btn: var(--pf-btn-primary);
         --pf-btn-hover: var(--pf-btn-primary-hover);
         --pf-btn-active: var(--pf-btn-primary-active);
+
+        &:disabled {
+            color: var(--pf-fg-700);
+            --pf-btn: var(--pf-bg-300);
+            --pf-btn-hover: var(--pf-bg-300);
+            --pf-btn-active: var(--pf-bg-300);
+            border: var(--pf-border-300);
+            cursor: default;
+        }
     }
 
     &.btn-secondary {

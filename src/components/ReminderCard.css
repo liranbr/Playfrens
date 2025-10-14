@@ -1,0 +1,76 @@
+.reminder-container {
+    display: flex;
+    position: relative;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 12px;
+    padding: 8px;
+
+    & > .icon-button {
+        /* ⋮ menu button */
+        /* using opacity:0 and not display/visibility, to keep in DOM for keyboard navigation */
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 0;
+        color: #fff;
+    }
+
+    &:hover,
+    &:active,
+    &.dd-open {
+        background-color: var(--pf-bg-500);
+        & > .icon-button {
+            opacity: 1;
+        }
+    }
+
+    &.dd-open > .icon-button,
+    & > .icon-button:hover {
+        background-color: rgba(0, 0, 0, 0.3);
+    }
+
+    .reminder {
+        overflow: hidden;
+        color: var(--pf-fg-200);
+        label {
+            display: block;
+            color: hsl(215 60% 60%);
+            font-weight: 500;
+        }
+        p {
+            color: inherit;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-wrap: wrap;
+        }
+        .reminder-game-title {
+            font-weight: bold;
+            cursor: pointer;
+            width: fit-content;
+        }
+        .reminder-message {
+            padding: 4px 8px 0 8px;
+        }
+    }
+
+    &.activated {
+        font-size: 14px;
+        background-color: var(--pf-bg-300);
+
+        &:hover,
+        &:active,
+        &.dd-open {
+            background-color: var(--pf-bg-200);
+        }
+
+        .reminder {
+            color: #fff;
+            label {
+                color: hsl(50 98% 71%);
+                font-weight: bold;
+            }
+        }
+    }
+}

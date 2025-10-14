@@ -101,6 +101,8 @@
             padding: 12px;
 
             .gp-column {
+                display: flex;
+                flex-direction: column;
                 width: var(--ui-card-width);
                 gap: 12px;
             }
@@ -130,25 +132,27 @@
                 }
             }
 
-            .game-note-container {
+            .game-note {
+                width: 100%;
+                height: fit-content;
+                flex-shrink: 1;
+                background: none;
+                right: 0;
+                left: 0;
+                padding: 0 8px;
+                border: none;
+                outline: none;
                 border-radius: var(--border-radius);
+                resize: vertical;
+            }
 
-                .ui-card-header {
-                    height: 30px; /* aligns it with the Friends header to its left */
-                }
-
-                .game-note {
-                    width: 100%;
-                    height: fit-content;
-                    flex-shrink: 1;
-                    background: none;
-                    right: 0;
-                    left: 0;
-                    padding: 0 8px;
-                    border: none;
-                    outline: none;
-                    border-radius: var(--border-radius);
-                    resize: vertical;
+            .reminders-container {
+                .reminders-list {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+                    overflow-y: auto;
+                    scrollbar-gutter: stable both-edges;
                 }
             }
         }

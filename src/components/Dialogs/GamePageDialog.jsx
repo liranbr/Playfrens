@@ -5,15 +5,16 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert, MdRemove } from "react-icons/md";
 
-import { CenterAndEdgesRow, IconButton, SimpleTooltip } from "@/components";
+import { Button, CenterAndEdgesRow, IconButton, ReminderCard, SimpleTooltip } from "@/components";
 import { Dialogs, globalDialogStore, updateTagBothGameCounters, useDataStore } from "@/stores";
-import { tagTypes, tagTypeStrings } from "@/models";
+import { ReminderObject, tagTypes, tagTypeStrings } from "@/models";
 import { useValidatedImage } from "@/hooks/useValidatedImage.js";
 import { DialogBase } from "./DialogRoot.jsx";
 
 import "@/components/TagButtonGroup.css";
 import "@/components/TagButton.css";
 import "./GamePageDialog.css";
+import * as Popover from "@radix-ui/react-popover";
 
 const DD = DropdownMenu;
 
@@ -98,9 +99,7 @@ const GPTagButton = observer(({ game, tag }) => {
 
             <DD.Root open={dropdownOpen} onOpenChange={setDropdownOpen}>
                 <DD.Trigger asChild>
-                    <IconButton>
-                        <MdMoreVert />
-                    </IconButton>
+                    <IconButton icon={<MdMoreVert />} />
                 </DD.Trigger>
 
                 <DD.Portal>
@@ -176,7 +175,7 @@ function GameOptionsButton({ game }) {
                             globalDialogStore.open(Dialogs.DeleteWarning, {
                                 itemName: game.title,
                                 deleteFunction: () => {
-                                    dataStore.removeGame(game);
+                                    dataStore.deleteGame(game);
                                     globalDialogStore.closeMultiple(2);
                                 },
                             });
@@ -190,9 +189,74 @@ function GameOptionsButton({ game }) {
     );
 }
 
+const AddReminderPopover = ({ game }) => {
+    const [open, setOpen] = useState(false);
+    const [date, setDate] = useState(null);
+    const [message, setMessage] = useState("");
+    const dataStore = useDataStore();
+
+    const handleDateChange = (e) => {
+        const newDate = e.target.value ? new Date(e.target.value) : null;
+        setDate(newDate);
+    };
+
+    const handleSave = () => {
+        const added = dataStore.addReminder(
+            new ReminderObject({ date: date, message: message, gameID: game.id }),
+        );
+        if (added) setOpen(false);
+    };
+
+    return (
+        <Popover.Root
+            open={open}
+            onOpenChange={(nextOpen) => {
+                setOpen(nextOpen);
+                setDate(null);
+                setMessage("");
+            }}
+        >
+            <Popover.Trigger asChild>
+                <IconButton icon={<MdAdd />} />
+            </Popover.Trigger>
+            <Popover.Portal container={document.getElementById("reminders-container")}>
+                <Popover.Content align="center" className="rx-popover reminder-editor">
+                    <Popover.Close asChild>
+                        <IconButton className="popover-close" icon={<MdClose />} />
+                    </Popover.Close>
+                    <h3>Add Reminder</h3>
+                    <input
+                        className="date-input"
+                        type="date"
+                        value={date ? date.toISOString().split("T")[0] : ""}
+                        onChange={handleDateChange}
+                        autoFocus
+                    />
+                    <textarea
+                        className="reminder-textarea"
+                        rows={4}
+                        spellCheck={false}
+                        value={message}
+                        placeholder="Message"
+                        onChange={(e) => setMessage(e.target.value)}
+                        maxLength={1000}
+                    />
+                    <Button variant="primary" disabled={!date || !message} onClick={handleSave}>
+                        Save
+                    </Button>
+                </Popover.Content>
+            </Popover.Portal>
+        </Popover.Root>
+    );
+};
+
 export const GamePageDialog = observer(({ open, closeDialog, game }) => {
     const gameCover = useValidatedImage(game.coverImageURL);
     const handleHide = () => closeDialog();
+    const dataStore = useDataStore();
+    const gameReminders = dataStore.sortedReminders.filter(
+        (reminder) => reminder.gameID === game.id,
+    );
 
     return (
         <DialogBase
@@ -246,7 +310,22 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
                                 spellCheck={false}
                                 value={game.note}
                                 onChange={(e) => game.setNote(e.target.value)}
+                                maxLength={2000}
                             />
+                        </div>
+
+                        <div className="ui-card reminders-container" id="reminders-container">
+                            <CenterAndEdgesRow className="ui-card-header">
+                                <div />
+                                <h4>REMINDERS</h4>
+                                <AddReminderPopover game={game} />
+                            </CenterAndEdgesRow>
+
+                            <div className="reminders-list">
+                                {gameReminders.map((reminder) => (
+                                    <ReminderCard key={reminder.id} reminder={reminder} />
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>

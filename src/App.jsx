@@ -4,7 +4,7 @@ import { ToastContainer } from "react-toastify";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Avatar from "@radix-ui/react-avatar";
-import { toJS } from "mobx"
+import * as Popover from "@radix-ui/react-popover";
 import {
     MdChevronRight,
     MdClose,
@@ -13,6 +13,7 @@ import {
     MdOutlineFileDownload,
     MdOutlineFileUpload,
     MdOutlineGamepad,
+    MdOutlineNotifications,
     MdPerson,
 } from "react-icons/md";
 import { tagTypes } from "@/models";
@@ -22,7 +23,8 @@ import {
     restoreFromFile,
     Dialogs,
     globalDialogStore,
-    useUserStore
+    useUserStore,
+    useDataStore,
 } from "@/stores";
 import {
     SidebarTagButtonGroup,
@@ -30,6 +32,7 @@ import {
     CenterAndEdgesRow,
     GamesGrid,
     SimpleTooltip,
+    ReminderCard,
 } from "@/components";
 import { DialogRoot } from "@/components/Dialogs/DialogRoot.jsx";
 import "./App.css";
@@ -129,7 +132,7 @@ const AppHeader = observer(() => {
                 <div />
             </CenterAndEdgesRow>
 
-            <div>
+            <div className="app-header-right">
                 <button
                     className="new-game-button"
                     onClick={() => globalDialogStore.open(Dialogs.EditGame)}
@@ -137,6 +140,9 @@ const AppHeader = observer(() => {
                     <MdOutlineGamepad />
                     Add Game
                 </button>
+
+                <Notifications />
+
                 <AppUserAvatar />
             </div>
         </CenterAndEdgesRow>
@@ -146,40 +152,76 @@ const AppHeader = observer(() => {
 const AppUserAvatar = observer(() => {
     const userStore = useUserStore();
     const { userInfo } = userStore;
-    return (<SimpleTooltip message="Accounts not implemented yet">
-        <DropdownMenu.Root>
-            <DropdownMenu.Trigger asChild className="rx-avatar">
-                <Avatar.Root>
-                    <Avatar.Image src={userInfo?.avatars?.[0] ?? undefined} />
-                    <Avatar.Fallback className="rx-avatarless" asChild>
-                        <MdPerson />
-                    </Avatar.Fallback>
-                </Avatar.Root>
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Portal>
-                <DropdownMenu.Content
-                    className="rx-dropdown-menu"
-                    align={"start"}
-                    side={"bottom"}
-                    sideOffset={5}
-                >
-                    {
-                        !userInfo &&
-                        <DropdownMenu.Item onClick={() => userStore.login()}>
-                            Login
-                        </DropdownMenu.Item>
-                    }
-                    {
-                        userInfo &&
-                        <DropdownMenu.Item onClick={() => userStore.logout()}>
-                            Logout
-                        </DropdownMenu.Item>
-                    }
-                </DropdownMenu.Content>
-            </DropdownMenu.Portal>
-        </DropdownMenu.Root>
+    return (
+        <SimpleTooltip message="Accounts not implemented yet">
+            <DropdownMenu.Root>
+                <DropdownMenu.Trigger asChild className="rx-avatar">
+                    <Avatar.Root>
+                        <Avatar.Image src={userInfo?.avatars?.[0] ?? undefined} />
+                        <Avatar.Fallback className="rx-avatarless" asChild>
+                            <MdPerson />
+                        </Avatar.Fallback>
+                    </Avatar.Root>
+                </DropdownMenu.Trigger>
+                <DropdownMenu.Portal>
+                    <DropdownMenu.Content
+                        className="rx-dropdown-menu"
+                        align={"start"}
+                        side={"bottom"}
+                        sideOffset={5}
+                    >
+                        {!userInfo && (
+                            <DropdownMenu.Item onClick={() => userStore.login()}>
+                                Login
+                            </DropdownMenu.Item>
+                        )}
+                        {userInfo && (
+                            <DropdownMenu.Item onClick={() => userStore.logout()}>
+                                Logout
+                            </DropdownMenu.Item>
+                        )}
+                    </DropdownMenu.Content>
+                </DropdownMenu.Portal>
+            </DropdownMenu.Root>
+        </SimpleTooltip>
+    );
+});
 
-    </SimpleTooltip>);
+const Notifications = observer(() => {
+    const timeoutDuration = 15 * 60 * 1000; // Every 15 minutes, check whether reminders have activated to update the badge
+    const [, forceUpdate] = useState(0);
+    useEffect(() => {
+        const interval = setInterval(() => {
+            forceUpdate((n) => n + 1);
+        }, timeoutDuration);
+        return () => clearInterval(interval);
+    }, []);
+
+    const dataStore = useDataStore();
+    const reminders = dataStore.sortedReminders;
+
+    const now = new Date();
+    const activeRemindersCount = reminders.filter((r) => r.date < now).length;
+
+    return (
+        <Popover.Root>
+            <Popover.Trigger asChild>
+                <button className="notifications-button">
+                    {activeRemindersCount > 0 && (
+                        <span className="notifications-badge">{activeRemindersCount}</span>
+                    )}
+                    <MdOutlineNotifications />
+                </button>
+            </Popover.Trigger>
+            <Popover.Content className="rx-popover notifications-drawer" align="end" sideOffset={5}>
+                <div className="reminders-list">
+                    {reminders.map((reminder) => (
+                        <ReminderCard key={reminder.id} reminder={reminder} outsideOfGamePage />
+                    ))}
+                </div>
+            </Popover.Content>
+        </Popover.Root>
+    );
 });
 
 function AppSidebar() {

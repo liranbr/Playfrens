@@ -111,6 +111,21 @@
     .notifications-button {
         aspect-ratio: 1;
         border-radius: 50%;
+        position: relative;
+
+        .notifications-badge {
+            position: absolute;
+            top: 0;
+            left: -4px;
+            height: 16px;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--pf-btn-danger);
+        }
     }
 
     .notifications-drawer {

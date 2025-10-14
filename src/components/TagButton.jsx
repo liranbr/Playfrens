@@ -130,7 +130,7 @@ const SidebarTBMenuButton = observer(({ tag, filterStore, dropdownOpen, setDropd
             itemName: tag.name,
             deleteFunction: () => {
                 filterStore.removeFiltersOfTag(tag);
-                dataStore.removeTag(tag);
+                dataStore.deleteTag(tag);
             },
         });
     };

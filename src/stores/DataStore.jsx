@@ -52,6 +52,8 @@ const storageKeys = {
  * @class
  * @property {{[key: string]: ObservableMap<String, TagObject>}} allTags
  * @property {ObservableMap<String, GameObject>} allGames
+ * @property {{[key: string]: String[]}} tagsCustomOrders
+ * @property {ReminderObject[]} allReminders
  */
 export class DataStore {
     allTags = {
@@ -284,7 +286,7 @@ export class DataStore {
         return toastSuccess(`Added ${tag.name} to ${tag.typeStrings.plural} list`);
     }
 
-    removeTag(tag) {
+    deleteTag(tag) {
         if (!(tag instanceof TagObject)) return toastError("Invalid tag object: " + tag);
         if (!this.allTags[tag.type].has(tag.id))
             return toastError(`${tag.name} does not exist in ${tag.typeStrings.plural} list`);
@@ -376,11 +378,15 @@ export class DataStore {
         return newGame; // used to open the GamePage right after adding the game
     }
 
-    removeGame(game) {
+    deleteGame(game) {
         const removed = this.allGames.delete(game.id);
-        if (!removed) return toastError(`Failed to remove ${game.title} from games list`);
-        // TODO: remove any reminders tied to the game
-        return toastSuccess(`Removed ${game.title} from games list`);
+        if (!removed) return toastError(`Failed to delete ${game.title} from games list`);
+
+        for (const reminder of this.allReminders) {
+            if (reminder.gameID === game.id) deleteItemFromArray(this.allReminders, reminder);
+        }
+
+        return toastSuccess(`Deleted ${game.title} from games list`);
     }
 
     editGame(game, title, coverImageURL, sortingTitle, storeType, storeID, sgdbID) {

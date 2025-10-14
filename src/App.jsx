@@ -188,32 +188,28 @@ const AppUserAvatar = observer(() => {
 });
 
 const Notifications = observer(() => {
-    // Check whether reminders have activated, once a day. Day checked on load and whenever the user opens the tab again
+    const timeoutDuration = 15 * 60 * 1000; // Every 15 minutes, check whether reminders have activated to update the badge
+    const [, forceUpdate] = useState(0);
     useEffect(() => {
-        const runReminderCheck = () => {
-            const today = new Date().toLocaleDateString();
-            const last = localStorage.getItem("lastReminderCheck");
-            if (last !== today) {
-                // checkReminders(); TODO: implement, to update the (n) badge on the icon
-                localStorage.setItem("lastReminderCheck", today);
-            }
-        };
-
-        runReminderCheck();
-        document.addEventListener("visibilitychange", () => {
-            if (!document.hidden) runReminderCheck();
-        });
-
-        return () => document.removeEventListener("visibilitychange", runReminderCheck);
+        const interval = setInterval(() => {
+            forceUpdate((n) => n + 1);
+        }, timeoutDuration);
+        return () => clearInterval(interval);
     }, []);
 
     const dataStore = useDataStore();
     const reminders = dataStore.sortedReminders;
 
+    const now = new Date();
+    const activeRemindersCount = reminders.filter((r) => r.date < now).length;
+
     return (
         <Popover.Root>
             <Popover.Trigger asChild>
                 <button className="notifications-button">
+                    {activeRemindersCount > 0 && (
+                        <span className="notifications-badge">{activeRemindersCount}</span>
+                    )}
                     <MdOutlineNotifications />
                 </button>
             </Popover.Trigger>

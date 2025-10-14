@@ -175,7 +175,7 @@ function GameOptionsButton({ game }) {
                             globalDialogStore.open(Dialogs.DeleteWarning, {
                                 itemName: game.title,
                                 deleteFunction: () => {
-                                    dataStore.removeGame(game);
+                                    dataStore.deleteGame(game);
                                     globalDialogStore.closeMultiple(2);
                                 },
                             });

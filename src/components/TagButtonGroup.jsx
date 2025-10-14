@@ -97,7 +97,7 @@ const SidebarTBGMenu = observer(({ tagType }) => {
                     </ToggleGroup.Root>
                     <div className="spacer" />
 
-                    <p>Selecting {pluralString} will filter for games that</p>
+                    <p>Selecting multiple {pluralString} will filter for games that</p>
                     <RadioGroup.Root
                         defaultValue={settingsStore.tagFilterLogic[tagType]}
                         className="rx-radio-group"

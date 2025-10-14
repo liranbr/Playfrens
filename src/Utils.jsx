@@ -74,3 +74,16 @@ export function parseDuration(str) {
     if (str.endsWith("s")) return parseFloat(str) * 1000;
     return 0;
 }
+
+export function ensureUniqueName(namesList, newName) {
+    const lowerSet = new Set(namesList.map((name) => name.toLowerCase()));
+    const lowerName = newName.toLowerCase();
+
+    if (!lowerSet.has(lowerName)) return newName;
+
+    const nameWithCount = (name, c) => `${name} (${c})`;
+    let counter = 1;
+    while (lowerSet.has(nameWithCount(lowerName, counter))) counter++;
+
+    return nameWithCount(newName, counter);
+}

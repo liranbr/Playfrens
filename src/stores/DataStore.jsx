@@ -20,9 +20,11 @@ import {
     storeTypes,
     ReminderObject,
 } from "@/models";
-import { globalSettingsStore, settingsStorageKey, SortingReaction } from "@/stores";
+import { globalSettingsStore, settingsStorageKey } from "@/stores";
+import { SortingReaction } from "./SortingReaction.js";
 import {
     deleteItemFromArray,
+    ensureUniqueName,
     loadFromStorage,
     moveItemInArray,
     saveToStorage,
@@ -274,8 +276,14 @@ export class DataStore {
     addTag(tag) {
         if (!(tag instanceof TagObject)) return toastError("Invalid tag object: " + tag);
         const fullList = this.allTags[tag.type];
-        if ([...fullList.values()].some((t) => t.name === tag.name))
-            return toastError(`${tag.name} already exists in ${tag.typeStrings.plural} list`);
+
+        if ([...fullList.values()].some((t) => t.id === tag.id))
+            return toastError(`This tag already exists in the ${tag.typeStrings.plural} list`);
+
+        tag.name = ensureUniqueName(
+            [...fullList.values()].map((t) => t.name),
+            tag.name,
+        );
 
         fullList.set(tag.id, tag);
         const orderList = this.tagsCustomOrders[tag.type];
@@ -298,14 +306,18 @@ export class DataStore {
         if (tag.name === newName) return true; // nothing to do here, until adding more fields to edit
         // Editing needs to be in the DataStore rather than the object itself, to prevent duplicate names
         if (!(tag instanceof TagObject)) return toastError("Invalid tag object: " + tag);
-        const storedTag = this.allTags[tag.type].get(tag.id);
+        const fullList = this.allTags[tag.type];
+        const storedTag = fullList.get(tag.id);
         if (!storedTag)
             return toastError(`${tag.name} does not exist in ${tag.typeStrings.plural} list`);
 
         if (!newName || typeof newName !== "string" || !newName.trim())
             return toastError(`Cannot save a ${tag.typeStrings.single} without a name`);
-        if (this.allTags[tag.type].values().some((t) => t.name === newName))
-            return toastError(`${newName} already exists in ${tag.typeStrings.plural} list`);
+
+        newName = ensureUniqueName(
+            [...fullList.values()].map((t) => t.name),
+            newName,
+        );
 
         const oldName = tag.name;
         storedTag.name = newName;
@@ -347,10 +359,6 @@ export class DataStore {
             toastError("Cannot save a game without a title");
             return null;
         }
-        if (this.allGames.values().some((game) => game.title === title)) {
-            toastError(`${title} already exists in games list`);
-            return null;
-        }
         if (!coverImageURL) {
             toastError("Cannot save a game without a cover image");
             return null;
@@ -361,6 +369,21 @@ export class DataStore {
             );
             return null;
         }
+        const allGamesArray = [...this.allGames.values()];
+
+        if (storeType !== "custom") {
+            const identicalGame = allGamesArray.find(
+                (g) => g.storeID === storeID && g.storeType === storeType, // Game with the same ID on the same store
+            );
+            if (identicalGame) {
+                toastError(identicalGame.title + " already exists in the games list");
+                return null;
+            }
+        }
+        title = ensureUniqueName(
+            allGamesArray.map((g) => g.title),
+            title,
+        );
 
         const newGame = new GameObject({
             title: title,
@@ -370,6 +393,8 @@ export class DataStore {
             storeID: storeID,
             sgdbID: sgdbID,
         });
+        if (this.allGames.has(newGame.id))
+            throw new Error("What do you MEAN this uuid already exists");
         this.allGames.set(newGame.id, newGame);
         toastSuccess("Added " + title + " to games list");
         return newGame; // used to open the GamePage right after adding the game
@@ -393,9 +418,25 @@ export class DataStore {
         if (!storedGame) return toastError(`${game.title} does not exist in the games list`);
         if (!title || typeof title !== "string" || !title.trim())
             return toastError("Cannot save a game without a title");
-        if (game.title !== title && this.allGames.values().some((t) => t.title === title))
-            return toastError(`${title} already exists in the games list`);
         if (!coverImageURL) return toastError("Cannot save a game without a cover image");
+
+        const allGamesArray = [...this.allGames.values()];
+        if (storeType !== "custom") {
+            // Looking for a different GameObject that has the same storeID from the same storeType
+            const identicalGame = allGamesArray.find(
+                (g) => g.storeID === storeID && g.storeType === storeType && g.id !== game.id,
+            );
+            if (identicalGame) {
+                console.log(identicalGame.storeType);
+                return toastError(identicalGame.title + " already exists in the games list");
+            }
+        }
+        if (title !== game.title) {
+            title = ensureUniqueName(
+                allGamesArray.map((g) => g.title),
+                title,
+            );
+        }
 
         const oldTitle = storedGame.title;
         storedGame.title = title;

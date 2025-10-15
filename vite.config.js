@@ -16,7 +16,7 @@ export default defineConfig(({ mode }) => {
     };
     const useHttps = parseBoolean(USE_HTTPS);
 
-    const target = `http${useHttps ? "s" : ""}://${DOMAIN}:3000`;
+    const target = `${useHttps ? "https" : "http"}://${DOMAIN}:3000`;
 
     return {
         plugins: [react(), useHttps ? mkcert() : undefined],
@@ -25,6 +25,7 @@ export default defineConfig(({ mode }) => {
             port: 5174, // for developing - stable is running on 5173
             https: useHttps,
             sourcemap: true,
+            allowedHosts: "playfrens.onrender.com",
             proxy: {
                 "/auth": {
                     target: target,

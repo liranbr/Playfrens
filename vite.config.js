@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => {
             port: 5174, // for developing - stable is running on 5173
             https: useHttps,
             sourcemap: true,
-            allowedHosts: "playfrens.onrender.com",
+            allowedHosts: [".onrender.com"],
             proxy: {
                 "/auth": {
                     target: target,

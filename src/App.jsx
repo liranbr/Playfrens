@@ -179,7 +179,6 @@ const AppUserAvatar = observer(() => {
                             <DropdownMenu.Item onClick={() => userStore.login("google")}>
                                 Google Login
                             </DropdownMenu.Item>
-
                         </>
                     )}
                     {userInfo && (
@@ -201,6 +200,7 @@ const Notifications = observer(() => {
         return () => clearInterval(interval);
     });
 
+    const [popoverOpen, setPopoverOpen] = useState(false);
     const dataStore = useDataStore();
     const reminders = dataStore.sortedReminders;
 
@@ -208,9 +208,9 @@ const Notifications = observer(() => {
     const activeRemindersCount = reminders.filter((r) => r.date < now).length;
 
     return (
-        <Popover.Root>
+        <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
             <Popover.Trigger asChild>
-                <button className="notifications-button">
+                <button className={"notifications-button" + (popoverOpen ? " activated" : "")}>
                     {activeRemindersCount > 0 && (
                         <span className="notifications-badge">{activeRemindersCount}</span>
                     )}

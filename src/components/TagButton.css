@@ -115,7 +115,7 @@
             outline: 2px dashed var(--pf-fg-700);
             outline-offset: -2px;
             color: var(--pf-fg-700);
-            text-decoration: line-through;
+            /*text-decoration: line-through;*/
             label {
                 display: none;
             }

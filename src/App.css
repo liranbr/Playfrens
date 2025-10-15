@@ -37,7 +37,7 @@
 
 .game-search {
     position: relative;
-    border-radius: 16px;
+    border-radius: var(--app-header-element-height);
     input {
         height: var(--app-header-element-height);
         width: 300px;
@@ -93,7 +93,9 @@
             font-size: 26px;
         }
 
-        &:hover {
+        &:hover,
+        &:active,
+        &.activated {
             color: #fff;
             background-color: var(--pf-bg-300);
         }
@@ -115,16 +117,19 @@
 
         .notifications-badge {
             position: absolute;
-            top: 0;
-            left: -4px;
+            top: -2px;
+            right: -4px;
             height: 16px;
             aspect-ratio: 1;
+            box-sizing: content-box;
+            border: 2px solid var(--pf-bg-900);
             border-radius: 50%;
             color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
             background-color: var(--pf-btn-danger);
+            font-weight: 500;
         }
     }
 

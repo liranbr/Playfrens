@@ -15,7 +15,14 @@
     grid-template-columns: repeat(auto-fit, var(--game-card-width));
 }
 
+.game-card-grid-cell {
+    /* Needed to keep the grid cell sizes correct with the card sizes scaling */
+    width: var(--game-card-width);
+    height: calc(var(--game-card-width) * 1.5);
+}
+
 .game-card {
+    --scale-up: 1.05;
     position: relative;
     overflow: hidden; /* for the overlay */
     width: var(--game-card-width);
@@ -68,12 +75,11 @@
 
     &:hover,
     &.doesnt-have-dragged-tag.dragged-over {
-        transform: scale(1.05);
+        transform: scale(var(--scale-up));
         box-shadow: 0 12px 16px rgba(0, 0, 0, 0.6);
         z-index: 1;
 
         .game-card-title-overlay {
-            transform: scale(1.01); /* reduces flicker on transition end */
             opacity: 1;
         }
     }
@@ -124,6 +130,22 @@
                 color: var(--pf-fg-link);
                 transition: 0.3s ease;
             }
+        }
+    }
+}
+
+@supports (-moz-animation: none) {
+    /*Firefox-only overrides. Scale down instead so that hover scales up to 100%, to fix text and image rendering */
+    .game-card {
+        width: calc(var(--game-card-width) * var(--scale-up)) !important;
+        transform: scale(calc(1 / var(--scale-up)));
+        --transform-translated-x: calc(var(--game-card-width) * (1 - var(--scale-up)) / 2);
+        margin-left: var(--transform-translated-x);
+        margin-top: calc(var(--transform-translated-x) * 1.5);
+
+        &:hover,
+        &.doesnt-have-dragged-tag.dragged-over {
+            transform: scale(1);
         }
     }
 }

@@ -40,25 +40,27 @@ const GameCard = observer(({ game }) => {
     };
 
     return (
-        <button
-            className={classes.join(" ")}
-            onClick={openGamePageDialog}
-            onDrop={handleDrop}
-            onDragOver={(e) => {
-                setDraggedOver(true);
-                e.preventDefault();
-            }}
-            onDragLeave={() => setDraggedOver(false)}
-        >
-            <img
-                draggable="false"
-                alt={game.title + " Card"}
-                referrerPolicy="no-referrer"
-                src={gameCover}
-            />
-            <p className="game-card-title-overlay">{game.title}</p>
-            <MdAddCircleOutline className="drag-indicator" />
-        </button>
+        <div className="game-card-grid-cell">
+            <button
+                className={classes.join(" ")}
+                onClick={openGamePageDialog}
+                onDrop={handleDrop}
+                onDragOver={(e) => {
+                    setDraggedOver(true);
+                    e.preventDefault();
+                }}
+                onDragLeave={() => setDraggedOver(false)}
+            >
+                <img
+                    draggable="false"
+                    alt={game.title + " Card"}
+                    referrerPolicy="no-referrer"
+                    src={gameCover}
+                />
+                <p className="game-card-title-overlay">{game.title}</p>
+                <MdAddCircleOutline className="drag-indicator" />
+            </button>
+        </div>
     );
 });
 

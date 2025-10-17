@@ -1,4 +1,5 @@
 # Playfrens
 
-Early WIP tool, that will help you Play with Friends :)  
-elevator pitch also wip.
+WIP website that helps you Play with Friends :)  
+
+Elevator pitch also WIP.

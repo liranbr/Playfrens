@@ -110,3 +110,11 @@ fieldset {
         resize: vertical;
     }
 }
+
+.toggle-option {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    gap: 12px;
+    color: var(--pf-fg-100);
+}

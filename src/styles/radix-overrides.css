@@ -456,6 +456,33 @@
     z-index: 105;
 }
 
+.rx-switch {
+    width: 42px;
+    height: 25px;
+    background-color: var(--pf-bg-900);
+    border: var(--pf-border-100);
+    border-radius: 9999px;
+    transition: background 100ms;
+    &[data-state="checked"] {
+        background-color: var(--pf-btn-primary);
+    }
+
+    /* the Switch Thumb is a span */
+    span {
+        background-color: var(--pf-fg-100);
+        width: 20px;
+        height: 20px;
+        display: block;
+        border-radius: 9999px;
+        transition: transform 100ms;
+        transform: translateX(2px);
+        will-change: transform;
+        &[data-state="checked"] {
+            transform: translateX(19px);
+        }
+    }
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;

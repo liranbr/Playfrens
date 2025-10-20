@@ -7,8 +7,8 @@ export {
     GameSortOptions,
     TagGameCounterOptions,
     globalSettingsStore,
-} from "./SettingsStore.jsx";
-export { useUserStore } from "./UserStore.jsx";
-export { globalDataStore, useDataStore, backupToFile, restoreFromFile } from "./DataStore.jsx";
-export { useFilterStore, updateTagBothGameCounters } from "./FilterStore.jsx";
-export { Dialogs, globalDialogStore } from "./DialogStore.jsx";
+} from "./SettingsStore.js";
+export { useUserStore } from "./UserStore.js";
+export { globalDataStore, useDataStore, backupToFile, restoreFromFile } from "./DataStore.js";
+export { useFilterStore, updateTagBothGameCounters } from "./FilterStore.js";
+export { Dialogs, globalDialogStore } from "./DialogStore.js";

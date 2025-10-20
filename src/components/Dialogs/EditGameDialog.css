@@ -54,7 +54,8 @@
                 overflow-y: auto;
                 scrollbar-gutter: stable both-edges;
 
-                img {
+                img,
+                video {
                     width: 100%;
                     aspect-ratio: 1 / 1.5;
                     outline: 4px solid transparent;

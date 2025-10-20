@@ -1,12 +1,13 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Dialogs, globalDialogStore, useDataStore } from "@/stores";
-import { Button, ScrollView, Spinner, SearchSelect, InfoIcon } from "@/components";
+import { Button, Spinner, SearchSelect, InfoIcon } from "@/components";
 import { DialogBase } from "./DialogRoot.jsx";
 import { createContext, useContext, useEffect, useState } from "react";
 import "./GamePageDialog.css";
 import "./EditGameDialog.css";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
+import * as Switch from "@radix-ui/react-switch";
 import { storeTypes } from "@/models";
 import { getOfficialCoverImageURL, searchTitleOnStore, sgdbDatedTitle } from "@/APIUtils.js";
 
@@ -144,7 +145,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                                 <>
                                     <label>
                                         Sorting Title
-                                        <InfoIcon message="Optional. Helps sort franchises with inconsistent titles. e.g. 'Metroid Zero Mission = Metroid 1, Super Metroid = Metroid 3'" />
+                                        <InfoIcon message="Optional. Helps sort franchises with irregular titles. e.g. 'Metroid Zero Mission = Metroid 1, Super Metroid = Metroid 3'" />
                                     </label>
 
                                     <input
@@ -200,6 +201,7 @@ function CoverSelector({ saveOnEnter }) {
         advancedView,
     } = useContext(GameEntryContext);
     const [loadingCovers, setLoadingCovers] = useState(false);
+    const [animatedOnly, setAnimatedOnly] = useState(false);
 
     const searchSgdbTitle = async (query, setResults) =>
         setResults(await searchTitleOnStore(query, "custom"));
@@ -241,6 +243,18 @@ function CoverSelector({ saveOnEnter }) {
                             onSelect={selectSgdbGame}
                         />
 
+                        <div className="toggle-option">
+                            <Switch.Root
+                                className="rx-switch"
+                                id="animated-covers-switch"
+                                checked={animatedOnly}
+                                onCheckedChange={setAnimatedOnly}
+                            >
+                                <Switch.Thumb />
+                            </Switch.Root>{" "}
+                            Only animated covers
+                        </div>
+
                         <label>Cover Art URL</label>
                         <input
                             value={coverImageURL}
@@ -252,12 +266,16 @@ function CoverSelector({ saveOnEnter }) {
                 )}
             </fieldset>
 
-            <CoversGallery loadingCovers={loadingCovers} setLoadingCovers={setLoadingCovers} />
+            <CoversGallery
+                loadingCovers={loadingCovers}
+                setLoadingCovers={setLoadingCovers}
+                animatedOnly={animatedOnly}
+            />
         </div>
     );
 }
 
-function CoversGallery({ loadingCovers, setLoadingCovers }) {
+function CoversGallery({ loadingCovers, setLoadingCovers, animatedOnly }) {
     const currentCoverImage = () => {
         return { url: coverImageURL, preview: coverImageURL };
     };
@@ -280,9 +298,12 @@ function CoversGallery({ loadingCovers, setLoadingCovers }) {
 
         const officialCoverReq = getOfficialCoverImageURL(storeType, storeID);
 
-        const sgdbReq = fetch(`/api/steamgriddb/getGrids?sgdbID=${sgdbID}`).then((res) => {
+        const params = new URLSearchParams({ sgdbID });
+        if (animatedOnly) params.append("animatedOnly", "true");
+
+        const sgdbReq = fetch(`/api/steamgriddb/getGrids?${params}`).then((res) => {
             if (!res.ok) {
-                if (res.status === 404) return []; // no results is fine
+                if (res.status === 404) return []; // having no results is fine
                 throw new Error(`Status ${res.status}, failed to fetch grids for id ${sgdbID}`);
             }
             return res.json();
@@ -315,7 +336,7 @@ function CoversGallery({ loadingCovers, setLoadingCovers }) {
                 setError(err);
             })
             .finally(() => setLoadingCovers(false));
-    }, [sgdbID]);
+    }, [sgdbID, animatedOnly]);
 
     if (loadingCovers) return <Spinner />;
     if (!images.length) {
@@ -327,15 +348,17 @@ function CoversGallery({ loadingCovers, setLoadingCovers }) {
 
     return (
         <div className="covers-gallery">
-            {images.slice(0, 32).map((img) => (
-                <img
-                    key={img.url}
-                    src={img.preview}
-                    alt="Game Cover Art"
-                    onClick={() => setCoverImageURL(img.url)}
-                    className={img.url === coverImageURL ? "selected-cover" : ""}
-                />
-            ))}
+            {images.slice(0, 48).map((img) => {
+                const sharedProps = {
+                    src: img.preview,
+                    onClick: () => setCoverImageURL(img.url),
+                    className: img.url === coverImageURL ? "selected-cover" : "",
+                };
+                if (img.preview.includes(".webm"))
+                    return <video key={img.url} {...sharedProps} autoPlay loop />;
+
+                return <img key={img.url} {...sharedProps} alt="Game Cover Art" />;
+            })}
         </div>
     );
 }

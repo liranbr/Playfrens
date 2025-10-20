@@ -15,7 +15,6 @@ export class Service {
     constructor(app, environment_key = "") {
         this.app = app;
         this.environment_key = environment_key;
-        this.listen();
     }
     async connect() {}
     listen() {

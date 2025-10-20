@@ -5,8 +5,6 @@ import { GeneralService } from "./services/general.js";
 import { LoginService } from "./services/login.js";
 import { SteamGridDBService } from "./services/steamgriddb.js";
 import { SteamWebService } from "./services/steam.js";
-import session from "express-session";
-import passport from "passport";
 import https from "https";
 import selfsigned from "selfsigned";
 import path from "path";
@@ -24,6 +22,10 @@ const env = process.env;
 
 // Init express
 const app = express();
+app.set("trust proxy", 1);
+
+const isProd = process.env.NODE_END === "production";
+app.locals.isProd = isProd;
 
 // Holds all services we provide into classes
 const services = [];
@@ -36,28 +38,22 @@ app.use(
     }),
 );
 
-// For login purposes, see ./services/login.js
-// Allows express to manage sessions
-app.use(
-    session({
-        secret: process.env.SESSION_SECRET,
-        resave: false,
-        saveUninitialized: false,
-        cookie: {
-            secure: strToBool(env.USE_HTTPS), // http vs https
-            httpOnly: true,
-            sameSite: "none",
-            maxAge: 24 * 60 * 60 * 1000, // 1 day
-        },
-    }),
-);
-
-app.use(passport.initialize());
-app.use(passport.session());
-passport.serializeUser((user, done) => done(null, user));
-passport.deserializeUser((obj, done) => done(null, obj));
-
 export const main = () => {
+    // Initialize all services
+    app.locals.services = {};
+    app.locals.services.general = new GeneralService(app);
+    app.locals.services.login = new LoginService(app);
+    app.locals.services.steam = new SteamWebService(app);
+    app.locals.services.steamgriddb = new SteamGridDBService(app);
+
+    // Listen afterwards.
+    for (const svc of Object.values(app.locals.services)) {
+        if (typeof svc.listen === "function") svc.listen();
+    }
+
+    // Push all the services we provide.
+    services.push(...Object.values(app.locals.services));
+
     // Production should not release with HTTPS, this is mostly for testing purposes.
     const makeHTTPS = (app) => {
         const pems = selfsigned.generate([{ name: "commonName", value: env.DOMAIN }], {
@@ -73,16 +69,6 @@ export const main = () => {
             `${ConsoleColors.FgRGB(191, 255, 0)} Playfrens server running @ ${resolveBaseURL()}${ConsoleColors.Reset}`,
         );
     });
-
-    // Initialize all services
-    app.locals.services = {};
-    app.locals.services.general = new GeneralService(app);
-    app.locals.services.login = new LoginService(app);
-    app.locals.services.steam = new SteamWebService(app);
-    app.locals.services.steamgriddb = new SteamGridDBService(app);
-
-    // Push all the services we provide.
-    services.push(...Object.values(app.locals.services));
 
     // NOTICE: The follow 2 calls down below assumes we have a public folder for server.js
     // In normal development, we use Vite instead, making both of these only functional when publishing.

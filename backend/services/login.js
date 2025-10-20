@@ -3,11 +3,32 @@ import { Response } from "../response.js";
 import SteamStrategy from "passport-steam";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import passport from "passport";
-import { resolveBaseURL } from "../utils.js";
+import session from "express-session";
+import { resolveBaseURL, strToBool } from "../utils.js";
 
 export class LoginService extends Service {
     constructor(app) {
         super(app, process.env.SESSION_SECRET);
+
+        // Allows express to manage sessions
+        app.use(
+            session({
+                secret: process.env.SESSION_SECRET,
+                resave: false,
+                saveUninitialized: false,
+                cookie: {
+                    secure: app.locals.isProd || strToBool(process.env.USE_HTTPS),
+                    httpOnly: true,
+                    sameSite: app.locals.isProd ? "none" : "lax",
+                    maxAge: 24 * 60 * 60 * 1000, // 1 day
+                },
+            }),
+        );
+
+        app.use(passport.initialize());
+        app.use(passport.session());
+        passport.serializeUser((user, done) => done(null, user));
+        passport.deserializeUser((obj, done) => done(null, obj));
 
         const URL = resolveBaseURL("frontend");
         passport.use(

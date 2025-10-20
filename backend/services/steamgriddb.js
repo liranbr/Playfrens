@@ -33,9 +33,9 @@ export class SteamGridDBService extends Service {
         ]);
     }
 
-    /** from a sgdbID, and optional nsfw param, returns sgdb grids{url, preview} */
+    /** from a sgdbID, and optional animatedOnly and nsfw params, returns sgdb grids{url, preview} */
     async getGrids(req, res) {
-        const { sgdbID, nsfw = "false" } = req.query;
+        const { sgdbID, nsfw = "false", animatedOnly = "false" } = req.query;
         const { NOT_FOUND, OK } = Response.HttpStatus;
         const client = this.connect();
 
@@ -43,6 +43,7 @@ export class SteamGridDBService extends Service {
             id: sgdbID,
             dimensions: ["600x900"],
             type: "game",
+            types: animatedOnly === "true" ? ["animated"] : [],
             nsfw: nsfw,
         };
         const grids = await client.getGrids(gridOptions);

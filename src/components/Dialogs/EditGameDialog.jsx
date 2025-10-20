@@ -209,19 +209,23 @@ function CoverSelector({ saveOnEnter }) {
     // activated on selecting a Store Game, or selecting an SGDB entry in the SearchSelect below
     const selectSgdbGame = (SgdbGame) => {
         setSgdbID(SgdbGame.id);
-        setSgdbTitle(sgdbDatedTitle(SgdbGame));
+        setSgdbTitle(SgdbGame.sgdbTitle);
     };
 
     // When a Store game is selected, retrieve its sgdb entry and select it
     useEffect(() => {
         if (!(storeType && storeID)) return;
         setLoadingCovers(true); // starting the fetch process. next step is fetching the entry's covers.
-        fetch(`/api/steamgriddb/getGameFromStore?storeType=${storeType}&storeID=${storeID}`)
+        const params = new URLSearchParams({ storeType, storeID });
+        fetch(`/api/steamgriddb/getGameFromStore?${params}`)
             .then((res) => {
                 if (!res.ok) throw new Error("Failed to fetch game");
                 return res.json();
             })
-            .then(selectSgdbGame)
+            .then((sgdbEntry) => {
+                sgdbEntry.sgdbTitle = sgdbDatedTitle(sgdbEntry);
+                selectSgdbGame(sgdbEntry);
+            })
             .catch((err) => console.error(err))
             .finally(() => setLoadingCovers(false));
     }, [storeID]);

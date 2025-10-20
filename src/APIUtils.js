@@ -44,6 +44,7 @@ export async function searchTitleOnStore(title, storeType, lang = "en", cc = "US
 }
 
 export function sgdbDatedTitle(SGDBGame) {
+    if (isNaN(SGDBGame.release_date)) return SGDBGame.name;
     const year = new Date(SGDBGame.release_date * 1000).getFullYear();
     return `${SGDBGame.name} (${year})`;
 }

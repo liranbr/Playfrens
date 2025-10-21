@@ -281,7 +281,7 @@ function CoverSelector({ saveOnEnter }) {
 
 function CoversGallery({ loadingCovers, setLoadingCovers, animatedOnly }) {
     const currentCoverImage = () => {
-        return { url: coverImageURL, preview: coverImageURL };
+        return { url: coverImageURL, preview: coverImageURL, previousSelection: true };
     };
     const [error, setError] = useState("");
     const { title, coverImageURL, setCoverImageURL, storeType, storeID, sgdbID, sgdbTitle } =
@@ -294,7 +294,6 @@ function CoversGallery({ loadingCovers, setLoadingCovers, animatedOnly }) {
         img.src = coverImageURL;
     }, [coverImageURL]); // preload to cache full version of the selected cover
 
-    // Known issue: if selecting a SGDB game, then selecting its equivalent store game, this useEffect isn't re-triggered so it doesn't add official store cover
     useEffect(() => {
         if ((!title && !sgdbTitle) || (!storeID && !sgdbID)) return;
         setLoadingCovers(true);
@@ -314,25 +313,25 @@ function CoversGallery({ loadingCovers, setLoadingCovers, animatedOnly }) {
         });
 
         // Request the store's cover, and SGDB covers. Then assemble the covers to display;
-        // If there is already a selected cover, it will always be inserted first.
-        // Next is the store's cover. If there is no selected cover yet, select it.
-        // Then all the sgdb covers
+        // If there is already a selected cover (coverImageURL), it will always be inserted first.
+        // Next is the store's cover. If no cover is selected yet, select it.
+        // Then all the sgdb covers.
+        // .officialOf and .previousSelection are used for their respective [Badges].
         Promise.all([officialCoverReq, sgdbReq])
             .then(([officialCoverImage, sgdbImages]) => {
                 let covers = [];
+                if (coverImageURL && coverImageURL !== officialCoverImage?.url) {
+                    covers.push(currentCoverImage());
+                }
                 if (officialCoverImage) {
                     if (!coverImageURL) setCoverImageURL(officialCoverImage.url);
+                    else if (coverImageURL === officialCoverImage.url)
+                        officialCoverImage.previousSelection = true;
+                    officialCoverImage.officialOf = sgdbID;
                     covers.push(officialCoverImage);
                 }
-                if (sgdbImages?.length) {
-                    covers.push(...sgdbImages);
-                }
-                if (coverImageURL) {
-                    covers = [
-                        currentCoverImage(),
-                        ...covers.filter((img) => img.url !== coverImageURL),
-                    ];
-                }
+                covers.push(...sgdbImages.filter((img) => img.url !== coverImageURL));
+
                 setImages(covers);
             })
             .catch((err) => {
@@ -356,12 +355,22 @@ function CoversGallery({ loadingCovers, setLoadingCovers, animatedOnly }) {
                 const sharedProps = {
                     src: img.preview,
                     onClick: () => setCoverImageURL(img.url),
-                    className: img.url === coverImageURL ? "selected-cover" : "",
                 };
-                if (img.preview.includes(".webm"))
-                    return <video key={img.url} {...sharedProps} autoPlay loop />;
+                const coverDisplay = img.preview.includes(".webm") ? (
+                    <video {...sharedProps} autoPlay loop />
+                ) : (
+                    <img {...sharedProps} alt="Game Cover Art" />
+                );
 
-                return <img key={img.url} {...sharedProps} alt="Game Cover Art" />;
+                const classes = ["cover-wrapper"];
+                if (img.url === coverImageURL) classes.push("selected-cover");
+                if (img.officialOf === sgdbID) classes.push("official-cover");
+                if (img.previousSelection === true) classes.push("previous-cover");
+                return (
+                    <div key={img.url} className={classes.join(" ")}>
+                        {coverDisplay}
+                    </div>
+                );
             })}
         </div>
     );

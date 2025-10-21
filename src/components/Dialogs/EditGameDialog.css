@@ -54,17 +54,44 @@
                 overflow-y: auto;
                 scrollbar-gutter: stable both-edges;
 
-                img,
-                video {
-                    width: 100%;
-                    aspect-ratio: 1 / 1.5;
+                .cover-wrapper {
+                    position: relative;
                     outline: 4px solid transparent;
                     outline-offset: -2px;
                     transition: 0.25s ease;
 
+                    img,
+                    video {
+                        display: block;
+                        width: 100%;
+                        aspect-ratio: 1 / 1.5;
+                    }
+
                     &.selected-cover {
                         outline: 4px solid var(--pf-border-color-primary);
                         box-shadow: 0 0 12px 2px var(--pf-fg-link);
+                    }
+
+                    &::before,
+                    &::after {
+                        position: absolute;
+                        top: -4px;
+                        font-weight: 500;
+                        border-radius: 4px;
+                        font-size: 12px;
+                        padding: 1px 4px;
+                    }
+                    &.previous-cover::before {
+                        content: "Previous selection";
+                        left: 8px;
+                        background-color: hsl(50 88% 40%);
+                        border: 1px solid hsl(50 88% 50%);
+                    }
+                    &.official-cover::after {
+                        content: "Official";
+                        right: 8px;
+                        background-color: hsl(215 88% 60%);
+                        border: 1px solid hsl(215 88% 70%);
                     }
                 }
             }

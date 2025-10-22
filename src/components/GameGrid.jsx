@@ -7,8 +7,8 @@ import {
     Dialogs,
     globalDialogStore,
     updateTagBothGameCounters,
+    useDataStore,
 } from "@/stores";
-import { TagObject } from "@/models";
 import { useValidatedImage } from "@/hooks/useValidatedImage.js";
 import "../App.css";
 import "./GameGrid.css";
@@ -64,6 +64,18 @@ const GameCard = observer(({ game }) => {
     );
 });
 
+function EmptyGridPlaceholder() {
+    const dataStore = useDataStore();
+    const noGamesAddedYet = "No games added yet";
+    const noFilteredResults = "No results with current filters";
+    const message = dataStore.allGames.size === 0 ? noGamesAddedYet : noFilteredResults;
+    return (
+        <span className="empty-grid-placeholder">
+            <p>{message}</p>
+        </span>
+    );
+}
+
 export const GamesGrid = observer(() => {
     const { filteredGames } = useFilterStore();
 
@@ -91,6 +103,7 @@ export const GamesGrid = observer(() => {
                     <GameCard game={game} key={index} />
                 ))}
             </div>
+            {filteredGames.length === 0 && <EmptyGridPlaceholder />}
         </div>
     );
 });

@@ -5,7 +5,6 @@ import * as Popover from "@radix-ui/react-popover";
 import * as RadioGroup from "@radix-ui/react-radio-group";
 import * as Select from "@radix-ui/react-select";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
-import * as Tooltip from "@radix-ui/react-tooltip";
 import { tagTypeStrings } from "@/models";
 import {
     useSettingsStore,
@@ -21,10 +20,10 @@ import "./TagButtonGroup.css";
 export const SidebarTagButtonGroup = observer(({ tagType }) => {
     const { allTags } = useDataStore();
     const typeStrings = tagTypeStrings[tagType];
-    const title = typeStrings.plural.toUpperCase();
     const handleAddButtonClick = () => {
         globalDialogStore.open(Dialogs.EditTag, { addingTagOfType: tagType });
     };
+
     return (
         <div className="tag-button-group">
             <CenterAndEdgesRow className="ui-card-header">
@@ -34,10 +33,21 @@ export const SidebarTagButtonGroup = observer(({ tagType }) => {
                     <IconButton icon={<MdAdd />} onClick={handleAddButtonClick} />
                 </SimpleTooltip>
             </CenterAndEdgesRow>
+
             <div className="tag-button-list">
-                {[...allTags[tagType]].map(([id, tag], index) => (
-                    <SidebarTagButton key={index} tag={tag} />
+                {[...allTags[tagType]].map(([id, tag]) => (
+                    <SidebarTagButton key={id} tag={tag} />
                 ))}
+
+                {allTags[tagType].size === 0 && (
+                    <span className="empty-list-placeholder">
+                        <p>
+                            <b>You have no {typeStrings.plural}!</b>
+                            <br />
+                            click the + to add some
+                        </p>
+                    </span>
+                )}
             </div>
         </div>
     );

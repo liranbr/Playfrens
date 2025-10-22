@@ -13,11 +13,30 @@
     }
 
     .tag-button-list {
+        flex-grow: 1;
         display: flex;
         flex-direction: column;
         overflow-y: auto;
         scrollbar-gutter: stable both-edges;
         gap: 4px;
         padding: 0 calc(12px - var(--scrollbar-width));
+
+        .empty-list-placeholder {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            p {
+                b {
+                    font-weight: 500;
+                }
+                color: var(--pf-fg-700);
+                text-align: center;
+                border: 2px dashed var(--pf-fg-900);
+                padding: 8px;
+                border-radius: 16px;
+            }
+        }
     }
 }

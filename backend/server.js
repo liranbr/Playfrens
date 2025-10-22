@@ -40,11 +40,12 @@ app.use(
 
 export const main = () => {
     // Initialize all services
-    app.locals.services = {};
-    app.locals.services.general = new GeneralService(app);
-    app.locals.services.login = new LoginService(app);
-    app.locals.services.steam = new SteamWebService(app);
-    app.locals.services.steamgriddb = new SteamGridDBService(app);
+    app.locals.services = Object.freeze({
+        general: new GeneralService(app),
+        login: new LoginService(app),
+        steam: new SteamWebService(app),
+        steamgriddb: new SteamGridDBService(app),
+    });
 
     // Listen afterwards.
     for (const svc of Object.values(app.locals.services)) {

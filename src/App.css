@@ -153,3 +153,21 @@
 .app-header-center {
     gap: 16px;
 }
+
+.app-reactour-popover {
+    background-color: var(--pf-bg-700) !important;
+    padding: 12px 15px !important;
+
+    /* Hides the which step number it is */
+    & span {
+        display: none !important;
+    }
+    & button.reactour__close-button {
+        background-color: var(--pf-btn-secondary) !important;
+        height: 1.625em !important;
+        width: 1.625em !important;
+        padding: 4px !important;
+        top: -0.8125em !important;
+        right: -0.8125em !important;
+    }
+}

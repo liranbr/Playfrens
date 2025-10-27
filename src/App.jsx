@@ -36,6 +36,7 @@ import {
     ReminderCard,
     DialogRoot,
 } from "@/components";
+import { TourProvider } from "../node_modules/@reactour/tour/dist/index";
 
 import "./App.css";
 
@@ -110,7 +111,7 @@ const AppHeader = observer(() => {
         <CenterAndEdgesRow className="app-header">
             <div>
                 <AppMenu />
-                <div className="app-brand">
+                <div className="app-brand sixth-step">
                     <img src="/Playfrens_Logo.png" alt="Playfrens Logo" />
                     Playfrens
                 </div>
@@ -136,7 +137,7 @@ const AppHeader = observer(() => {
 
             <div className="app-header-right">
                 <button
-                    className="new-game-button"
+                    className="new-game-button fourth-step"
                     onClick={() => globalDialogStore.open(Dialogs.EditGame)}
                 >
                     <MdOutlineGamepad />
@@ -210,7 +211,7 @@ const Notifications = observer(() => {
     return (
         <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
             <Popover.Trigger asChild>
-                <button className={"notifications-button" + (popoverOpen ? " activated" : "")}>
+                <button className={"notifications-button" + (popoverOpen ? " activated" : "") + " fifth-step"}>
                     {activeRemindersCount > 0 && (
                         <span className="notifications-badge">{activeRemindersCount}</span>
                     )}
@@ -230,7 +231,7 @@ const Notifications = observer(() => {
 
 function AppSidebar() {
     return (
-        <div className="app-sidebar-container">
+        <div className="app-sidebar-container second-step third-step">
             <div className="ui-card">
                 <SidebarTagButtonGroup tagType={tagTypes.friend} />
                 <div className="separator" />
@@ -291,18 +292,49 @@ function useScrollbarMeasure() {
     }, []);
 }
 
+const steps = [
+    {
+        selector: ".first-step",
+        content: "This is your board, here are all your games displayed, you can click on them to edit them.",
+    },
+    {
+        selector: ".second-step",
+        content: "Here is your category, status, and friends, these help you filter your games.",
+    },
+    {
+        selector: ".third-step",
+        content: "Here are you friends, if you have any added, if you don't, you can add some by bribing them with games!",
+    },
+    {
+        selector: ".fourth-step",
+        content: "Your board is nothing without some games! Go ahead and add some by clicking the 'Add Game' button.",
+    },
+    {
+        selector: ".fifth-step",
+        content: "This is your notification center, here you can see all your reminders that you forgot about.",
+    },
+    {
+        selector: ".sixth-step",
+        content: "Finally, this is our logo, its really cool, right? And yes we mispelled 'Friends' intentionally.",
+    }
+
+];
+
 export default function App() {
     useScrollbarMeasure();
 
     return (
-        <Tooltip.Provider delayDuration={750} disableHoverableContent={true}>
-            <AppHeader />
-            <div id="main-content">
-                <AppSidebar />
-                <GamesGrid />
-            </div>
-            <DialogRoot />
-            <ToastRoot />
-        </Tooltip.Provider>
+        // TODO: Make it a one time only, for now set to true to see how it looks like
+        <TourProvider steps={steps} defaultOpen={false} className="app-reactour-popover">
+            <Tooltip.Provider delayDuration={750} disableHoverableContent={true}>
+                <AppHeader />
+                <div id="main-content" className="first-step">
+                    <AppSidebar />
+                    <GamesGrid />
+                </div>
+                <DialogRoot />
+                <ToastRoot />
+            </Tooltip.Provider>
+        </TourProvider>
     );
 }

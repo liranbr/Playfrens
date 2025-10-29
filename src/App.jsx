@@ -321,11 +321,11 @@ const steps = [
 ];
 
 export default function App() {
+    const { showTour } = useDataStore();
     useScrollbarMeasure();
 
     return (
-        // TODO: Make it a one time only, for now set to true to see how it looks like
-        <TourProvider steps={steps} defaultOpen={false} className="app-reactour-popover">
+        <TourProvider steps={steps} defaultOpen={showTour} className="app-reactour-popover">
             <Tooltip.Provider delayDuration={750} disableHoverableContent={true}>
                 <AppHeader />
                 <div id="main-content" className="first-step">

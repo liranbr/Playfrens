@@ -58,6 +58,7 @@ const storageKeys = {
  * @property {ReminderObject[]} allReminders
  */
 export class DataStore {
+    showTour = false;
     allTags = {
         [tT.friend]: new ObservableMap(),
         [tT.category]: new ObservableMap(),
@@ -629,6 +630,7 @@ export function restoreFromFile(file) {
 // #==========================#
 const firstVisit = loadFromStorage(storageKeys.visited, false) === false;
 if (firstVisit && dataStore.allGames.size === 0) {
+    dataStore.showTour = true;
     const defaultTagsSample = {
         [tT.friend]: [],
         [tT.category]: ["Playthrough", "Round-based", "Persistent World"],

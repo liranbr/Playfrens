@@ -46,8 +46,6 @@ export class GameObject {
         makeAutoObservable(this);
     }
 
-    // TODO: after converting tagIDs+note to parties, check that these functions works
-
     /**Checks if any party within this game contains the tag.
      * @returns {string} the ID of the first party found to have the tag, or an empty string if none do. */
     hasTag(tag) {

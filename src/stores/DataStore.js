@@ -189,7 +189,14 @@ export class DataStore {
             return console.warn("Skipping invalid tagOrderJsons.");
         this.allReminders = reminderJsons
             .filter((reminder) => !!reminder.id)
-            .map((reminder) => new ReminderObject({ ...reminder }));
+            .map((reminder) => {
+                if (!reminder.partyID) {
+                    // one-time conversion for reminders made before GameObjects had parties
+                    const reminderGame = this.allGames.get(reminder.gameID);
+                    reminder.partyID = reminderGame.parties[0].id;
+                }
+                return new ReminderObject({ ...reminder });
+            });
     }
 
     /** @returns {ReminderObject[]} */
@@ -197,6 +204,7 @@ export class DataStore {
         return this.allReminders.toSorted((a, b) => a.date - b.date);
     }
 
+    /** @param {ReminderObject} reminder */
     addReminder(reminder) {
         if (!(reminder instanceof ReminderObject))
             return toastError("Invalid reminder object: " + reminder);

@@ -93,25 +93,29 @@ class FilterStore {
                 return false;
             }
         }
-        for (const tagType in tagTypes) {
-            const gameTagsSet = game.tagIDs[tagType];
-            const exclusionSet = this.excludedTagIDs[tagType];
-            if (!exclusionSet.isDisjointFrom(gameTagsSet)) {
-                return false; // !isDisjointFrom = there is overlap = game contains an excluded tag
-            }
+        const doesPartyPassFilters = (party) => {
+            for (const tagType in tagTypes) {
+                const partyTagsSet = party.tagIDs[tagType];
+                const exclusionSet = this.excludedTagIDs[tagType];
+                if (!exclusionSet.isDisjointFrom(partyTagsSet)) {
+                    return false; // !isDisjointFrom = there is overlap = party contains an excluded tag
+                }
 
-            const selectionSet = this.selectedTagIDs[tagType];
-            if (selectionSet.size) {
-                const selectionLogic = globalSettingsStore.tagFilterLogic[tagType];
-                if (selectionLogic === "AND" && !selectionSet.isSubsetOf(gameTagsSet)) {
-                    return false;
-                }
-                if (selectionLogic === "OR" && selectionSet.isDisjointFrom(gameTagsSet)) {
-                    return false;
+                const selectionSet = this.selectedTagIDs[tagType];
+                if (selectionSet.size) {
+                    const selectionLogic = globalSettingsStore.tagFilterLogic[tagType];
+                    if (selectionLogic === "AND" && !selectionSet.isSubsetOf(partyTagsSet)) {
+                        return false;
+                    }
+                    if (selectionLogic === "OR" && selectionSet.isDisjointFrom(partyTagsSet)) {
+                        return false;
+                    }
                 }
             }
-        }
-        return true;
+            return true;
+        };
+
+        return game.parties.some((party) => doesPartyPassFilters(party));
     }
 
     /**

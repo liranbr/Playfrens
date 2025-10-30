@@ -21,11 +21,11 @@ const DD = DropdownMenu;
 const AddTagButton = ({ tagType, game }) => {
     const dataStore = useDataStore();
     const allTagsOfType = [...dataStore.allTags[tagType].values()];
-    const tagsGameDoesntHave = allTagsOfType.filter((t) => !game.hasTag(t)); // TODO: change to party.hasTag
+    const tagsPartyDoesntHave = allTagsOfType.filter((t) => !party.hasTag(t));
     const [openDropdown, setOpenDropdown] = useState(false);
     const typeStrings = tagTypeStrings[tagType];
 
-    if (tagsGameDoesntHave.length !== 0)
+    if (tagsPartyDoesntHave.length !== 0)
         return (
             <DD.Root onOpenChange={setOpenDropdown}>
                 <DD.Trigger asChild>
@@ -39,11 +39,11 @@ const AddTagButton = ({ tagType, game }) => {
                         side={"bottom"}
                         sideOffset={5}
                     >
-                        {tagsGameDoesntHave.map((t) => (
+                        {tagsPartyDoesntHave.map((t) => (
                             <DD.Item
                                 key={t.id}
                                 onClick={() => {
-                                    game.addTag(t); // TODO: change to party.addTag
+                                    party.addTag(t);
                                     updateTagBothGameCounters(t);
                                 }}
                             >
@@ -72,7 +72,7 @@ const AddTagButton = ({ tagType, game }) => {
 const GPTagButton = observer(({ game, tag }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const handleRemove = () => {
-        // game.removeTag(tag); // TODO: party.removeTag
+        party.removeTag(tag);
         updateTagBothGameCounters(tag);
     };
     const handleClick = () => setDropdownOpen(true);
@@ -202,7 +202,12 @@ const AddReminderPopover = ({ game }) => {
 
     const handleSave = () => {
         const added = dataStore.addReminder(
-            new ReminderObject({ date: date, message: message, gameID: game.id }),
+            new ReminderObject({
+                date: date,
+                message: message,
+                gameID: game.id,
+                partyID: party.id,
+            }),
         );
         if (added) setOpen(false);
     };
@@ -309,7 +314,7 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
                                 rows={5}
                                 spellCheck={false}
                                 value={game.note}
-                                // onChange={(e) => game.setNote(e.target.value)} // TODO: party.setNote
+                                onChange={(e) => party.setNote(e.target.value)}
                                 maxLength={2000}
                             />
                         </div>

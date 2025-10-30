@@ -12,6 +12,7 @@ import {
 import { useValidatedImage } from "@/hooks/useValidatedImage.js";
 import "../App.css";
 import "./GameGrid.css";
+import { toastError } from "@/Utils.jsx";
 
 const GameCard = observer(({ game }) => {
     const [draggedOver, setDraggedOver] = useState(false);
@@ -32,7 +33,8 @@ const GameCard = observer(({ game }) => {
     const gameCover = useValidatedImage(game.coverImageURL);
     const handleDrop = () => {
         setDraggedOver(false);
-        // game.addTag(draggedTag); // TODO: need to use a new dialog to select party to add to if more than 1
+        if (game.parties.length === 1) game.parties[0].addTag(draggedTag);
+        else toastError("Multi-Party Dragging not implemented yet"); // TODO: implement
         updateTagBothGameCounters(draggedTag);
     };
     const openGamePageDialog = () => {

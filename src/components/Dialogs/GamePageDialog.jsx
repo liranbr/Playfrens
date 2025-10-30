@@ -21,7 +21,7 @@ const DD = DropdownMenu;
 const AddTagButton = ({ tagType, game }) => {
     const dataStore = useDataStore();
     const allTagsOfType = [...dataStore.allTags[tagType].values()];
-    const tagsGameDoesntHave = allTagsOfType.filter((t) => !game.hasTag(t));
+    const tagsGameDoesntHave = allTagsOfType.filter((t) => !game.hasTag(t)); // TODO: change to party.hasTag
     const [openDropdown, setOpenDropdown] = useState(false);
     const typeStrings = tagTypeStrings[tagType];
 
@@ -43,7 +43,7 @@ const AddTagButton = ({ tagType, game }) => {
                             <DD.Item
                                 key={t.id}
                                 onClick={() => {
-                                    game.addTag(t);
+                                    game.addTag(t); // TODO: change to party.addTag
                                     updateTagBothGameCounters(t);
                                 }}
                             >
@@ -72,7 +72,7 @@ const AddTagButton = ({ tagType, game }) => {
 const GPTagButton = observer(({ game, tag }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const handleRemove = () => {
-        game.removeTag(tag);
+        // game.removeTag(tag); // TODO: party.removeTag
         updateTagBothGameCounters(tag);
     };
     const handleClick = () => setDropdownOpen(true);
@@ -309,7 +309,7 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
                                 rows={5}
                                 spellCheck={false}
                                 value={game.note}
-                                onChange={(e) => game.setNote(e.target.value)}
+                                // onChange={(e) => game.setNote(e.target.value)} // TODO: party.setNote
                                 maxLength={2000}
                             />
                         </div>

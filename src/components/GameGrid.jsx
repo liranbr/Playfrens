@@ -32,11 +32,11 @@ const GameCard = observer(({ game }) => {
     const gameCover = useValidatedImage(game.coverImageURL);
     const handleDrop = () => {
         setDraggedOver(false);
-        game.addTag(draggedTag);
+        // game.addTag(draggedTag); // TODO: need to use a new dialog to select party to add to if more than 1
         updateTagBothGameCounters(draggedTag);
     };
     const openGamePageDialog = () => {
-        globalDialogStore.open(Dialogs.GamePage, { game });
+        // globalDialogStore.open(Dialogs.GamePage, { game }); // TODO: convert GamePage to display parties
     };
 
     return (

@@ -11,14 +11,14 @@ import {
 
 import {
     compareGameTitlesAZ,
+    compareTagFilteredGamesCount,
     compareTagNamesAZ,
+    compareTagTotalGamesCount,
     GameObject,
+    ReminderObject,
+    storeTypes,
     TagObject,
     tagTypes,
-    compareTagFilteredGamesCount,
-    compareTagTotalGamesCount,
-    storeTypes,
-    ReminderObject,
 } from "@/models";
 import { globalSettingsStore, settingsStorageKey } from "@/stores";
 import { SortingReaction } from "./SortingReaction.js";
@@ -32,6 +32,7 @@ import {
     toastSuccess,
 } from "@/Utils.jsx";
 import { version } from "/package.json";
+import { Party } from "@/models/GameObject.js";
 
 const tT = tagTypes; // Short alias for convenience, used a lot here
 const storageKeys = {
@@ -78,7 +79,10 @@ export class DataStore {
             [tT.category]: loadFromStorage(storageKeys[tT.category], []),
             [tT.status]: loadFromStorage(storageKeys[tT.status], []),
         });
-        this.populateGames(loadFromStorage(storageKeys.games, []));
+        this.populateGames(
+            loadFromStorage(storageKeys.games, []),
+            loadFromStorage(storageKeys.version, ""),
+        );
         this.populateReminders(loadFromStorage(storageKeys.reminders, []));
         this.populateTagsCustomOrders(loadFromStorage(storageKeys.tagsCustomOrders, {}));
         makeAutoObservable(this, { sortedReminders: computed });
@@ -99,6 +103,7 @@ export class DataStore {
         );
     }
 
+    // Used when loading some predefined set, like the starting defaults
     populateTagsFromTagNames(tagCollection) {
         for (const tagType in tagCollection) {
             this.allTags[tagType] = new ObservableMap(
@@ -110,7 +115,7 @@ export class DataStore {
         }
     }
 
-    /** @param {{[key: string]: any[]}} tagCollection - object holding, per tagType, an array of [id, TagObject] entries */
+    /** @param {{[key: string]: any[]}} tagCollection - object holding, per tagType, an array of [id, serialized TagObject] entries */
     populateTags(tagCollection) {
         for (const tagType in tagCollection) {
             this.allTags[tagType] = new ObservableMap(
@@ -121,36 +126,44 @@ export class DataStore {
         }
     }
 
-    // one-time compatibility load, makes GameObject jsons with tagName Arrays into GameObjects with TagID Sets
-    populateGamesLegacy(gameJsons) {
-        const getStoredTagIDsFromTagNames = (tagType, tagNames) => {
-            return new Set(
-                this.allTags[tagType]
-                    .entries()
-                    .filter(([_, storedTag]) => tagNames.includes(storedTag.name))
-                    .map(([id, _]) => id),
-            );
-        };
-        const gameObjects = gameJsons.filter(Boolean).map((gameJson) => {
-            return new GameObject({
-                ...gameJson,
-                tagIDs: {
-                    [tT.friend]: getStoredTagIDsFromTagNames(tT.friend, gameJson.friends), // legacy fields
-                    [tT.category]: getStoredTagIDsFromTagNames(tT.category, gameJson.categories),
-                    [tT.status]: getStoredTagIDsFromTagNames(tT.status, gameJson.statuses),
-                },
-            });
-        });
-        this.allGames = new ObservableMap(gameObjects.map((game) => [game.id, game]));
+    deserializeGameTagIDs(gameTagIDs) {
+        for (const tagType in gameTagIDs) {
+            gameTagIDs[tagType] = new Set(gameTagIDs[tagType]); // sets are serialized as arrays
+        }
+        return gameTagIDs;
     }
 
-    populateGames(gameJsons) {
-        const parseTagIDs = (gameTagIDs) => {
-            for (const tagType in gameTagIDs) {
-                gameTagIDs[tagType] = new Set(gameTagIDs[tagType]);
-            }
-            return gameTagIDs;
+    // one-time compatibility layer. Converts GameObject jsons with tagID Sets and a Note, into GameObject jsons with an [Party] containing those
+    legacyGamesAddParties(gameJsons) {
+        return gameJsons.filter(Boolean).map(([id, gameJson]) => {
+            const party = new Party({
+                name: "Group 1",
+                tagIDs: this.deserializeGameTagIDs(gameJson.tagIDs),
+                note: gameJson.note,
+            });
+            return [id, { ...gameJson, parties: [party] }];
+        });
+    }
+
+    populateGames(gameJsons, version) {
+        if (version === "0.1.0") gameJsons = this.legacyGamesAddParties(gameJsons);
+        const parseParties = (parties) => {
+            return parties
+                .filter((party) => {
+                    if (!party || !party.id || !party.name) {
+                        console.warn(`Skipping invalid party, id: ${party?.id}`);
+                        return false;
+                    }
+                    return true;
+                })
+                .map((party) => {
+                    return new Party({
+                        ...party,
+                        tagIDs: this.deserializeGameTagIDs(party.tagIDs),
+                    });
+                });
         };
+
         this.allGames = new ObservableMap(
             gameJsons
                 .filter(([id, gameJson]) => {
@@ -164,7 +177,7 @@ export class DataStore {
                     id, // the id of the [id, GameObject] entry in the map
                     new GameObject({
                         ...gameJson,
-                        tagIDs: parseTagIDs(gameJson.tagIDs), // sets serialized as arrays - needs parsing
+                        parties: parseParties(gameJson.parties),
                     }),
                 ]),
         );
@@ -607,14 +620,8 @@ export function restoreFromFile(file) {
             [tT.category]: data[storageKeys[tT.category]],
             [tT.status]: data[storageKeys[tT.status]],
         };
-        const legacyData = !data[storageKeys.version]; // Will remove, along with GamesLegacy, once testers update
-        if (legacyData) {
-            dataStore.populateTagsFromTagNames(tagCollection);
-            dataStore.populateGamesLegacy(data[storageKeys.games]);
-        } else {
-            dataStore.populateTags(tagCollection);
-            dataStore.populateGames(data[storageKeys.games]);
-        }
+        dataStore.populateTags(tagCollection);
+        dataStore.populateGames(data[storageKeys.games], data[storageKeys.version]);
         dataStore.populateReminders(data[storageKeys.reminders]);
         dataStore.populateTagsCustomOrders(data[storageKeys.tagsCustomOrders]);
         // Load the settings to localstorage, and reload, which also populates the SettingsStore

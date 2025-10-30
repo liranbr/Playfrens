@@ -25,7 +25,7 @@ export class ReminderObject {
 
         this.date = date;
         this.message = message;
-        this.gameID = gameID;
+        this.gameID = gameID; // TODO: replace with partyID
         this.id = id ?? randomUUID();
         makeAutoObservable(this);
     }

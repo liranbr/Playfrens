@@ -173,13 +173,14 @@ export class DataStore {
                     }
                     return true;
                 })
-                .map(([id, gameJson]) => [
-                    id, // the id of the [id, GameObject] entry in the map
-                    new GameObject({
+                .map(([id, gameJson]) => {
+                    const game = new GameObject({
                         ...gameJson,
                         parties: parseParties(gameJson.parties),
-                    }),
-                ]),
+                    });
+
+                    return [id, game];
+                }),
         );
     }
 

@@ -31,7 +31,7 @@ export class GameObject {
     storeType = "custom";
     storeID = "";
     sgdbID = "";
-    parties = [];
+    parties = [new Party({ name: "Group 1" })];
     id; // UUID
 
     constructor({ title, coverImageURL, sortingTitle, storeType, storeID, sgdbID, parties, id }) {
@@ -44,6 +44,7 @@ export class GameObject {
         this.parties = parties ?? this.parties;
         this.id = id ?? randomUUID();
         makeAutoObservable(this);
+        this.parties.forEach((party) => (party.parent = this));
     }
 
     /**Checks if any party within this game contains the tag.
@@ -75,12 +76,14 @@ export function compareGameTitlesAZ(a, b) {
  * GameObject starts off with one (no tabs visible), while those with multiple Parties/Groups/Playthroughs have more of these,
  * but the GameObject contains shared things like GameID, Cover Image etc.
  * @class
+ * @property {GameObject} parent - the GameObject that contains this Party.
  * @property {string} name - The name of the party/group/playthrough.
  * @property {string} id - A UUID identifier for the party object.
  * @property {{[key: string]: Set<String>}} tagIDs - For each tagType, a set holds the game's contained tags by their ID
  * @property {string} note - A custom note for this game.
  */
 export class Party {
+    parent;
     name;
     tagIDs = {
         [tagTypes.friend]: new Set(),
@@ -90,12 +93,18 @@ export class Party {
     note = "";
     id;
 
-    constructor({ name, tagIDs, note, id }) {
+    constructor({ parent, name, tagIDs, note, id }) {
+        Object.defineProperty(this, "parent", {
+            value: parent,
+            enumerable: false,
+            writable: true,
+        }); // GameObject reference is either provided or injected right after the game is made
+
         this.name = name;
         this.tagIDs = tagIDs ?? this.tagIDs;
         this.note = note ?? this.note;
         this.id = id ?? randomUUID();
-        makeAutoObservable(this);
+        makeAutoObservable(this, { parent: false });
     }
 
     addTag(tag) {
@@ -104,8 +113,9 @@ export class Party {
         const tagIDsSet = this.tagIDs[tag.type];
         if (!tagIDsSet.has(tag.id)) {
             tagIDsSet.add(tag.id);
-            toastSuccess(`Added ${tag.name} as a ${tag.typeStrings.single} for ${this.title}`);
-        } else toastError(`${tag.name} is already a ${tag.typeStrings.single} for ${this.title}`);
+            toastSuccess(`Added ${tag.name} as a ${tag.typeStrings.single} for ${this.gameTitle}`);
+        } else
+            toastError(`${tag.name} is already a ${tag.typeStrings.single} for ${this.gameTitle}`);
     }
 
     removeTag(tag) {
@@ -113,8 +123,10 @@ export class Party {
 
         const tagIDsSet = this.tagIDs[tag.type];
         if (tagIDsSet.delete(tag.id)) {
-            toastSuccess(`Removed the ${tag.typeStrings.single} ${tag.name} from ${this.title}`);
-        } else toastError(`${tag.name} is not a ${tag.typeStrings.single} for ${this.title}`);
+            toastSuccess(
+                `Removed the ${tag.typeStrings.single} ${tag.name} from ${this.gameTitle}`,
+            );
+        } else toastError(`${tag.name} is not a ${tag.typeStrings.single} for ${this.gameTitle}`);
     }
 
     hasTag(tag) {
@@ -127,5 +139,9 @@ export class Party {
 
     setNote(note) {
         this.note = note;
+    }
+
+    get gameTitle() {
+        return this.parent?.title ?? "(unknown game)";
     }
 }

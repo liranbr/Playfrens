@@ -18,7 +18,7 @@ import * as Popover from "@radix-ui/react-popover";
 
 const DD = DropdownMenu;
 
-const AddTagButton = ({ tagType, game }) => {
+const AddTagButton = ({ tagType, party }) => {
     const dataStore = useDataStore();
     const allTagsOfType = [...dataStore.allTags[tagType].values()];
     const tagsPartyDoesntHave = allTagsOfType.filter((t) => !party.hasTag(t));
@@ -69,7 +69,7 @@ const AddTagButton = ({ tagType, game }) => {
     }
 };
 
-const GPTagButton = observer(({ game, tag }) => {
+const GPTagButton = observer(({ party, tag }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const handleRemove = () => {
         party.removeTag(tag);
@@ -119,12 +119,12 @@ const GPTagButton = observer(({ game, tag }) => {
     );
 });
 
-const GPTagButtonGroup = observer(({ game, tagType }) => {
+const GPTagButtonGroup = observer(({ party, tagType }) => {
     const dataStore = useDataStore();
     const title = tagTypeStrings[tagType].plural.toUpperCase();
     // Instead of sorting the tags inside every GameObject according to current sort-by settings (inefficient and awkward),
     // we'll just display a game's tags in its GamePage as they are ordered in the (auto sorted) DataStore
-    const tags = [...game.tagIDs[tagType]]
+    const tags = [...party.tagIDs[tagType]]
         .sort((id1, id2) => {
             const order = [...dataStore.allTags[tagType].keys()];
             return order.indexOf(id1) - order.indexOf(id2);
@@ -135,11 +135,11 @@ const GPTagButtonGroup = observer(({ game, tagType }) => {
             <CenterAndEdgesRow className="ui-card-header">
                 <div />
                 <h4>{title}</h4>
-                <AddTagButton tagType={tagType} game={game} />
+                <AddTagButton tagType={tagType} party={party} />
             </CenterAndEdgesRow>
             <div className="tag-button-list">
                 {tags.map((tag) => (
-                    <GPTagButton key={tag.id} game={game} tag={tag} />
+                    <GPTagButton key={tag.id} party={party} tag={tag} />
                 ))}
             </div>
         </div>
@@ -189,7 +189,7 @@ function GameOptionsButton({ game }) {
     );
 }
 
-const AddReminderPopover = ({ game }) => {
+const AddReminderPopover = ({ game, party }) => {
     const [open, setOpen] = useState(false);
     const [date, setDate] = useState(null);
     const [message, setMessage] = useState("");
@@ -255,12 +255,13 @@ const AddReminderPopover = ({ game }) => {
     );
 };
 
-export const GamePageDialog = observer(({ open, closeDialog, game }) => {
+export const GamePageDialog = observer(({ open, closeDialog, game, partyID }) => {
     const gameCover = useValidatedImage(game.coverImageURL);
+    let party = partyID ? game.parties.find((p) => p.id === partyID) : game.parties[0];
     const handleHide = () => closeDialog();
     const dataStore = useDataStore();
-    const gameReminders = dataStore.sortedReminders.filter(
-        (reminder) => reminder.gameID === game.id,
+    const partyReminders = dataStore.sortedReminders.filter(
+        (reminder) => reminder.gameID === game.id && reminder.partyID === party.id,
     );
 
     return (
@@ -294,11 +295,11 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
                 <div className="gp-body">
                     <div className="gp-column">
                         <div className="ui-card">
-                            <GPTagButtonGroup tagType={tagTypes.friend} game={game} />
+                            <GPTagButtonGroup tagType={tagTypes.friend} party={party} />
                             <div className="separator" />
-                            <GPTagButtonGroup tagType={tagTypes.category} game={game} />
+                            <GPTagButtonGroup tagType={tagTypes.category} party={party} />
                             <div className="separator" />
-                            <GPTagButtonGroup tagType={tagTypes.status} game={game} />
+                            <GPTagButtonGroup tagType={tagTypes.status} party={party} />
                         </div>
                     </div>
 
@@ -313,7 +314,7 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
                                 className="game-note"
                                 rows={5}
                                 spellCheck={false}
-                                value={game.note}
+                                value={party.note}
                                 onChange={(e) => party.setNote(e.target.value)}
                                 maxLength={2000}
                             />
@@ -323,11 +324,11 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
                             <CenterAndEdgesRow className="ui-card-header">
                                 <div />
                                 <h4>REMINDERS</h4>
-                                <AddReminderPopover game={game} />
+                                <AddReminderPopover game={game} party={party} />
                             </CenterAndEdgesRow>
 
                             <div className="reminders-list">
-                                {gameReminders.map((reminder) => (
+                                {partyReminders.map((reminder) => (
                                     <ReminderCard key={reminder.id} reminder={reminder} />
                                 ))}
                             </div>

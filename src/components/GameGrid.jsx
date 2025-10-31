@@ -39,7 +39,7 @@ const GameCard = observer(({ game }) => {
         updateTagBothGameCounters(draggedTag);
     };
     const openGamePageDialog = () => {
-        // globalDialogStore.open(Dialogs.GamePage, { game }); // TODO: convert GamePage to display parties
+        globalDialogStore.open(Dialogs.GamePage, { game });
     };
 
     return (

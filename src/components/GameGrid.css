@@ -152,8 +152,18 @@
 
 .empty-grid-placeholder {
     width: 100%;
+    padding-right: calc(var(--ui-card-width) + 12px);
+    /* padding-right equal to the sidebar's width. This centers the element in the screen, right under the search bar */
     display: flex;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
+    gap: 8px;
+
+    svg {
+        font-size: 28px;
+        color: var(--pf-fg-700);
+    }
 
     p {
         font-size: 24px;

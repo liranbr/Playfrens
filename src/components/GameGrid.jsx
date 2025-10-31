@@ -13,6 +13,7 @@ import { useValidatedImage } from "@/hooks/useValidatedImage.js";
 import "../App.css";
 import "./GameGrid.css";
 import { toastError } from "@/Utils.jsx";
+import { SlGameController } from "react-icons/sl";
 
 const GameCard = observer(({ game }) => {
     const [draggedOver, setDraggedOver] = useState(false);
@@ -69,10 +70,11 @@ const GameCard = observer(({ game }) => {
 function EmptyGridPlaceholder() {
     const dataStore = useDataStore();
     const noGamesAddedYet = "No games added yet";
-    const noFilteredResults = "No results with current filters";
+    const noFilteredResults = "No Results";
     const message = dataStore.allGames.size === 0 ? noGamesAddedYet : noFilteredResults;
     return (
         <span className="empty-grid-placeholder">
+            <SlGameController />
             <p>{message}</p>
         </span>
     );

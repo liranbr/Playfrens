@@ -133,7 +133,7 @@ export class DataStore {
         return gameTagIDs;
     }
 
-    // one-time compatibility layer. Converts GameObject jsons with tagID Sets and a Note, into GameObject jsons with an [Party] containing those
+    // one-time compatibility layer. Converts GameObject jsons with tagID Sets and a Note, into GameObject jsons with a [Party] containing those
     legacyGamesAddParties(gameJsons) {
         return gameJsons.filter(Boolean).map(([id, gameJson]) => {
             const party = new Party({

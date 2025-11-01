@@ -66,9 +66,6 @@
             flex: 0 0 var(--header-height);
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 6px 12px;
             background-color: inherit;
             border-top-left-radius: var(--border-radius);
             border-top-right-radius: var(--border-radius);
@@ -77,6 +74,7 @@
             z-index: 1;
 
             .center-and-edges-row {
+                padding: 6px 12px;
                 .gp-title {
                     display: block;
                     font-size: 24px;
@@ -92,12 +90,20 @@
             }
 
             .party-tabs {
+                width: fit-content;
                 gap: 12px;
+                padding: 0 12px;
+                max-width: 586px;
+                /* temporarily hardcoded, there's no reason for the GamePage's body to get wider yet, its max width is fit-content for now */
+                overflow-x: auto;
 
                 button {
+                    width: 150px;
+                    min-width: fit-content;
                     height: fit-content;
-                    padding: 6px;
-                    border-radius: 8px;
+                    padding: 6px 12px;
+                    border-radius: 8px 8px 0 0;
+                    border-bottom: none;
                     font-size: 14px;
 
                     &[data-state="off"] {

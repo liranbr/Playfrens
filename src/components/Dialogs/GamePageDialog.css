@@ -90,7 +90,7 @@
             }
 
             .party-tabs {
-                width: fit-content;
+                width: 100%;
                 gap: 12px;
                 padding: 0 12px;
                 max-width: 586px;
@@ -110,6 +110,17 @@
                         background: none;
                         color: var(--pf-fg-700);
                     }
+                }
+
+                /* input for renaming a party */
+                input {
+                    width: 120px;
+                    padding: 0 4px;
+                    height: fit-content;
+                    border: none;
+                    outline: none;
+                    background: var(--pf-bg-100);
+                    text-align: center;
                 }
             }
         }
@@ -139,6 +150,7 @@
                 background-color: var(--element-bg);
                 border: var(--border);
                 box-shadow: var(--element-shadow);
+                animation: fadeIn 0.125s ease-in;
 
                 .separator {
                     border-top: var(--border);

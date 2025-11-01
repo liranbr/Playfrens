@@ -10,6 +10,7 @@
     border: var(--pf-border-700);
     border-radius: 8px;
     padding: var(--dd-padding);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
     z-index: 103;
 
     div[role="menuitem"] {

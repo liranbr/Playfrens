@@ -159,11 +159,11 @@ export class Party {
     }
 
     setName(name) {
-        if (name && typeof name === "string") {
-            this.name = name;
-            return toastSuccess("Renamed Group to " + this.name);
-        }
-        return toastError("Invalid group name");
+        if (!name || typeof name !== "string") return toastError("Invalid group name");
+
+        const oldName = this.name;
+        this.name = name;
+        return toastSuccess("Renamed group " + oldName + " to " + this.name);
     }
 
     get gameTitle() {

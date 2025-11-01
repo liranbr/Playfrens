@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import * as Popover from "@radix-ui/react-popover";
+import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert, MdRemove } from "react-icons/md";
+import { CgRename } from "react-icons/cg";
 
 import { Button, CenterAndEdgesRow, IconButton, ReminderCard, SimpleTooltip } from "@/components";
 import { Dialogs, globalDialogStore, updateTagBothGameCounters, useDataStore } from "@/stores";
@@ -14,8 +17,6 @@ import { DialogBase } from "./DialogRoot.jsx";
 import "@/components/TagButtonGroup.css";
 import "@/components/TagButton.css";
 import "./GamePageDialog.css";
-import * as Popover from "@radix-ui/react-popover";
-import * as ToggleGroup from "@radix-ui/react-toggle-group";
 
 const DD = DropdownMenu;
 
@@ -147,7 +148,7 @@ const GPTagButtonGroup = observer(({ party, tagType }) => {
     );
 });
 
-function GameOptionsButton({ game, party, setPartyID }) {
+function GameOptionsButton({ game, party, setPartyID, renamePartyRef }) {
     const dataStore = useDataStore();
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -184,10 +185,16 @@ function GameOptionsButton({ game, party, setPartyID }) {
                     </DD.Item>
 
                     {game.parties.length > 1 && (
-                        <DD.Item data-danger onClick={handleDeleteGroup}>
-                            <MdDeleteOutline /> Delete Group
-                        </DD.Item>
+                        <>
+                            <DD.Item onClick={() => renamePartyRef.current?.(party)}>
+                                <CgRename /> Rename Group
+                            </DD.Item>
+                            <DD.Item data-danger onClick={handleDeleteGroup}>
+                                <MdDeleteOutline /> Delete Group
+                            </DD.Item>
+                        </>
                     )}
+                    <DD.Separator />
 
                     <DD.Item
                         onClick={() => {
@@ -272,8 +279,27 @@ const AddReminderPopover = ({ game, party }) => {
     );
 };
 
-const PartyTabs = ({ game, partyID, setPartyID }) => {
+const PartyTabs = ({ game, partyID, setPartyID, renamePartyRef }) => {
     if (game.parties.length <= 1) return null;
+
+    const [tempName, setTempName] = useState("");
+    const [renamingID, setRenamingID] = useState("");
+    renamePartyRef.current = (party) => {
+        setTempName(party.name);
+        setRenamingID(party.id);
+    };
+    const handleRename = () => {
+        const renamedParty = game.getParty(renamingID);
+        if (renamedParty.name !== tempName) {
+            renamedParty.setName(tempName);
+        }
+        setRenamingID("");
+    };
+    const inputRef = useRef(null);
+    useEffect(() => {
+        inputRef.current?.select();
+    }, [renamingID]);
+
     return (
         <ToggleGroup.Root
             type="single"
@@ -284,8 +310,27 @@ const PartyTabs = ({ game, partyID, setPartyID }) => {
             }}
         >
             {game.parties.map((party) => (
-                <ToggleGroup.Item key={party.id} value={party.id}>
-                    {party.name}
+                <ToggleGroup.Item
+                    key={party.id}
+                    value={party.id}
+                    onDoubleClick={() => {
+                        renamePartyRef.current?.(party);
+                    }}
+                >
+                    {renamingID === party.id ? (
+                        <input
+                            ref={inputRef}
+                            autoFocus
+                            value={tempName}
+                            onChange={(e) => setTempName(e.target.value)}
+                            onBlur={handleRename}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") handleRename();
+                            }}
+                        />
+                    ) : (
+                        <span>{party.name}</span>
+                    )}
                 </ToggleGroup.Item>
             ))}
         </ToggleGroup.Root>
@@ -301,6 +346,7 @@ export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID
     const partyReminders = dataStore.sortedReminders.filter(
         (reminder) => reminder.gameID === game.id && reminder.partyID === party.id,
     );
+    const renamePartyRef = useRef(null);
 
     return (
         <DialogBase
@@ -323,17 +369,27 @@ export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID
             <div className="gp-container">
                 <div className="gp-header">
                     <CenterAndEdgesRow>
-                        <GameOptionsButton game={game} party={party} setPartyID={setPartyID} />
+                        <GameOptionsButton
+                            game={game}
+                            party={party}
+                            setPartyID={setPartyID}
+                            renamePartyRef={renamePartyRef}
+                        />
                         <Dialog.Title autoFocus className="gp-title">
                             {game.title}
                         </Dialog.Title>
                         <IconButton icon={<MdClose />} onClick={handleHide} />
                     </CenterAndEdgesRow>
-                    <PartyTabs game={game} partyID={partyID} setPartyID={setPartyID} />
+                    <PartyTabs
+                        game={game}
+                        partyID={partyID}
+                        setPartyID={setPartyID}
+                        renamePartyRef={renamePartyRef}
+                    />
                 </div>
                 <div className="gp-header-shadow" />
 
-                <div className="gp-body">
+                <div className="gp-body" key={partyID}>
                     <div className="gp-column">
                         <div className="ui-card">
                             <GPTagButtonGroup tagType={tagTypes.friend} party={party} />

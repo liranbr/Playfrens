@@ -54,6 +54,23 @@ export class GameObject {
         return "";
     }
 
+    createParty(name = "") {
+        if (!name) name = `Group ${this.parties.length + 1}`;
+        this.parties.push(new Party({ parent: this, name: name }));
+        return toastSuccess("Group created");
+    }
+
+    deleteParty(id) {
+        if (!id || typeof id !== "string") return toastError(`Unable to delete party ${id}`);
+        const partyIndex = this.parties.findIndex((party) => party.id === id);
+        this.parties.splice(partyIndex, 1);
+        return toastSuccess("Group deleted");
+    }
+
+    getParty(id) {
+        return this.parties.find((party) => party.id === id);
+    }
+
     // used on all games when deleting a tag from the DataStore, to avoid spamming toasts
     silentRemoveTag(tag) {
         if (!(tag instanceof TagObject)) return console.error(`Invalid tag: ${tag}`);
@@ -139,6 +156,14 @@ export class Party {
 
     setNote(note) {
         this.note = note;
+    }
+
+    setName(name) {
+        if (name && typeof name === "string") {
+            this.name = name;
+            return toastSuccess("Renamed Group to " + this.name);
+        }
+        return toastError("Invalid group name");
     }
 
     get gameTitle() {

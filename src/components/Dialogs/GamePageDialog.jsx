@@ -15,6 +15,7 @@ import "@/components/TagButtonGroup.css";
 import "@/components/TagButton.css";
 import "./GamePageDialog.css";
 import * as Popover from "@radix-ui/react-popover";
+import * as ToggleGroup from "@radix-ui/react-toggle-group";
 
 const DD = DropdownMenu;
 
@@ -146,9 +147,30 @@ const GPTagButtonGroup = observer(({ party, tagType }) => {
     );
 });
 
-function GameOptionsButton({ game }) {
+function GameOptionsButton({ game, party, setPartyID }) {
     const dataStore = useDataStore();
     const [dropdownOpen, setDropdownOpen] = useState(false);
+
+    const handleDeleteGroup = () => {
+        globalDialogStore.open(Dialogs.DeleteWarning, {
+            itemName: party.name,
+            deleteFunction: () => {
+                game.deleteParty(party.id);
+                setPartyID(game.parties[0].id);
+            },
+        });
+    };
+
+    const handleDeleteGame = () => {
+        globalDialogStore.open(Dialogs.DeleteWarning, {
+            itemName: game.title,
+            deleteFunction: () => {
+                dataStore.deleteGame(game);
+                globalDialogStore.closeMultiple(2);
+            },
+        });
+    };
+
     return (
         <DD.Root onOpenChange={setDropdownOpen}>
             <DD.Trigger asChild>
@@ -156,32 +178,27 @@ function GameOptionsButton({ game }) {
             </DD.Trigger>
 
             <DD.Portal>
-                <DD.Content
-                    className="rx-dropdown-menu"
-                    align={"start"}
-                    side={"bottom"}
-                    sideOffset={5}
-                >
+                <DD.Content className="rx-dropdown-menu" align="start" side="bottom" sideOffset={5}>
+                    <DD.Item onClick={() => game.createParty()}>
+                        <MdAdd /> Add Group
+                    </DD.Item>
+
+                    {game.parties.length > 1 && (
+                        <DD.Item data-danger onClick={handleDeleteGroup}>
+                            <MdDeleteOutline /> Delete Group
+                        </DD.Item>
+                    )}
+
                     <DD.Item
                         onClick={() => {
                             globalDialogStore.open(Dialogs.EditGame, { game });
                         }}
                     >
-                        <MdEdit /> Edit
+                        <MdEdit /> Edit Game
                     </DD.Item>
-                    <DD.Item
-                        data-danger
-                        onClick={() => {
-                            globalDialogStore.open(Dialogs.DeleteWarning, {
-                                itemName: game.title,
-                                deleteFunction: () => {
-                                    dataStore.deleteGame(game);
-                                    globalDialogStore.closeMultiple(2);
-                                },
-                            });
-                        }}
-                    >
-                        <MdDeleteOutline /> Delete
+
+                    <DD.Item data-danger onClick={handleDeleteGame}>
+                        <MdDeleteOutline /> Delete Game
                     </DD.Item>
                 </DD.Content>
             </DD.Portal>
@@ -255,9 +272,30 @@ const AddReminderPopover = ({ game, party }) => {
     );
 };
 
-export const GamePageDialog = observer(({ open, closeDialog, game, partyID }) => {
+const PartyTabs = ({ game, partyID, setPartyID }) => {
+    if (game.parties.length <= 1) return null;
+    return (
+        <ToggleGroup.Root
+            type="single"
+            className="rx-toggle-group party-tabs"
+            value={partyID}
+            onValueChange={(value) => {
+                if (value) setPartyID(value); // to avoid empty values
+            }}
+        >
+            {game.parties.map((party) => (
+                <ToggleGroup.Item key={party.id} value={party.id}>
+                    {party.name}
+                </ToggleGroup.Item>
+            ))}
+        </ToggleGroup.Root>
+    );
+};
+
+export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID }) => {
+    const [partyID, setPartyID] = useState(openOnPartyID ?? game.parties[0].id);
+    const party = game.getParty(partyID);
     const gameCover = useValidatedImage(game.coverImageURL);
-    let party = partyID ? game.parties.find((p) => p.id === partyID) : game.parties[0];
     const handleHide = () => closeDialog();
     const dataStore = useDataStore();
     const partyReminders = dataStore.sortedReminders.filter(
@@ -283,13 +321,16 @@ export const GamePageDialog = observer(({ open, closeDialog, game, partyID }) =>
             <img className="gp-cover-art" src={gameCover} alt="Game cover art" />
 
             <div className="gp-container">
-                <CenterAndEdgesRow className="gp-header">
-                    <GameOptionsButton game={game} />
-                    <Dialog.Title autoFocus className="gp-title">
-                        {game.title}
-                    </Dialog.Title>
-                    <IconButton icon={<MdClose />} onClick={handleHide} />
-                </CenterAndEdgesRow>
+                <div className="gp-header">
+                    <CenterAndEdgesRow>
+                        <GameOptionsButton game={game} party={party} setPartyID={setPartyID} />
+                        <Dialog.Title autoFocus className="gp-title">
+                            {game.title}
+                        </Dialog.Title>
+                        <IconButton icon={<MdClose />} onClick={handleHide} />
+                    </CenterAndEdgesRow>
+                    <PartyTabs game={game} partyID={partyID} setPartyID={setPartyID} />
+                </div>
                 <div className="gp-header-shadow" />
 
                 <div className="gp-body">

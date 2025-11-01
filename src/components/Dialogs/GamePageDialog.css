@@ -64,7 +64,11 @@
 
         .gp-header {
             flex: 0 0 var(--header-height);
-            padding: 0 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 6px 12px;
             background-color: inherit;
             border-top-left-radius: var(--border-radius);
             border-top-right-radius: var(--border-radius);
@@ -72,17 +76,35 @@
             /* z-index needed for the header-shadow to only go down */
             z-index: 1;
 
-            .gp-title {
-                display: block;
-                font-size: 24px;
-                padding: 0 12px;
-                color: #fff;
-                margin: 0;
-                text-align: center;
-                font-weight: bold;
-                overflow: hidden;
-                text-wrap: nowrap;
-                text-overflow: ellipsis;
+            .center-and-edges-row {
+                .gp-title {
+                    display: block;
+                    font-size: 24px;
+                    padding: 0 12px;
+                    color: #fff;
+                    margin: 0;
+                    text-align: center;
+                    font-weight: bold;
+                    overflow: hidden;
+                    text-wrap: nowrap;
+                    text-overflow: ellipsis;
+                }
+            }
+
+            .party-tabs {
+                gap: 12px;
+
+                button {
+                    height: fit-content;
+                    padding: 6px;
+                    border-radius: 8px;
+                    font-size: 14px;
+
+                    &[data-state="off"] {
+                        background: none;
+                        color: var(--pf-fg-700);
+                    }
+                }
             }
         }
 

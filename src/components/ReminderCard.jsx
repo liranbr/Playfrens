@@ -13,13 +13,17 @@ export const ReminderCard = observer(({ reminder, outsideOfGamePage = false }) =
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [editorOpen, setEditorOpen] = useState(false);
 
-    let gameTitle = "";
+    let gameTitle = "unknown game";
     let onClickGameTitle = undefined;
     if (outsideOfGamePage) {
         const dataStore = useDataStore();
         const game = dataStore.allGames.get(reminder.gameID);
         gameTitle = game.title;
-        onClickGameTitle = () => globalDialogStore.open(Dialogs.GamePage, { game });
+        onClickGameTitle = () =>
+            globalDialogStore.open(Dialogs.GamePage, {
+                game: game,
+                openOnPartyID: reminder.partyID,
+            });
     }
 
     const classes = ["reminder-container"];

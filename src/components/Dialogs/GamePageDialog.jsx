@@ -9,7 +9,13 @@ import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert, MdRemove } from "r
 import { CgRename } from "react-icons/cg";
 
 import { Button, CenterAndEdgesRow, IconButton, ReminderCard, SimpleTooltip } from "@/components";
-import { Dialogs, globalDialogStore, updateTagBothGameCounters, useDataStore } from "@/stores";
+import {
+    Dialogs,
+    globalDialogStore,
+    updateTagBothGameCounters,
+    useDataStore,
+    useFilterStore,
+} from "@/stores";
 import { ReminderObject, tagTypes, tagTypeStrings } from "@/models";
 import { useValidatedImage } from "@/hooks/useValidatedImage.js";
 import { DialogBase } from "./DialogRoot.jsx";
@@ -298,7 +304,10 @@ const PartyTabs = ({ game, partyID, setPartyID, renamePartyRef }) => {
     const inputRef = useRef(null);
     useEffect(() => {
         inputRef.current?.select();
-    }, [renamingID]);
+    }, [renamingID]); // selects the name of the renamed party upon rename start
+
+    const filterStore = useFilterStore();
+    const tabClassName = (party) => (filterStore.doesPartyPassFilters(party) ? "" : "filtered-out");
 
     return (
         <ToggleGroup.Root
@@ -313,6 +322,7 @@ const PartyTabs = ({ game, partyID, setPartyID, renamePartyRef }) => {
                 <ToggleGroup.Item
                     key={party.id}
                     value={party.id}
+                    className={tabClassName(party)}
                     onDoubleClick={() => {
                         renamePartyRef.current?.(party);
                     }}
@@ -338,15 +348,23 @@ const PartyTabs = ({ game, partyID, setPartyID, renamePartyRef }) => {
 };
 
 export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID }) => {
-    const [partyID, setPartyID] = useState(openOnPartyID ?? game.parties[0].id);
+    const filterStore = useFilterStore();
+    const firstPartyIDThatPassesFilters = () => {
+        return (
+            game.parties.find((party) => filterStore.doesPartyPassFilters(party)).id ??
+            game.parties[0].id
+        );
+    };
+    const [partyID, setPartyID] = useState(openOnPartyID ?? firstPartyIDThatPassesFilters());
     const party = game.getParty(partyID);
+    const renamePartyRef = useRef(null);
+
     const gameCover = useValidatedImage(game.coverImageURL);
     const handleHide = () => closeDialog();
     const dataStore = useDataStore();
     const partyReminders = dataStore.sortedReminders.filter(
         (reminder) => reminder.gameID === game.id && reminder.partyID === party.id,
     );
-    const renamePartyRef = useRef(null);
 
     return (
         <DialogBase

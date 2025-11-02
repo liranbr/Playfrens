@@ -87,35 +87,36 @@ class FilterStore {
         return this.excludedTagIDs[tag.type].has(tag.id);
     }
 
+    doesPartyPassFilters(party) {
+        for (const tagType in tagTypes) {
+            const partyTagsSet = party.tagIDs[tagType];
+            const exclusionSet = this.excludedTagIDs[tagType];
+            if (!exclusionSet.isDisjointFrom(partyTagsSet)) {
+                return false; // !isDisjointFrom = there is overlap = party contains an excluded tag
+            }
+
+            const selectionSet = this.selectedTagIDs[tagType];
+            if (selectionSet.size) {
+                const selectionLogic = globalSettingsStore.tagFilterLogic[tagType];
+                if (selectionLogic === "AND" && !selectionSet.isSubsetOf(partyTagsSet)) {
+                    return false;
+                }
+                if (selectionLogic === "OR" && selectionSet.isDisjointFrom(partyTagsSet)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     doesGamePassFilters(game) {
         if (this.search) {
             if (!game.title.toLowerCase().includes(this.search.toLowerCase())) {
                 return false;
             }
         }
-        const doesPartyPassFilters = (party) => {
-            for (const tagType in tagTypes) {
-                const partyTagsSet = party.tagIDs[tagType];
-                const exclusionSet = this.excludedTagIDs[tagType];
-                if (!exclusionSet.isDisjointFrom(partyTagsSet)) {
-                    return false; // !isDisjointFrom = there is overlap = party contains an excluded tag
-                }
 
-                const selectionSet = this.selectedTagIDs[tagType];
-                if (selectionSet.size) {
-                    const selectionLogic = globalSettingsStore.tagFilterLogic[tagType];
-                    if (selectionLogic === "AND" && !selectionSet.isSubsetOf(partyTagsSet)) {
-                        return false;
-                    }
-                    if (selectionLogic === "OR" && selectionSet.isDisjointFrom(partyTagsSet)) {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        };
-
-        return game.parties.some((party) => doesPartyPassFilters(party));
+        return game.parties.some((party) => this.doesPartyPassFilters(party));
     }
 
     /**

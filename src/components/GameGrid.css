@@ -51,6 +51,20 @@
         transition: filter 0.3s ease 0.2s;
     }
 
+    .filtered-parties-badge {
+        position: absolute;
+        bottom: 4px;
+        left: 4px;
+        font-size: 22px;
+        font-weight: bold;
+        background-color: var(--pf-btn-primary-hover);
+        border-radius: 12px;
+        padding: 2px 6px;
+        border: 1px solid var(--pf-btn-primary);
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
+        text-rendering: optimizeLegibility;
+    }
+
     .game-card-title-overlay {
         position: absolute;
         top: 0;

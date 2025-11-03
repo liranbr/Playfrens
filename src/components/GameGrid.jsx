@@ -14,10 +14,12 @@ import "../App.css";
 import "./GameGrid.css";
 import { toastError } from "@/Utils.jsx";
 import { SlGameController } from "react-icons/sl";
+import { SimpleTooltip } from "@/components/common/SimpleTooltip.jsx";
 
 const GameCard = observer(({ game }) => {
     const [draggedOver, setDraggedOver] = useState(false);
-    const { draggedTag, hoveredTag } = useFilterStore();
+    const filterStore = useFilterStore();
+    const { draggedTag, hoveredTag } = filterStore;
     const hoverTagSetting = useSettingsStore().tagHoverGameHighlight;
 
     const classes = ["game-card"];
@@ -30,6 +32,16 @@ const GameCard = observer(({ game }) => {
         else if (hoverTagSetting === "darken" && !game.hasTag(hoveredTag)) classes.push("darken");
     }
     if (draggedOver) classes.push("dragged-over");
+
+    let partiesBadge = "";
+    if (filterStore.areFiltersActive) {
+        const partiesAmount = game.parties.length;
+        const filteredPartiesAmount = game.parties.filter((party) =>
+            filterStore.doesPartyPassFilters(party),
+        ).length;
+        if (partiesAmount > filteredPartiesAmount)
+            partiesBadge = filteredPartiesAmount + "/" + partiesAmount;
+    }
 
     const gameCover = useValidatedImage(game.coverImageURL);
     const handleDrop = () => {
@@ -61,6 +73,11 @@ const GameCard = observer(({ game }) => {
                     src={gameCover}
                 />
                 <p className="game-card-title-overlay">{game.title}</p>
+                {partiesBadge && (
+                    <SimpleTooltip message="Groups that pass filters" delayDuration={0}>
+                        <p className="filtered-parties-badge">{partiesBadge}</p>
+                    </SimpleTooltip>
+                )}
                 <MdAddCircleOutline className="drag-indicator" />
             </button>
         </div>

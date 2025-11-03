@@ -3,7 +3,6 @@ import { toastSuccess, toastError, compareAlphaIgnoreCase } from "@/Utils.jsx";
 import { TagObject, tagTypes } from "@/models";
 import { v4 as randomUUID } from "uuid";
 
-// TODO: replace hardcoded cases like the frequent "steam" with storeTypes.steam etc
 export const storeTypes = Object.freeze({
     steam: "Steam",
     gog: "GOG",

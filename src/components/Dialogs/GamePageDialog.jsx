@@ -288,6 +288,9 @@ const AddReminderPopover = ({ game, party }) => {
 const PartyTabs = ({ game, partyID, setPartyID, renamePartyRef }) => {
     if (game.parties.length <= 1) return null;
 
+    const filterStore = useFilterStore();
+    const tabClassName = (party) => (filterStore.doesPartyPassFilters(party) ? "" : "filtered-out");
+
     const [tempName, setTempName] = useState("");
     const [renamingID, setRenamingID] = useState("");
     renamePartyRef.current = (party) => {
@@ -301,13 +304,10 @@ const PartyTabs = ({ game, partyID, setPartyID, renamePartyRef }) => {
         }
         setRenamingID("");
     };
-    const inputRef = useRef(null);
+    const renameRef = useRef(null);
     useEffect(() => {
-        inputRef.current?.select();
+        renameRef.current?.select();
     }, [renamingID]); // selects the name of the renamed party upon rename start
-
-    const filterStore = useFilterStore();
-    const tabClassName = (party) => (filterStore.doesPartyPassFilters(party) ? "" : "filtered-out");
 
     return (
         <ToggleGroup.Root
@@ -329,7 +329,7 @@ const PartyTabs = ({ game, partyID, setPartyID, renamePartyRef }) => {
                 >
                     {renamingID === party.id ? (
                         <input
-                            ref={inputRef}
+                            ref={renameRef}
                             autoFocus
                             value={tempName}
                             onChange={(e) => setTempName(e.target.value)}

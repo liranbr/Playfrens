@@ -351,7 +351,7 @@ export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID
     const filterStore = useFilterStore();
     const firstPartyIDThatPassesFilters = () => {
         return (
-            game.parties.find((party) => filterStore.doesPartyPassFilters(party)).id ??
+            game.parties.find((party) => filterStore.doesPartyPassFilters(party))?.id ??
             game.parties[0].id
         );
     };

@@ -1,12 +1,21 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import * as Popover from "@radix-ui/react-popover";
+import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert, MdRemove } from "react-icons/md";
+import { CgRename } from "react-icons/cg";
 
 import { Button, CenterAndEdgesRow, IconButton, ReminderCard, SimpleTooltip } from "@/components";
-import { Dialogs, globalDialogStore, updateTagBothGameCounters, useDataStore } from "@/stores";
+import {
+    Dialogs,
+    globalDialogStore,
+    updateTagBothGameCounters,
+    useDataStore,
+    useFilterStore,
+} from "@/stores";
 import { ReminderObject, tagTypes, tagTypeStrings } from "@/models";
 import { useValidatedImage } from "@/hooks/useValidatedImage.js";
 import { DialogBase } from "./DialogRoot.jsx";
@@ -14,18 +23,17 @@ import { DialogBase } from "./DialogRoot.jsx";
 import "@/components/TagButtonGroup.css";
 import "@/components/TagButton.css";
 import "./GamePageDialog.css";
-import * as Popover from "@radix-ui/react-popover";
 
 const DD = DropdownMenu;
 
-const AddTagButton = ({ tagType, game }) => {
+const AddTagButton = ({ tagType, party }) => {
     const dataStore = useDataStore();
     const allTagsOfType = [...dataStore.allTags[tagType].values()];
-    const tagsGameDoesntHave = allTagsOfType.filter((t) => !game.hasTag(t));
+    const tagsPartyDoesntHave = allTagsOfType.filter((t) => !party.hasTag(t));
     const [openDropdown, setOpenDropdown] = useState(false);
     const typeStrings = tagTypeStrings[tagType];
 
-    if (tagsGameDoesntHave.length !== 0)
+    if (tagsPartyDoesntHave.length !== 0)
         return (
             <DD.Root onOpenChange={setOpenDropdown}>
                 <DD.Trigger asChild>
@@ -39,11 +47,11 @@ const AddTagButton = ({ tagType, game }) => {
                         side={"bottom"}
                         sideOffset={5}
                     >
-                        {tagsGameDoesntHave.map((t) => (
+                        {tagsPartyDoesntHave.map((t) => (
                             <DD.Item
                                 key={t.id}
                                 onClick={() => {
-                                    game.addTag(t);
+                                    party.addTag(t);
                                     updateTagBothGameCounters(t);
                                 }}
                             >
@@ -69,10 +77,10 @@ const AddTagButton = ({ tagType, game }) => {
     }
 };
 
-const GPTagButton = observer(({ game, tag }) => {
+const GPTagButton = observer(({ party, tag }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const handleRemove = () => {
-        game.removeTag(tag);
+        party.removeTag(tag);
         updateTagBothGameCounters(tag);
     };
     const handleClick = () => setDropdownOpen(true);
@@ -119,12 +127,12 @@ const GPTagButton = observer(({ game, tag }) => {
     );
 });
 
-const GPTagButtonGroup = observer(({ game, tagType }) => {
+const GPTagButtonGroup = observer(({ party, tagType }) => {
     const dataStore = useDataStore();
     const title = tagTypeStrings[tagType].plural.toUpperCase();
     // Instead of sorting the tags inside every GameObject according to current sort-by settings (inefficient and awkward),
     // we'll just display a game's tags in its GamePage as they are ordered in the (auto sorted) DataStore
-    const tags = [...game.tagIDs[tagType]]
+    const tags = [...party.tagIDs[tagType]]
         .sort((id1, id2) => {
             const order = [...dataStore.allTags[tagType].keys()];
             return order.indexOf(id1) - order.indexOf(id2);
@@ -135,20 +143,41 @@ const GPTagButtonGroup = observer(({ game, tagType }) => {
             <CenterAndEdgesRow className="ui-card-header">
                 <div />
                 <h4>{title}</h4>
-                <AddTagButton tagType={tagType} game={game} />
+                <AddTagButton tagType={tagType} party={party} />
             </CenterAndEdgesRow>
             <div className="tag-button-list">
                 {tags.map((tag) => (
-                    <GPTagButton key={tag.id} game={game} tag={tag} />
+                    <GPTagButton key={tag.id} party={party} tag={tag} />
                 ))}
             </div>
         </div>
     );
 });
 
-function GameOptionsButton({ game }) {
+function GameOptionsButton({ game, party, setPartyID, renamePartyRef }) {
     const dataStore = useDataStore();
     const [dropdownOpen, setDropdownOpen] = useState(false);
+
+    const handleDeleteGroup = () => {
+        globalDialogStore.open(Dialogs.DeleteWarning, {
+            itemName: party.name,
+            deleteFunction: () => {
+                game.deleteParty(party.id);
+                setPartyID(game.parties[0].id);
+            },
+        });
+    };
+
+    const handleDeleteGame = () => {
+        globalDialogStore.open(Dialogs.DeleteWarning, {
+            itemName: game.title,
+            deleteFunction: () => {
+                dataStore.deleteGame(game);
+                globalDialogStore.closeMultiple(2);
+            },
+        });
+    };
+
     return (
         <DD.Root onOpenChange={setDropdownOpen}>
             <DD.Trigger asChild>
@@ -156,32 +185,33 @@ function GameOptionsButton({ game }) {
             </DD.Trigger>
 
             <DD.Portal>
-                <DD.Content
-                    className="rx-dropdown-menu"
-                    align={"start"}
-                    side={"bottom"}
-                    sideOffset={5}
-                >
+                <DD.Content className="rx-dropdown-menu" align="start" side="bottom" sideOffset={5}>
+                    <DD.Item onClick={() => game.createParty()}>
+                        <MdAdd /> Add Group
+                    </DD.Item>
+
+                    {game.parties.length > 1 && (
+                        <>
+                            <DD.Item onClick={() => renamePartyRef.current?.(party)}>
+                                <CgRename /> Rename Group
+                            </DD.Item>
+                            <DD.Item data-danger onClick={handleDeleteGroup}>
+                                <MdDeleteOutline /> Delete Group
+                            </DD.Item>
+                        </>
+                    )}
+                    <DD.Separator />
+
                     <DD.Item
                         onClick={() => {
                             globalDialogStore.open(Dialogs.EditGame, { game });
                         }}
                     >
-                        <MdEdit /> Edit
+                        <MdEdit /> Edit Game
                     </DD.Item>
-                    <DD.Item
-                        data-danger
-                        onClick={() => {
-                            globalDialogStore.open(Dialogs.DeleteWarning, {
-                                itemName: game.title,
-                                deleteFunction: () => {
-                                    dataStore.deleteGame(game);
-                                    globalDialogStore.closeMultiple(2);
-                                },
-                            });
-                        }}
-                    >
-                        <MdDeleteOutline /> Delete
+
+                    <DD.Item data-danger onClick={handleDeleteGame}>
+                        <MdDeleteOutline /> Delete Game
                     </DD.Item>
                 </DD.Content>
             </DD.Portal>
@@ -189,7 +219,7 @@ function GameOptionsButton({ game }) {
     );
 }
 
-const AddReminderPopover = ({ game }) => {
+const AddReminderPopover = ({ game, party }) => {
     const [open, setOpen] = useState(false);
     const [date, setDate] = useState(null);
     const [message, setMessage] = useState("");
@@ -202,7 +232,12 @@ const AddReminderPopover = ({ game }) => {
 
     const handleSave = () => {
         const added = dataStore.addReminder(
-            new ReminderObject({ date: date, message: message, gameID: game.id }),
+            new ReminderObject({
+                date: date,
+                message: message,
+                gameID: game.id,
+                partyID: party.id,
+            }),
         );
         if (added) setOpen(false);
     };
@@ -250,12 +285,85 @@ const AddReminderPopover = ({ game }) => {
     );
 };
 
-export const GamePageDialog = observer(({ open, closeDialog, game }) => {
+const PartyTabs = ({ game, partyID, setPartyID, renamePartyRef }) => {
+    if (game.parties.length <= 1) return null;
+
+    const filterStore = useFilterStore();
+    const tabClassName = (party) => (filterStore.doesPartyPassFilters(party) ? "" : "filtered-out");
+
+    const [tempName, setTempName] = useState("");
+    const [renamingID, setRenamingID] = useState("");
+    renamePartyRef.current = (party) => {
+        setTempName(party.name);
+        setRenamingID(party.id);
+    };
+    const handleRename = () => {
+        const renamedParty = game.getParty(renamingID);
+        if (renamedParty.name !== tempName) {
+            renamedParty.setName(tempName);
+        }
+        setRenamingID("");
+    };
+    const renameRef = useRef(null);
+    useEffect(() => {
+        renameRef.current?.select();
+    }, [renamingID]); // selects the name of the renamed party upon rename start
+
+    return (
+        <ToggleGroup.Root
+            type="single"
+            className="rx-toggle-group party-tabs"
+            value={partyID}
+            onValueChange={(value) => {
+                if (value) setPartyID(value); // to avoid empty values
+            }}
+        >
+            {game.parties.map((party) => (
+                <ToggleGroup.Item
+                    key={party.id}
+                    value={party.id}
+                    className={tabClassName(party)}
+                    onDoubleClick={() => {
+                        renamePartyRef.current?.(party);
+                    }}
+                >
+                    {renamingID === party.id ? (
+                        <input
+                            ref={renameRef}
+                            autoFocus
+                            value={tempName}
+                            onChange={(e) => setTempName(e.target.value)}
+                            onBlur={handleRename}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") handleRename();
+                            }}
+                        />
+                    ) : (
+                        <span>{party.name}</span>
+                    )}
+                </ToggleGroup.Item>
+            ))}
+        </ToggleGroup.Root>
+    );
+};
+
+export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID }) => {
+    const filterStore = useFilterStore();
+    const firstPartyIDThatPassesFilters = () => {
+        return (
+            game.parties.find((party) => filterStore.doesPartyPassFilters(party))?.id ??
+            game.parties[0].id
+        );
+    };
+    const [partyID, setPartyID] = useState(openOnPartyID ?? firstPartyIDThatPassesFilters());
+    const party = game.getParty(partyID);
+    const renamePartyRef = useRef(null);
+
     const gameCover = useValidatedImage(game.coverImageURL);
     const handleHide = () => closeDialog();
     const dataStore = useDataStore();
-    const gameReminders = dataStore.sortedReminders.filter(
-        (reminder) => reminder.gameID === game.id,
+    const partyReminders = dataStore.sortedReminders.filter(
+        (reminder) => reminder.gameID === game.id && reminder.partyID === party.id,
     );
 
     return (
@@ -277,23 +385,36 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
             <img className="gp-cover-art" src={gameCover} alt="Game cover art" />
 
             <div className="gp-container">
-                <CenterAndEdgesRow className="gp-header">
-                    <GameOptionsButton game={game} />
-                    <Dialog.Title autoFocus className="gp-title">
-                        {game.title}
-                    </Dialog.Title>
-                    <IconButton icon={<MdClose />} onClick={handleHide} />
-                </CenterAndEdgesRow>
+                <div className="gp-header">
+                    <CenterAndEdgesRow>
+                        <GameOptionsButton
+                            game={game}
+                            party={party}
+                            setPartyID={setPartyID}
+                            renamePartyRef={renamePartyRef}
+                        />
+                        <Dialog.Title autoFocus className="gp-title">
+                            {game.title}
+                        </Dialog.Title>
+                        <IconButton icon={<MdClose />} onClick={handleHide} />
+                    </CenterAndEdgesRow>
+                    <PartyTabs
+                        game={game}
+                        partyID={partyID}
+                        setPartyID={setPartyID}
+                        renamePartyRef={renamePartyRef}
+                    />
+                </div>
                 <div className="gp-header-shadow" />
 
-                <div className="gp-body">
+                <div className="gp-body" key={partyID}>
                     <div className="gp-column">
                         <div className="ui-card">
-                            <GPTagButtonGroup tagType={tagTypes.friend} game={game} />
+                            <GPTagButtonGroup tagType={tagTypes.friend} party={party} />
                             <div className="separator" />
-                            <GPTagButtonGroup tagType={tagTypes.category} game={game} />
+                            <GPTagButtonGroup tagType={tagTypes.category} party={party} />
                             <div className="separator" />
-                            <GPTagButtonGroup tagType={tagTypes.status} game={game} />
+                            <GPTagButtonGroup tagType={tagTypes.status} party={party} />
                         </div>
                     </div>
 
@@ -308,8 +429,8 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
                                 className="game-note"
                                 rows={5}
                                 spellCheck={false}
-                                value={game.note}
-                                onChange={(e) => game.setNote(e.target.value)}
+                                value={party.note}
+                                onChange={(e) => party.setNote(e.target.value)}
                                 maxLength={2000}
                             />
                         </div>
@@ -318,11 +439,11 @@ export const GamePageDialog = observer(({ open, closeDialog, game }) => {
                             <CenterAndEdgesRow className="ui-card-header">
                                 <div />
                                 <h4>REMINDERS</h4>
-                                <AddReminderPopover game={game} />
+                                <AddReminderPopover game={game} party={party} />
                             </CenterAndEdgesRow>
 
                             <div className="reminders-list">
-                                {gameReminders.map((reminder) => (
+                                {partyReminders.map((reminder) => (
                                     <ReminderCard key={reminder.id} reminder={reminder} />
                                 ))}
                             </div>

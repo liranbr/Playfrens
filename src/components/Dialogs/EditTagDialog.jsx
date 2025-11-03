@@ -16,13 +16,12 @@ export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagO
         : "Adding a new " + tagTypeStrings[tagType].single;
     const dataStore = useDataStore();
 
-    const handleHide = () => closeDialog();
     const handleSave = () => {
         const newTagName = document.getElementById("tagNameInput").value;
         const savedSuccess = editOrAdd
             ? dataStore.editTag(editingTag, newTagName)
             : dataStore.addTag(new TagObject({ type: tagType, name: newTagName }));
-        if (savedSuccess) handleHide();
+        if (savedSuccess) closeDialog();
     };
     const saveOnEnter = (e) => {
         if (e.key === "Enter") {
@@ -32,7 +31,7 @@ export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagO
     };
 
     return (
-        <DialogBase open={open} onOpenChange={handleHide}>
+        <DialogBase open={open} onOpenChange={closeDialog}>
             <Dialog.Title>{title}</Dialog.Title>
             <VisuallyHidden>
                 <Dialog.Description>{description}</Dialog.Description>
@@ -49,7 +48,7 @@ export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagO
             </fieldset>
 
             <div className="rx-dialog-footer">
-                <Button variant="secondary" onClick={handleHide}>
+                <Button variant="secondary" onClick={closeDialog}>
                     Cancel
                 </Button>
                 <Button variant="primary" onClick={handleSave}>

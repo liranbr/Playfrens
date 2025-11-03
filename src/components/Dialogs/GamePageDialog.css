@@ -64,7 +64,8 @@
 
         .gp-header {
             flex: 0 0 var(--header-height);
-            padding: 0 12px;
+            display: flex;
+            flex-direction: column;
             background-color: inherit;
             border-top-left-radius: var(--border-radius);
             border-top-right-radius: var(--border-radius);
@@ -72,17 +73,60 @@
             /* z-index needed for the header-shadow to only go down */
             z-index: 1;
 
-            .gp-title {
-                display: block;
-                font-size: 24px;
+            .center-and-edges-row {
+                padding: 6px 12px;
+                .gp-title {
+                    display: block;
+                    font-size: 24px;
+                    padding: 0 12px;
+                    color: #fff;
+                    margin: 0;
+                    text-align: center;
+                    font-weight: bold;
+                    overflow: hidden;
+                    text-wrap: nowrap;
+                    text-overflow: ellipsis;
+                }
+            }
+
+            .party-tabs {
+                width: 100%;
+                gap: 12px;
                 padding: 0 12px;
-                color: #fff;
-                margin: 0;
-                text-align: center;
-                font-weight: bold;
-                overflow: hidden;
-                text-wrap: nowrap;
-                text-overflow: ellipsis;
+                max-width: 586px;
+                /* temporarily hardcoded, there's no reason for the GamePage's body to get wider yet, its max width is fit-content for now */
+                overflow-x: auto;
+
+                button {
+                    width: 150px;
+                    min-width: fit-content;
+                    height: fit-content;
+                    padding: 6px 12px;
+                    border-radius: 8px 8px 0 0;
+                    border-bottom: none;
+                    font-size: 14px;
+
+                    &.filtered-out {
+                        border: 2px dashed var(--pf-bg-100);
+                        border-bottom: none;
+                    }
+
+                    &[data-state="off"] {
+                        background: none;
+                        color: var(--pf-fg-700);
+                    }
+                }
+
+                /* input for renaming a party */
+                input {
+                    width: 120px;
+                    padding: 0 4px;
+                    height: fit-content;
+                    border: none;
+                    outline: none;
+                    background: var(--pf-bg-100);
+                    text-align: center;
+                }
             }
         }
 
@@ -111,6 +155,7 @@
                 background-color: var(--element-bg);
                 border: var(--border);
                 box-shadow: var(--element-shadow);
+                animation: fadeIn 0.125s ease-in;
 
                 .separator {
                     border-top: var(--border);

@@ -12,15 +12,22 @@ import {
 import { useValidatedImage } from "@/hooks/useValidatedImage.js";
 import "../App.css";
 import "./GameGrid.css";
+import { toastError } from "@/Utils.jsx";
+import { SlGameController } from "react-icons/sl";
+import { SimpleTooltip } from "@/components/common/SimpleTooltip.jsx";
 
 const GameCard = observer(({ game }) => {
     const [draggedOver, setDraggedOver] = useState(false);
-    const { draggedTag, hoveredTag } = useFilterStore();
+    const filterStore = useFilterStore();
+    const { draggedTag, hoveredTag } = filterStore;
     const hoverTagSetting = useSettingsStore().tagHoverGameHighlight;
+
+    const hasPartyWithoutTag = (tag) => game.parties.some((party) => !party.hasTag(tag));
+    const allPartiesHaveTag = (tag) => !hasPartyWithoutTag(tag);
 
     const classes = ["game-card"];
     if (draggedTag) {
-        if (game.hasTag(draggedTag)) classes.push("has-dragged-tag");
+        if (allPartiesHaveTag(draggedTag)) classes.push("has-dragged-tag");
         else classes.push("doesnt-have-dragged-tag");
     }
     if (hoverTagSetting !== "none" && hoveredTag) {
@@ -29,11 +36,28 @@ const GameCard = observer(({ game }) => {
     }
     if (draggedOver) classes.push("dragged-over");
 
+    let partiesBadge = "";
+    if (filterStore.areFiltersActive) {
+        const partiesAmount = game.parties.length;
+        const filteredPartiesAmount = game.parties.filter((party) =>
+            filterStore.doesPartyPassFilters(party),
+        ).length;
+        if (partiesAmount > filteredPartiesAmount)
+            partiesBadge = filteredPartiesAmount + "/" + partiesAmount;
+    }
+
     const gameCover = useValidatedImage(game.coverImageURL);
     const handleDrop = () => {
         setDraggedOver(false);
-        game.addTag(draggedTag);
-        updateTagBothGameCounters(draggedTag);
+        if (game.parties.length === 1) {
+            game.parties[0].addTag(draggedTag); // just 1 party, can attempt to add directly
+            updateTagBothGameCounters(draggedTag);
+        } else if (hasPartyWithoutTag(draggedTag))
+            globalDialogStore.open(Dialogs.ChoosePartyToAddTag, { game: game, tag: draggedTag });
+        else
+            toastError(
+                `${draggedTag.name} is already a ${draggedTag.typeStrings.single} for all of ${game.title}'s Groups`,
+            );
     };
     const openGamePageDialog = () => {
         globalDialogStore.open(Dialogs.GamePage, { game });
@@ -58,6 +82,11 @@ const GameCard = observer(({ game }) => {
                     src={gameCover}
                 />
                 <p className="game-card-title-overlay">{game.title}</p>
+                {partiesBadge && (
+                    <SimpleTooltip message="Groups that pass filters" delayDuration={0}>
+                        <p className="filtered-parties-badge">{partiesBadge}</p>
+                    </SimpleTooltip>
+                )}
                 <MdAddCircleOutline className="drag-indicator" />
             </button>
         </div>
@@ -67,10 +96,11 @@ const GameCard = observer(({ game }) => {
 function EmptyGridPlaceholder() {
     const dataStore = useDataStore();
     const noGamesAddedYet = "No games added yet";
-    const noFilteredResults = "No results with current filters";
+    const noFilteredResults = "No Results";
     const message = dataStore.allGames.size === 0 ? noGamesAddedYet : noFilteredResults;
     return (
         <span className="empty-grid-placeholder">
+            <SlGameController />
             <p>{message}</p>
         </span>
     );

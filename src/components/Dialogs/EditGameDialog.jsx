@@ -233,7 +233,7 @@ function CoverSelector({ saveOnEnter }) {
     return (
         <div className="cover-art-selector">
             <fieldset>
-                {!advancedView && <label>Cover Art</label>}
+                {!advancedView && <label>Select Cover Art</label>}
                 {advancedView && (
                     <>
                         <label>Cover Art Database Search</label>

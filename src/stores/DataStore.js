@@ -383,7 +383,7 @@ export class DataStore {
             return null;
         }
         if (!coverImageURL) {
-            toastError("Cannot save a game without a cover image");
+            toastError("Cannot save a game without selecting a cover image");
             return null;
         }
         if (storeType !== "custom" && !storeID) {

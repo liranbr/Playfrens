@@ -5,12 +5,14 @@ import { GamePageDialog } from "@/components/Dialogs/GamePageDialog.jsx";
 import { DeleteWarningDialog } from "@/components/Dialogs/DeleteWarningDialog.jsx";
 import { SettingsDialog } from "@/components/Dialogs/SettingsDialog.jsx";
 import { AboutDialog } from "@/components/Dialogs/AboutDialog.jsx";
+import { ChoosePartyToAddTagDialog } from "@/components/Dialogs/ChoosePartyToAddTagDialog.jsx";
 import { List, Item } from "linked-list";
 import { parseDuration } from "@/Utils";
 
 export const Dialogs = {
     DeleteWarning: DeleteWarningDialog,
     EditTag: EditTagDialog,
+    ChoosePartyToAddTag: ChoosePartyToAddTagDialog,
     EditGame: EditGameDialog,
     GamePage: GamePageDialog,
     Settings: SettingsDialog,
@@ -81,7 +83,9 @@ class DialogStore {
         window.addEventListener("load", () => {
             const computedStyle = getComputedStyle(document.documentElement);
 
-            this.dialogFadeDuration = parseDuration(computedStyle.getPropertyValue("--dialog-fade-duration"));
+            this.dialogFadeDuration = parseDuration(
+                computedStyle.getPropertyValue("--dialog-fade-duration"),
+            );
         });
     }
 

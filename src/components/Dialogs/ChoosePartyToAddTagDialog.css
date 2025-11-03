@@ -1,0 +1,33 @@
+.choose-party-list {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+}
+
+.party-button {
+    background: none;
+    border: var(--pf-border-300);
+    font-size: 16px;
+    font-weight: 500;
+    padding: 12px;
+    border-radius: 12px;
+    color: var(--pf-fg-300);
+    outline: 2px solid transparent;
+    outline-offset: -2px;
+    transition: 0.2s ease;
+
+    &:hover,
+    &:active,
+    &:focus,
+    &:focus-visible {
+        outline: 2px solid var(--pf-btn-primary);
+        color: white;
+    }
+
+    &[disabled] {
+        pointer-events: none !important;
+        color: var(--pf-fg-900);
+        border: var(--pf-border-700);
+    }
+}

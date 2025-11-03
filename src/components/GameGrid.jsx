@@ -22,9 +22,12 @@ const GameCard = observer(({ game }) => {
     const { draggedTag, hoveredTag } = filterStore;
     const hoverTagSetting = useSettingsStore().tagHoverGameHighlight;
 
+    const hasPartyWithoutTag = (tag) => game.parties.some((party) => !party.hasTag(tag));
+    const allPartiesHaveTag = (tag) => !hasPartyWithoutTag(tag);
+
     const classes = ["game-card"];
     if (draggedTag) {
-        if (game.hasTag(draggedTag)) classes.push("has-dragged-tag");
+        if (allPartiesHaveTag(draggedTag)) classes.push("has-dragged-tag");
         else classes.push("doesnt-have-dragged-tag");
     }
     if (hoverTagSetting !== "none" && hoveredTag) {
@@ -46,9 +49,15 @@ const GameCard = observer(({ game }) => {
     const gameCover = useValidatedImage(game.coverImageURL);
     const handleDrop = () => {
         setDraggedOver(false);
-        if (game.parties.length === 1) game.parties[0].addTag(draggedTag);
-        else toastError("Multi-Party Dragging not implemented yet"); // TODO: implement
-        updateTagBothGameCounters(draggedTag);
+        if (game.parties.length === 1) {
+            game.parties[0].addTag(draggedTag); // just 1 party, can attempt to add directly
+            updateTagBothGameCounters(draggedTag);
+        } else if (hasPartyWithoutTag(draggedTag))
+            globalDialogStore.open(Dialogs.ChoosePartyToAddTag, { game: game, tag: draggedTag });
+        else
+            toastError(
+                `${draggedTag.name} is already a ${draggedTag.typeStrings.single} for all of ${game.title}'s Groups`,
+            );
     };
     const openGamePageDialog = () => {
         globalDialogStore.open(Dialogs.GamePage, { game });

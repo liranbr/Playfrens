@@ -124,25 +124,38 @@ export class Party {
     }
 
     addTag(tag) {
-        if (!(tag instanceof TagObject)) return console.error(`Invalid tag: ${tag}`);
+        if (!(tag instanceof TagObject)) {
+            console.error(`Invalid tag: ${tag}`);
+            return false;
+        }
 
         const tagIDsSet = this.tagIDs[tag.type];
         if (!tagIDsSet.has(tag.id)) {
             tagIDsSet.add(tag.id);
-            toastSuccess(`Added ${tag.name} as a ${tag.typeStrings.single} for ${this.gameTitle}`);
+            return toastSuccess(
+                `Added ${tag.name} as a ${tag.typeStrings.single} for ${this.gameTitleWithParty}`,
+            );
         } else
-            toastError(`${tag.name} is already a ${tag.typeStrings.single} for ${this.gameTitle}`);
+            return toastError(
+                `${tag.name} is already a ${tag.typeStrings.single} for ${this.gameTitleWithParty}`,
+            );
     }
 
     removeTag(tag) {
-        if (!(tag instanceof TagObject)) return console.error(`Invalid tag: ${tag}`);
+        if (!(tag instanceof TagObject)) {
+            console.error(`Invalid tag: ${tag}`);
+            return false;
+        }
 
         const tagIDsSet = this.tagIDs[tag.type];
         if (tagIDsSet.delete(tag.id)) {
-            toastSuccess(
-                `Removed the ${tag.typeStrings.single} ${tag.name} from ${this.gameTitle}`,
+            return toastSuccess(
+                `Removed the ${tag.typeStrings.single} ${tag.name} from ${this.gameTitleWithParty}`,
             );
-        } else toastError(`${tag.name} is not a ${tag.typeStrings.single} for ${this.gameTitle}`);
+        } else
+            return toastError(
+                `${tag.name} is not a ${tag.typeStrings.single} for ${this.gameTitleWithParty}`,
+            );
     }
 
     hasTag(tag) {
@@ -167,5 +180,11 @@ export class Party {
 
     get gameTitle() {
         return this.parent?.title ?? "(unknown game)";
+    }
+
+    get gameTitleWithParty() {
+        if (this.parent?.parties.length > 1) {
+            return this.gameTitle + " (" + this.name + ")";
+        } else return this.gameTitle;
     }
 }

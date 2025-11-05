@@ -10,6 +10,7 @@ import selfsigned from "selfsigned";
 import path from "path";
 import { fileURLToPath } from "url";
 import { ConsoleColors, resolveBaseURL, strToBool } from "./utils.js";
+import { createClient } from "@supabase/supabase-js";
 
 // === Support for __dirname in ES modules ===
 const __filename = fileURLToPath(import.meta.url);
@@ -19,6 +20,8 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ debug: true, path: ".env" });
 dotenv.config({ debug: true, path: ".env.public" });
 const env = process.env;
+
+export const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SECRET_KEY);
 
 // Init express
 const app = express();

@@ -1,0 +1,15 @@
+.app-reactour-popover {
+    small {
+        display: block; /* to make each tag its own line */
+        color: var(--pf-fg-300);
+        font-size: 12px;
+        font-weight: normal;
+    }
+
+    .finish-tour {
+        border: var(--pf-border-100);
+        position: absolute;
+        right: 16px;
+        bottom: 16px;
+    }
+}

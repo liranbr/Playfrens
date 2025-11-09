@@ -6,25 +6,26 @@ import "./WelcomeTour.css";
 export function WelcomeTour({ children }) {
     const steps = [
         {
-            selector: "#main-content",
             content: (
-                <>
-                    <p>
-                        Welcome to <b>Playfrens</b>!
-                    </p>
-                    <br />
-                    <p>A tool to help you manage the games you play with your friends.</p>
-                </>
+                <p>
+                    <img src="/Playfrens_Logo.png" alt="Playfrens Logo" className="tour-logo" />
+                    <b> Playfrens</b> is a tool for managing the games you play with your friends.
+                </p>
             ),
             position: "center",
         },
         {
-            highlightedSelectors: [".tbg-friend", ".tbg-category", ".tbg-status"],
+            selector: ".tbg-friend",
+            content: "Here you can add friends",
+            position: "right",
+        },
+        {
+            highlightedSelectors: [".tbg-category", ".tbg-status"],
             content: (
                 <>
                     <p>
-                        Here is where you add friends, and these are some categories and statuses as
-                        an example, but you can set your own.
+                        These are some categories and statuses as an example, but you can set your
+                        own.
                     </p>
                     <small>Tip: you can select multiple at once</small>
                 </>

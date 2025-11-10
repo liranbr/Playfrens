@@ -5,6 +5,7 @@ import { GeneralService } from "./services/general.js";
 import { LoginService } from "./services/login.js";
 import { SteamGridDBService } from "./services/steamgriddb.js";
 import { SteamWebService } from "./services/steam.js";
+import { DatabaseService } from "./services/database.js";
 import https from "https";
 import selfsigned from "selfsigned";
 import path from "path";
@@ -27,6 +28,9 @@ export const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPAB
 const app = express();
 app.set("trust proxy", 1);
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 const isProd = process.env.NODE_END === "production";
 app.locals.isProd = isProd;
 
@@ -48,6 +52,7 @@ export const main = () => {
         login: new LoginService(app),
         steam: new SteamWebService(app),
         steamgriddb: new SteamGridDBService(app),
+        database: new DatabaseService(app),
     });
 
     // Listen afterwards.

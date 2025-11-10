@@ -39,6 +39,64 @@
         background-position: center;
         user-select: none;
         transition: 0.1s;
+        display: flex;
+        flex-direction: column;
+        justify-content: end;
+        align-items: center;
+
+        .store-game-buttons {
+            opacity: 0;
+            width: 160px;
+            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: var(--pf-bg-500);
+            box-shadow: var(--container-shadow);
+            padding: 12px;
+            border-radius: 12px;
+            gap: 12px;
+            transition: 0.125s ease-in;
+
+            a {
+                transition: none;
+                font-weight: bold;
+                width: 100%;
+                font-size: 20px;
+                color: white;
+                text-decoration: none;
+                border-radius: 8px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                height: 36px;
+                text-shadow: 0 0 6px black;
+                paint-order: stroke fill;
+
+                &.btn-store-page {
+                    background-color: var(--pf-btn-primary);
+                    &:hover {
+                        background-color: var(--pf-btn-primary-hover);
+                    }
+                    &:active {
+                        background-color: var(--pf-btn-primary-active);
+                    }
+                }
+
+                &.btn-play {
+                    background-color: hsl(45, 88%, 50%);
+                    &:hover {
+                        background-color: hsl(45, 88%, 44%);
+                    }
+                    &:active {
+                        background-color: hsl(45, 88%, 40%);
+                    }
+                }
+            }
+        }
+        &:hover .store-game-buttons {
+            opacity: 1;
+        }
     }
 
     .gp-container {

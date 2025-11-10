@@ -30,7 +30,7 @@ export function WelcomeTour({ children }) {
                     <small>Tip: you can select multiple at once</small>
                 </>
             ),
-            position: "right", // TODO: Fix positioning at the bottom-right rather than top-right if the sidebar reaches screen bottom
+            position: "right",
         },
         {
             selector: ".new-game-button",
@@ -51,7 +51,7 @@ export function WelcomeTour({ children }) {
                     </>
                 );
             },
-            position: "bottom", // TODO: Fix positioning to the top-left instead of bottom, then can remove the marginTop 20 style.
+            position: "bottom",
         },
     ];
     const { showTour } = useDataStore();
@@ -60,7 +60,6 @@ export function WelcomeTour({ children }) {
         <TourProvider
             styles={{
                 popover: (base, { position }) => ({
-                    // TODO: maybe positioning can be fixed with the {position} prop?
                     ...base,
                     boxShadow: "0 0 20px rgba(0, 0, 0, 0.9)",
                     backgroundColor: "var(--pf-bg-300)",

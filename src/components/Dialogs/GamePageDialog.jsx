@@ -384,7 +384,27 @@ export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID
             <VisuallyHidden>
                 <Dialog.Description>{"Game Page of " + game.title}</Dialog.Description>
             </VisuallyHidden>
-            <img className="gp-cover-art" src={gameCover} alt="Game cover art" />
+            <div className="gp-cover-art" style={{ backgroundImage: `url(${gameCover})` }}>
+                {game.storeID && (
+                    <div className="store-game-buttons">
+                        <a
+                            draggable={false}
+                            className="btn-store-page"
+                            href={"https://store.steampowered.com/app/" + game.storeID}
+                            target="_blank"
+                        >
+                            Store Page
+                        </a>
+                        <a
+                            draggable={false}
+                            className="btn-play"
+                            href={"steam://rungameid/" + game.storeID}
+                        >
+                            Play
+                        </a>
+                    </div>
+                )}
+            </div>
 
             <div className="gp-container">
                 <div className="gp-header">

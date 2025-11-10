@@ -22,6 +22,6 @@
     }
 
     & > :nth-child(3) {
-        justify-self: flex-end;
+        justify-self: right;
     }
 }

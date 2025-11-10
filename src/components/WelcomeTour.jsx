@@ -40,7 +40,7 @@ export function WelcomeTour({ children }) {
                     <>
                         <p>Your board is nothing without games! </p>
                         <p>You can add some here.</p>
-                        <small>* Importing Steam Library and Friendslist coming soon</small>
+                        <small>* Importing Steam Library and Friends coming soon</small>
                         <Button
                             className="finish-tour"
                             variant="secondary"

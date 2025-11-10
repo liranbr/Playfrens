@@ -141,7 +141,7 @@ const AppHeader = observer(() => {
                     <input value={search} onChange={updateSearch} placeholder="Search" />
                     <IconButton icon={<MdClose />} type="reset" onClick={updateSearch} />
                 </div>
-                <div />
+                <IconButton style={{ visibility: "hidden" }} /> {/* to center the searchbar */}
             </CenterAndEdgesRow>
 
             <div className="app-header-right">

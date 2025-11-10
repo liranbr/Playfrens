@@ -11,8 +11,14 @@ export function setToastSilence(silence) {
  * @param {string} message
  * @returns {true}
  */
-export function toastSuccess(message) {
+export async function toastSuccess(message) {
     if (!silentToasts) toast.success(message);
+    // THIS IS REALLY BAD, BUT THIS IS FOR DEVELOPMENT REASONS FOR NOW
+    // A WISE MAN ONCE SAID "CLEAN CODE, I NEED. SPAGHETTI I MUST."
+    const { ExportDataStoreToJSON } = await import("./stores/DataStore");
+    const { saveBoard } = await import("./APIUtils");
+    const data = ExportDataStoreToJSON();
+    saveBoard(data);
     return true;
 }
 

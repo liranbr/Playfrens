@@ -145,8 +145,6 @@ export class LoginService extends Service {
     async getRequestIdentity(req, res) {
         const { OK, NO_CONTENT, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
 
-        console.log("hello");
-
         if (req.isAuthenticated()) {
             const { data: dbUser, error } = await supabase
                 .from("users")
@@ -174,19 +172,17 @@ export class LoginService extends Service {
     async upsertUser(profile, provider) {
         const providerId = (() => {
             switch (provider) {
-                // Equals to https://steamcommunity.com/openid/id/<Steam-Account-ID>
                 case "steam":
                     return profile.identifier;
-                // Usually equals to <Google-Account-ID> but is different depending on the GAccount type or OAuth project.
-                // Under the hood its _json.sub but passport shoudl map this for conviences under id
                 case "google":
                     return profile.id;
             }
             return undefined;
         })();
+
         let userId;
 
-        // check if provider already exists
+        // Check if provider already exists
         const { data: existingProvider, error: fetchError } = await supabase
             .from("user_providers")
             .select("user_id")
@@ -194,7 +190,6 @@ export class LoginService extends Service {
             .eq("provider_id", providerId)
             .single();
 
-        // no rows found
         if (fetchError && fetchError.code !== "PGRST116") {
             console.error("Error checking provider:", fetchError);
             throw fetchError;
@@ -211,52 +206,53 @@ export class LoginService extends Service {
                 .from("users")
                 .update({
                     display_name: profile.displayName,
-                    avatar_url: avatar_url,
-                    email: email, // optional: only if you want to update for Google
-                    last_login: new Date(), // track last login
+                    avatar_url,
+                    email,
+                    last_login: new Date(),
                 })
                 .eq("id", userId);
 
-            if (updateError) {
-                console.error("Error updating existing user:", updateError);
-                throw updateError;
-            }
+            if (updateError) throw updateError;
         } else {
             const avatar_url = profile.photos?.length > 0 ? profile.photos.at(-1).value : null;
             const email = profile.emails?.[0]?.value;
 
-            // insert new user in users table
+            // Create user
             const { data: newUser, error: insertUserError } = await supabase
                 .from("users")
                 .insert({
                     display_name: profile.displayName,
-                    avatar_url: avatar_url,
-                    email: email,
+                    avatar_url,
+                    email,
                 })
                 .select()
                 .single();
 
-            if (insertUserError) {
-                console.error("Error inserting new user:", insertUserError);
-                throw insertUserError;
-            }
+            if (insertUserError) throw insertUserError;
 
             userId = newUser.id;
 
-            // link provider
+            // Link provider
             const { error: linkError } = await supabase.from("user_providers").insert({
                 user_id: userId,
                 provider,
                 provider_id: providerId,
             });
 
-            if (linkError) {
-                console.error("Error linking provider:", linkError);
-                throw linkError;
+            if (linkError) throw linkError;
+
+            // ✅ Create an empty board for the user
+            const { error: boardError } = await supabase.from("boards").insert({
+                owner_id: userId,
+            });
+
+            if (boardError) {
+                console.error("Error creating board:", boardError);
+                // Not critical enough to fail login, so just log and continue
             }
         }
 
-        // return user
+        // Fetch and return final user
         const { data: user, error: userError } = await supabase
             .from("users")
             .select("*")

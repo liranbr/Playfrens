@@ -70,8 +70,6 @@
                 align-items: center;
                 justify-content: center;
                 height: 36px;
-                text-shadow: 0 0 6px black;
-                paint-order: stroke fill;
 
                 &.btn-store-page {
                     background-color: var(--pf-btn-primary);
@@ -84,12 +82,12 @@
                 }
 
                 &.btn-play {
-                    background-color: hsl(45, 88%, 50%);
+                    background-color: hsl(40, 88%, 50%);
                     &:hover {
-                        background-color: hsl(45, 88%, 44%);
+                        background-color: hsl(40, 88%, 44%);
                     }
                     &:active {
-                        background-color: hsl(45, 88%, 40%);
+                        background-color: hsl(40, 88%, 40%);
                     }
                 }
             }

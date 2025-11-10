@@ -441,6 +441,10 @@ export class DataStore {
         if (!storedGame) return toastError(`${game.title} does not exist in the games list`);
         if (!title || typeof title !== "string" || !title.trim())
             return toastError("Cannot save a game without a title");
+        if (storeType !== "custom" && !storeID)
+            return toastError(
+                `Cannot save a ${storeTypes[storeType]} game without selecting it from its search`,
+            );
         if (!coverImageURL) return toastError("Cannot save a game without a cover image");
 
         const allGamesArray = [...this.allGames.values()];
@@ -454,7 +458,7 @@ export class DataStore {
                 return toastError(identicalGame.title + " already exists in the games list");
             }
         }
-        if (title !== game.title) {
+        if (title.toLowerCase() !== game.title.toLowerCase()) {
             title = ensureUniqueName(
                 allGamesArray.map((g) => g.title),
                 title,

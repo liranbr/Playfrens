@@ -601,9 +601,8 @@ function setGameSorting(sortSetting, sortDirection) {
 // ‖ FILE BACKUP ‖
 // #=============#
 
-export function backupToFile() {
-    console.log("Backing up data to file...");
-    const data = {
+export function ExportDataStoreToJSON() {
+    return {
         [storageKeys[tT.friend]]: dataStore.allTags[tT.friend], // turning maps into arrays to stringify
         [storageKeys[tT.category]]: dataStore.allTags[tT.category],
         [storageKeys[tT.status]]: dataStore.allTags[tT.status],
@@ -614,6 +613,12 @@ export function backupToFile() {
         [storageKeys.version]: version,
         [storageKeys.tagsCustomOrders]: dataStore.tagsCustomOrders,
     };
+}
+
+export function backupToFile() {
+    console.log("Backing up data to file...");
+    const data = ExportDataStoreToJSON();
+
     const blob = new Blob([JSON.stringify(data, null, 4)], {
         type: "application/json",
     });

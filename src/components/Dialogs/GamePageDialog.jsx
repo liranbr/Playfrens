@@ -360,7 +360,6 @@ export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID
     const renamePartyRef = useRef(null);
 
     const gameCover = useValidatedImage(game.coverImageURL);
-    const handleHide = () => closeDialog();
     const dataStore = useDataStore();
     const partyReminders = dataStore.sortedReminders.filter(
         (reminder) => reminder.gameID === game.id && reminder.partyID === party.id,
@@ -369,7 +368,7 @@ export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID
     return (
         <DialogBase
             open={open}
-            onOpenChange={handleHide}
+            onOpenChange={closeDialog}
             contentProps={{
                 // Focuses the dialog content instead of the first interactable element
                 onOpenAutoFocus: (e) => {
@@ -377,6 +376,9 @@ export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID
                     e.target.focus();
                 },
                 className: "rx-dialog game-page-dialog",
+                onClick: (e) => {
+                    if (e.target === e.currentTarget) closeDialog(); // if clicking inside the (invisible background) dialog, but not inside a child, then close it
+                },
             }}
         >
             <VisuallyHidden>
@@ -396,7 +398,7 @@ export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID
                         <Dialog.Title autoFocus className="gp-title">
                             {game.title}
                         </Dialog.Title>
-                        <IconButton icon={<MdClose />} onClick={handleHide} />
+                        <IconButton icon={<MdClose />} onClick={closeDialog} />
                     </CenterAndEdgesRow>
                     <PartyTabs
                         game={game}

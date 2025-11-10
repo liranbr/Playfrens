@@ -7,7 +7,6 @@ import { TagGameCounterOptions, TagHoverGameHighlightOptions, useSettingsStore }
 import "./SettingsDialog.css";
 
 export const SettingsDialog = ({ open, closeDialog }) => {
-    const handleHide = () => closeDialog();
     const settingsStore = useSettingsStore();
 
     return (
@@ -51,7 +50,7 @@ export const SettingsDialog = ({ open, closeDialog }) => {
             </RadioGroup.Root>
 
             <div className="rx-dialog-footer">
-                <Button variant="secondary" onClick={handleHide}>
+                <Button variant="secondary" onClick={closeDialog}>
                     Close
                 </Button>
             </div>

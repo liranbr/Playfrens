@@ -13,11 +13,6 @@
     box-shadow: none;
     gap: 12px;
 
-    pointer-events: none !important; /* so when the dialog grows taller than the cover art, clicking above/below it but inside the dialog, will close it */
-    & > * {
-        pointer-events: auto;
-    }
-
     --cover-art-width: 450px;
     --cover-art-height: calc(var(--cover-art-width) * 1.5);
     --container-shadow: 0 0 20px rgba(0, 0, 0, 1);

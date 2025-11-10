@@ -3,9 +3,9 @@ import { makeAutoObservable, runInAction } from "mobx";
 
 export class UserStore {
     /**
-    * Only public profile details
-    * @type {{ provider: string, id: string, displayName: string, avatar: string[] }}
-    */
+     * Only public profile details
+     * @type {{ provider: string, id: string, displayName: string, avatar: string }}
+     */
     userInfo = undefined;
 
     constructor() {
@@ -18,30 +18,35 @@ export class UserStore {
             const res = await fetch("/auth/me", { credentials: "include" });
             // No content? Pass
             if (!res.ok || res.status == 204) {
-                res.status == 204 && console.info("No Content: Skipping user data — no active login.");
+                res.status == 204 &&
+                    console.info("No Content: Skipping user data — no active login.");
                 runInAction(() => {
                     this.userInfo = undefined;
-                })
+                });
                 return;
             }
             const data = await res.json();
             const user = data?.user;
-            console.log(user);
-            const info = {}
+            const info = {};
             info.provider = user?.provider;
             info.id = user?.id;
             info.displayName = user?.displayName;
-            info.avatars = user?.photos.map(photo => (photo.value));
+            info.avatar = user?.avatar_url;
+            console.log(user);
             runInAction(() => {
                 this.userInfo = info;
             });
-        } catch {
-            console.error("Failed to get user data.")
+        } catch (error) {
+            console.error("Failed to get user data:", error);
         }
     }
 
-    login(provider = "steam") { window.open(`/auth/${provider}`, "_self"); }
-    logout() { window.open("/auth/logout", "_self"); }
+    login(provider = "steam") {
+        window.open(`/auth/${provider}`, "_self");
+    }
+    logout() {
+        window.open("/auth/logout", "_self");
+    }
 }
 
 export const userStore = new UserStore();

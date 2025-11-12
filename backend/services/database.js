@@ -44,7 +44,7 @@ export class DatabaseService extends Service {
             // Update board by owner_id
             const { error } = await supabase
                 .from("boards")
-                .update({ board: data })
+                .update({ board: data, last_updated: new Date() })
                 .eq("owner_id", req.user.id);
 
             if (error) throw error;

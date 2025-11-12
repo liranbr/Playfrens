@@ -390,7 +390,7 @@ export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID
                         <a
                             draggable={false}
                             className="btn-store-page"
-                            href={"https://store.steampowered.com/app/" + game.storeID}
+                            href={"https://store.steampowered.com/app/" + game.storeID + "/"}
                             target="_blank"
                         >
                             Store Page

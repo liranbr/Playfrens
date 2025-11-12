@@ -3,6 +3,7 @@ import { EditTagDialog } from "@/components/Dialogs/EditTagDialog.jsx";
 import { EditGameDialog } from "@/components/Dialogs/EditGameDialog.jsx";
 import { GamePageDialog } from "@/components/Dialogs/GamePageDialog.jsx";
 import { DeleteWarningDialog } from "@/components/Dialogs/DeleteWarningDialog.jsx";
+import { GenericWarningDialog } from "@/components/Dialogs/GenericWarningDialog.jsx";
 import { SettingsDialog } from "@/components/Dialogs/SettingsDialog.jsx";
 import { AboutDialog } from "@/components/Dialogs/AboutDialog.jsx";
 import { ChoosePartyToAddTagDialog } from "@/components/Dialogs/ChoosePartyToAddTagDialog.jsx";
@@ -11,6 +12,7 @@ import { parseDuration } from "@/Utils";
 
 export const Dialogs = {
     DeleteWarning: DeleteWarningDialog,
+    GenericWarning: GenericWarningDialog,
     EditTag: EditTagDialog,
     ChoosePartyToAddTag: ChoosePartyToAddTagDialog,
     EditGame: EditGameDialog,

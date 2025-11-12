@@ -66,7 +66,13 @@ function AppMenu() {
                             <DD.SubContent className="rx-dropdown-menu" sideOffset={5}>
                                 <DD.Item
                                     onClick={() => {
-                                        document.getElementById("json-selector").click();
+                                        globalDialogStore.open(Dialogs.GenericWarning, {
+                                            message:
+                                                "Importing a backup will overwrite all of your current data.",
+                                            continueFunction: () => {
+                                                document.getElementById("json-selector").click();
+                                            },
+                                        });
                                     }}
                                 >
                                     <MdOutlineFileUpload /> Restore

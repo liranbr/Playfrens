@@ -221,7 +221,9 @@ function CoverSelector({ saveOnEnter }) {
         fetch(`/api/steamgriddb/getGameFromStore?${params}`)
             .then((res) => {
                 if (!res.ok)
-                    throw new Error("Failed to fetch the covers database entry for the game");
+                    throw new Error(
+                        "Failed to fetch the covers database entry for the result. Maybe it isn't a regular game?",
+                    );
                 return res.json();
             })
             .then((sgdbEntry) => {

@@ -159,7 +159,7 @@ const AppUserAvatar = observer(() => {
         <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild className="rx-avatar">
                 <Avatar.Root>
-                    <Avatar.Image src={userInfo?.avatars?.[0] ?? undefined} />
+                    <Avatar.Image src={userInfo?.avatar ?? undefined} />
                     <Avatar.Fallback className="rx-avatarless" asChild>
                         <MdPerson />
                     </Avatar.Fallback>

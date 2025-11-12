@@ -104,6 +104,28 @@ export class DataStore {
         );
     }
 
+    async populate() {
+        try {
+            const response = await fetch("/api/board");
+            const json = await response.json();
+            const board = json.board.board;
+            console.log(board);
+
+            console.log(storageKeys[tT.friend], "->", board[storageKeys[tT.friend]]);
+
+            this.populateTags({
+                [tT.friend]: board[storageKeys[tT.friend]],
+                [tT.category]: board[storageKeys[tT.category]],
+                [tT.status]: board[storageKeys[tT.status]],
+            });
+            this.populateGames(board[storageKeys.games], board[storageKeys.version]);
+            this.populateReminders(board[storageKeys.reminders]);
+            this.populateTagsCustomOrders(board[storageKeys.tagsCustomOrders]);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     // Used when loading some predefined set, like the starting defaults
     populateTagsFromTagNames(tagCollection) {
         for (const tagType in tagCollection) {
@@ -664,6 +686,6 @@ if (firstVisit && dataStore.allGames.size === 0) {
             dataStore.tagsCustomOrders[tagType].push(...dataStore.allTags[tagType].keys());
         }
     }
+    saveToStorage(storageKeys.visited, true);
 }
-saveToStorage(storageKeys.visited, true);
 saveToStorage(storageKeys.version, version);

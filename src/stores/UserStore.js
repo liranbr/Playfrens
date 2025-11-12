@@ -1,5 +1,6 @@
 import { createContext, useContext } from "react";
 import { makeAutoObservable, runInAction } from "mobx";
+import { globalDataStore } from "./DataStore";
 
 export class UserStore {
     /**
@@ -35,6 +36,7 @@ export class UserStore {
             console.log(user);
             runInAction(() => {
                 this.userInfo = info;
+                globalDataStore.populate();
             });
         } catch (error) {
             console.error("Failed to get user data:", error);

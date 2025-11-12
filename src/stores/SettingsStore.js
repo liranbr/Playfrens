@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react";
 import { autorun, makeAutoObservable } from "mobx";
-import { saveToStorage } from "@/Utils.jsx";
+import { loadFromStorage, saveToStorage } from "@/Utils.jsx";
 import { tagTypes } from "@/models";
 
 export const settingsStorageKey = "settings";
@@ -86,7 +86,7 @@ class SettingsStore {
     }
 }
 
-const storedSettings = JSON.parse(localStorage.getItem(settingsStorageKey));
+const storedSettings = loadFromStorage(settingsStorageKey, {});
 const settingsStore = new SettingsStore(storedSettings);
 // whenever settings are changed, auto-save
 autorun(() => saveToStorage(settingsStorageKey, settingsStore));

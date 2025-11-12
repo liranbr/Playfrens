@@ -3,11 +3,17 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import * as RadioGroup from "@radix-ui/react-radio-group";
 import { Button } from "@/components";
 import { DialogBase } from "./DialogRoot.jsx";
-import { TagGameCounterOptions, TagHoverGameHighlightOptions, useSettingsStore } from "@/stores";
+import {
+    TagGameCounterOptions,
+    TagHoverGameHighlightOptions,
+    useFilterStore,
+    useSettingsStore,
+} from "@/stores";
 import "./SettingsDialog.css";
 
 export const SettingsDialog = ({ open, closeDialog }) => {
     const settingsStore = useSettingsStore();
+    const filterStore = useFilterStore();
 
     return (
         <DialogBase
@@ -48,6 +54,17 @@ export const SettingsDialog = ({ open, closeDialog }) => {
                     </label>
                 ))}
             </RadioGroup.Root>
+            <div className="spacer" />
+
+            <p>Set current filters as the default state to use on load</p>
+            <div className="default-filters-buttons">
+                <Button variant="secondary" onClick={() => filterStore.saveDefaultFilters()}>
+                    Set as Default
+                </Button>
+                <Button variant="secondary" onClick={() => filterStore.resetDefaultFilters()}>
+                    Reset
+                </Button>
+            </div>
 
             <div className="rx-dialog-footer">
                 <Button variant="secondary" onClick={closeDialog}>

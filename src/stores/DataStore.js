@@ -35,6 +35,7 @@ import { version } from "/package.json";
 import { Party } from "@/models/GameObject.js";
 
 const tT = tagTypes; // Short alias for convenience, used a lot here
+export const defaultFiltersStorageKey = "defaultFilters";
 const storageKeys = {
     [tT.friend]: "allFriends",
     [tT.category]: "allCategories",
@@ -42,6 +43,7 @@ const storageKeys = {
     games: "allGames",
     reminders: "allReminders",
     settings: settingsStorageKey,
+    defaultFilters: defaultFiltersStorageKey,
     version: "version",
     visited: "visited",
     tagsCustomOrders: "tagsCustomOrders",
@@ -608,6 +610,7 @@ export function backupToFile() {
         [storageKeys.games]: dataStore.allGames,
         [storageKeys.reminders]: dataStore.allReminders,
         [storageKeys.settings]: loadFromStorage(storageKeys.settings, {}),
+        [storageKeys.defaultFilters]: loadFromStorage(storageKeys.defaultFilters, {}),
         [storageKeys.version]: version,
         [storageKeys.tagsCustomOrders]: dataStore.tagsCustomOrders,
     };
@@ -640,6 +643,7 @@ export function restoreFromFile(file) {
         dataStore.populateTagsCustomOrders(data[storageKeys.tagsCustomOrders]);
         // Load the settings to localstorage, and reload, which also populates the SettingsStore
         saveToStorage(storageKeys.settings, data[storageKeys.settings]);
+        saveToStorage(storageKeys.defaultFilters, data[storageKeys.defaultFilters]);
         window.location.reload();
     });
     reader.readAsText(file);

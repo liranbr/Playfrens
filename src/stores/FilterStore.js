@@ -20,13 +20,22 @@ class FilterStore {
     draggedTag = null; // Same for drag-and-drop effects
 
     constructor(defaultFilters = {}) {
+        // If there are default filters to load, ensure that the tagIDs they hold are of tags that exist, and deserialize them (make a Set)
         if (Object.keys(defaultFilters).length > 0) {
             this.search = defaultFilters.search ?? this.search;
             for (const tagType in defaultFilters.selectedTagIDs) {
-                this.selectedTagIDs[tagType] = new Set(defaultFilters.selectedTagIDs[tagType]);
+                this.selectedTagIDs[tagType] = new Set(
+                    defaultFilters.selectedTagIDs[tagType].filter(
+                        (tagID) => !!globalDataStore.getTagByID(tagID, tagType),
+                    ),
+                );
             }
             for (const tagType in defaultFilters.excludedTagIDs) {
-                this.excludedTagIDs[tagType] = new Set(defaultFilters.excludedTagIDs[tagType]);
+                this.excludedTagIDs[tagType] = new Set(
+                    defaultFilters.excludedTagIDs[tagType].filter(
+                        (tagID) => !!globalDataStore.getTagByID(tagID, tagType),
+                    ),
+                );
             }
         }
         makeAutoObservable(this);

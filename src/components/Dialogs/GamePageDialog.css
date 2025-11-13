@@ -44,56 +44,65 @@
         justify-content: end;
         align-items: center;
 
-        .store-game-buttons {
+        .store-game-buttons-area {
             opacity: 0;
-            width: 160px;
-            margin-bottom: 24px;
+            transition: 0.125s ease-in;
+            padding: 24px;
+            border-radius: 12px;
+            background-color: transparent;
+        }
+
+        .store-game-buttons {
+            width: fit-content;
+            /*margin-bottom: 24px;*/
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
             background-color: var(--pf-bg-500);
             box-shadow: var(--container-shadow);
-            padding: 12px;
+            padding: 8px;
             border-radius: 12px;
-            gap: 12px;
-            transition: 0.125s ease-in;
+            gap: 8px;
 
             a {
                 transition: none;
-                font-weight: bold;
-                width: 100%;
-                font-size: 20px;
-                color: white;
+                font-weight: 500;
+                width: 100px;
+                font-size: 16px;
+                color: var(--pf-bg-500);
                 text-decoration: none;
-                border-radius: 8px;
+                border-radius: 16px;
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                height: 36px;
+                height: 32px;
 
                 &.btn-store-page {
-                    background-color: var(--pf-btn-primary);
+                    background-color: hsl(215, 98%, 54%);
                     &:hover {
-                        background-color: var(--pf-btn-primary-hover);
+                        background-color: hsl(215, 98%, 50%);
                     }
                     &:active {
-                        background-color: var(--pf-btn-primary-active);
+                        background-color: hsl(215, 98%, 46%);
                     }
                 }
 
                 &.btn-play {
-                    background-color: hsl(40, 88%, 50%);
+                    background-color: hsl(50, 98%, 50%);
                     &:hover {
-                        background-color: hsl(40, 88%, 44%);
+                        background-color: hsl(50, 98%, 44%);
                     }
                     &:active {
-                        background-color: hsl(40, 88%, 40%);
+                        background-color: hsl(50, 98%, 40%);
                     }
                 }
             }
         }
-        &:hover .store-game-buttons {
-            opacity: 1;
+        &:hover .store-game-buttons-area {
+            opacity: 0.3;
+            &:hover {
+                opacity: 1;
+            }
         }
     }
 

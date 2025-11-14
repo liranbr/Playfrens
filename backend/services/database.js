@@ -26,7 +26,9 @@ export class DatabaseService extends Service {
 
     /**
      * Update a board JSONB data.
-     * Frontend should send: { data }
+     * Frontend can send either:
+     * 1) { data }                       -> replace whole board
+     * 2) { path, value, partial: true } -> partial JSONB update using RPC
      */
     async updateBoard(req, res) {
         const { OK, BAD_REQUEST, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
@@ -35,13 +37,33 @@ export class DatabaseService extends Service {
             return Response.send(res, BAD_REQUEST, { error: "Not logged in" });
         }
 
-        const { data } = req.body;
-        if (!data) {
-            return Response.send(res, BAD_REQUEST, { error: "Missing board data" });
-        }
+        const { data, path, value, partial } = req.body;
 
         try {
-            // Update board by owner_id
+            // Partial updating via RPC (Remote Procedure Call)
+            if (partial) {
+                if (!Array.isArray(path) || value === undefined) {
+                    return Response.send(res, BAD_REQUEST, {
+                        error: "Invalid partial update payload",
+                    });
+                }
+
+                const { error } = await supabase.rpc("update_board_path", {
+                    _owner_id: req.user.id,
+                    _path: path,
+                    _value: value,
+                });
+
+                if (error) throw error;
+
+                return Response.send(res, OK, { message: "Board updated (partial)" });
+            }
+            
+            // Not partial? Full board replacement
+            if (!data) {
+                return Response.send(res, BAD_REQUEST, { error: "Missing board data" });
+            }
+
             const { error } = await supabase
                 .from("boards")
                 .update({ board: data, last_updated: new Date() })
@@ -49,7 +71,7 @@ export class DatabaseService extends Service {
 
             if (error) throw error;
 
-            Response.send(res, OK, { message: "Board updated successfully" });
+            return Response.send(res, OK, { message: "Board updated successfully" });
         } catch (err) {
             console.error("Error updating board:", err);
             Response.send(res, INTERNAL_SERVER_ERROR, { error: err.message });

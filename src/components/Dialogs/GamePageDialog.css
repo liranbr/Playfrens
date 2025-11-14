@@ -46,9 +46,13 @@
 
         .store-game-buttons-area {
             opacity: 0;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transition: 0.125s ease-in;
-            padding: 24px;
-            border-radius: 12px;
+            padding: 16px;
+            border-radius: var(--border-radius);
             background-color: transparent;
         }
 

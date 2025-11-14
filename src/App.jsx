@@ -198,9 +198,18 @@ const AppUserAvatar = observer(() => {
                         </>
                     )}
                     {userInfo && (
-                        <DropdownMenu.Item onClick={() => userStore.logout()}>
-                            Logout
-                        </DropdownMenu.Item>
+                        <>
+                            {userInfo.provider === "steam" && (
+                                <DropdownMenu.Item
+                                    onClick={() => globalDialogStore.open(Dialogs.SteamImport)}
+                                >
+                                    Import from Steam
+                                </DropdownMenu.Item>
+                            )}
+                            <DropdownMenu.Item onClick={() => userStore.logout()}>
+                                Logout
+                            </DropdownMenu.Item>
+                        </>
                     )}
                 </DropdownMenu.Content>
             </DropdownMenu.Portal>

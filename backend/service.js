@@ -1,5 +1,9 @@
 import { asyncHandler, ConsoleColors, resolveBaseURL } from "./utils.js";
 /**
+ * @typedef {import("./request.js").HttpMethod} HttpMethod
+ */
+
+/**
  * @class
  * @property {import('express').application} app
  */
@@ -8,6 +12,7 @@ export class Service {
     environment_key = "";
     /** @type {import('express').Express} */
     app;
+
     /**
      * @param {import('express').Express} app
      * @param {string} environment_key
@@ -16,15 +21,19 @@ export class Service {
         this.app = app;
         this.environment_key = environment_key;
     }
-    async connect() {}
+
+    async connect() {
+        return null;
+    }
+
     listen() {
         const { FgYellow, Reset } = ConsoleColors;
         console.log(`${FgYellow}${this.constructor.name}${Reset}`);
     }
 
     /**
-     * Helper to register multiple routes in a DRY way
-     * @param {Array<{ method: string, path: string, handler: Function }>} routes
+     * Helper to register multiple routes in a D.R.Y. way
+     * @param {Array<{ method: HttpMethod, path: string, handler: Function }>} routes
      */
     registerRoutes(routes) {
         const { FgCyan, FgGreen, Reset, FgRGB } = ConsoleColors;

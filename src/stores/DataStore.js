@@ -111,9 +111,6 @@ export class DataStore {
             const response = await fetch("/api/board");
             const json = await response.json();
             const board = json.board.board;
-            console.log(board);
-
-            console.log(storageKeys[tT.friend], "->", board[storageKeys[tT.friend]]);
 
             this.populateTags({
                 [tT.friend]: board[storageKeys[tT.friend]],

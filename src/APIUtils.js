@@ -92,20 +92,32 @@ export async function getBoard() {
     }
 }
 
+// Replaces the entire Board
 export async function saveBoard(data) {
     try {
         const json = JSON.stringify({ data });
-        console.log(json);
-        const response = await fetch("/api/board/update", {
+        await fetch("/api/board/save", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
             body: json,
         });
-
-        const result = await response.json();
-        console.log(result);
     } catch (err) {
         console.error("Failed to save board:", err);
+    }
+}
+
+// Updates parts of the Board
+export async function updateBoard(path, value) {
+    try {
+        const json = JSON.stringify({ path: path, value: value });
+        await fetch("/api/board/update", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: json,
+        });
+    } catch (err) {
+        console.error("Failed to partial update board:", err);
     }
 }

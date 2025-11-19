@@ -33,6 +33,7 @@ import {
 } from "@/Utils.jsx";
 import { version } from "/package.json";
 import { Party } from "@/models/GameObject.js";
+import { saveBoard } from "@/APIUtils.js";
 
 const tT = tagTypes; // Short alias for convenience, used a lot here
 export const defaultFiltersStorageKey = "defaultFilters";
@@ -77,17 +78,17 @@ export class DataStore {
     allReminders = [];
 
     constructor() {
-        this.populateTags({
-            [tT.friend]: loadFromStorage(storageKeys[tT.friend], []),
-            [tT.category]: loadFromStorage(storageKeys[tT.category], []),
-            [tT.status]: loadFromStorage(storageKeys[tT.status], []),
-        });
-        this.populateGames(
-            loadFromStorage(storageKeys.games, []),
-            loadFromStorage(storageKeys.version, ""),
-        );
-        this.populateReminders(loadFromStorage(storageKeys.reminders, []));
-        this.populateTagsCustomOrders(loadFromStorage(storageKeys.tagsCustomOrders, {}));
+        // this.populateTags({
+        //     [tT.friend]: loadFromStorage(storageKeys[tT.friend], []),
+        //     [tT.category]: loadFromStorage(storageKeys[tT.category], []),
+        //     [tT.status]: loadFromStorage(storageKeys[tT.status], []),
+        // });
+        // this.populateGames(
+        //     loadFromStorage(storageKeys.games, []),
+        //     loadFromStorage(storageKeys.version, ""),
+        // );
+        // this.populateReminders(loadFromStorage(storageKeys.reminders, []));
+        // this.populateTagsCustomOrders(loadFromStorage(storageKeys.tagsCustomOrders, {}));
         makeAutoObservable(this, { sortedReminders: computed });
 
         // on any change to tags or games, save them
@@ -111,6 +112,13 @@ export class DataStore {
             const response = await fetch("/api/board");
             const json = await response.json();
             const board = json.board.board;
+
+            // Set to default via Empty Board for now.
+            if (Object.keys(board).length == 0) {
+                defaultSample();
+                const data = ExportDataStoreToJSON();
+                return await saveBoard(data);
+            }
 
             this.populateTags({
                 [tT.friend]: board[storageKeys[tT.friend]],
@@ -673,12 +681,7 @@ export function restoreFromFile(file) {
     reader.readAsText(file);
 }
 
-// #==========================#
-// ‖ FIRST VISIT DEFAULT TAGS ‖
-// #==========================#
-const firstVisit = loadFromStorage(storageKeys.visited, false) === false;
-if (firstVisit && dataStore.allGames.size === 0) {
-    dataStore.showTour = true;
+function defaultSample() {
     const defaultTagsSample = {
         [tT.friend]: [],
         [tT.category]: ["Playthrough", "Round-based", "Persistent World"],
@@ -692,5 +695,15 @@ if (firstVisit && dataStore.allGames.size === 0) {
         }
     }
     saveToStorage(storageKeys.visited, true);
+}
+
+// #==========================#
+// ‖ FIRST VISIT DEFAULT TAGS ‖
+// #==========================#
+const firstVisit = loadFromStorage(storageKeys.visited, false) === false;
+
+if (firstVisit && dataStore.allGames.size === 0) {
+    dataStore.showTour = true;
+    defaultSample();
 }
 saveToStorage(storageKeys.version, version);

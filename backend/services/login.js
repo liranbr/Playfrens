@@ -161,12 +161,12 @@ export class LoginService extends Service {
 
     async steamReturn(req, res) {
         console.log(`Hello, ${req.user?.display_name || "Steam user"}!`);
-        res.redirect(resolveBaseURL("frontend"));
+        res.redirect("/");
     }
 
     async googleCallback(req, res) {
         console.log(`Hello, ${req.user?.display_name || "Google user"}!`);
-        res.redirect(resolveBaseURL("frontend"));
+        res.redirect("/");
     }
 
     async upsertUser(profile, provider) {

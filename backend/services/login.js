@@ -160,12 +160,12 @@ export class LoginService extends Service {
     }
 
     async steamReturn(req, res) {
-        console.log(`Hello, ${req.user?.displayName || "Steam user"}!`);
+        console.log(`Hello, ${req.user?.display_name || "Steam user"}!`);
         res.redirect(resolveBaseURL("frontend"));
     }
 
     async googleCallback(req, res) {
-        console.log(`Hello, ${req.user?.displayName || "Google user"}!`);
+        console.log(`Hello, ${req.user?.display_name || "Google user"}!`);
         res.redirect(resolveBaseURL("frontend"));
     }
 
@@ -180,28 +180,21 @@ export class LoginService extends Service {
             return undefined;
         })();
 
-        let userId;
-
-        // Check if provider already exists
-        const { data: existingProvider, error: fetchError } = await supabase
-            .from("user_providers")
-            .select("user_id")
+        // Check if user exists by provider
+        const { data: existingUser } = await supabase
+            .from("users")
+            .select("*")
             .eq("provider", provider)
             .eq("provider_id", providerId)
             .single();
 
-        if (fetchError && fetchError.code !== "PGRST116") {
-            console.error("Error checking provider:", fetchError);
-            throw fetchError;
-        }
+        const avatar_url = profile.photos?.length ? profile.photos.at(-1).value : null;
+        const email = profile.emails?.[0]?.value;
+        let userId;
 
-        if (existingProvider) {
-            userId = existingProvider.user_id;
-
-            // update dynamic info
-            const avatar_url = profile.photos?.length > 0 ? profile.photos.at(-1).value : null;
-            const email = profile.emails?.[0]?.value;
-
+        if (existingUser) {
+            userId = existingUser.id;
+            // Update user
             const { error: updateError } = await supabase
                 .from("users")
                 .update({
@@ -211,55 +204,39 @@ export class LoginService extends Service {
                     last_login: new Date(),
                 })
                 .eq("id", userId);
-
             if (updateError) throw updateError;
         } else {
-            const avatar_url = profile.photos?.length > 0 ? profile.photos.at(-1).value : null;
-            const email = profile.emails?.[0]?.value;
-
-            // Create user
-            const { data: newUser, error: insertUserError } = await supabase
+            // Insert new user
+            const { data: newUser, error: insertError } = await supabase
                 .from("users")
                 .insert({
                     display_name: profile.displayName,
                     avatar_url,
                     email,
+                    provider,
+                    provider_id: providerId,
+                    last_login: new Date(),
                 })
                 .select()
                 .single();
-
-            if (insertUserError) throw insertUserError;
+            if (insertError) throw insertError;
 
             userId = newUser.id;
 
-            // Link provider
-            const { error: linkError } = await supabase.from("user_providers").insert({
-                user_id: userId,
-                provider,
-                provider_id: providerId,
-            });
-
-            if (linkError) throw linkError;
-
-            // ✅ Create an empty board for the user
-            const { error: boardError } = await supabase.from("boards").insert({
-                owner_id: userId,
-            });
-
-            if (boardError) {
-                console.error("Error creating board:", boardError);
-                // Not critical enough to fail login, so just log and continue
-            }
+            // Create empty board
+            const { error: boardError } = await supabase
+                .from("boards")
+                .insert({ owner_id: userId });
+            if (boardError) console.error("Error creating board:", boardError);
         }
 
-        // Fetch and return final user
         const { data: user, error: userError } = await supabase
             .from("users")
             .select("*")
             .eq("id", userId)
             .single();
-
         if (userError) throw userError;
+
         return user;
     }
 }

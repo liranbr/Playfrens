@@ -681,7 +681,12 @@ export function restoreFromFile(file) {
         // Load the settings to localstorage, and reload, which also populates the SettingsStore
         saveToStorage(storageKeys.settings, data[storageKeys.settings]);
         saveToStorage(storageKeys.defaultFilters, data[storageKeys.defaultFilters]);
-        window.location.reload();
+        
+        saveBoard(ExportDataStoreToJSON()).then(() => { 
+            window.location.reload();
+        }).catch((error) => {
+            toastError("Failed to save data to server: " + error.message);
+        });
     });
     reader.readAsText(file);
 }

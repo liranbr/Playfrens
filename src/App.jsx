@@ -189,6 +189,10 @@ const AppUserAvatar = observer(() => {
                 >
                     {!userInfo && (
                         <>
+                            <DropdownMenu.Item>
+                                BEFORE LOGGING IN, BACKUP YOUR LOCAL DATA
+                                {/*TODO: remove this threat after making a forced login prompt*/}
+                            </DropdownMenu.Item>
                             <DropdownMenu.Item onClick={() => userStore.login("steam")}>
                                 Steam Login
                             </DropdownMenu.Item>

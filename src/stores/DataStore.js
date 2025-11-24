@@ -23,6 +23,7 @@ import {
 import { globalSettingsStore, settingsStorageKey } from "@/stores";
 import { SortingReaction } from "./SortingReaction.js";
 import {
+    DELETEME_AllowDBSave,
     deleteItemFromArray,
     ensureUniqueName,
     loadFromStorage,
@@ -33,6 +34,7 @@ import {
 } from "@/Utils.jsx";
 import { version } from "/package.json";
 import { Party } from "@/models/GameObject.js";
+import { saveBoard } from "@/APIUtils.js";
 
 const tT = tagTypes; // Short alias for convenience, used a lot here
 export const defaultFiltersStorageKey = "defaultFilters";
@@ -77,18 +79,55 @@ export class DataStore {
     allReminders = [];
 
     constructor() {
-        this.populateTags({
-            [tT.friend]: loadFromStorage(storageKeys[tT.friend], []),
-            [tT.category]: loadFromStorage(storageKeys[tT.category], []),
-            [tT.status]: loadFromStorage(storageKeys[tT.status], []),
-        });
-        this.populateGames(
-            loadFromStorage(storageKeys.games, []),
-            loadFromStorage(storageKeys.version, ""),
-        );
-        this.populateReminders(loadFromStorage(storageKeys.reminders, []));
-        this.populateTagsCustomOrders(loadFromStorage(storageKeys.tagsCustomOrders, {}));
         makeAutoObservable(this, { sortedReminders: computed });
+
+        // when any game is added/removed, update the totalGamesCounter in every tag
+        reaction(
+            () => this.allGames.keys(),
+            () => this.updateAllTagTotalGamesCounters(),
+            { fireImmediately: true },
+        );
+    }
+
+    async populate() {
+        try {
+            const response = await fetch("/api/board");
+            const json = await response.json();
+            if (!response.ok) throw new Error(json.error);
+            const board = json.board.board;
+
+            // Set to default via Empty Board for now.
+            if (Object.keys(board).length == 0) {
+                defaultTagsSample();
+                const data = ExportDataStoreToJSON();
+                return await saveBoard(data);
+            }
+
+            this.populateTags({
+                [tT.friend]: board[storageKeys[tT.friend]],
+                [tT.category]: board[storageKeys[tT.category]],
+                [tT.status]: board[storageKeys[tT.status]],
+            });
+            this.populateGames(board[storageKeys.games], board[storageKeys.version]);
+            this.populateReminders(board[storageKeys.reminders]);
+            this.populateTagsCustomOrders(board[storageKeys.tagsCustomOrders]);
+            
+            DELETEME_AllowDBSave();
+        } catch (error) {
+            console.info(error);
+            this.populateTags({
+                [tT.friend]: loadFromStorage(storageKeys[tT.friend], []),
+                [tT.category]: loadFromStorage(storageKeys[tT.category], []),
+                [tT.status]: loadFromStorage(storageKeys[tT.status], []),
+            });
+            this.populateGames(
+                loadFromStorage(storageKeys.games, []),
+                loadFromStorage(storageKeys.version, ""),
+            );
+            this.populateReminders(loadFromStorage(storageKeys.reminders, []));
+            this.populateTagsCustomOrders(loadFromStorage(storageKeys.tagsCustomOrders, {}));
+        }
+
 
         // on any change to tags or games, save them
         autorun(() => saveToStorage(storageKeys[tT.friend], this.allTags[tT.friend]));
@@ -97,13 +136,6 @@ export class DataStore {
         autorun(() => saveToStorage(storageKeys.games, this.allGames));
         autorun(() => saveToStorage(storageKeys.reminders, this.allReminders));
         autorun(() => saveToStorage(storageKeys.tagsCustomOrders, this.tagsCustomOrders));
-
-        // when any game is added/removed, update the totalGamesCounter in every tag
-        reaction(
-            () => this.allGames.keys(),
-            () => this.updateAllTagTotalGamesCounters(),
-            { fireImmediately: true },
-        );
     }
 
     // Used when loading some predefined set, like the starting defaults
@@ -601,9 +633,8 @@ function setGameSorting(sortSetting, sortDirection) {
 // ‖ FILE BACKUP ‖
 // #=============#
 
-export function backupToFile() {
-    console.log("Backing up data to file...");
-    const data = {
+export function ExportDataStoreToJSON() {
+    return {
         [storageKeys[tT.friend]]: dataStore.allTags[tT.friend], // turning maps into arrays to stringify
         [storageKeys[tT.category]]: dataStore.allTags[tT.category],
         [storageKeys[tT.status]]: dataStore.allTags[tT.status],
@@ -614,6 +645,12 @@ export function backupToFile() {
         [storageKeys.version]: version,
         [storageKeys.tagsCustomOrders]: dataStore.tagsCustomOrders,
     };
+}
+
+export function backupToFile() {
+    console.log("Backing up data to file...");
+    const data = ExportDataStoreToJSON();
+
     const blob = new Blob([JSON.stringify(data, null, 4)], {
         type: "application/json",
     });
@@ -644,7 +681,12 @@ export function restoreFromFile(file) {
         // Load the settings to localstorage, and reload, which also populates the SettingsStore
         saveToStorage(storageKeys.settings, data[storageKeys.settings]);
         saveToStorage(storageKeys.defaultFilters, data[storageKeys.defaultFilters]);
-        window.location.reload();
+        
+        saveBoard(ExportDataStoreToJSON()).then(() => { 
+            window.location.reload();
+        }).catch((error) => {
+            toastError("Failed to save data to server: " + error.message);
+        });
     });
     reader.readAsText(file);
 }
@@ -652,21 +694,20 @@ export function restoreFromFile(file) {
 // #==========================#
 // ‖ FIRST VISIT DEFAULT TAGS ‖
 // #==========================#
-const firstVisit = loadFromStorage(storageKeys.visited, false) === false;
-if (firstVisit && dataStore.allGames.size === 0) {
-    dataStore.showTour = true;
-    const defaultTagsSample = {
+function defaultTagsSample() {
+    return {
         [tT.friend]: [],
         [tT.category]: ["Playthrough", "Round-based", "Persistent World"],
         [tT.status]: ["Playing", "LFG", "Paused", "Backlog", "Abandoned", "Finished"],
     };
-    dataStore.populateTagsFromTagNames(defaultTagsSample);
-    const sortMethods = globalSettingsStore.tagSortMethods;
-    for (const tagType in sortMethods) {
-        if (sortMethods[tagType] === "custom") {
-            dataStore.tagsCustomOrders[tagType].push(...dataStore.allTags[tagType].keys());
-        }
-    }
 }
-saveToStorage(storageKeys.visited, true);
+
+const firstVisit = loadFromStorage(storageKeys.visited, false) === false;
+
+if (firstVisit && dataStore.allGames.size === 0) {
+    dataStore.showTour = true;
+    const sample = defaultTagsSample();
+    dataStore.populateTagsFromTagNames(sample);
+    saveToStorage(storageKeys.visited, true);
+}
 saveToStorage(storageKeys.version, version);

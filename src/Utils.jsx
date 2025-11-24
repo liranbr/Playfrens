@@ -11,7 +11,7 @@ export function setToastSilence(silence) {
  * @param {string} message
  * @returns {true}
  */
-export function toastSuccess(message) {
+export async function toastSuccess(message) {
     if (!silentToasts) toast.success(message);
     return true;
 }
@@ -38,8 +38,27 @@ export function loadFromStorage(key, fallback) {
     }
 }
 
-export function saveToStorage(key, value) {
+let timesSaved = 0;
+
+// THIS IS REALLY BAD, BUT THIS IS FOR DEVELOPMENT REASONS FOR NOW, SEE BELOW
+let allowDBSave = false;
+export function DELETEME_AllowDBSave() {
+    allowDBSave = true;
+}
+
+export async function saveToStorage(key, value) {
     localStorage.setItem(key, JSON.stringify(value, null, 4));
+    // THIS IS REALLY BAD, BUT THIS IS FOR DEVELOPMENT REASONS FOR NOW
+    // A WISE MAN ONCE SAID "CLEAN CODE, I NEED. SPAGHETTI I MUST."
+    if (!allowDBSave) return;
+    const { ExportDataStoreToJSON } = await import("./stores/DataStore");
+    const { saveBoard } = await import("./APIUtils");
+    const data = ExportDataStoreToJSON();
+    saveBoard(data);
+    console.warn(
+        "Auto-saved board to backend through autorun. This is so bad, holy moly I'm sorry.",
+        ++timesSaved,
+    );
 }
 
 export function deleteItemFromArray(arr, item) {

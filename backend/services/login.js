@@ -5,6 +5,7 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import passport from "passport";
 import session from "express-session";
 import { resolveBaseURL, strToBool } from "../utils.js";
+import { supabase } from "../server.js";
 
 export class LoginService extends Service {
     constructor(app) {
@@ -27,8 +28,15 @@ export class LoginService extends Service {
 
         app.use(passport.initialize());
         app.use(passport.session());
-        passport.serializeUser((user, done) => done(null, user));
-        passport.deserializeUser((obj, done) => done(null, obj));
+        passport.serializeUser((user, done) => done(null, user.id));
+        passport.deserializeUser(async (id, done) => {
+            const { data: user, error } = await supabase
+                .from("users")
+                .select("*")
+                .eq("id", id)
+                .single();
+            done(error, user);
+        });
 
         const URL = resolveBaseURL("frontend");
         passport.use(
@@ -38,11 +46,14 @@ export class LoginService extends Service {
                     realm: `${URL}/`,
                     apiKey: process.env.STEAM_WEB_API_KEY,
                 },
-                (identifier, profile, done) => {
-                    process.nextTick(() => {
-                        profile.identifier = identifier;
-                        return done(null, profile);
-                    });
+                async (identifier, profile, done) => {
+                    profile.identifier = identifier;
+                    try {
+                        const user = await this.upsertUser(profile, "steam");
+                        done(null, user);
+                    } catch (err) {
+                        done(err);
+                    }
                 },
             ),
         );
@@ -53,11 +64,14 @@ export class LoginService extends Service {
                     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
                     callbackURL: `${URL}/auth/google/callback`,
                 },
-                (accessToken, refreshToken, profile, done) => {
-                    // Example user lookup or creation
-                    process.nextTick(() => {
-                        return done(null, profile);
-                    });
+                async (accessToken, refreshToken, profile, done) => {
+                    try {
+                        console.log(profile);
+                        const user = await this.upsertUser(profile, "google");
+                        done(null, user);
+                    } catch (err) {
+                        done(err);
+                    }
                 },
             ),
         );
@@ -85,7 +99,7 @@ export class LoginService extends Service {
                 method: "get",
                 path: "/auth/google",
                 handler: passport.authenticate("google", {
-                    scope: ["profile"],
+                    scope: ["profile", "openid"],
                     failureRedirect: "/",
                 }),
             },
@@ -129,22 +143,100 @@ export class LoginService extends Service {
 
     // Returns the user's information used to login with (e.g. Steam public data)
     async getRequestIdentity(req, res) {
-        const { OK, NO_CONTENT } = Response.HttpStatus;
+        const { OK, NO_CONTENT, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
 
         if (req.isAuthenticated()) {
-            Response.send(res, OK, { user: req.user });
+            const { data: dbUser, error } = await supabase
+                .from("users")
+                .select("*")
+                .eq("id", req.user.id)
+                .single();
+
+            if (error) return Response.send(res, INTERNAL_SERVER_ERROR, { error: error.message });
+            Response.send(res, OK, { user: dbUser });
         } else {
             Response.send(res, NO_CONTENT, { message: "Requester is not logged in." });
         }
     }
 
     async steamReturn(req, res) {
-        console.log(`Hello, ${req.user?.displayName || "Steam user"}!`);
-        res.redirect(resolveBaseURL("frontend"));
+        console.log(`Hello, ${req.user?.display_name || "Steam user"}!`);
+        res.redirect("/");
     }
 
     async googleCallback(req, res) {
-        console.log(`Hello, ${req.user?.displayName || "Google user"}!`);
-        res.redirect(resolveBaseURL("frontend"));
+        console.log(`Hello, ${req.user?.display_name || "Google user"}!`);
+        res.redirect("/");
+    }
+
+    async upsertUser(profile, provider) {
+        const providerId = (() => {
+            switch (provider) {
+                case "steam":
+                    return profile.identifier;
+                case "google":
+                    return profile.id;
+            }
+            return undefined;
+        })();
+
+        // Check if user exists by provider
+        const { data: existingUser } = await supabase
+            .from("users")
+            .select("*")
+            .eq("provider", provider)
+            .eq("provider_id", providerId)
+            .single();
+
+        const avatar_url = profile.photos?.length ? profile.photos.at(-1).value : null;
+        const email = profile.emails?.[0]?.value;
+        let userId;
+
+        if (existingUser) {
+            userId = existingUser.id;
+            // Update user
+            const { error: updateError } = await supabase
+                .from("users")
+                .update({
+                    display_name: profile.displayName,
+                    avatar_url,
+                    email,
+                    last_login: new Date(),
+                })
+                .eq("id", userId);
+            if (updateError) throw updateError;
+        } else {
+            // Insert new user
+            const { data: newUser, error: insertError } = await supabase
+                .from("users")
+                .insert({
+                    display_name: profile.displayName,
+                    avatar_url,
+                    email,
+                    provider,
+                    provider_id: providerId,
+                    last_login: new Date(),
+                })
+                .select()
+                .single();
+            if (insertError) throw insertError;
+
+            userId = newUser.id;
+
+            // Create empty board
+            const { error: boardError } = await supabase
+                .from("boards")
+                .insert({ owner_id: userId });
+            if (boardError) console.error("Error creating board:", boardError);
+        }
+
+        const { data: user, error: userError } = await supabase
+            .from("users")
+            .select("*")
+            .eq("id", userId)
+            .single();
+        if (userError) throw userError;
+
+        return user;
     }
 }

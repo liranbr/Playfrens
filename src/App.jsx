@@ -174,7 +174,7 @@ const AppUserAvatar = observer(() => {
         <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild className="rx-avatar">
                 <Avatar.Root>
-                    <Avatar.Image src={userInfo?.avatars?.[0] ?? undefined} />
+                    <Avatar.Image src={userInfo?.avatar ?? undefined} />
                     <Avatar.Fallback className="rx-avatarless" asChild>
                         <MdPerson />
                     </Avatar.Fallback>
@@ -189,6 +189,10 @@ const AppUserAvatar = observer(() => {
                 >
                     {!userInfo && (
                         <>
+                            <DropdownMenu.Item>
+                                BEFORE LOGGING IN, BACKUP YOUR LOCAL DATA
+                                {/*TODO: remove this threat after making a forced login prompt*/}
+                            </DropdownMenu.Item>
                             <DropdownMenu.Item onClick={() => userStore.login("steam")}>
                                 Steam Login
                             </DropdownMenu.Item>

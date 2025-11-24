@@ -65,3 +65,59 @@ export async function getOfficialCoverImageURL(storeType, storeID) {
     if (!fetchResponse.ok) return console.error(json);
     return json;
 }
+
+export async function getBoard() {
+    try {
+        const response = await fetch("/api/board", {
+            method: "GET",
+            credentials: "include",
+        });
+
+        if (response.status === 204) {
+            // No board found for this user
+            return null;
+        }
+
+        if (!response.ok) {
+            const error = await response.json();
+            console.error("Error fetching board:", error);
+            return null;
+        }
+
+        const { board } = await response.json();
+        return board;
+    } catch (err) {
+        console.error("Failed to fetch board:", err);
+        return null;
+    }
+}
+
+// Replaces the entire Board
+export async function saveBoard(data) {
+    try {
+        const json = JSON.stringify({ data });
+        await fetch("/api/board/save", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: json,
+        });
+    } catch (err) {
+        console.error("Failed to save board:", err);
+    }
+}
+
+// Updates parts of the Board
+export async function updateBoard(path, value) {
+    try {
+        const json = JSON.stringify({ path: path, value: value });
+        await fetch("/api/board/update", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: json,
+        });
+    } catch (err) {
+        console.error("Failed to partial update board:", err);
+    }
+}

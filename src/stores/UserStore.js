@@ -23,6 +23,7 @@ export class UserStore {
                     console.info("No Content: Skipping user data — no active login.");
                 runInAction(() => {
                     this.userInfo = undefined;
+                    globalDataStore.populate();
                 });
                 return;
             }

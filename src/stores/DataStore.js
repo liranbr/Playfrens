@@ -23,6 +23,7 @@ import {
 import { globalSettingsStore, settingsStorageKey } from "@/stores";
 import { SortingReaction } from "./SortingReaction.js";
 import {
+    DELETEME_AllowDBSave,
     deleteItemFromArray,
     ensureUniqueName,
     loadFromStorage,
@@ -78,26 +79,7 @@ export class DataStore {
     allReminders = [];
 
     constructor() {
-        // this.populateTags({
-        //     [tT.friend]: loadFromStorage(storageKeys[tT.friend], []),
-        //     [tT.category]: loadFromStorage(storageKeys[tT.category], []),
-        //     [tT.status]: loadFromStorage(storageKeys[tT.status], []),
-        // });
-        // this.populateGames(
-        //     loadFromStorage(storageKeys.games, []),
-        //     loadFromStorage(storageKeys.version, ""),
-        // );
-        // this.populateReminders(loadFromStorage(storageKeys.reminders, []));
-        // this.populateTagsCustomOrders(loadFromStorage(storageKeys.tagsCustomOrders, {}));
         makeAutoObservable(this, { sortedReminders: computed });
-
-        // on any change to tags or games, save them
-        autorun(() => saveToStorage(storageKeys[tT.friend], this.allTags[tT.friend]));
-        autorun(() => saveToStorage(storageKeys[tT.category], this.allTags[tT.category]));
-        autorun(() => saveToStorage(storageKeys[tT.status], this.allTags[tT.status]));
-        autorun(() => saveToStorage(storageKeys.games, this.allGames));
-        autorun(() => saveToStorage(storageKeys.reminders, this.allReminders));
-        autorun(() => saveToStorage(storageKeys.tagsCustomOrders, this.tagsCustomOrders));
 
         // when any game is added/removed, update the totalGamesCounter in every tag
         reaction(
@@ -111,6 +93,7 @@ export class DataStore {
         try {
             const response = await fetch("/api/board");
             const json = await response.json();
+            if (!response.ok) throw new Error(json.error);
             const board = json.board.board;
 
             // Set to default via Empty Board for now.
@@ -128,9 +111,31 @@ export class DataStore {
             this.populateGames(board[storageKeys.games], board[storageKeys.version]);
             this.populateReminders(board[storageKeys.reminders]);
             this.populateTagsCustomOrders(board[storageKeys.tagsCustomOrders]);
+            
+            DELETEME_AllowDBSave();
         } catch (error) {
-            console.error(error);
+            console.info(error);
+            this.populateTags({
+                [tT.friend]: loadFromStorage(storageKeys[tT.friend], []),
+                [tT.category]: loadFromStorage(storageKeys[tT.category], []),
+                [tT.status]: loadFromStorage(storageKeys[tT.status], []),
+            });
+            this.populateGames(
+                loadFromStorage(storageKeys.games, []),
+                loadFromStorage(storageKeys.version, ""),
+            );
+            this.populateReminders(loadFromStorage(storageKeys.reminders, []));
+            this.populateTagsCustomOrders(loadFromStorage(storageKeys.tagsCustomOrders, {}));
         }
+
+
+        // on any change to tags or games, save them
+        autorun(() => saveToStorage(storageKeys[tT.friend], this.allTags[tT.friend]));
+        autorun(() => saveToStorage(storageKeys[tT.category], this.allTags[tT.category]));
+        autorun(() => saveToStorage(storageKeys[tT.status], this.allTags[tT.status]));
+        autorun(() => saveToStorage(storageKeys.games, this.allGames));
+        autorun(() => saveToStorage(storageKeys.reminders, this.allReminders));
+        autorun(() => saveToStorage(storageKeys.tagsCustomOrders, this.tagsCustomOrders));
     }
 
     // Used when loading some predefined set, like the starting defaults
@@ -698,5 +703,6 @@ if (firstVisit && dataStore.allGames.size === 0) {
     dataStore.showTour = true;
     const sample = defaultTagsSample();
     dataStore.populateTagsFromTagNames(sample);
+    saveToStorage(storageKeys.visited, true);
 }
 saveToStorage(storageKeys.version, version);

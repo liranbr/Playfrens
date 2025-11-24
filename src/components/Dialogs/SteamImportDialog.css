@@ -1,2 +1,23 @@
-.steam-import-dialog {
+.rx-dialog.steam-import-dialog {
+    width: 600px;
+    font-size: 16px;
+}
+
+.steam-public-data-tip {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--pf-bg-700);
+    border: var(--pf-border-700);
+    border-radius: 16px;
+    padding: 16px;
+
+    ol {
+        padding-left: 4px;
+        list-style-position: inside;
+    }
+}
+
+input#SteamIDInput {
+    margin-bottom: 4px;
 }

@@ -118,3 +118,16 @@ fieldset {
     gap: 12px;
     color: var(--pf-fg-100);
 }
+
+input[type="checkbox"] {
+    height: 16px;
+    width: 16px;
+    margin-right: 8px;
+}
+
+.checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: left;
+    color: var(--pf-fg-100);
+}

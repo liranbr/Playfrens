@@ -33,6 +33,7 @@ import {
 } from "@/Utils.jsx";
 import { version } from "/package.json";
 import { Party } from "@/models/GameObject.js";
+import { saveBoard } from "@/APIUtils.js";
 
 const tT = tagTypes; // Short alias for convenience, used a lot here
 const storageKeys = {
@@ -110,6 +111,21 @@ export class DataStore {
             const json = await response.json();
             const board = json.board.board;
             console.log(board);
+
+            if (Object.keys(board).length === 0) {
+                const tagsSample = defaultTagsSample();
+                dataStore.populateTagsFromTagNames(tagsSample);
+                const sortMethods = globalSettingsStore.tagSortMethods;
+                for (const tagType in sortMethods) {
+                    if (sortMethods[tagType] === "custom") {
+                        dataStore.tagsCustomOrders[tagType].push(
+                            ...dataStore.allTags[tagType].keys(),
+                        );
+                    }
+                }
+                const data = ExportDataStoreToJSON();
+                saveBoard(data);
+            }
 
             console.log(storageKeys[tT.friend], "->", board[storageKeys[tT.friend]]);
 
@@ -671,15 +687,19 @@ export function restoreFromFile(file) {
 // #==========================#
 // ‖ FIRST VISIT DEFAULT TAGS ‖
 // #==========================#
-const firstVisit = loadFromStorage(storageKeys.visited, false) === false;
-if (firstVisit && dataStore.allGames.size === 0) {
-    dataStore.showTour = true;
-    const defaultTagsSample = {
+function defaultTagsSample() {
+    return {
         [tT.friend]: [],
         [tT.category]: ["Playthrough", "Round-based", "Persistent World"],
         [tT.status]: ["Playing", "LFG", "Paused", "Backlog", "Abandoned", "Finished"],
     };
-    dataStore.populateTagsFromTagNames(defaultTagsSample);
+}
+
+const firstVisit = loadFromStorage(storageKeys.visited, false) === false;
+if (firstVisit && dataStore.allGames.size === 0) {
+    dataStore.showTour = true;
+    const tagsSample = defaultTagsSample();
+    dataStore.populateTagsFromTagNames(tagsSample);
     const sortMethods = globalSettingsStore.tagSortMethods;
     for (const tagType in sortMethods) {
         if (sortMethods[tagType] === "custom") {

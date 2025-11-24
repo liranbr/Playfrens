@@ -28,11 +28,12 @@ export class UserStore {
             }
             const data = await res.json();
             const user = data?.user;
-            const info = {};
-            info.provider = user?.provider;
-            info.id = user?.id;
-            info.displayName = user?.displayName;
-            info.avatar = user?.avatar_url;
+            const info = {
+                provider: user?.provider,
+                id: user?.id,
+                displayName: user?.display_name,
+                avatar: user?.avatar_url,
+            };
             runInAction(() => {
                 this.userInfo = info;
                 globalDataStore.populate();

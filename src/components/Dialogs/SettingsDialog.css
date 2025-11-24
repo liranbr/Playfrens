@@ -4,4 +4,15 @@
         font-size: 16px;
         color: var(--pf-fg-400);
     }
+
+    .default-filters-buttons {
+        display: flex;
+        gap: 12px;
+
+        button {
+            min-height: 28px;
+            height: 28px;
+            font-size: 14px;
+        }
+    }
 }

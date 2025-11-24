@@ -9,7 +9,7 @@
     --ui-card-width: 275px;
     --ui-card-border-radius: 20px;
     --game-card-width: 210px; /* for the game cards in the grid */
-    --game-card-border-radius: 0;
+    --game-card-border-radius: 4px;
     --icon-size: 30px; /* for icon buttons like ⋮ or + */
     --dialog-fade-duration: 250ms;
     --scrollbar-width: 0; /* a default value, overridden by the scrollbar measuring function in App */

@@ -202,6 +202,7 @@ function CoverSelector({ saveOnEnter }) {
     } = useContext(GameEntryContext);
     const [loadingCovers, setLoadingCovers] = useState(false);
     const [animatedOnly, setAnimatedOnly] = useState(false);
+    const [coversError, setCoversError] = useState("");
 
     const searchSgdbTitle = async (query, setResults) =>
         setResults(await searchTitleOnStore(query, "custom"));
@@ -219,14 +220,20 @@ function CoverSelector({ saveOnEnter }) {
         const params = new URLSearchParams({ storeType, storeID });
         fetch(`/api/steamgriddb/getGameFromStore?${params}`)
             .then((res) => {
-                if (!res.ok) throw new Error("Failed to fetch game");
+                if (!res.ok)
+                    throw new Error(
+                        "Failed to fetch the covers database entry for the result. Maybe it isn't a regular game?",
+                    );
                 return res.json();
             })
             .then((sgdbEntry) => {
                 sgdbEntry.sgdbTitle = sgdbDatedTitle(sgdbEntry);
                 selectSgdbGame(sgdbEntry);
             })
-            .catch((err) => console.error(err))
+            .catch((err) => {
+                console.error(err);
+                setCoversError(err);
+            })
             .finally(() => setLoadingCovers(false));
     }, [storeID]);
 
@@ -274,16 +281,23 @@ function CoverSelector({ saveOnEnter }) {
                 loadingCovers={loadingCovers}
                 setLoadingCovers={setLoadingCovers}
                 animatedOnly={animatedOnly}
+                coversError={coversError}
+                setCoversError={setCoversError}
             />
         </div>
     );
 }
 
-function CoversGallery({ loadingCovers, setLoadingCovers, animatedOnly }) {
+function CoversGallery({
+    loadingCovers,
+    setLoadingCovers,
+    animatedOnly,
+    coversError,
+    setCoversError,
+}) {
     const currentCoverImage = () => {
         return { url: coverImageURL, preview: coverImageURL, previousSelection: true };
     };
-    const [error, setError] = useState("");
     const { title, coverImageURL, setCoverImageURL, storeType, storeID, sgdbID, sgdbTitle } =
         useContext(GameEntryContext);
     const [images, setImages] = useState(coverImageURL ? [currentCoverImage()] : []);
@@ -336,14 +350,14 @@ function CoversGallery({ loadingCovers, setLoadingCovers, animatedOnly }) {
             })
             .catch((err) => {
                 console.warn(err);
-                setError(err);
+                setCoversError(err);
             })
             .finally(() => setLoadingCovers(false));
     }, [sgdbID, animatedOnly]);
 
     if (loadingCovers) return <Spinner />;
     if (!images.length) {
-        if (error) return <div>{"" + error}</div>;
+        if (coversError) return <div>{"" + coversError}</div>;
         if (sgdbID) return <div>Entry has no covers</div>;
         else
             return <div style={{ userSelect: "none" }}>To browse covers, first select a game.</div>; // no selected entry and no error, means no search has been done yet

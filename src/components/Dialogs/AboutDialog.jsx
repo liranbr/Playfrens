@@ -4,8 +4,6 @@ import { DialogBase } from "./DialogRoot.jsx";
 import { Button } from "@/components";
 
 export const AboutDialog = ({ open, closeDialog }) => {
-    const handleHide = () => closeDialog();
-
     return (
         <DialogBase open={open} onOpenChange={closeDialog}>
             <Dialog.Title>About</Dialog.Title>
@@ -19,7 +17,7 @@ export const AboutDialog = ({ open, closeDialog }) => {
                 referrerPolicy="no-referrer"
             />
             <div className="rx-dialog-footer">
-                <Button variant="secondary" onClick={handleHide}>
+                <Button variant="secondary" onClick={closeDialog}>
                     Close
                 </Button>
             </div>

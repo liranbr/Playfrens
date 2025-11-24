@@ -36,6 +36,7 @@ import { Party } from "@/models/GameObject.js";
 import { saveBoard } from "@/APIUtils.js";
 
 const tT = tagTypes; // Short alias for convenience, used a lot here
+export const defaultFiltersStorageKey = "defaultFilters";
 const storageKeys = {
     [tT.friend]: "allFriends",
     [tT.category]: "allCategories",
@@ -43,6 +44,7 @@ const storageKeys = {
     games: "allGames",
     reminders: "allReminders",
     settings: settingsStorageKey,
+    defaultFilters: defaultFiltersStorageKey,
     version: "version",
     visited: "visited",
     tagsCustomOrders: "tagsCustomOrders",
@@ -76,17 +78,17 @@ export class DataStore {
     allReminders = [];
 
     constructor() {
-        this.populateTags({
-            [tT.friend]: loadFromStorage(storageKeys[tT.friend], []),
-            [tT.category]: loadFromStorage(storageKeys[tT.category], []),
-            [tT.status]: loadFromStorage(storageKeys[tT.status], []),
-        });
-        this.populateGames(
-            loadFromStorage(storageKeys.games, []),
-            loadFromStorage(storageKeys.version, ""),
-        );
-        this.populateReminders(loadFromStorage(storageKeys.reminders, []));
-        this.populateTagsCustomOrders(loadFromStorage(storageKeys.tagsCustomOrders, {}));
+        // this.populateTags({
+        //     [tT.friend]: loadFromStorage(storageKeys[tT.friend], []),
+        //     [tT.category]: loadFromStorage(storageKeys[tT.category], []),
+        //     [tT.status]: loadFromStorage(storageKeys[tT.status], []),
+        // });
+        // this.populateGames(
+        //     loadFromStorage(storageKeys.games, []),
+        //     loadFromStorage(storageKeys.version, ""),
+        // );
+        // this.populateReminders(loadFromStorage(storageKeys.reminders, []));
+        // this.populateTagsCustomOrders(loadFromStorage(storageKeys.tagsCustomOrders, {}));
         makeAutoObservable(this, { sortedReminders: computed });
 
         // on any change to tags or games, save them
@@ -110,24 +112,13 @@ export class DataStore {
             const response = await fetch("/api/board");
             const json = await response.json();
             const board = json.board.board;
-            console.log(board);
 
-            if (Object.keys(board).length === 0) {
-                const tagsSample = defaultTagsSample();
-                dataStore.populateTagsFromTagNames(tagsSample);
-                const sortMethods = globalSettingsStore.tagSortMethods;
-                for (const tagType in sortMethods) {
-                    if (sortMethods[tagType] === "custom") {
-                        dataStore.tagsCustomOrders[tagType].push(
-                            ...dataStore.allTags[tagType].keys(),
-                        );
-                    }
-                }
+            // Set to default via Empty Board for now.
+            if (Object.keys(board).length == 0) {
+                defaultTagsSample();
                 const data = ExportDataStoreToJSON();
-                saveBoard(data);
+                return await saveBoard(data);
             }
-
-            console.log(storageKeys[tT.friend], "->", board[storageKeys[tT.friend]]);
 
             this.populateTags({
                 [tT.friend]: board[storageKeys[tT.friend]],
@@ -479,6 +470,10 @@ export class DataStore {
         if (!storedGame) return toastError(`${game.title} does not exist in the games list`);
         if (!title || typeof title !== "string" || !title.trim())
             return toastError("Cannot save a game without a title");
+        if (storeType !== "custom" && !storeID)
+            return toastError(
+                `Cannot save a ${storeTypes[storeType]} game without selecting it from its search`,
+            );
         if (!coverImageURL) return toastError("Cannot save a game without a cover image");
 
         const allGamesArray = [...this.allGames.values()];
@@ -492,7 +487,7 @@ export class DataStore {
                 return toastError(identicalGame.title + " already exists in the games list");
             }
         }
-        if (title !== game.title) {
+        if (title.toLowerCase() !== game.title.toLowerCase()) {
             title = ensureUniqueName(
                 allGamesArray.map((g) => g.title),
                 title,
@@ -641,6 +636,7 @@ export function ExportDataStoreToJSON() {
         [storageKeys.games]: dataStore.allGames,
         [storageKeys.reminders]: dataStore.allReminders,
         [storageKeys.settings]: loadFromStorage(storageKeys.settings, {}),
+        [storageKeys.defaultFilters]: loadFromStorage(storageKeys.defaultFilters, {}),
         [storageKeys.version]: version,
         [storageKeys.tagsCustomOrders]: dataStore.tagsCustomOrders,
     };
@@ -679,6 +675,7 @@ export function restoreFromFile(file) {
         dataStore.populateTagsCustomOrders(data[storageKeys.tagsCustomOrders]);
         // Load the settings to localstorage, and reload, which also populates the SettingsStore
         saveToStorage(storageKeys.settings, data[storageKeys.settings]);
+        saveToStorage(storageKeys.defaultFilters, data[storageKeys.defaultFilters]);
         window.location.reload();
     });
     reader.readAsText(file);
@@ -696,16 +693,10 @@ function defaultTagsSample() {
 }
 
 const firstVisit = loadFromStorage(storageKeys.visited, false) === false;
+
 if (firstVisit && dataStore.allGames.size === 0) {
     dataStore.showTour = true;
-    const tagsSample = defaultTagsSample();
-    dataStore.populateTagsFromTagNames(tagsSample);
-    const sortMethods = globalSettingsStore.tagSortMethods;
-    for (const tagType in sortMethods) {
-        if (sortMethods[tagType] === "custom") {
-            dataStore.tagsCustomOrders[tagType].push(...dataStore.allTags[tagType].keys());
-        }
-    }
-    saveToStorage(storageKeys.visited, true);
+    const sample = defaultTagsSample();
+    dataStore.populateTagsFromTagNames(sample);
 }
 saveToStorage(storageKeys.version, version);

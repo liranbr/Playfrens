@@ -1,14 +1,8 @@
-export {
-    useSettingsStore,
-    settingsStorageKey,
-    TagHoverGameHighlightOptions,
-    TagFilterLogicOptions,
-    TagSortOptions,
-    GameSortOptions,
-    TagGameCounterOptions,
-    globalSettingsStore,
-} from "./SettingsStore.js";
-export { useUserStore } from "./UserStore.js";
-export { globalDataStore, useDataStore, backupToFile, restoreFromFile } from "./DataStore.js";
-export { useFilterStore, updateTagBothGameCounters } from "./FilterStore.js";
-export { Dialogs, globalDialogStore } from "./DialogStore.js";
+export * from "./SettingsStore.js";
+export * from "./UserStore.js";
+export * from "./DataStore.js";
+export * from "./FilterStore.js";
+export * from "./DialogStore.js";
+
+// File order is important
+// Exporting * is fine as there should be no name clashing in the project

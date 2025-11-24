@@ -35,13 +35,15 @@ import {
     SimpleTooltip,
     ReminderCard,
     DialogRoot,
+    WelcomeTour,
 } from "@/components";
-import { TourProvider } from "../node_modules/@reactour/tour/dist/index";
 
 import "./App.css";
+import { useTour } from "@reactour/tour";
 
 function AppMenu() {
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const { setIsOpen } = useTour();
     const DD = DropdownMenu;
     return (
         <>
@@ -64,7 +66,13 @@ function AppMenu() {
                             <DD.SubContent className="rx-dropdown-menu" sideOffset={5}>
                                 <DD.Item
                                     onClick={() => {
-                                        document.getElementById("json-selector").click();
+                                        globalDialogStore.open(Dialogs.GenericWarning, {
+                                            message:
+                                                "Importing a backup will overwrite all of your current data.",
+                                            continueFunction: () => {
+                                                document.getElementById("json-selector").click();
+                                            },
+                                        });
                                     }}
                                 >
                                     <MdOutlineFileUpload /> Restore
@@ -83,6 +91,13 @@ function AppMenu() {
                         </a>
                         <DD.Item onClick={() => globalDialogStore.open(Dialogs.Settings)}>
                             Settings
+                        </DD.Item>
+                        <DD.Item
+                            onClick={() => {
+                                setIsOpen(true);
+                            }}
+                        >
+                            Show Tour
                         </DD.Item>
                         <DD.Item onClick={() => globalDialogStore.open(Dialogs.About)}>
                             About
@@ -111,7 +126,7 @@ const AppHeader = observer(() => {
         <CenterAndEdgesRow className="app-header">
             <div>
                 <AppMenu />
-                <div className="app-brand sixth-step">
+                <div className="app-brand">
                     <img src="/Playfrens_Logo.png" alt="Playfrens Logo" />
                     Playfrens
                 </div>
@@ -132,12 +147,12 @@ const AppHeader = observer(() => {
                     <input value={search} onChange={updateSearch} placeholder="Search" />
                     <IconButton icon={<MdClose />} type="reset" onClick={updateSearch} />
                 </div>
-                <div />
+                <IconButton style={{ visibility: "hidden" }} /> {/* to center the searchbar */}
             </CenterAndEdgesRow>
 
             <div className="app-header-right">
                 <button
-                    className="new-game-button fourth-step"
+                    className="new-game-button"
                     onClick={() => globalDialogStore.open(Dialogs.EditGame)}
                 >
                     <MdOutlineGamepad />
@@ -183,9 +198,18 @@ const AppUserAvatar = observer(() => {
                         </>
                     )}
                     {userInfo && (
-                        <DropdownMenu.Item onClick={() => userStore.logout()}>
-                            Logout
-                        </DropdownMenu.Item>
+                        <>
+                            {userInfo.provider === "steam" && (
+                                <DropdownMenu.Item
+                                    onClick={() => globalDialogStore.open(Dialogs.SteamImport)}
+                                >
+                                    Import from Steam
+                                </DropdownMenu.Item>
+                            )}
+                            <DropdownMenu.Item onClick={() => userStore.logout()}>
+                                Logout
+                            </DropdownMenu.Item>
+                        </>
                     )}
                 </DropdownMenu.Content>
             </DropdownMenu.Portal>
@@ -211,7 +235,7 @@ const Notifications = observer(() => {
     return (
         <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
             <Popover.Trigger asChild>
-                <button className={"notifications-button" + (popoverOpen ? " activated" : "") + " fifth-step"}>
+                <button className={"notifications-button" + (popoverOpen ? " activated" : "")}>
                     {activeRemindersCount > 0 && (
                         <span className="notifications-badge">{activeRemindersCount}</span>
                     )}
@@ -231,7 +255,7 @@ const Notifications = observer(() => {
 
 function AppSidebar() {
     return (
-        <div className="app-sidebar-container second-step third-step">
+        <div className="app-sidebar-container">
             <div className="ui-card">
                 <SidebarTagButtonGroup tagType={tagTypes.friend} />
                 <div className="separator" />
@@ -292,49 +316,20 @@ function useScrollbarMeasure() {
     }, []);
 }
 
-const steps = [
-    {
-        selector: ".first-step",
-        content: "This is your board, here are all your games displayed, you can click on them to edit them.",
-    },
-    {
-        selector: ".second-step",
-        content: "Here is your category, status, and friends, these help you filter your games.",
-    },
-    {
-        selector: ".third-step",
-        content: "Here are you friends, if you have any added, if you don't, you can add some by bribing them with games!",
-    },
-    {
-        selector: ".fourth-step",
-        content: "Your board is nothing without some games! Go ahead and add some by clicking the 'Add Game' button.",
-    },
-    {
-        selector: ".fifth-step",
-        content: "This is your notification center, here you can see all your reminders that you forgot about.",
-    },
-    {
-        selector: ".sixth-step",
-        content: "Finally, this is our logo, its really cool, right? And yes we mispelled 'Friends' intentionally.",
-    }
-
-];
-
 export default function App() {
-    const { showTour } = useDataStore();
     useScrollbarMeasure();
 
     return (
-        <TourProvider steps={steps} defaultOpen={showTour} className="app-reactour-popover">
-            <Tooltip.Provider delayDuration={750} disableHoverableContent={true}>
+        <WelcomeTour>
+            <Tooltip.Provider delayDuration={750}>
                 <AppHeader />
-                <div id="main-content" className="first-step">
+                <div id="main-content">
                     <AppSidebar />
                     <GamesGrid />
                 </div>
                 <DialogRoot />
                 <ToastRoot />
             </Tooltip.Provider>
-        </TourProvider>
+        </WelcomeTour>
     );
 }

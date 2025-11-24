@@ -197,6 +197,10 @@
         justify-content: flex-end;
         gap: 16px;
     }
+
+    &:focus-visible {
+        outline: none;
+    }
 }
 
 .rx-popover {

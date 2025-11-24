@@ -25,7 +25,7 @@ export const SidebarTagButtonGroup = observer(({ tagType }) => {
     };
 
     return (
-        <div className="tag-button-group">
+        <div className={"tag-button-group tbg-" + tagType}>
             <CenterAndEdgesRow className="ui-card-header">
                 <SidebarTBGMenu tagType={tagType} />
                 <h4>{typeStrings.plural.toUpperCase()}</h4>

@@ -1,21 +1,25 @@
 import { action, makeAutoObservable } from "mobx";
-import { EditTagDialog } from "@/components/Dialogs/EditTagDialog.jsx";
+import { ChoosePartyToAddTagDialog } from "@/components/Dialogs/ChoosePartyToAddTagDialog.jsx";
+import { GenericWarningDialog } from "@/components/Dialogs/GenericWarningDialog.jsx";
+import { DeleteWarningDialog } from "@/components/Dialogs/DeleteWarningDialog.jsx";
+import { SteamImportDialog } from "@/components/Dialogs/SteamImportDialog.jsx";
 import { EditGameDialog } from "@/components/Dialogs/EditGameDialog.jsx";
 import { GamePageDialog } from "@/components/Dialogs/GamePageDialog.jsx";
-import { DeleteWarningDialog } from "@/components/Dialogs/DeleteWarningDialog.jsx";
 import { SettingsDialog } from "@/components/Dialogs/SettingsDialog.jsx";
+import { EditTagDialog } from "@/components/Dialogs/EditTagDialog.jsx";
 import { AboutDialog } from "@/components/Dialogs/AboutDialog.jsx";
-import { ChoosePartyToAddTagDialog } from "@/components/Dialogs/ChoosePartyToAddTagDialog.jsx";
 import { List, Item } from "linked-list";
 import { parseDuration } from "@/Utils";
 
 export const Dialogs = {
-    DeleteWarning: DeleteWarningDialog,
-    EditTag: EditTagDialog,
     ChoosePartyToAddTag: ChoosePartyToAddTagDialog,
+    GenericWarning: GenericWarningDialog,
+    DeleteWarning: DeleteWarningDialog,
+    SteamImport: SteamImportDialog,
     EditGame: EditGameDialog,
     GamePage: GamePageDialog,
     Settings: SettingsDialog,
+    EditTag: EditTagDialog,
     About: AboutDialog,
 };
 

@@ -1,7 +1,8 @@
 import { createContext, useContext } from "react";
 import { makeAutoObservable, reaction } from "mobx";
 import { TagObject, tagTypes } from "@/models";
-import { globalDataStore, globalSettingsStore } from "@/stores";
+import { defaultFiltersStorageKey, globalDataStore, globalSettingsStore } from "@/stores";
+import { loadFromStorage, saveToStorage, toastSuccess } from "@/Utils.jsx";
 
 class FilterStore {
     search = "";
@@ -18,7 +19,25 @@ class FilterStore {
     hoveredTag = null; // Used for tag-hover effects on game cards
     draggedTag = null; // Same for drag-and-drop effects
 
-    constructor() {
+    constructor(defaultFilters = {}) {
+        // If there are default filters to load, ensure that the tagIDs they hold are of tags that exist, and deserialize them (make a Set)
+        if (Object.keys(defaultFilters).length > 0) {
+            this.search = defaultFilters.search ?? this.search;
+            for (const tagType in defaultFilters.selectedTagIDs) {
+                this.selectedTagIDs[tagType] = new Set(
+                    defaultFilters.selectedTagIDs[tagType].filter(
+                        (tagID) => !!globalDataStore.getTagByID(tagID, tagType),
+                    ),
+                );
+            }
+            for (const tagType in defaultFilters.excludedTagIDs) {
+                this.excludedTagIDs[tagType] = new Set(
+                    defaultFilters.excludedTagIDs[tagType].filter(
+                        (tagID) => !!globalDataStore.getTagByID(tagID, tagType),
+                    ),
+                );
+            }
+        }
         makeAutoObservable(this);
     }
 
@@ -30,6 +49,20 @@ class FilterStore {
         for (const key in this.excludedTagIDs) {
             this.excludedTagIDs[key].clear();
         }
+    }
+
+    saveDefaultFilters() {
+        saveToStorage(defaultFiltersStorageKey, {
+            search: this.search,
+            selectedTagIDs: this.selectedTagIDs,
+            excludedTagIDs: this.excludedTagIDs,
+        });
+        toastSuccess("Saved Default Filters state");
+    }
+
+    resetDefaultFilters() {
+        saveToStorage(defaultFiltersStorageKey, {});
+        toastSuccess("Default state was reset");
     }
 
     setSearch(searchValue) {
@@ -150,7 +183,8 @@ class FilterStore {
     }
 }
 
-const filterStore = new FilterStore();
+const storedDefaultFilters = loadFromStorage(defaultFiltersStorageKey, {});
+const filterStore = new FilterStore(storedDefaultFilters);
 const FilterStoreContext = createContext(filterStore);
 export const useFilterStore = () => useContext(FilterStoreContext);
 

@@ -33,7 +33,6 @@ export class UserStore {
             info.id = user?.id;
             info.displayName = user?.displayName;
             info.avatar = user?.avatar_url;
-            console.log(user);
             runInAction(() => {
                 this.userInfo = info;
                 globalDataStore.populate();

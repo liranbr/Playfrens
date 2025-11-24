@@ -1,0 +1,21 @@
+.app-reactour-popover {
+    small {
+        display: block; /* to make each tag its own line */
+        color: var(--pf-fg-300);
+        font-size: 12px;
+        font-weight: normal;
+    }
+
+    .tour-logo {
+        width: 20px;
+        height: 20px;
+        vertical-align: middle;
+    }
+
+    .finish-tour {
+        border: var(--pf-border-100);
+        position: absolute;
+        right: 16px;
+        bottom: 16px;
+    }
+}

@@ -13,11 +13,6 @@
     box-shadow: none;
     gap: 12px;
 
-    pointer-events: none !important; /* so when the dialog grows taller than the cover art, clicking above/below it but inside the dialog, will close it */
-    & > * {
-        pointer-events: auto;
-    }
-
     --cover-art-width: 450px;
     --cover-art-height: calc(var(--cover-art-width) * 1.5);
     --container-shadow: 0 0 20px rgba(0, 0, 0, 1);
@@ -44,6 +39,75 @@
         background-position: center;
         user-select: none;
         transition: 0.1s;
+        display: flex;
+        flex-direction: column;
+        justify-content: end;
+        align-items: center;
+
+        .store-game-buttons-area {
+            opacity: 0;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.125s ease-in;
+            padding: 16px;
+            border-radius: var(--border-radius);
+            background-color: transparent;
+        }
+
+        .store-game-buttons {
+            width: fit-content;
+            /*margin-bottom: 24px;*/
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            background-color: var(--pf-bg-500);
+            box-shadow: var(--container-shadow);
+            padding: 8px;
+            border-radius: 12px;
+            gap: 8px;
+
+            a {
+                transition: none;
+                font-weight: 500;
+                width: 100px;
+                font-size: 16px;
+                color: var(--pf-bg-500);
+                text-decoration: none;
+                border-radius: 16px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                height: 32px;
+
+                &.btn-store-page {
+                    background-color: hsl(215, 98%, 54%);
+                    &:hover {
+                        background-color: hsl(215, 98%, 50%);
+                    }
+                    &:active {
+                        background-color: hsl(215, 98%, 46%);
+                    }
+                }
+
+                &.btn-play {
+                    background-color: hsl(50, 98%, 50%);
+                    &:hover {
+                        background-color: hsl(50, 98%, 44%);
+                    }
+                    &:active {
+                        background-color: hsl(50, 98%, 40%);
+                    }
+                }
+            }
+        }
+        &:hover .store-game-buttons-area {
+            opacity: 0.3;
+            &:hover {
+                opacity: 1;
+            }
+        }
     }
 
     .gp-container {

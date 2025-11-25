@@ -189,7 +189,7 @@ const AppUserAvatar = observer(() => {
                 >
                     {!userInfo && (
                         <>
-                            <DropdownMenu.Item>
+                            <DropdownMenu.Item onClick={backupToFile}>
                                 BEFORE LOGGING IN, BACKUP YOUR LOCAL DATA
                                 {/*TODO: remove this threat after making a forced login prompt*/}
                             </DropdownMenu.Item>

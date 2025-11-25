@@ -99,7 +99,7 @@ export class LoginService extends Service {
                 method: "get",
                 path: "/auth/google",
                 handler: passport.authenticate("google", {
-                    scope: ["profile", "openid"],
+                    scope: ["profile", "openid", "email"],
                     failureRedirect: "/",
                 }),
             },
@@ -188,7 +188,12 @@ export class LoginService extends Service {
             .eq("provider_id", providerId)
             .single();
 
-        const avatar_url = profile.photos?.length ? profile.photos.at(-1).value : null;
+        let avatar_url = profile.photos?.length ? profile.photos.at(-1).value : null;
+
+        // Give the maximum size of most google avatars, 512x512.
+        if (provider == "google" && avatar_url)
+            avatar_url = avatar_url.replace(/=s\d+-c$/, "=s512-c");
+
         const email = profile.emails?.[0]?.value;
         let userId;
 

@@ -82,7 +82,7 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
 
             <div className="rx-dialog-footer">
                 <Button variant="primary" onClick={undefined}>
-                    Import
+                    Import (NOT IMPLEMENTED YET)
                 </Button>
                 <Button variant="secondary" onClick={closeDialog}>
                     Close

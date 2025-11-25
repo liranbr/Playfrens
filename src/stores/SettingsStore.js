@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import { autorun, makeAutoObservable } from "mobx";
+import { makeAutoObservable, reaction } from "mobx";
 import { loadFromStorage, saveToStorage } from "@/Utils.jsx";
 import { tagTypes } from "@/models";
 
@@ -89,7 +89,10 @@ class SettingsStore {
 const storedSettings = loadFromStorage(settingsStorageKey, {});
 const settingsStore = new SettingsStore(storedSettings);
 // whenever settings are changed, auto-save
-autorun(() => saveToStorage(settingsStorageKey, settingsStore));
+reaction(
+    () => JSON.stringify(settingsStore),
+    () => saveToStorage(settingsStorageKey, settingsStore),
+);
 // Prefer to use the context version in components, for expanded functionality in the future
 // but the global version is available for non-component uses
 const SettingsStoreContext = createContext(settingsStore);

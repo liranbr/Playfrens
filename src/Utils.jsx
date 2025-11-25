@@ -55,10 +55,7 @@ export async function saveToStorage(key, value) {
     const { saveBoard } = await import("./APIUtils");
     const data = ExportDataStoreToJSON();
     saveBoard(data);
-    console.warn(
-        "Auto-saved board to backend through autorun. This is so bad, holy moly I'm sorry.",
-        ++timesSaved,
-    );
+    console.warn("Auto-saved board to backend through reactions. Needs improvement.", ++timesSaved);
 }
 
 export function deleteItemFromArray(arr, item) {

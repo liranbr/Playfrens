@@ -1,13 +1,5 @@
 import { createContext, useContext } from "react";
-import {
-    action,
-    autorun,
-    computed,
-    makeAutoObservable,
-    ObservableMap,
-    reaction,
-    runInAction,
-} from "mobx";
+import { action, computed, makeAutoObservable, ObservableMap, reaction, runInAction } from "mobx";
 
 import {
     compareGameTitlesAZ,
@@ -97,10 +89,10 @@ export class DataStore {
             const board = json.board.board;
 
             // Set to default via Empty Board for now.
-            if (Object.keys(board).length == 0) {
-                defaultTagsSample();
-                const data = ExportDataStoreToJSON();
-                return await saveBoard(data);
+            if (Object.keys(board).length === 0) {
+                const data = defaultTagsSample();
+                this.populateTagsFromTagNames(data);
+                return await saveBoard(ExportDataStoreToJSON());
             }
 
             this.populateTags({
@@ -111,7 +103,7 @@ export class DataStore {
             this.populateGames(board[storageKeys.games], board[storageKeys.version]);
             this.populateReminders(board[storageKeys.reminders]);
             this.populateTagsCustomOrders(board[storageKeys.tagsCustomOrders]);
-            
+
             DELETEME_AllowDBSave();
         } catch (error) {
             console.info(error);
@@ -128,14 +120,19 @@ export class DataStore {
             this.populateTagsCustomOrders(loadFromStorage(storageKeys.tagsCustomOrders, {}));
         }
 
-
         // on any change to tags or games, save them
-        autorun(() => saveToStorage(storageKeys[tT.friend], this.allTags[tT.friend]));
-        autorun(() => saveToStorage(storageKeys[tT.category], this.allTags[tT.category]));
-        autorun(() => saveToStorage(storageKeys[tT.status], this.allTags[tT.status]));
-        autorun(() => saveToStorage(storageKeys.games, this.allGames));
-        autorun(() => saveToStorage(storageKeys.reminders, this.allReminders));
-        autorun(() => saveToStorage(storageKeys.tagsCustomOrders, this.tagsCustomOrders));
+        function saveReaction(storageKey, item) {
+            reaction(
+                () => JSON.stringify(item),
+                () => saveToStorage(storageKey, item),
+            );
+        }
+        saveReaction(storageKeys[tT.friend], this.allTags[tT.friend]);
+        saveReaction(storageKeys[tT.category], this.allTags[tT.category]);
+        saveReaction(storageKeys[tT.status], this.allTags[tT.status]);
+        saveReaction(storageKeys.games, this.allGames);
+        saveReaction(storageKeys.reminders, this.allReminders);
+        saveReaction(storageKeys.tagsCustomOrders, this.tagsCustomOrders);
     }
 
     // Used when loading some predefined set, like the starting defaults
@@ -516,7 +513,7 @@ export class DataStore {
         entriesArray.sort(([id1, tag1], [id2, tag2]) => sortMethod(tag1, tag2));
         if (isDescending) entriesArray.reverse();
 
-        // Needs to be runInAction because used by autorun/reaction, which seems to lose binding otherwise
+        // Needs to be runInAction because used by reaction, which seems to lose binding otherwise
         runInAction(() => this.allTags[tagType].replace(entriesArray));
     }
 
@@ -541,7 +538,7 @@ export class DataStore {
         entriesArray.sort(([id1, game1], [id2, game2]) => sortMethod(game1, game2));
         if (isDescending) entriesArray.reverse();
 
-        // Needs to be runInAction because used by autorun/reaction, which seems to lose binding otherwise
+        // Needs to be runInAction because used by reaction, which seems to lose binding otherwise
         runInAction(() => this.allGames.replace(entriesArray));
     }
 }
@@ -668,7 +665,7 @@ export function restoreFromFile(file) {
     const reader = new FileReader();
     reader.onload = action(function (e) {
         const data = JSON.parse(e.target.result.toString());
-        // Populate the DataStore's Tags and Games. They're then localstorage-synced by the autoruns.
+        // Populate the DataStore's Tags and Games. They're then localstorage-synced by the reactions.
         const tagCollection = {
             [tT.friend]: data[storageKeys[tT.friend]],
             [tT.category]: data[storageKeys[tT.category]],
@@ -681,12 +678,14 @@ export function restoreFromFile(file) {
         // Load the settings to localstorage, and reload, which also populates the SettingsStore
         saveToStorage(storageKeys.settings, data[storageKeys.settings]);
         saveToStorage(storageKeys.defaultFilters, data[storageKeys.defaultFilters]);
-        
-        saveBoard(ExportDataStoreToJSON()).then(() => { 
-            window.location.reload();
-        }).catch((error) => {
-            toastError("Failed to save data to server: " + error.message);
-        });
+
+        saveBoard(ExportDataStoreToJSON())
+            .then(() => {
+                window.location.reload();
+            })
+            .catch((error) => {
+                toastError("Failed to save data to server: " + error.message);
+            });
     });
     reader.readAsText(file);
 }

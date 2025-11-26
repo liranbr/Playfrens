@@ -199,6 +199,9 @@ const AppUserAvatar = observer(() => {
                             <DropdownMenu.Item onClick={() => userStore.login("google")}>
                                 Google Login
                             </DropdownMenu.Item>
+                            <DropdownMenu.Item onClick={() => userStore.login("discord")}>
+                                Discord Login
+                            </DropdownMenu.Item>
                         </>
                     )}
                     {userInfo && (

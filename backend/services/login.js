@@ -2,6 +2,7 @@ import { Service } from "../service.js";
 import { Response } from "../response.js";
 import SteamStrategy from "passport-steam";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import { Strategy as DiscordStrategy } from "passport-discord";
 import passport from "passport";
 import session from "express-session";
 import { resolveBaseURL, strToBool } from "../utils.js";
@@ -75,6 +76,25 @@ export class LoginService extends Service {
                 },
             ),
         );
+        passport.use(
+            new DiscordStrategy(
+                {
+                    clientID: process.env.DISCORD_CLIENT_ID,
+                    clientSecret: process.env.DISCORD_CLIENT_SECRET,
+                    callbackURL: `${URL}/auth/discord/callback`,
+                    scope: ["identify", "email"],
+                },
+                async (accessToken, refreshToken, profile, done) => {
+                    try {
+                        console.log(profile);
+                        const user = await this.upsertUser(profile, "discord");
+                        done(null, user);
+                    } catch (err) {
+                        done(err);
+                    }
+                },
+            ),
+        );
     }
     listen() {
         super.listen();
@@ -119,6 +139,21 @@ export class LoginService extends Service {
                 handler: [
                     passport.authenticate("google", { failureRedirect: "/" }),
                     this.googleCallback.bind(this),
+                ],
+            },
+            {
+                method: "get",
+                path: "/auth/discord/",
+                handler: passport.authenticate("discord"),
+            },
+            {
+                method: "get",
+                path: "/auth/discord/callback",
+                handler: [
+                    passport.authenticate("discord", {
+                        failureRedirect: "/",
+                    }),
+                    this.discordCallback.bind(this),
                 ],
             },
         ]);
@@ -169,12 +204,18 @@ export class LoginService extends Service {
         res.redirect("/");
     }
 
+    async discordCallback(req, res) {
+        console.log(`Hello, ${req.user?.display_name || "Discord user"}!`);
+        res.redirect("/");
+    }
+
     async upsertUser(profile, provider) {
         const providerId = (() => {
             switch (provider) {
                 case "steam":
                     return profile.identifier;
                 case "google":
+                case "discord":
                     return profile.id;
             }
             return undefined;
@@ -188,13 +229,41 @@ export class LoginService extends Service {
             .eq("provider_id", providerId)
             .single();
 
-        let avatar_url = profile.photos?.length ? profile.photos.at(-1).value : null;
+        const avatar_url = (() => {
+            switch (provider) {
+                case "steam":
+                    return profile.photos?.length ? profile.photos.at(-1).value : null;
+                case "google": {
+                    const avatar = profile.photos?.length ? profile.photos.at(-1).value : null;
+                    // Give the maximum size of most google avatars, 512x512.
+                    return avatar.replace(/=s\d+-c$/, "=s512-c");
+                }
+                case "discord": {
+                    const avatar = profile.avatar;
+                    if (!avatar) {
+                        // Avatarless users uses 0 - 5 variations of avatars via discriminator value
+                        return `https://cdn.discordapp.com/embed/avatars/${profile.discriminator % 6}.png`;
+                    }
+                    // For animated avatars
+                    const ext = avatar.startsWith("a_") ? "gif" : "png";
+                    return `https://cdn.discordapp.com/avatars/${providerId}/${avatar}.${ext}?size=512`;
+                }
+                default:
+                    return null;
+            }
+        })();
 
-        // Give the maximum size of most google avatars, 512x512.
-        if (provider == "google" && avatar_url)
-            avatar_url = avatar_url.replace(/=s\d+-c$/, "=s512-c");
+        const email = (() => {
+            switch (provider) {
+                case "google":
+                    return profile.emails?.[0]?.value;
+                case "discord":
+                    return profile.email;
+                default:
+                    return null;
+            }
+        })();
 
-        const email = profile.emails?.[0]?.value;
         let userId;
 
         if (existingUser) {
@@ -212,6 +281,7 @@ export class LoginService extends Service {
             if (updateError) throw updateError;
         } else {
             // Insert new user
+            console.log(email);
             const { data: newUser, error: insertError } = await supabase
                 .from("users")
                 .insert({

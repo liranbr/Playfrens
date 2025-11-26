@@ -6,7 +6,17 @@
     justify-content: center;
 }
 
+#login .app-brand {
+    position: absolute;
+    top: 32px;
+    left: 32px;
+    margin: 0;
+    color: #fff;
+    text-decoration: none;
+}
+
 .login-body {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -14,12 +24,12 @@
     background-color: var(--pf-bg-900);
     height: 400px;
     width: 400px;
-    border-radius: 16px;
+    border-radius: 12px;
     padding: 36px;
     box-shadow: 8px 8px hsl(215 98% 42%);
 
     .btn {
-        width: 128px;
+        width: 256px;
         height: 48px;
         font-size: 18px;
         justify-content: left;
@@ -31,6 +41,16 @@
         }
     }
 
+    .login-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        span {
+            color: var(--pf-fg-300);
+            font-size: 16px;
+        }
+    }
     .continue-with {
         display: flex;
         flex-direction: row;

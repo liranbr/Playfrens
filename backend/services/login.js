@@ -82,7 +82,7 @@ export class LoginService extends Service {
                     clientID: process.env.DISCORD_CLIENT_ID,
                     clientSecret: process.env.DISCORD_CLIENT_SECRET,
                     callbackURL: `${URL}/auth/discord/callback`,
-                    scope: ["identify", "email"],
+                    scope: ["identify"],
                 },
                 async (accessToken, refreshToken, profile, done) => {
                     try {
@@ -257,8 +257,8 @@ export class LoginService extends Service {
             switch (provider) {
                 case "google":
                     return profile.emails?.[0]?.value;
-                case "discord":
-                    return profile.email;
+                // case "discord":
+                // return profile.email;
                 default:
                     return null;
             }

@@ -1,5 +1,5 @@
 import "./Login.css";
-import { Button } from "@/components/index.js";
+import { Button, SimpleTooltip } from "@/components/index.js";
 import { BiLogoDiscordAlt, BiLogoGoogle, BiLogoSteam } from "react-icons/bi";
 
 export default function Login() {
@@ -7,24 +7,30 @@ export default function Login() {
         <div id="login">
             <div className="login-body">
                 <h1>Sign in</h1>
-                <div className="auth-buttons">
-                    <Button variant="secondary">
-                        <BiLogoSteam />
-                        Continue with Steam
-                    </Button>
-                    <Button variant="secondary">
-                        <BiLogoGoogle />
-                        Continue with Google
-                    </Button>
-                    <Button variant="secondary">
-                        <BiLogoDiscordAlt />
-                        Continue with Discord
-                    </Button>
+                <div className="continue-with">
+                    <span>Continue with</span>
+                    <div className="auth-buttons">
+                        <Button variant="secondary">
+                            <BiLogoSteam />
+                            Steam
+                        </Button>
+                        <Button variant="secondary">
+                            <BiLogoGoogle />
+                            Google
+                        </Button>
+                        <Button variant="secondary">
+                            <BiLogoDiscordAlt />
+                            Discord
+                        </Button>
+                    </div>
                 </div>
                 <div className="login-footer">
-                    <a>Privacy</a>
-                    <a>Terms</a>
-                    <a>(they do nothing yet)</a>
+                    <SimpleTooltip message="WIP" delayDuration={0}>
+                        <a>Privacy</a>
+                    </SimpleTooltip>
+                    <SimpleTooltip message="WIP" delayDuration={0}>
+                        <a>Terms</a>
+                    </SimpleTooltip>
                     {/* TODO: come to terms with needing to get a privacy policy */}
                 </div>
             </div>

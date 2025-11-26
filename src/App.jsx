@@ -327,7 +327,7 @@ function useScrollbarMeasure() {
 
 function Playfrens() {
     return (
-        <Tooltip.Provider delayDuration={750}>
+        <>
             <AppHeader />
             <div id="main-content">
                 <AppSidebar />
@@ -335,7 +335,7 @@ function Playfrens() {
             </div>
             <DialogRoot />
             <ToastRoot />
-        </Tooltip.Provider>
+        </>
     );
 }
 
@@ -343,11 +343,13 @@ export default function App() {
     useScrollbarMeasure();
 
     return (
-        <BrowserRouter>
-            <Routes>
-                <Route path="/" element={<Playfrens />} />
-                <Route path="/login" element={<Login />} />
-            </Routes>
-        </BrowserRouter>
+        <Tooltip.Provider delayDuration={750}>
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/" element={<Playfrens />} />
+                    <Route path="/login" element={<Login />} />
+                </Routes>
+            </BrowserRouter>
+        </Tooltip.Provider>
     );
 }

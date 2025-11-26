@@ -1,0 +1,50 @@
+#login {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--pf-bg-900);
+    height: 400px;
+    width: 400px;
+    border-radius: 16px;
+    padding: 36px;
+    box-shadow: 8px 8px hsl(215 98% 42%);
+
+    .btn {
+        width: 256px;
+        height: 48px;
+        font-size: 18px;
+        justify-content: left;
+        gap: 8px;
+        border-radius: 12px;
+
+        svg {
+            font-size: 36px;
+        }
+    }
+
+    .auth-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .login-footer {
+        width: 100%;
+        display: flex;
+        gap: 24px;
+        align-items: end;
+        justify-content: left;
+        a {
+            color: var(--pf-fg-500);
+            cursor: pointer;
+        }
+    }
+}

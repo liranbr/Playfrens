@@ -20,7 +20,39 @@ button {
 }
 
 fieldset {
+    display: flex;
+    flex-direction: column;
     border: none;
+
+    label {
+        color: #fff;
+        font-size: 14px;
+        font-weight: 500;
+        margin-top: 20px;
+        margin-bottom: 8px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    small {
+        color: var(--pf-fg-500);
+        font-size: 12px;
+        font-weight: normal;
+    }
+
+    input,
+    select {
+        border-radius: 6px;
+        border: var(--pf-border-700);
+        padding: 8px;
+        font-size: 16px;
+
+        &:focus {
+            outline: none;
+            border-color: var(--pf-border-color-primary);
+            transition-duration: 0.2s;
+        }
+    }
 }
 
 .toast-notification {

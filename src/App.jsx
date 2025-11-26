@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { ToastContainer } from "react-toastify";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { useTour } from "@reactour/tour";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Avatar from "@radix-ui/react-avatar";
@@ -39,7 +41,7 @@ import {
 } from "@/components";
 
 import "./App.css";
-import { useTour } from "@reactour/tour";
+import Login from "@/pages/Login.jsx";
 
 function AppMenu() {
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -323,20 +325,29 @@ function useScrollbarMeasure() {
     }, []);
 }
 
+function Playfrens() {
+    return (
+        <Tooltip.Provider delayDuration={750}>
+            <AppHeader />
+            <div id="main-content">
+                <AppSidebar />
+                <GamesGrid />
+            </div>
+            <DialogRoot />
+            <ToastRoot />
+        </Tooltip.Provider>
+    );
+}
+
 export default function App() {
     useScrollbarMeasure();
 
     return (
-        <WelcomeTour>
-            <Tooltip.Provider delayDuration={750}>
-                <AppHeader />
-                <div id="main-content">
-                    <AppSidebar />
-                    <GamesGrid />
-                </div>
-                <DialogRoot />
-                <ToastRoot />
-            </Tooltip.Provider>
-        </WelcomeTour>
+        <BrowserRouter>
+            <Routes>
+                <Route path="/" element={<Playfrens />} />
+                <Route path="/login" element={<Login />} />
+            </Routes>
+        </BrowserRouter>
     );
 }

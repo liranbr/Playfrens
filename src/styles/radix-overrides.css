@@ -266,6 +266,9 @@
             border: 4px solid var(--pf-btn-primary);
             background-color: #fff;
         }
+        &[data-state="unchecked"]:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
         &:focus-visible {
             outline: 2px solid var(--pf-btn-primary);
             outline-offset: 1px;

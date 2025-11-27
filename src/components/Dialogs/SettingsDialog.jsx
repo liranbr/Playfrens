@@ -32,30 +32,36 @@ export const SettingsDialog = ({ open, closeDialog }) => {
                 className="rx-radio-group"
                 onValueChange={(option) => settingsStore.setTagHoverGameHighlight(option)}
             >
-                {Object.keys(TagHoverGameHighlightOptions).map((option) => (
-                    <label htmlFor={option} key={option}>
-                        <RadioGroup.Item value={option} id={option} />
-                        {TagHoverGameHighlightOptions[option]}
-                    </label>
-                ))}
+                {Object.keys(TagHoverGameHighlightOptions).map((option) => {
+                    const optKey = `tagHoverGameHighlight-${option}`;
+                    return (
+                        <label htmlFor={optKey} key={optKey}>
+                            <RadioGroup.Item value={option} id={optKey} />
+                            {TagHoverGameHighlightOptions[option]}
+                        </label>
+                    );
+                })}
             </RadioGroup.Root>
-            <div className="spacer" />
 
+            <div className="spacer" />
             <p>Show a Game Counter next to each Tag in the Sidebar</p>
             <RadioGroup.Root
                 defaultValue={settingsStore.tagGameCounterDisplay}
                 className="rx-radio-group"
                 onValueChange={(option) => settingsStore.setTagGameCounterDisplay(option)}
             >
-                {Object.keys(TagGameCounterOptions).map((option) => (
-                    <label htmlFor={option} key={option}>
-                        <RadioGroup.Item value={option} id={option} autoFocus />
-                        {TagGameCounterOptions[option]}
-                    </label>
-                ))}
+                {Object.keys(TagGameCounterOptions).map((option) => {
+                    const optKey = `tagGameCounter-${option}`;
+                    return (
+                        <label htmlFor={optKey} key={optKey}>
+                            <RadioGroup.Item value={option} id={optKey} />
+                            {TagGameCounterOptions[option]}
+                        </label>
+                    );
+                })}
             </RadioGroup.Root>
-            <div className="spacer" />
 
+            <div className="spacer" />
             <p>Set current filters as the default state to use on load</p>
             <div className="default-filters-buttons">
                 <Button variant="secondary" onClick={() => filterStore.saveDefaultFilters()}>

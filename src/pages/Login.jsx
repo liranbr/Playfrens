@@ -1,5 +1,5 @@
 import "./Login.css";
-import { Button, SimpleTooltip } from "@/components/index.js";
+import { Button, SimpleTooltip } from "@/components";
 import { BiLogoDiscordAlt, BiLogoGoogle, BiLogoSteam } from "react-icons/bi";
 import { Link } from "react-router-dom";
 
@@ -11,6 +11,7 @@ export default function Login() {
                     <h1>Sign in</h1>
                     <span>to use Playfrens</span>
                 </div>
+                {/* TODO: make login buttons work, and they then route you to /app */}
                 <div className="continue-with">
                     <div className="auth-buttons">
                         <Button variant="secondary">

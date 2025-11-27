@@ -1,16 +1,10 @@
-import { DialogBase } from "./DialogRoot.jsx";
 import * as Dialog from "@radix-ui/react-dialog";
-import "./SteamImportDialog.css";
-import { Button, InfoIcon } from "@/components/index.js";
+import { DialogBase } from "./DialogRoot.jsx";
+import { Button, InfoIcon } from "@/components";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import * as Switch from "@radix-ui/react-switch";
-import * as Checkbox from "@radix-ui/react-checkbox";
-import { useState } from "react";
-import { MdCheck } from "react-icons/md";
+import "./SteamImportDialog.css";
 
 export const SteamImportDialog = ({ open, closeDialog }) => {
-    const [alsoSingleplayers, setAlsoSingleplayers] = useState(false);
-    console.log(alsoSingleplayers);
     return (
         <DialogBase
             open={open}

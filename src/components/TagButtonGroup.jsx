@@ -109,8 +109,8 @@ const SidebarTBGMenu = observer(({ tagType }) => {
 
                     <p>Selecting multiple {pluralString} will filter for games that</p>
                     <RadioGroup.Root
-                        defaultValue={settingsStore.tagFilterLogic[tagType]}
                         className="rx-radio-group"
+                        defaultValue={settingsStore.tagFilterLogic[tagType]}
                         onValueChange={(option) => settingsStore.setTagFilterLogic(tagType, option)}
                     >
                         {Object.keys(TagFilterLogicOptions).map((option) => (

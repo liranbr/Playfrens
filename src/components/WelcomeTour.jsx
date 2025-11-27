@@ -1,4 +1,4 @@
-import { useDataStore } from "@/stores/index.js";
+import { useDataStore } from "@/stores";
 import { TourProvider, useTour } from "@reactour/tour";
 import { Button } from "@/components";
 import "./WelcomeTour.css";

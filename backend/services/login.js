@@ -129,7 +129,7 @@ export class LoginService extends Service {
                 path: "/auth/steam/return",
                 handler: [
                     passport.authenticate("steam", { failureRedirect: "/" }),
-                    this.steamReturn.bind(this),
+                    this.loginCallback.bind(this),
                 ],
             },
             {
@@ -138,7 +138,7 @@ export class LoginService extends Service {
                 path: "/auth/google/callback",
                 handler: [
                     passport.authenticate("google", { failureRedirect: "/" }),
-                    this.googleCallback.bind(this),
+                    this.loginCallback.bind(this),
                 ],
             },
             {
@@ -154,19 +154,26 @@ export class LoginService extends Service {
                     passport.authenticate("discord", {
                         failureRedirect: "/",
                     }),
-                    this.discordCallback.bind(this),
+                    this.loginCallback.bind(this),
                 ],
             },
         ]);
     }
 
+    // Return function called after successful login
+    async loginCallback(req, res) {
+        console.log(`Hello, ${req.user?.display_name} from ${req.user?.provider}! 👋`);
+        res.redirect("/");
+    }
+
+    // Logs out the current user
     async logout(req, res, next) {
         const { UNAUTHORIZED } = Response.HttpStatus;
 
         if (!req.isAuthenticated()) {
             return Response.send(res, UNAUTHORIZED, { error: "Not logged in" });
         }
-        console.log(`Logging out ${req.user.displayName} 🚪`);
+        console.log(`Logging out ${req.user.display_name} 🚪`);
         req.logout((err) => {
             if (err) return next(err);
             req.session.destroy((err) => {
@@ -193,21 +200,6 @@ export class LoginService extends Service {
         } else {
             Response.send(res, NO_CONTENT, { message: "Requester is not logged in." });
         }
-    }
-
-    async steamReturn(req, res) {
-        console.log(`Hello, ${req.user?.display_name || "Steam user"}!`);
-        res.redirect("/");
-    }
-
-    async googleCallback(req, res) {
-        console.log(`Hello, ${req.user?.display_name || "Google user"}!`);
-        res.redirect("/");
-    }
-
-    async discordCallback(req, res) {
-        console.log(`Hello, ${req.user?.display_name || "Discord user"}!`);
-        res.redirect("/");
     }
 
     async upsertUser(profile, provider) {

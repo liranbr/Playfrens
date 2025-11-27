@@ -134,7 +134,7 @@ export class LoginService extends Service {
             },
             {
                 method: "get",
-                // Caution with renaming the path here, it must be similar to Google Developer Console.
+                // If renamed update it on the Google Developer Console as well
                 path: "/auth/google/callback",
                 handler: [
                     passport.authenticate("google", { failureRedirect: "/" }),
@@ -148,6 +148,7 @@ export class LoginService extends Service {
             },
             {
                 method: "get",
+                // If renamed update it on the Discord Developer Portal as well
                 path: "/auth/discord/callback",
                 handler: [
                     passport.authenticate("discord", {

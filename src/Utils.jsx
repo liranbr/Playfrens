@@ -41,6 +41,7 @@ export function loadFromStorage(key, fallback) {
 let timesSaved = 0;
 
 // THIS IS REALLY BAD, BUT THIS IS FOR DEVELOPMENT REASONS FOR NOW, SEE BELOW
+// TODO: REMOVE THIS HACK AND MAKE A PROPER SOLUTION FOR AUTO-SAVING TO THE BACKEND
 let allowDBSave = false;
 export function DELETEME_AllowDBSave() {
     allowDBSave = true;

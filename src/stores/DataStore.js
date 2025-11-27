@@ -92,18 +92,18 @@ export class DataStore {
             if (Object.keys(board).length === 0) {
                 const data = defaultTagsSample();
                 this.populateTagsFromTagNames(data);
-                return await saveBoard(ExportDataStoreToJSON());
+                await saveBoard(ExportDataStoreToJSON());
+            } else {
+                // Load from backend data
+                this.populateTags({
+                    [tT.friend]: board[storageKeys[tT.friend]],
+                    [tT.category]: board[storageKeys[tT.category]],
+                    [tT.status]: board[storageKeys[tT.status]],
+                });
+                this.populateGames(board[storageKeys.games], board[storageKeys.version]);
+                this.populateReminders(board[storageKeys.reminders]);
+                this.populateTagsCustomOrders(board[storageKeys.tagsCustomOrders]);
             }
-
-            this.populateTags({
-                [tT.friend]: board[storageKeys[tT.friend]],
-                [tT.category]: board[storageKeys[tT.category]],
-                [tT.status]: board[storageKeys[tT.status]],
-            });
-            this.populateGames(board[storageKeys.games], board[storageKeys.version]);
-            this.populateReminders(board[storageKeys.reminders]);
-            this.populateTagsCustomOrders(board[storageKeys.tagsCustomOrders]);
-
             DELETEME_AllowDBSave();
         } catch (error) {
             console.info(error);

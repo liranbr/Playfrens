@@ -97,6 +97,26 @@ export class LoginService extends Service {
         );
     }
     listen() {
+        const loginFailedRoute = "/login?failed=true";
+        const loginRoute = (provider, options) => ({
+            method: "get",
+            path: `/auth/${provider}`,
+            handler: passport.authenticate(provider, {
+                failureRedirect: loginFailedRoute,
+                ...options,
+            }),
+        });
+        const loginCallbackRoute = (provider, callbackPath) => ({
+            method: "get",
+            path: `/auth/${provider}/${callbackPath}`,
+            handler: [
+                passport.authenticate(provider, {
+                    failureRedirect: loginFailedRoute,
+                }),
+                this.loginCallback.bind(this),
+            ],
+        });
+
         super.listen();
         this.registerRoutes([
             {
@@ -110,60 +130,21 @@ export class LoginService extends Service {
                 handler: this.logout.bind(this),
             },
             // Login Routers
-            {
-                method: "get",
-                path: "/auth/steam",
-                handler: passport.authenticate("steam", { failureRedirect: "/" }),
-            },
-            {
-                method: "get",
-                path: "/auth/google",
-                handler: passport.authenticate("google", {
-                    scope: ["profile", "openid", "email"],
-                    failureRedirect: "/",
-                }),
-            },
+            loginRoute("steam"),
+            loginRoute("google", { scope: ["profile", "openid", "email"] }),
+            loginRoute("discord"),
             // Strategy Callbacks
-            {
-                method: "get",
-                path: "/auth/steam/return",
-                handler: [
-                    passport.authenticate("steam", { failureRedirect: "/" }),
-                    this.loginCallback.bind(this),
-                ],
-            },
-            {
-                method: "get",
-                // If renamed update it on the Google Developer Console as well
-                path: "/auth/google/callback",
-                handler: [
-                    passport.authenticate("google", { failureRedirect: "/" }),
-                    this.loginCallback.bind(this),
-                ],
-            },
-            {
-                method: "get",
-                path: "/auth/discord/",
-                handler: passport.authenticate("discord"),
-            },
-            {
-                method: "get",
-                // If renamed update it on the Discord Developer Portal as well
-                path: "/auth/discord/callback",
-                handler: [
-                    passport.authenticate("discord", {
-                        failureRedirect: "/",
-                    }),
-                    this.loginCallback.bind(this),
-                ],
-            },
+            loginCallbackRoute("steam", "return"),
+            loginCallbackRoute("google", "callback"),
+            loginCallbackRoute("discord", "callback"),
+            // Google and Discord - if renamed, update accordingly in the respective developer portal
         ]);
     }
 
     // Return function called after successful login
     async loginCallback(req, res) {
         console.log(`Hello, ${req.user?.display_name} from ${req.user?.provider}! 👋`);
-        res.redirect("/");
+        res.redirect("/app");
     }
 
     // Logs out the current user
@@ -179,7 +160,7 @@ export class LoginService extends Service {
             req.session.destroy((err) => {
                 if (err) return next(err);
                 res.clearCookie("connect.sid"); // maybe a better way to centeralize all cookies to be a specific key name and not this?
-                res.redirect("/");
+                res.redirect("/"); // back to the homepage
             });
         });
     }

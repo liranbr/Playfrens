@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { ToastContainer } from "react-toastify";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import { useTour } from "@reactour/tour";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
@@ -171,6 +171,7 @@ const AppHeader = observer(() => {
 
 const AppUserAvatar = observer(() => {
     const userStore = useUserStore();
+    const navigate = useNavigate();
     const { userInfo } = userStore;
     return (
         <DropdownMenu.Root>
@@ -189,23 +190,13 @@ const AppUserAvatar = observer(() => {
                     side={"bottom"}
                     sideOffset={5}
                 >
-                    {!userInfo && (
-                        <>
-                            <DropdownMenu.Item onClick={backupToFile}>
-                                BEFORE LOGGING IN, BACKUP YOUR LOCAL DATA
-                                {/*TODO: remove this threat after making a forced login prompt*/}
+                    {
+                        !userInfo && (
+                            <DropdownMenu.Item onClick={() => navigate("/login")}>
+                                Login
                             </DropdownMenu.Item>
-                            <DropdownMenu.Item onClick={() => userStore.login("steam")}>
-                                Steam Login
-                            </DropdownMenu.Item>
-                            <DropdownMenu.Item onClick={() => userStore.login("google")}>
-                                Google Login
-                            </DropdownMenu.Item>
-                            <DropdownMenu.Item onClick={() => userStore.login("discord")}>
-                                Discord Login
-                            </DropdownMenu.Item>
-                        </>
-                    )}
+                        ) /* TODO: remove after making login mandatory */
+                    }
                     {userInfo && (
                         <>
                             {userInfo.provider === "steam" && (
@@ -346,7 +337,9 @@ export default function App() {
         <Tooltip.Provider delayDuration={750}>
             <BrowserRouter>
                 <Routes>
-                    <Route path="/" element={<Playfrens />} />
+                    <Route path="/" element={<Navigate to={"/app"} replace />} />{" "}
+                    {/* temp reroute until homepage made */}
+                    <Route path="/app" element={<Playfrens />} />
                     <Route path="/login" element={<Login />} />
                 </Routes>
             </BrowserRouter>

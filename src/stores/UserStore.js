@@ -44,7 +44,7 @@ export class UserStore {
         }
     }
 
-    login(provider = "steam") {
+    login(provider) {
         window.open(`/auth/${provider}`, "_self");
     }
     logout() {

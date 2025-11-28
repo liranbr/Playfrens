@@ -1,10 +1,13 @@
-import "./Login.css";
-import { Button, SimpleTooltip } from "@/components";
-import { BiLogoDiscordAlt, BiLogoGoogle, BiLogoSteam } from "react-icons/bi";
 import { Link } from "react-router-dom";
-import { backupToFile } from "@/stores/index.js";
+import { BiLogoDiscordAlt, BiLogoGoogle, BiLogoSteam } from "react-icons/bi";
+import { backupToFile, useUserStore } from "@/stores";
+import { Button, SimpleTooltip } from "@/components";
+import "./Login.css";
 
 export default function Login() {
+    const userStore = useUserStore();
+    // TODO: handle '/login?failed=true' in the url
+
     return (
         <div id="login">
             <div className="login-body">
@@ -19,15 +22,15 @@ export default function Login() {
                         <Button variant="danger" onClick={backupToFile}>
                             (Testers - Backup local data before logging in)
                         </Button>
-                        <Button variant="secondary">
+                        <Button variant="secondary" onClick={() => userStore.login("steam")}>
                             <BiLogoSteam />
                             Continue with Steam
                         </Button>
-                        <Button variant="secondary">
+                        <Button variant="secondary" onClick={() => userStore.login("google")}>
                             <BiLogoGoogle />
                             Continue with Google
                         </Button>
-                        <Button variant="secondary">
+                        <Button variant="secondary" onClick={() => userStore.login("discord")}>
                             <BiLogoDiscordAlt />
                             Continue with Discord
                         </Button>

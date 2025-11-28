@@ -70,14 +70,14 @@
         .tag-button {
             background-color: var(--pf-btn-primary);
             padding-left: 24px;
-            transition: padding-left 0.3s ease 0.8s;
+            transition: padding-left 0.3s ease 2s;
         }
         label {
             opacity: 0;
         }
         .hover-drag-indicator {
             opacity: 1;
-            transition: opacity 0.3s ease 0.8s;
+            transition: opacity 0.3s ease 2s;
         }
     }
     &.being-dragged {

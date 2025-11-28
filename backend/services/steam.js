@@ -18,8 +18,8 @@ export class SteamWebService extends Service {
         this.registerRoutes([
             {
                 method: "get",
-                path: "/api/steam/getOwnedGames",
-                handler: this.getOwnedGames.bind(this),
+                path: "/api/steam/getUserLibrary",
+                handler: this.getUserLibrary.bind(this),
             },
             {
                 method: "get",
@@ -44,7 +44,7 @@ export class SteamWebService extends Service {
         ]);
     }
 
-    async getOwnedGames(req, res) {
+    async getUserLibrary(req, res) {
         const { id } = req.query;
         const { OK, BAD_REQUEST, NOT_FOUND } = Response.HttpStatus;
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { ToastContainer } from "react-toastify";
-import { BrowserRouter, Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
 import { useTour } from "@reactour/tour";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
@@ -37,11 +37,11 @@ import {
     SimpleTooltip,
     ReminderCard,
     DialogRoot,
-    WelcomeTour,
 } from "@/components";
 
-import "./App.css";
 import Login from "@/pages/Login.jsx";
+import Home from "@/pages/Home.jsx";
+import "./App.css";
 
 function AppMenu() {
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -337,8 +337,7 @@ export default function App() {
         <Tooltip.Provider delayDuration={750}>
             <BrowserRouter>
                 <Routes>
-                    <Route path="/" element={<Navigate to={"/app"} replace />} />{" "}
-                    {/* temp reroute until homepage made */}
+                    <Route path="/" element={<Home />} />
                     <Route path="/app" element={<Playfrens />} />
                     <Route path="/login" element={<Login />} />
                 </Routes>

@@ -1,12 +1,13 @@
 import { Link } from "react-router-dom";
 import { BiLogoDiscordAlt, BiLogoGoogle, BiLogoSteam } from "react-icons/bi";
-import { backupToFile, useUserStore } from "@/stores";
+import { useUserStore } from "@/stores";
 import { Button, SimpleTooltip } from "@/components";
 import "./Login.css";
 
 export default function Login() {
     const userStore = useUserStore();
     // TODO: handle '/login?failed=true' in the url
+    // TODO: handle case when user is already logged in, reroute to /app
 
     return (
         <div id="login">
@@ -15,13 +16,8 @@ export default function Login() {
                     <h1>Sign in</h1>
                     <span>to use Playfrens</span>
                 </div>
-                {/* TODO: make login buttons work, and they then route you to /app */}
-                {/* TODO: after testers backup, remove the button */}
                 <div className="continue-with">
                     <div className="auth-buttons">
-                        <Button variant="danger" onClick={backupToFile}>
-                            (Testers - Backup local data before logging in)
-                        </Button>
                         <Button variant="secondary" onClick={() => userStore.login("steam")}>
                             <BiLogoSteam />
                             Continue with Steam

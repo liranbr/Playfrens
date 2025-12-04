@@ -27,7 +27,7 @@ export const ReminderCard = observer(({ reminder, outsideOfGamePage = false }) =
     }
 
     const classes = ["reminder-container"];
-    if (reminder.date < new Date()) classes.push("activated");
+    if (reminder.date.setHours(0, 0) <= new Date().setHours(0, 0)) classes.push("activated");
     if (dropdownOpen || editorOpen) classes.push("dd-open");
 
     const containerRef = useRef(null);

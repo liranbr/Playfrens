@@ -70,7 +70,7 @@
 
             a {
                 transition: none;
-                font-weight: 500;
+                font-weight: bold;
                 width: 100px;
                 font-size: 16px;
                 color: var(--pf-bg-500);
@@ -82,12 +82,12 @@
                 height: 32px;
 
                 &.btn-store-page {
-                    background-color: hsl(215, 98%, 54%);
+                    background-color: hsl(215, 98%, 60%);
                     &:hover {
-                        background-color: hsl(215, 98%, 50%);
+                        background-color: hsl(215, 98%, 56%);
                     }
                     &:active {
-                        background-color: hsl(215, 98%, 46%);
+                        background-color: hsl(215, 98%, 52%);
                     }
                 }
 

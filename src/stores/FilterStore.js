@@ -19,7 +19,12 @@ class FilterStore {
     hoveredTag = null; // Used for tag-hover effects on game cards
     draggedTag = null; // Same for drag-and-drop effects
 
-    constructor(defaultFilters = {}) {
+    constructor() {
+        makeAutoObservable(this);
+    }
+
+    // Async populate outside the constructor because data comes from the userStore's loaded board
+    async populate(defaultFilters = {}) {
         // If there are default filters to load, ensure that the tagIDs they hold are of tags that exist, and deserialize them (make a Set)
         if (Object.keys(defaultFilters).length > 0) {
             this.search = defaultFilters.search ?? this.search;
@@ -38,7 +43,6 @@ class FilterStore {
                 );
             }
         }
-        makeAutoObservable(this);
     }
 
     resetFilters() {
@@ -183,10 +187,10 @@ class FilterStore {
     }
 }
 
-const storedDefaultFilters = loadFromStorage(defaultFiltersStorageKey, {});
-const filterStore = new FilterStore(storedDefaultFilters);
+const filterStore = new FilterStore();
 const FilterStoreContext = createContext(filterStore);
 export const useFilterStore = () => useContext(FilterStoreContext);
+export const globalFilterStore = filterStore;
 
 // DataStore contains tags, that contain counters of 'how many currently filtered games contain me'
 // filtered games is in the FilterStore, so this provides it to the DataStore, only when filteredGames/allGames changes

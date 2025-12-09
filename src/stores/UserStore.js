@@ -9,15 +9,20 @@ export class UserStore {
      * @type {{ provider: string, id: string, displayName: string, avatar: string }}
      */
     userInfo = undefined;
+    loading = true;
 
     constructor() {
         makeAutoObservable(this);
-        this.getUser();
+        this.getUser().then(() =>
+            runInAction(() => {
+                this.loading = false;
+            }),
+        );
     }
 
     async getUser() {
         // DataStore.populate loads the board, which the default filters are then loaded from
-        const populateStores = () =>
+        const populateStores = async () =>
             globalDataStore
                 .populate()
                 .then(() =>
@@ -32,7 +37,6 @@ export class UserStore {
                     console.info("No Content: Skipping user data — no active login.");
                 runInAction(() => {
                     this.userInfo = undefined;
-                    populateStores();
                 });
                 return;
             }
@@ -44,9 +48,9 @@ export class UserStore {
                 displayName: user?.display_name,
                 avatar: user?.avatar_url,
             };
-            runInAction(() => {
+            await runInAction(async () => {
                 this.userInfo = info;
-                populateStores();
+                await populateStores();
             });
         } catch (error) {
             console.error("Failed to get user data:", error);

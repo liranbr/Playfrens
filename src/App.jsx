@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { ToastContainer } from "react-toastify";
-import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
-import { useTour } from "@reactour/tour";
+import { BrowserRouter, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Avatar from "@radix-ui/react-avatar";
@@ -45,7 +44,6 @@ import "./App.css";
 
 function AppMenu() {
     const [dropdownOpen, setDropdownOpen] = useState(false);
-    const { setIsOpen } = useTour();
     const DD = DropdownMenu;
     return (
         <>
@@ -93,13 +91,6 @@ function AppMenu() {
                         </a>
                         <DD.Item onClick={() => globalDialogStore.open(Dialogs.Settings)}>
                             Settings
-                        </DD.Item>
-                        <DD.Item
-                            onClick={() => {
-                                setIsOpen(true);
-                            }}
-                        >
-                            Show Tour
                         </DD.Item>
                         <DD.Item onClick={() => globalDialogStore.open(Dialogs.About)}>
                             About
@@ -190,27 +181,14 @@ const AppUserAvatar = observer(() => {
                     side={"bottom"}
                     sideOffset={5}
                 >
-                    {
-                        !userInfo && (
-                            <DropdownMenu.Item onClick={() => navigate("/login")}>
-                                Login
-                            </DropdownMenu.Item>
-                        ) /* TODO: remove after making login mandatory */
-                    }
-                    {userInfo && (
-                        <>
-                            {userInfo.provider === "steam" && (
-                                <DropdownMenu.Item
-                                    onClick={() => globalDialogStore.open(Dialogs.SteamImport)}
-                                >
-                                    Import from Steam
-                                </DropdownMenu.Item>
-                            )}
-                            <DropdownMenu.Item onClick={() => userStore.logout()}>
-                                Logout
-                            </DropdownMenu.Item>
-                        </>
+                    {userInfo.provider === "steam" && (
+                        <DropdownMenu.Item
+                            onClick={() => globalDialogStore.open(Dialogs.SteamImport)}
+                        >
+                            Import from Steam
+                        </DropdownMenu.Item>
                     )}
+                    <DropdownMenu.Item onClick={() => userStore.logout()}>Logout</DropdownMenu.Item>
                 </DropdownMenu.Content>
             </DropdownMenu.Portal>
         </DropdownMenu.Root>
@@ -316,7 +294,13 @@ function useScrollbarMeasure() {
     }, []);
 }
 
-function Playfrens() {
+const Playfrens = observer(() => {
+    const userStore = useUserStore();
+    const { loading, userInfo } = userStore;
+
+    if (loading) return <div className="loading-page">Loading...</div>;
+    if (userInfo === undefined) return <Navigate to="/login" replace />;
+
     return (
         <>
             <AppHeader />
@@ -328,7 +312,7 @@ function Playfrens() {
             <ToastRoot />
         </>
     );
-}
+});
 
 export default function App() {
     useScrollbarMeasure();

@@ -1,13 +1,17 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+import { observer } from "mobx-react-lite";
 import { BiLogoDiscordAlt, BiLogoGoogle, BiLogoSteam } from "react-icons/bi";
 import { useUserStore } from "@/stores";
 import { Button, SimpleTooltip } from "@/components";
 import "./Login.css";
 
-export default function Login() {
-    const userStore = useUserStore();
+export const Login = observer(() => {
     // TODO: handle '/login?failed=true' in the url
-    // TODO: handle case when user is already logged in, reroute to /app
+    const userStore = useUserStore();
+    const { loading, userInfo } = userStore;
+
+    if (loading) return <div className="loading-page">Loading...</div>;
+    if (userInfo) return <Navigate to="/app" replace />;
 
     return (
         <div id="login">
@@ -48,4 +52,6 @@ export default function Login() {
             </Link>
         </div>
     );
-}
+});
+
+export default Login;

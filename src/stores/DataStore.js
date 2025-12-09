@@ -55,7 +55,6 @@ const storageKeys = {
  * @property {ReminderObject[]} allReminders
  */
 export class DataStore {
-    showTour = false;
     allTags = {
         [tT.friend]: new ObservableMap(),
         [tT.category]: new ObservableMap(),
@@ -704,7 +703,6 @@ function defaultTagsSample() {
 const firstVisit = loadFromStorage(storageKeys.visited, false) === false;
 
 if (firstVisit && dataStore.allGames.size === 0) {
-    dataStore.showTour = true;
     const sample = defaultTagsSample();
     dataStore.populateTagsFromTagNames(sample);
     saveToStorage(storageKeys.visited, true);

@@ -102,10 +102,13 @@ export class DataStore {
                 this.populateGames(board[storageKeys.games], board[storageKeys.version]);
                 this.populateReminders(board[storageKeys.reminders]);
                 this.populateTagsCustomOrders(board[storageKeys.tagsCustomOrders]);
+                saveToStorage(storageKeys.settings, board[storageKeys.settings]); // if it doesn't load correctly, need to reload
+                saveToStorage(storageKeys.defaultFilters, board[storageKeys.defaultFilters]);
             }
             DELETEME_AllowDBSave();
         } catch (error) {
             console.info(error);
+            // TODO: Should this path lead to a valid board? isn't it accountless?
             this.populateTags({
                 [tT.friend]: loadFromStorage(storageKeys[tT.friend], []),
                 [tT.category]: loadFromStorage(storageKeys[tT.category], []),

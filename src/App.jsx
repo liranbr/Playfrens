@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { ToastContainer } from "react-toastify";
-import { BrowserRouter, Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Avatar from "@radix-ui/react-avatar";
@@ -162,7 +162,6 @@ const AppHeader = observer(() => {
 
 const AppUserAvatar = observer(() => {
     const userStore = useUserStore();
-    const navigate = useNavigate();
     const { userInfo } = userStore;
     return (
         <DropdownMenu.Root>

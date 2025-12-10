@@ -46,15 +46,18 @@ export class LoginService extends Service {
                     returnURL: `${URL}/auth/steam/return`,
                     realm: `${URL}/`,
                     apiKey: process.env.STEAM_WEB_API_KEY,
+                    passReqToCallback: true,
                 },
-                async (identifier, profile, done) => {
+                async (req, identifier, profile, done) => {
                     profile.identifier = identifier;
-                    try {
-                        const user = await this.upsertUser(profile, "steam");
-                        done(null, user);
-                    } catch (err) {
-                        done(err);
+
+                    if (req.session.connectMode) {
+                        await this.connectProvider(req.user.id, profile, "steam");
+                        req.session.connectMode = null;
+                        return done(null, req.user);
                     }
+                    const user = await this.upsertUser(profile, "steam");
+                    return done(null, user);
                 },
             ),
         );
@@ -64,15 +67,16 @@ export class LoginService extends Service {
                     clientID: process.env.GOOGLE_CLIENT_ID,
                     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
                     callbackURL: `${URL}/auth/google/callback`,
+                    passReqToCallback: true,
                 },
-                async (accessToken, refreshToken, profile, done) => {
-                    try {
-                        console.log(profile);
-                        const user = await this.upsertUser(profile, "google");
-                        done(null, user);
-                    } catch (err) {
-                        done(err);
+                async (req, accessToken, refreshToken, profile, done) => {
+                    if (req.session.connectMode) {
+                        await this.connectProvider(req.user.id, profile, "google");
+                        req.session.connectMode = null;
+                        return done(null, req.user);
                     }
+                    const user = await this.upsertUser(profile, "google");
+                    return done(null, user);
                 },
             ),
         );
@@ -83,20 +87,23 @@ export class LoginService extends Service {
                     clientSecret: process.env.DISCORD_CLIENT_SECRET,
                     callbackURL: `${URL}/auth/discord/callback`,
                     scope: ["identify"],
+                    passReqToCallback: true,
                 },
-                async (accessToken, refreshToken, profile, done) => {
-                    try {
-                        console.log(profile);
-                        const user = await this.upsertUser(profile, "discord");
-                        done(null, user);
-                    } catch (err) {
-                        done(err);
+                async (req, accessToken, refreshToken, profile, done) => {
+                    if (req.session.connectMode) {
+                        await this.connectProvider(req.user.id, profile, "discord");
+                        req.session.connectMode = null;
+                        return done(null, req.user);
                     }
+
+                    const user = await this.upsertUser(profile, "discord");
+                    return done(null, user);
                 },
             ),
         );
     }
     listen() {
+        super.listen();
         const loginFailedRoute = "/login?failed=true";
         const loginRoute = (provider, options) => ({
             method: "get",
@@ -110,38 +117,41 @@ export class LoginService extends Service {
             method: "get",
             path: `/auth/${provider}/${callbackPath}`,
             handler: [
-                passport.authenticate(provider, {
-                    failureRedirect: loginFailedRoute,
-                }),
+                passport.authenticate(provider, { failureRedirect: loginFailedRoute }),
                 this.loginCallback.bind(this),
             ],
         });
 
-        super.listen();
         this.registerRoutes([
-            {
-                method: "get",
-                path: "/auth/me",
-                handler: this.getRequestIdentity.bind(this),
-            },
-            {
-                method: "get",
-                path: "/auth/logout",
-                handler: this.logout.bind(this),
-            },
-            // Login Routers
+            { method: "get", path: "/auth/me", handler: this.getRequestIdentity.bind(this) },
+            { method: "get", path: "/auth/logout", handler: this.logout.bind(this) },
+            // Login routes
             loginRoute("steam"),
             loginRoute("google", { scope: ["profile", "openid", "email"] }),
             loginRoute("discord"),
-            // Strategy Callbacks
+            // Callbacks
             loginCallbackRoute("steam", "return"),
             loginCallbackRoute("google", "callback"),
             loginCallbackRoute("discord", "callback"),
-            // Google and Discord - if renamed, update accordingly in the respective developer portal
+            // Connect routes
+            {
+                method: "get",
+                path: "/auth/google/connect",
+                handler: this.connectGoogle.bind(this),
+            },
+            {
+                method: "get",
+                path: "/auth/discord/connect",
+                handler: this.connectDiscord.bind(this),
+            },
+            {
+                method: "get",
+                path: "/auth/steam/connect",
+                handler: this.connectSteam.bind(this),
+            },
         ]);
     }
 
-    // Return function called after successful login
     async loginCallback(req, res) {
         console.log(`Hello, ${req.user?.display_name} from ${req.user?.provider}! 👋`);
         res.redirect("/app");
@@ -152,56 +162,78 @@ export class LoginService extends Service {
         const { UNAUTHORIZED } = Response.HttpStatus;
 
         if (!req.isAuthenticated()) {
-            return Response.send(res, UNAUTHORIZED, { error: "Not logged in" });
+            return res.redirect(`/login?error=${UNAUTHORIZED}`);
         }
+
         console.log(`Logging out ${req.user.display_name} 🚪`);
         req.logout((err) => {
             if (err) return next(err);
             req.session.destroy((err) => {
                 if (err) return next(err);
-                res.clearCookie("connect.sid"); // maybe a better way to centeralize all cookies to be a specific key name and not this?
-                res.redirect("/"); // back to the homepage
+                res.clearCookie("connect.sid");
+                res.redirect("/");
             });
         });
     }
 
-    // Returns the user's information used to login with (e.g. Steam public data)
+    async connectGoogle(req, res, next) {
+        if (!req.isAuthenticated()) return res.redirect("/login");
+        req.session.connectMode = true;
+        passport.authenticate("google", { scope: ["profile", "email"] })(req, res, next);
+    }
+
+    async connectDiscord(req, res, next) {
+        if (!req.isAuthenticated()) return res.redirect("/login");
+        req.session.connectMode = true;
+        passport.authenticate("discord")(req, res, next);
+    }
+
+    async connectSteam(req, res, next) {
+        if (!req.isAuthenticated()) return res.redirect("/login");
+        req.session.connectMode = true;
+        passport.authenticate("steam")(req, res, next);
+    }
+
     async getRequestIdentity(req, res) {
         const { OK, NO_CONTENT, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
 
-        if (req.isAuthenticated()) {
-            const { data: dbUser, error } = await supabase
-                .from("users")
-                .select("*")
-                .eq("id", req.user.id)
-                .single();
-
-            if (error) return Response.send(res, INTERNAL_SERVER_ERROR, { error: error.message });
-            Response.send(res, OK, { user: dbUser });
-        } else {
-            Response.send(res, NO_CONTENT, { message: "Requester is not logged in." });
+        if (!req.isAuthenticated()) {
+            return Response.send(res, NO_CONTENT, { message: "Requester is not logged in." });
         }
+
+        const { data: dbUser, error } = await supabase
+            .from("users")
+            .select("*")
+            .eq("id", req.user.id)
+            .single();
+
+        if (error) return Response.send(res, INTERNAL_SERVER_ERROR, { error: error.message });
+
+        return Response.send(res, OK, { user: dbUser });
     }
 
     async upsertUser(profile, provider) {
-        const providerId = (() => {
-            switch (provider) {
-                case "steam":
-                    return profile.identifier;
-                case "google":
-                case "discord":
-                    return profile.id;
-            }
-            return undefined;
-        })();
+        const providerId = provider === "steam" ? profile.identifier : profile.id;
 
-        // Check if user exists by provider
-        const { data: existingUser } = await supabase
-            .from("users")
-            .select("*")
+        let user = null;
+        // Check if the provider is connected to a specific user
+        const { data: linkedProvider } = await supabase
+            .from("user_providers")
+            .select("user_id")
             .eq("provider", provider)
             .eq("provider_id", providerId)
             .single();
+
+        // If valid, get the foreign ID for user
+        if (linkedProvider) {
+            console.log("its linking :3", linkedProvider);
+            const { data: linkedUser } = await supabase
+                .from("users")
+                .select("*")
+                .eq("id", linkedProvider.user_id)
+                .single();
+            user = linkedUser;
+        }
 
         const avatar_url = (() => {
             switch (provider) {
@@ -209,16 +241,12 @@ export class LoginService extends Service {
                     return profile.photos?.length ? profile.photos.at(-1).value : null;
                 case "google": {
                     const avatar = profile.photos?.length ? profile.photos.at(-1).value : null;
-                    // Give the maximum size of most google avatars, 512x512.
                     return avatar.replace(/=s\d+-c$/, "=s512-c");
                 }
                 case "discord": {
                     const avatar = profile.avatar;
-                    if (!avatar) {
-                        // Avatarless users uses 0 - 5 variations of avatars via discriminator value
+                    if (!avatar)
                         return `https://cdn.discordapp.com/embed/avatars/${profile.discriminator % 6}.png`;
-                    }
-                    // For animated avatars
                     const ext = avatar.startsWith("a_") ? "gif" : "png";
                     return `https://cdn.discordapp.com/avatars/${providerId}/${avatar}.${ext}?size=512`;
                 }
@@ -227,23 +255,11 @@ export class LoginService extends Service {
             }
         })();
 
-        const email = (() => {
-            switch (provider) {
-                case "google":
-                    return profile.emails?.[0]?.value;
-                // case "discord":
-                // return profile.email;
-                default:
-                    return null;
-            }
-        })();
+        const email = provider === "google" ? profile.emails?.[0]?.value : null;
 
-        let userId;
-
-        if (existingUser) {
-            userId = existingUser.id;
-            // Update user
-            const { error: updateError } = await supabase
+        // Update user
+        if (user) {
+            await supabase
                 .from("users")
                 .update({
                     display_name: profile.displayName,
@@ -251,11 +267,9 @@ export class LoginService extends Service {
                     email,
                     last_login: new Date(),
                 })
-                .eq("id", userId);
-            if (updateError) throw updateError;
+                .eq("id", user.id);
         } else {
             // Insert new user
-            console.log(email);
             const { data: newUser, error: insertError } = await supabase
                 .from("users")
                 .insert({
@@ -270,22 +284,22 @@ export class LoginService extends Service {
                 .single();
             if (insertError) throw insertError;
 
-            userId = newUser.id;
+            user = newUser;
 
             // Create empty board
-            const { error: boardError } = await supabase
-                .from("boards")
-                .insert({ owner_id: userId });
-            if (boardError) console.error("Error creating board:", boardError);
+            await supabase.from("boards").insert({ owner_id: user.id });
         }
 
-        const { data: user, error: userError } = await supabase
-            .from("users")
-            .select("*")
-            .eq("id", userId)
-            .single();
-        if (userError) throw userError;
-
         return user;
+    }
+
+    async connectProvider(userId, profile, provider) {
+        const providerId = provider === "steam" ? profile.identifier : profile.id;
+
+        await supabase.from("user_providers").insert({
+            user_id: userId,
+            provider,
+            provider_id: providerId,
+        });
     }
 }

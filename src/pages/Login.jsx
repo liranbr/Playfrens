@@ -38,10 +38,7 @@ export const Login = observer(() => {
                 </div>
                 <div className="login-footer">
                     <SimpleTooltip message="WIP" delayDuration={0}>
-                        <a>Privacy</a>
-                    </SimpleTooltip>
-                    <SimpleTooltip message="WIP" delayDuration={0}>
-                        <a>Terms</a>
+                        <a>Privacy Policy</a>
                     </SimpleTooltip>
                     {/* TODO: come to terms with needing to get a privacy policy */}
                 </div>

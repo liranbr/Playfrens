@@ -6,9 +6,35 @@
     justify-content: center;
 }
 
+.sticky-header {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    padding: 36px 36px 0 36px;
+
+    .app-brand {
+        margin: 0;
+    }
+}
+
 .home-body {
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+}
+
+.open-playfrens {
+    font-weight: bold;
+    height: 42px;
+    padding: 0 16px;
+    border-radius: 16px;
+    font-size: 16px;
+    /*color: var(--pf-bg-500);*/
+    background-color: hsl(215 98% 44%);
 }

@@ -22,7 +22,7 @@ export class LoginService extends Service {
                     secure: app.locals.isProd || strToBool(process.env.USE_HTTPS),
                     httpOnly: true,
                     sameSite: app.locals.isProd ? "none" : "lax",
-                    maxAge: 24 * 60 * 60 * 1000, // 1 day
+                    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
                 },
             }),
         );

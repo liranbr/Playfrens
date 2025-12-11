@@ -3,7 +3,6 @@ import { Button } from "@/components";
 import "./Home.css";
 
 export default function Home() {
-    const navigate = useNavigate();
     return (
         <div id="home">
             <div className="sticky-header">
@@ -23,6 +22,7 @@ export default function Home() {
 }
 
 function OpenPlayfrens() {
+    const navigate = useNavigate();
     return (
         <Button className="open-playfrens" onClick={() => navigate("/login")}>
             Open Playfrens

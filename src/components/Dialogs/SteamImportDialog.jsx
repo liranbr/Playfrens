@@ -24,6 +24,8 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                 </Dialog.Description>
             </VisuallyHidden>
 
+            <h2>NOT IMPLEMENTED YET</h2>
+
             <div className="steam-public-data-tip">
                 <b>The Steam profile and imported data must be public for this to work.</b>
                 <ol>
@@ -74,10 +76,9 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                 <InfoIcon message="Wishlist may contain games that have not released yet, but you might want to plan to play them" />
             </label>
 
+            <h2>NOT IMPLEMENTED YET</h2>
+
             <div className="rx-dialog-footer">
-                <Button variant="primary" onClick={undefined}>
-                    Import (NOT IMPLEMENTED YET)
-                </Button>
                 <Button variant="secondary" onClick={closeDialog}>
                     Close
                 </Button>

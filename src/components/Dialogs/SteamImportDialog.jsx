@@ -26,7 +26,7 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
 
             <h2>NOT IMPLEMENTED YET</h2>
 
-            <div className="steam-public-data-tip">
+            <div className="dialog-callout">
                 <b>The Steam profile and imported data must be public for this to work.</b>
                 <ol>
                     <li>

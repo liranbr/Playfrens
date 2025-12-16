@@ -174,3 +174,35 @@ input[type="checkbox"] {
     font-size: 24px;
     font-weight: 500;
 }
+
+.dialog-callout {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--pf-bg-700);
+    border: var(--pf-border-700);
+    border-radius: 16px;
+    padding: 16px;
+
+    ol {
+        padding-left: 4px;
+        list-style-position: inside;
+    }
+
+    &.info {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        border: none;
+        border-left: 4px solid hsl(var(--hsl-base-btn-primary) 60%);
+        padding: 8px;
+
+        p {
+            color: var(--pf-fg-500);
+        }
+
+        .info-icon {
+            margin-left: 0;
+            margin-right: 4px;
+        }
+    }
+}

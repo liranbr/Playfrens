@@ -3,7 +3,7 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { DialogBase } from "./DialogRoot.jsx";
 import { TagObject, tagTypeStrings } from "@/models";
 import { useDataStore } from "@/stores";
-import { Button } from "@/components";
+import { Button, InfoIcon } from "@/components";
 
 // Both Edits existing tags, and Adds new ones - depending on whether a TagObject is provided, otherwise based on the newTagType
 export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagOfType = null }) {
@@ -36,6 +36,15 @@ export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagO
             <VisuallyHidden>
                 <Dialog.Description>{description}</Dialog.Description>
             </VisuallyHidden>
+
+            {tagType === "friend" && (
+                <div className="dialog-callout info">
+                    <p>
+                        <span className="info-icon">i</span>
+                        Just a name. This doesn't connect to a Playfrens or Steam account.
+                    </p>
+                </div>
+            )}
 
             <fieldset>
                 <label>Name</label>

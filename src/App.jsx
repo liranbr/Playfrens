@@ -296,10 +296,16 @@ function useScrollbarMeasure() {
 const Playfrens = observer(() => {
     const userStore = useUserStore();
     const { loading, userInfo } = userStore;
+    useEffect(() => {
+        const checkEvery = 60 * 1000; // TODO: checks every minute temporarily for development. Change later to every 5m
+        const intervalId = setInterval(() => userStore.getUser(), checkEvery);
+        return () => clearInterval(intervalId);
+    }, []);
 
     if (loading) return <div className="loading-page">Loading...</div>;
     if (userInfo === undefined) return <Navigate to="/login" replace />;
 
+    // 'Protected Route' requires the user be logged in
     return (
         <>
             <AppHeader />

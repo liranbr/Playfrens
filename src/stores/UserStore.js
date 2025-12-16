@@ -13,48 +13,45 @@ export class UserStore {
 
     constructor() {
         makeAutoObservable(this);
-        this.getUser().then(() =>
-            runInAction(() => {
-                this.loading = false;
-            }),
-        );
+        this.getUser()
+            .then(() => this.populateStores())
+            .then(() =>
+                runInAction(() => {
+                    this.loading = false;
+                }),
+            );
     }
 
     async getUser() {
-        // DataStore.populate loads the board, which the default filters are then loaded from
-        const populateStores = async () =>
-            globalDataStore
-                .populate()
-                .then(() =>
-                    globalFilterStore.populate(loadFromStorage(defaultFiltersStorageKey, {})),
-                );
-
         try {
             const res = await fetch("/auth/me", { credentials: "include" });
-            // No content? Pass
-            if (!res.ok || res.status == 204) {
-                res.status == 204 &&
-                    console.info("No Content: Skipping user data — no active login.");
-                runInAction(() => {
-                    this.userInfo = undefined;
-                });
-                return;
+            // Invalid response, or '204 no content' = no user data
+            if (!res.ok || res.status === 204) {
+                throw new Error(res.statusText);
             }
             const data = await res.json();
             const user = data?.user;
-            const info = {
-                provider: user?.provider,
-                id: user?.id,
-                displayName: user?.display_name,
-                avatar: user?.avatar_url,
-            };
-            await runInAction(async () => {
-                this.userInfo = info;
-                await populateStores();
+            runInAction(() => {
+                this.userInfo = {
+                    provider: user?.provider,
+                    id: user?.id,
+                    displayName: user?.display_name,
+                    avatar: user?.avatar_url,
+                };
             });
         } catch (error) {
             console.error("Failed to get user data:", error);
+            runInAction(() => {
+                this.userInfo = undefined;
+            });
         }
+    }
+
+    async populateStores() {
+        // DataStore.populate loads the board, which the default filters are then loaded from
+        await globalDataStore
+            .populate()
+            .then(() => globalFilterStore.populate(loadFromStorage(defaultFiltersStorageKey, {})));
     }
 
     login(provider) {

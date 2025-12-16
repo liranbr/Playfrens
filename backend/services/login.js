@@ -226,7 +226,6 @@ export class LoginService extends Service {
 
         // If valid, get the foreign ID for user
         if (linkedProvider) {
-            console.log("its linking :3", linkedProvider);
             const { data: linkedUser } = await supabase
                 .from("users")
                 .select("*")

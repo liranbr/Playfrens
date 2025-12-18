@@ -16,6 +16,7 @@ import {
 } from "@/stores";
 import { SidebarTagButton, IconButton, CenterAndEdgesRow, SimpleTooltip } from "@/components";
 import "./TagButtonGroup.css";
+import { useState } from "react";
 
 export const SidebarTagButtonGroup = observer(({ tagType }) => {
     const { allTags } = useDataStore();
@@ -55,12 +56,15 @@ export const SidebarTagButtonGroup = observer(({ tagType }) => {
 
 const SidebarTBGMenu = observer(({ tagType }) => {
     const settingsStore = useSettingsStore();
+    const [popoverOpen, setPopoverOpen] = useState(false);
     const pluralString = tagTypeStrings[tagType].plural;
     return (
-        <Popover.Root>
-            <Popover.Trigger asChild>
-                <IconButton icon={<LuSettings2 fontSize={18} />} />
-            </Popover.Trigger>
+        <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
+            <SimpleTooltip message={pluralString + " settings"}>
+                <Popover.Trigger asChild>
+                    <IconButton icon={<LuSettings2 fontSize={18} />} activate={popoverOpen} />
+                </Popover.Trigger>
+            </SimpleTooltip>
             <Popover.Portal>
                 <Popover.Content align="start" className="rx-popover">
                     <Popover.Close asChild>

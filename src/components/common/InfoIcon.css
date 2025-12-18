@@ -14,5 +14,9 @@
 
     &:hover {
         color: #fff;
+        border-color: #fff;
+    }
+    &::after {
+        content: "i";
     }
 }

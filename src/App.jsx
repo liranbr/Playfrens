@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { ToastContainer } from "react-toastify";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Avatar from "@radix-ui/react-avatar";
@@ -112,6 +112,7 @@ function AppMenu() {
 
 const AppHeader = observer(() => {
     const filterStore = useFilterStore();
+    const navigate = useNavigate();
     const search = filterStore.search;
     const updateSearch = (e) => filterStore.setSearch(e.target.value);
 
@@ -119,7 +120,7 @@ const AppHeader = observer(() => {
         <CenterAndEdgesRow className="app-header">
             <div>
                 <AppMenu />
-                <div className="app-brand">
+                <div className="app-brand" onDoubleClick={() => navigate("/")}>
                     <img src="/Playfrens_Logo.png" alt="Playfrens Logo" />
                     Playfrens
                 </div>

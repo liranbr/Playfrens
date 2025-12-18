@@ -39,10 +39,8 @@ export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagO
 
             {tagType === "friend" && (
                 <div className="dialog-callout info">
-                    <p>
-                        <span className="info-icon">i</span>
-                        Just a name. This doesn't connect to a Playfrens or Steam account.
-                    </p>
+                    <span className="info-icon" />
+                    <p>Just a name. It doesn't connect to a Playfrens or Steam account.</p>
                 </div>
             )}
 

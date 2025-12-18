@@ -190,10 +190,14 @@ input[type="checkbox"] {
     }
 
     &.info {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
         border: none;
         border-left: 4px solid hsl(var(--hsl-base-btn-primary) 60%);
+        gap: 8px;
         padding: 8px;
 
         p {
@@ -201,8 +205,12 @@ input[type="checkbox"] {
         }
 
         .info-icon {
-            margin-left: 0;
-            margin-right: 4px;
+            margin: 0;
+            height: 24px;
+            width: 24px;
+            font-size: 16px;
+            color: var(--pf-fg-link);
+            border: 2px solid var(--pf-fg-link);
         }
     }
 }

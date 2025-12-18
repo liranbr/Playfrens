@@ -41,6 +41,11 @@ export class SteamWebService extends Service {
                 path: "/api/steam/getGameCover",
                 handler: this.getGameCover.bind(this),
             },
+            {
+                method: "get",
+                path: "/api/steam/getWishlist",
+                handler: this.getWishlist.bind(this),
+            },
         ]);
     }
 
@@ -139,18 +144,43 @@ export class SteamWebService extends Service {
     async getGameCover(req, res) {
         const { appId } = req.query;
         const { OK, NOT_FOUND } = Response.HttpStatus;
-        const base = `https://shared.steamstatic.com/store_item_assets/steam/apps/${appId}/`;
-        const urlSuffixes = [
-            "library_capsule_600x900_2x.jpg",
-            "library_600x900_2x.jpg",
-            "portrait.png",
-        ];
-        for (const suffix of urlSuffixes) {
-            const url = base + suffix;
-            if (await isImageUrlValid(url))
-                return Response.send(res, OK, { url: url, preview: url });
+        const url = await this.buildGameCover(appId);
+        if (url) {
+            return Response.send(res, OK, { url: url, preview: url });
         }
         return Response.send(res, NOT_FOUND, `No official Steam cover was found for id ${appId}`);
+    }
+
+    /**
+     * Returns a list of IDs for a user's Wishlist
+     * @param {Object} req
+     * @param {Object} res
+     * @returns {{name: string, id: string, image: string}[]}
+     */
+    async getWishlist(req, res) {
+        const { id } = req.query;
+        const { OK, NO_CONTENT, BAD_REQUEST } = Response.HttpStatus;
+
+        console.log(id);
+        console.log(id === "76561198114085482" ? "SAMI IS LOGGING IN!" : "SOMEONE ELSE");
+
+        if (!this.isSteamID(id))
+            return Response.sendMessage(res, BAD_REQUEST, `Invalid SteamID64 passed: ${id}`);
+
+        const response = await fetch(
+            `https://api.steampowered.com/IWishlistService/GetWishlist/v1?steamid=${id}`,
+        );
+
+        if (response.ok) {
+            const json = await response.json();
+            const data = json?.response;
+            const items = response?.items;
+            console.log(items);
+            if (data == undefined) Response.send(res, NO_CONTENT, { message: "FAILED" });
+            else Response.send(res, OK, data);
+        } else {
+            return Response.send(res, BAD_REQUEST, await response.json());
+        }
     }
 
     /**
@@ -159,5 +189,19 @@ export class SteamWebService extends Service {
      */
     isSteamID(id) {
         return id.length === 17 && /^\d+$/.test(id);
+    }
+
+    async buildGameCover(appId) {
+        const base = `https://shared.steamstatic.com/store_item_assets/steam/apps/${appId}/`;
+        const urlSuffixes = [
+            "library_capsule_600x900_2x.jpg",
+            "library_600x900_2x.jpg",
+            "portrait.png",
+        ];
+        for (const suffix of urlSuffixes) {
+            const url = base + suffix;
+            if (await isImageUrlValid(url)) return url;
+        }
+        return "";
     }
 }

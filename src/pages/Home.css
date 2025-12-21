@@ -1,5 +1,9 @@
 #home {
-    height: 100vh;
+    --home-header-height: 36px;
+    --page-padding: 36px;
+
+    height: 100%;
+    padding: var(--page-padding);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -7,34 +11,75 @@
 }
 
 .sticky-header {
-    width: 100%;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    position: sticky;
+    position: fixed;
+    padding: var(--page-padding);
+    height: calc(var(--home-header-height) + var(--page-padding) + var(--page-padding));
+    width: 100%;
     top: 0;
-    padding: 36px 36px 0 36px;
 
-    .app-brand {
-        margin: 0;
+    pointer-events: none;
+    & > * {
+        pointer-events: auto;
     }
 }
 
 .home-body {
     height: 100%;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 200px;
+
+    .main-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+}
+
+.nav-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    height: var(--home-header-height);
+
+    a {
+        font-size: 18px;
+        text-decoration: none;
+        font-weight: 500;
+        color: white;
+    }
 }
 
 .open-playfrens {
-    font-weight: bold;
-    height: 42px;
-    padding: 0 16px;
-    border-radius: 16px;
-    font-size: 16px;
-    /*color: var(--pf-bg-500);*/
-    background-color: hsl(215 98% 44%);
+    text-decoration: none;
+    button {
+        font-weight: 500;
+        height: 36px;
+        padding: 0 16px;
+        border-radius: 16px;
+        font-size: 16px;
+        color: var(--pf-fg-050);
+        background-color: hsl(215 98% 44%);
+
+        &:hover,
+        &:focus,
+        &:active {
+            background-color: hsl(215 98% 36%);
+        }
+    }
+
+    &.main-action button {
+        height: 42px;
+        padding: 0 24px;
+    }
 }

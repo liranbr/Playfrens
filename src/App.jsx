@@ -37,9 +37,8 @@ import {
     ReminderCard,
     DialogRoot,
 } from "@/components";
+import { Login, Home, Contact, Privacy } from "@/pages";
 
-import Login from "@/pages/Login.jsx";
-import Home from "@/pages/Home.jsx";
 import "./App.css";
 
 function AppMenu() {
@@ -115,6 +114,7 @@ const AppHeader = observer(() => {
     const navigate = useNavigate();
     const search = filterStore.search;
     const updateSearch = (e) => filterStore.setSearch(e.target.value);
+    // TODO: remove doubleclick to home? temp for homepage development
 
     return (
         <CenterAndEdgesRow className="app-header">
@@ -330,6 +330,8 @@ export default function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/app" element={<Playfrens />} />
                     <Route path="/login" element={<Login />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/privacy" element={<Privacy />} />
                 </Routes>
             </BrowserRouter>
         </Tooltip.Provider>

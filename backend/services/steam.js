@@ -2,6 +2,7 @@ import { Response } from "../response.js";
 import { Service } from "../service.js";
 import SteamAPI from "steamapi";
 import { isImageUrlValid } from "../utils.js";
+import { response } from "express";
 
 const DEBUG_GET_ITEMS_SAMPLE = false;
 
@@ -99,7 +100,7 @@ export class SteamWebService extends Service {
             return Response.sendMessage(res, BAD_REQUEST, `Invalid SteamID64 passed: ${id}`);
 
         const client = this.connect();
-        
+
         let response;
         // We need to catch 401 errors here since SteamAPI lib throws on them
         try {

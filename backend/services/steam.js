@@ -2,8 +2,20 @@ import { Response } from "../response.js";
 import { Service } from "../service.js";
 import SteamAPI from "steamapi";
 import { isImageUrlValid } from "../utils.js";
+import { response } from "express";
 
 export class SteamWebService extends Service {
+    // Add as we discover more of them
+    categories = Object.freeze({
+        1: "Multi-player",
+        2: "Single-player",
+        9: "Co-Op",
+    });
+
+    /** TODO: IStoreBrowseService/GetItems for batched calling multiple Metadatas to get their perspective categories, basic info and assets
+     * Example:
+     * https://api.steampowered.com/IStoreBrowseService/GetItems/v1/?key=<STEAM_WEBAPI_KEY>&input_json=%7B%22ids%22%3A%5B%7B%22appid%22%3A440%7D%2C%7B%22appid%22%3A570%7D%2C%7B%22appid%22%3A620%7D%5D%2C%22context%22%3A%7B%22language%22%3A%22english%22%2C%22country_code%22%3A%22US%22%7D%2C%22data_request%22%3A%7B%22include_assets%22%3Atrue%7D%7D
+     */
     constructor(app) {
         super(app, process.env.STEAM_WEB_API_KEY);
     }
@@ -45,6 +57,11 @@ export class SteamWebService extends Service {
                 method: "get",
                 path: "/api/steam/getWishlist",
                 handler: this.getWishlist.bind(this),
+            },
+            {
+                method: "get",
+                path: "/api/steam/getItems",
+                handler: this.getItems.bind(this),
             },
         ]);
     }
@@ -121,6 +138,46 @@ export class SteamWebService extends Service {
         });
         Response.send(res, OK, grids);
     }
+
+    async getItems(req, res) {
+        try {
+            const buildInput = (ids = [440, 570, 620, 1533420]) => {
+                const json = {
+                    context: {
+                        language: "english",
+                        country_code: "US",
+                    },
+                    data_request: {
+                        include_assets: true,
+                    },
+                };
+
+                json.ids = ids.map((id) => {
+                    return { appid: id };
+                });
+                return json;
+            };
+
+            const params = new URLSearchParams({
+                key: this.environment_key,
+                input_json: JSON.stringify(buildInput()),
+            });
+
+            const response = await fetch(
+                `https://api.steampowered.com/IStoreBrowseService/GetItems/v1/?${params.toString()}`,
+            );
+
+            const data = await response.json();
+            Response.send(res, 200, data);
+        } catch (err) {
+            console.error(err);
+            Response.send(res, 500, {
+                error: "Steam API request failed",
+                message: err.message,
+            });
+        }
+    }
+
     /**
      * Search for games using Steam Storefront API, queries: term, lang, cc (country code)
      * @param {Object} req

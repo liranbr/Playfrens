@@ -85,28 +85,59 @@ export class SteamWebService extends Service {
         Response.send(res, OK, games);
     }
 
+    /**
+     * Returns a list of a user's Steam friends (if their friends list is public)
+     * @param {*} req
+     * @param {*} res
+     * @returns A list of Steam friends
+     */
     async getFriends(req, res) {
         const { id } = req.query;
-        const { OK, BAD_REQUEST, NOT_FOUND } = Response.HttpStatus;
+        const { OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED } = Response.HttpStatus;
         if (!this.isSteamID(id))
             return Response.sendMessage(res, BAD_REQUEST, `Invalid SteamID64 passed: ${id}`);
 
         const client = this.connect();
 
-        const friends = await client.getUserFriends(id);
+        console.log("yeah");
+
+        let response;
+        // We need to catch 401 errors here since SteamAPI lib throws on them
+        try {
+            response = await client.get("/ISteamUser/GetFriendList/v1", {
+                steamid: id,
+                relationship: "friend",
+            });
+        } catch (error) {
+            if (error.statusCode === 401) {
+                return Response.send(res, UNAUTHORIZED, {
+                    error: "Account's friends list is private.",
+                });
+            }
+            console.error("Error fetching friends list:", error);
+            return Response.sendMessage(
+                res,
+                UNAUTHORIZED,
+                `Couldn't get friends list for SteamID64 ${id}`,
+            );
+        }
+        const friends = response.friendslist?.friends || [];
+
         if (friends.length === 0)
             return Response.sendMessage(
                 res,
                 NOT_FOUND,
                 `Couldn't find any friends using SteamID64 ${id}`,
             );
-        Response.send(res, OK, friends);
+        const friendSummaries = await this.getUserSummaries(friends.map((f) => f.steamid));
+
+        Response.send(res, OK, friendSummaries);
     }
     /**
-     *
+     * Returns a list of Steam game capsules for a user's owned games
      * @param {Object} req
      * @param {Object} res
-     * @returns {{name: string, id: string, image: string}}  An object containing the game name, ID, and image URL.
+     * @returns {{name: string, id: string, image: string}} An object containing the game name, ID, and image URL.
      */
 
     async getSteamCapsules(req, res) {
@@ -139,39 +170,52 @@ export class SteamWebService extends Service {
         Response.send(res, OK, grids);
     }
 
+    /**
+     * Returns sample items from Steam IStoreBrowseService/GetItems
+     * https://steamapi.xpaw.me/#IStoreBrowseService/GetItems
+     * @param {Object} req - The request object
+     * @param {Object} res - The response object
+     * @return {Object} - The response data from the Steam API
+     */
     async getItems(req, res) {
+        let { ids } = req.query;
+        const { OK, BAD_REQUEST, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+
+        ids = ids
+            .split(",")
+            .filter((v) => /^\d+$/.test(v))
+            .map(Number);
+
         try {
-            const buildInput = (ids = [440, 570, 620, 1533420]) => {
-                const json = {
-                    context: {
-                        language: "english",
-                        country_code: "US",
-                    },
-                    data_request: {
-                        include_assets: true,
-                    },
-                };
-
-                json.ids = ids.map((id) => {
-                    return { appid: id };
-                });
-                return json;
+            const json = {
+                context: {
+                    language: "english",
+                    country_code: "US",
+                },
+                data_request: {
+                    include_assets: true,
+                },
             };
-
-            const params = new URLSearchParams({
-                key: this.environment_key,
-                input_json: JSON.stringify(buildInput()),
+            json.ids = ids.map((id) => {
+                return { appid: id };
             });
 
+            // Steam doesn't like body responses :(
+            // So we have to send everything as URL params
+            const params = new URLSearchParams({
+                key: this.environment_key,
+                // do NOT rename this key, if you value your life
+                input_json: JSON.stringify(json),
+            });
+            const paramsStr = params.toString();
             const response = await fetch(
-                `https://api.steampowered.com/IStoreBrowseService/GetItems/v1/?${params.toString()}`,
+                `https://api.steampowered.com/IStoreBrowseService/GetItems/v1/?${paramsStr}`,
             );
-
             const data = await response.json();
-            Response.send(res, 200, data);
+            Response.send(res, OK, data);
         } catch (err) {
             console.error(err);
-            Response.send(res, 500, {
+            Response.send(res, INTERNAL_SERVER_ERROR, {
                 error: "Steam API request failed",
                 message: err.message,
             });
@@ -260,5 +304,25 @@ export class SteamWebService extends Service {
             if (await isImageUrlValid(url)) return url;
         }
         return "";
+    }
+
+    chunkArray(array, chunkSize) {
+        const chunks = [];
+        for (let i = 0; i < array.length; i += chunkSize) {
+            chunks.push(array.slice(i, i + chunkSize));
+        }
+        return chunks;
+    }
+
+    async getUserSummaries(ids) {
+        const batches = this.chunkArray(ids, 100);
+        const results = [];
+        const client = this.connect();
+        for (const batch of batches) {
+            const summaries = await client.getUserSummary(batch);
+            results.push(...summaries);
+        }
+        console.log("Result:\n", results);
+        return results;
     }
 }

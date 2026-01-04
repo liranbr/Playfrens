@@ -2,7 +2,8 @@ import { Response } from "../response.js";
 import { Service } from "../service.js";
 import SteamAPI from "steamapi";
 import { isImageUrlValid } from "../utils.js";
-import { response } from "express";
+
+const DEBUG_GET_ITEMS_SAMPLE = false;
 
 export class SteamWebService extends Service {
     // Add as we discover more of them
@@ -179,39 +180,26 @@ export class SteamWebService extends Service {
      */
     async getItems(req, res) {
         let { ids } = req.query;
-        const { OK, BAD_REQUEST, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+        const { OK, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
 
-        ids = ids
-            .split(",")
-            .filter((v) => /^\d+$/.test(v))
-            .map(Number);
+        if (DEBUG_GET_ITEMS_SAMPLE)
+            ids = [
+                10, 20, 30, 40, 50, 70, 80, 90, 100, 130, 220, 240, 260, 280, 300, 320, 340, 360,
+                380, 400, 420, 440, 480, 500, 550, 570, 620, 630, 730, 8930, 8940, 8980, 9000, 9050,
+                9120, 9450, 9880, 9900, 9990, 10200, 10500, 10700, 10800, 10900, 11000, 11300,
+                11400, 11500, 11700, 12100, 12200, 12300, 12500, 12700, 12900, 13100, 13200, 13500,
+                13600, 13800, 14000, 14200, 14500, 14700, 14800, 15000, 15200, 15300, 15500, 15700,
+                16000, 16200, 16300, 16500, 16700, 16900, 17000, 17200, 17400, 17500, 17700, 17800,
+                18000, 18200, 18400,
+            ];
+        else
+            ids = ids
+                .split(",")
+                .filter((v) => /^\d+$/.test(v))
+                .map(Number);
 
         try {
-            const json = {
-                context: {
-                    language: "english",
-                    country_code: "US",
-                },
-                data_request: {
-                    include_assets: true,
-                },
-            };
-            json.ids = ids.map((id) => {
-                return { appid: id };
-            });
-
-            // Steam doesn't like body responses :(
-            // So we have to send everything as URL params
-            const params = new URLSearchParams({
-                key: this.environment_key,
-                // do NOT rename this key, if you value your life
-                input_json: JSON.stringify(json),
-            });
-            const paramsStr = params.toString();
-            const response = await fetch(
-                `https://api.steampowered.com/IStoreBrowseService/GetItems/v1/?${paramsStr}`,
-            );
-            const data = await response.json();
+            const data = await this.fetchItems(ids);
             Response.send(res, OK, data);
         } catch (err) {
             console.error(err);
@@ -274,22 +262,22 @@ export class SteamWebService extends Service {
 
         if (response.ok) {
             const json = await response.json();
-            const data = json?.response;
-            const items = response?.items;
-            console.log(items);
+            const data = await json?.response;
             if (data == undefined) Response.send(res, NO_CONTENT, { message: "FAILED" });
-            else Response.send(res, OK, data);
-        } else {
-            return Response.send(res, BAD_REQUEST, await response.json());
+            else {
+                const batches = this.chunkArray(
+                    data.items.map((i) => i.appid),
+                    100,
+                );
+                const results = [];
+                for (const batch of batches) {
+                    const items = await this.fetchItems(batch);
+                    results.push(...items);
+                }
+                return Response.send(res, OK, results);
+            }
         }
-    }
-
-    /**
-     * @param {string} id - string of numbers only
-     * @returns {boolean} true if valid Steam ID
-     */
-    isSteamID(id) {
-        return id.length === 17 && /^\d+$/.test(id);
+        return Response.send(res, BAD_REQUEST, await response.json());
     }
 
     async buildGameCover(appId) {
@@ -306,14 +294,6 @@ export class SteamWebService extends Service {
         return "";
     }
 
-    chunkArray(array, chunkSize) {
-        const chunks = [];
-        for (let i = 0; i < array.length; i += chunkSize) {
-            chunks.push(array.slice(i, i + chunkSize));
-        }
-        return chunks;
-    }
-
     async getUserSummaries(ids) {
         const batches = this.chunkArray(ids, 100);
         const results = [];
@@ -324,5 +304,52 @@ export class SteamWebService extends Service {
         }
         console.log("Result:\n", results);
         return results;
+    }
+
+    /**
+     * @param {string} id - string of numbers only
+     * @returns {boolean} true if valid Steam ID
+     */
+    isSteamID(id) {
+        return id.length === 17 && /^\d+$/.test(id);
+    }
+
+    chunkArray(array, chunkSize) {
+        const chunks = [];
+        for (let i = 0; i < array.length; i += chunkSize) {
+            chunks.push(array.slice(i, i + chunkSize));
+        }
+        return chunks;
+    }
+
+    async fetchItems(ids) {
+        const json = {
+            context: {
+                language: "english",
+                country_code: "US",
+            },
+            data_request: {
+                include_assets: true,
+            },
+        };
+
+        json.ids = ids.map((id) => {
+            return { appid: id };
+        });
+
+        // Steam doesn't like body responses :(
+        // So we have to send everything as URL params
+        const params = new URLSearchParams({
+            key: this.environment_key,
+            // do NOT rename this key, if you value your life
+            input_json: JSON.stringify(json),
+        });
+        const paramsStr = params.toString();
+        const response = await fetch(
+            `https://api.steampowered.com/IStoreBrowseService/GetItems/v1/?${paramsStr}`,
+        );
+        const data = await response.json();
+        const store_items = await data.response.store_items;
+        return store_items;
     }
 }

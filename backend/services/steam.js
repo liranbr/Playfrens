@@ -2,7 +2,8 @@ import { Response } from "../response.js";
 import { Service } from "../service.js";
 import SteamAPI from "steamapi";
 import { isImageUrlValid } from "../utils.js";
-import { response } from "express";
+
+const DEBUG_GET_ITEMS_SAMPLE = false;
 
 const DEBUG_GET_ITEMS_SAMPLE = false;
 

@@ -99,9 +99,7 @@ export class SteamWebService extends Service {
             return Response.sendMessage(res, BAD_REQUEST, `Invalid SteamID64 passed: ${id}`);
 
         const client = this.connect();
-
-        console.log("yeah");
-
+        
         let response;
         // We need to catch 401 errors here since SteamAPI lib throws on them
         try {

@@ -253,11 +253,8 @@ export class SteamWebService extends Service {
      * @returns {{name: string, id: string, image: string}[]}
      */
     async getWishlist(req, res) {
-        const { id } = req.query;
+        const { id, releasedOnly = false } = req.query;
         const { OK, NO_CONTENT, BAD_REQUEST } = Response.HttpStatus;
-
-        console.log(id);
-        console.log(id === "76561198114085482" ? "SAMI IS LOGGING IN!" : "SOMEONE ELSE");
 
         if (!this.isSteamID(id))
             return Response.sendMessage(res, BAD_REQUEST, `Invalid SteamID64 passed: ${id}`);
@@ -277,7 +274,9 @@ export class SteamWebService extends Service {
                 );
                 const results = [];
                 for (const batch of batches) {
-                    const items = await this.fetchItems(batch);
+                    let items = await this.fetchItems(batch);
+                    if (releasedOnly === "true")
+                        items = items.filter((i) => i?.is_coming_soon !== true);
                     results.push(...items);
                 }
                 return Response.send(res, OK, results);

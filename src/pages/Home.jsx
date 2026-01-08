@@ -6,7 +6,7 @@ export function Home() {
     return (
         <div id="home">
             <div className="sticky-header">
-                <div className="home-container header-content">
+                <div className="header-content home-container">
                     <div className="header-left">
                         <div className="app-brand">
                             <img src="/Playfrens_Logo.png" alt="Playfrens Logo" />
@@ -30,22 +30,26 @@ export function Home() {
                         </ul>
                     </div>
                     <div className="header-right">
-                        <OpenPlayfrens />
+                        <a href="/app" className="open-playfrens" draggable={false}>
+                            Open Playfrens
+                        </a>
                     </div>
                 </div>
             </div>
 
             <div className="home-body">
-                <div className="main-content">
+                <div className="main-content home-container">
                     <div className="hero">
                         <h1>So what are we playing?</h1>
                         <p>
                             Playfrens helps you play with friends. Manage your games library to
                             find, plan, and play together!
                         </p>
-                        <OpenPlayfrens className="main-action" />
+                        <a href="/app" className="open-playfrens main-action" draggable={false}>
+                            Open Playfrens
+                        </a>
                     </div>
-                    <div className="media">{"<some gif or screenshot here>"}</div>
+                    <div className="media-carousel">{"<some embla carousel here>"}</div>
                 </div>
                 <div className="home-footer">
                     <ul className="nav-links">
@@ -59,13 +63,5 @@ export function Home() {
                 </div>
             </div>
         </div>
-    );
-}
-
-function OpenPlayfrens({ className = "" }) {
-    return (
-        <a href="/app" className={"open-playfrens " + className}>
-            <Button>Open Playfrens</Button>
-        </a>
     );
 }

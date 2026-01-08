@@ -27,6 +27,8 @@
         "@supabase/supabase-js": "^2.78.0",
         "cors": "^2.8.5",
         "dotenv-safe": "^9.1.0",
+        "embla-carousel-autoplay": "^8.6.0",
+        "embla-carousel-react": "^8.6.0",
         "express": "^5.1.0",
         "express-session": "^1.18.2",
         "linked-list": "^3.1.0",

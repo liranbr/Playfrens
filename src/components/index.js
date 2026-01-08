@@ -6,6 +6,7 @@ export { ScrollView } from "./common/ScrollView.jsx";
 export { Spinner } from "./common/Spinner.jsx";
 export { SimpleTooltip } from "./common/SimpleTooltip.jsx";
 export { InfoIcon } from "./common/InfoIcon.jsx";
+export { EmblaCarousel } from "./EmblaCarousel.jsx";
 export { GamesGrid } from "./GameGrid.jsx";
 export { SidebarTagButton } from "./TagButton.jsx";
 export { SidebarTagButtonGroup } from "./TagButtonGroup.jsx";

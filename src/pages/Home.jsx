@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Button, SimpleTooltip } from "@/components";
+import { Button, EmblaCarousel, SimpleTooltip } from "@/components";
 import "./Home.css";
 
 export function Home() {
@@ -49,6 +49,7 @@ export function Home() {
                             Open Playfrens
                         </a>
                     </div>
+                    {/*<EmblaCarousel slides={[0, 1, 2, 3, 4]} options={{ loop: true }} />*/}
                     <div className="media-carousel">{"<some embla carousel here>"}</div>
                 </div>
                 <div className="home-footer">

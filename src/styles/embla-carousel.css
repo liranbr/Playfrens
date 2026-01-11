@@ -7,7 +7,7 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    margin: auto;
+    margin: 64px 0;
     --slide-spacing: 1rem;
     --slide-size: 100%;
 }

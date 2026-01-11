@@ -371,7 +371,7 @@ function CoversGallery({
                     onClick: () => setCoverImageURL(img.url),
                 };
                 const coverDisplay = img.preview.includes(".webm") ? (
-                    <video {...sharedProps} autoPlay loop />
+                    <video {...sharedProps} autoPlay loop muted />
                 ) : (
                     <img {...sharedProps} alt="Game Cover Art" />
                 );

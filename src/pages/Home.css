@@ -84,7 +84,6 @@
             width: 100%;
             display: flex;
             flex-direction: column;
-            padding-bottom: 64px;
 
             h1 {
                 font-size: 48px;
@@ -93,6 +92,21 @@
                 font-size: 24px;
                 color: var(--pf-fg-100);
                 max-width: 550px;
+            }
+        }
+
+        .topics {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: min(128px, 12vw);
+
+            h2 {
+                font-size: 28px;
+            }
+            p {
+                font-size: 18px;
+                color: var(--pf-fg-100);
             }
         }
     }

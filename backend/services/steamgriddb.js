@@ -1,6 +1,7 @@
 import { Response } from "../response.js";
 import SGDB from "steamgriddb";
 import { Service } from "../service.js";
+import { strToBool } from "../utils.js";
 
 export class SteamGridDBService extends Service {
     constructor(app) {
@@ -43,7 +44,7 @@ export class SteamGridDBService extends Service {
             id: sgdbID,
             dimensions: ["600x900"],
             type: "game",
-            types: animatedOnly === "true" ? ["animated"] : [],
+            types: strToBool(animatedOnly) ? ["animated"] : [],
             nsfw: nsfw,
         };
         const grids = await client.getGrids(gridOptions);

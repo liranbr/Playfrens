@@ -213,7 +213,7 @@ export class SteamWebService extends Service {
                 if (!item.visible) return false;
                 if (!Array.isArray(playerCategories)) return false;
 
-                return includesAny(playerCategories, [categories]);
+                return includesAny(playerCategories, categories);
             });
             console.log("data =>", data.length, "result =>", result.length);
             Response.send(res, OK, result);

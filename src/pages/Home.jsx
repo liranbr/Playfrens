@@ -49,8 +49,7 @@ export function Home() {
                             Open Playfrens
                         </a>
                     </div>
-                    {/*<EmblaCarousel slides={[0, 1, 2, 3, 4]} options={{ loop: true }} />*/}
-                    <div className="media-carousel">{"<some embla carousel here>"}</div>
+                    <EmblaCarousel />
                 </div>
                 <div className="home-footer">
                     <ul className="nav-links">

@@ -13,6 +13,7 @@
     top: 0;
     background-color: inherit;
     border-bottom: var(--pf-border-500);
+    z-index: 1;
 
     .header-content {
         height: 52px;
@@ -33,19 +34,8 @@
 
 .home-container {
     width: 90%;
-    max-width: 90%;
+    max-width: 1120px;
     margin: 0 auto;
-}
-
-@media (min-width: 1300px) {
-    .home-container {
-        width: 840px;
-    }
-}
-@media (min-width: 2200px) {
-    .home-container {
-        width: 1120px;
-    }
 }
 
 .nav-links {

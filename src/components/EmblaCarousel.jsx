@@ -74,7 +74,12 @@ export const EmblaCarousel = () => {
                         return (
                             <div className="embla__slide" key={slide_media}>
                                 {slide_media.includes(".mp4") ? (
-                                    <video {...sharedProps} onEnded={handleScrollNext} />
+                                    <video
+                                        {...sharedProps}
+                                        onEnded={handleScrollNext}
+                                        muted
+                                        playsInline
+                                    />
                                 ) : (
                                     <img {...sharedProps} alt="Slide showcasing Playfrens" />
                                 )}

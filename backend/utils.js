@@ -55,7 +55,12 @@ export function resolveBaseURL(target = "backend") {
 export function strToBool(s) {
     const value = s.toLowerCase();
     const n = Number(s);
-    return value === "true" || (!isNaN(n) && n > 0);
+    return ["true", "1", "yes", "t", "y"].includes(value) || (!isNaN(n) && n > 0);
+}
+
+export function includesAny(array, values) {
+    if (!Array.isArray(values)) return array.includes(values);
+    return values.some((v) => array.includes(v));
 }
 
 export async function isImageUrlValid(url) {

@@ -1,16 +1,16 @@
 import { Response } from "../response.js";
 import { Service } from "../service.js";
 import SteamAPI from "steamapi";
-import { isImageUrlValid } from "../utils.js";
+import { includesAny, isImageUrlValid, strToBool } from "../utils.js";
 
-const DEBUG_GET_ITEMS_SAMPLE = false;
+const DEBUG_GET_ITEMS_SAMPLE = true;
 
 export class SteamWebService extends Service {
     // Add as we discover more of them
-    categories = Object.freeze({
-        1: "Multi-player",
-        2: "Single-player",
-        9: "Co-Op",
+    STEAM_GAMEPLAY_CATEGORIES = Object.freeze({
+        MULTI_PLAYER: 1,
+        SINGLE_PLAYER: 2,
+        SHARED_OR_SPLIT_SCREEN: 24,
     });
 
     /** TODO: IStoreBrowseService/GetItems for batched calling multiple Metadatas to get their perspective categories, basic info and assets
@@ -99,7 +99,7 @@ export class SteamWebService extends Service {
             return Response.sendMessage(res, BAD_REQUEST, `Invalid SteamID64 passed: ${id}`);
 
         const client = this.connect();
-        
+
         let response;
         // We need to catch 401 errors here since SteamAPI lib throws on them
         try {
@@ -177,7 +177,7 @@ export class SteamWebService extends Service {
      * @return {Object} - The response data from the Steam API
      */
     async getItems(req, res) {
-        let { ids } = req.query;
+        let { ids, categories } = req.query;
         const { OK, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
 
         if (DEBUG_GET_ITEMS_SAMPLE)
@@ -196,9 +196,25 @@ export class SteamWebService extends Service {
                 .filter((v) => /^\d+$/.test(v))
                 .map(Number);
 
+        categories = categories
+            ? categories
+                  .split(",")
+                  .filter((v) => /^\d+$/.test(v))
+                  .map(Number)
+            : [this.STEAM_GAMEPLAY_CATEGORIES["MULTI_PLAYER"]];
+
         try {
             const data = await this.fetchItems(ids);
-            Response.send(res, OK, data);
+            const result = data.filter((item) => {
+                const playerCategories = item.categories?.supported_player_categoryids;
+                // Some items are apparently privated
+                if (!item.visible) return false;
+                if (!Array.isArray(playerCategories)) return false;
+
+                return includesAny(playerCategories, [categories]);
+            });
+            console.log("data =>", data.length, "result =>", result.length);
+            Response.send(res, OK, result);
         } catch (err) {
             console.error(err);
             Response.send(res, INTERNAL_SERVER_ERROR, {
@@ -267,7 +283,7 @@ export class SteamWebService extends Service {
                 const results = [];
                 for (const batch of batches) {
                     let items = await this.fetchItems(batch);
-                    if (releasedOnly === "true")
+                    if (strToBool(releasedOnly))
                         items = items.filter((i) => i?.is_coming_soon !== true);
                     results.push(...items);
                 }

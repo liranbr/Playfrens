@@ -3,14 +3,14 @@ import { Service } from "../service.js";
 import SteamAPI from "steamapi";
 import { includesAny, isImageUrlValid, strToBool } from "../utils.js";
 
-const DEBUG_GET_ITEMS_SAMPLE = false;
+const DEBUG_GET_ITEMS_SAMPLE = true;
 
 export class SteamWebService extends Service {
     // Add as we discover more of them
     STEAM_GAMEPLAY_CATEGORIES = Object.freeze({
         MULTI_PLAYER: 1,
         SINGLE_PLAYER: 2,
-        // SHARED_OR_SPLIT_SCREEN: 24, // idk, maybe?
+        SHARED_OR_SPLIT_SCREEN: 24,
     });
 
     /** TODO: IStoreBrowseService/GetItems for batched calling multiple Metadatas to get their perspective categories, basic info and assets

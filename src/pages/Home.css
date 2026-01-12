@@ -6,6 +6,7 @@
     align-items: center;
     font-family: system-ui;
     background-color: var(--pf-bg-700);
+    overflow-x: auto;
 }
 
 .sticky-header {

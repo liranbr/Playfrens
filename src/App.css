@@ -5,6 +5,9 @@
     position: fixed;
     border-bottom: var(--pf-border-500);
     z-index: 2;
+    .app-brand {
+        margin-left: 16px;
+    }
 }
 
 .app-brand {

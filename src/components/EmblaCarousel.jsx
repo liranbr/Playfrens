@@ -68,7 +68,7 @@ export const EmblaCarousel = () => {
                 <div className="embla__container">
                     {homepage_slides.map((slide_media) => {
                         const sharedProps = {
-                            src: "/public/homepage_slides/" + slide_media,
+                            src: "/homepage_slides/" + slide_media,
                             className: "embla__slide__media",
                         };
                         return (

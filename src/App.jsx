@@ -82,11 +82,19 @@ function AppMenu() {
                             </DD.SubContent>
                         </DD.Sub>
                         <DD.Separator />
-                        <a href="https://github.com/liranbr/Playfrens" target="_blank">
+                        <a
+                            href="https://github.com/liranbr/Playfrens"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
                             <DD.Item>GitHub</DD.Item>
                         </a>
-                        <a href="https://trello.com/b/H9Cln6UD/playfrens" target="_blank">
-                            <DD.Item>Trello</DD.Item>
+                        <a
+                            href="https://discord.gg/aTdwEGau4Q"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <DD.Item>Discord</DD.Item>
                         </a>
                         <DD.Item onClick={() => globalDialogStore.open(Dialogs.Settings)}>
                             Settings

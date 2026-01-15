@@ -14,15 +14,19 @@ export function Home() {
                         </div>
                         <ul className="nav-links">
                             <li>
-                                <SimpleTooltip message="working on it ^^'" delayDuration={0}>
-                                    <a href="/">Discord</a>
-                                </SimpleTooltip>
+                                <a
+                                    href="https://discord.gg/aTdwEGau4Q"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    Discord
+                                </a>
                             </li>
                             <li>
                                 <a
                                     href="https://github.com/liranbr/Playfrens"
                                     target="_blank"
-                                    aria-disabled
+                                    rel="noopener noreferrer"
                                 >
                                     GitHub
                                 </a>

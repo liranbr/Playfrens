@@ -44,6 +44,7 @@
     display: flex;
     justify-content: space-between;
     padding: 0 16px;
+    pointer-events: none;
 }
 .embla__button {
     -webkit-tap-highlight-color: rgba(230, 230, 230, 0.5);
@@ -66,6 +67,7 @@
     justify-content: center;
     filter: opacity(0.75);
     transition: 0.1s ease-in;
+    pointer-events: auto;
 
     &:hover {
         background-color: rgba(100, 100, 110, 0.5);

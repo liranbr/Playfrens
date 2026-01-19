@@ -56,33 +56,34 @@ export function Home() {
                     <EmblaCarousel />
                     <div className="topics">
                         <div className="topic">
-                            <h2>Lorem ipsum dolor sit amet</h2>
+                            <h2>Find</h2>
                             <p>
-                                Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                                Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                                nisi ut aliquip ex ea commodo consequat.
+                                You're sitting on Discord with Friend A and Friend B. You could play
+                                the game that your friend group has defaulted to for the past year,
+                                or you could finally get to the co-op that you started that one
+                                time, if you'd just remembered it!
                             </p>
                         </div>
                         <div className="topic">
-                            <h2>Consectetur adipiscing elit</h2>
+                            <h2>Plan</h2>
                             <p>
-                                Duis aute irure dolor in reprehenderit in voluptate velit esse
-                                cillum dolore eu fugiat nulla pariatur.
+                                Add games that haven't released yet, or that you haven't bought yet,
+                                to plan ahead with friends. If looking forward to some release date
+                                or a big update, you can add a Reminder
                             </p>
                         </div>
                         <div className="topic">
-                            <h2>Sed ut perspiciatis unde</h2>
+                            <h2>Import from Steam</h2>
                             <p>
-                                Totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et
-                                quasi architecto beatae vitae dicta sunt explicabo.
+                                Playfrens can import your Games and Friends from Steam, and keep
+                                them synced
                             </p>
                         </div>
                         <div className="topic">
-                            <h2>Omnis iste natus error sit</h2>
+                            <h2>Free and Open Source</h2>
                             <p>
-                                Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut
-                                fugit, sed quia consequuntur magni dolores eos qui ratione
-                                voluptatem sequi nesciunt.
+                                Playfrens is free to use, with no paywalled features, and its code
+                                is public on the GitHub
                             </p>
                         </div>
                     </div>

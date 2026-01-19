@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { PrevButton, NextButton, usePrevNextButtons } from "./EmblaCarouselArrowButtons";
 import useEmblaCarousel from "embla-carousel-react";
+import "./EmblaCarousel.css";
 
 export const EmblaCarousel = () => {
     // not using props for slides or options here, since only 1 carousel in the project, just writing it here
@@ -59,7 +60,7 @@ export const EmblaCarousel = () => {
 
     const { prevBtnDisabled, nextBtnDisabled, onPrevButtonClick, onNextButtonClick } =
         usePrevNextButtons(emblaApi, () => {
-            autoplayEnabledRef.current = true; // if user clicks on a button, even if autoplay was paused before, resume autoplay
+            autoplayEnabledRef.current = false; // if user clicks on a button, even if autoplay was on before, stop autoplay
         });
 
     return (

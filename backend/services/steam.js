@@ -3,8 +3,6 @@ import { Service } from "../service.js";
 import SteamAPI from "steamapi";
 import { includesAny, isImageUrlValid, strToBool } from "../utils.js";
 
-const DEBUG_GET_ITEMS_SAMPLE = true;
-
 const DEBUG_GET_ITEMS_SAMPLE = false;
 
 export class SteamWebService extends Service {
@@ -103,8 +101,8 @@ export class SteamWebService extends Service {
         const client = this.connect();
 
         // We need to catch 401 errors here since SteamAPI lib throws on them
+        let response;
         try {
-            let response;
             response = await client.get("/ISteamUser/GetFriendList/v1", {
                 steamid: id,
                 relationship: "friend",
@@ -123,27 +121,6 @@ export class SteamWebService extends Service {
             );
         }
         const friends = response.friendslist?.friends || [];
-
-        // We need to catch 401 errors here since SteamAPI lib throws on them
-        try {
-            let response;
-            response = await client.get("/ISteamUser/GetFriendList/v1", {
-                steamid: id,
-                relationship: "friend",
-            });
-        } catch (error) {
-            if (error.statusCode === 401) {
-                return Response.send(res, UNAUTHORIZED, {
-                    error: "Account's friends list is private.",
-                });
-            }
-            console.error("Error fetching friends list:", error);
-            return Response.sendMessage(
-                res,
-                UNAUTHORIZED,
-                `Couldn't get friends list for SteamID64 ${id}`,
-            );
-        }
 
         if (friends.length === 0)
             return Response.sendMessage(

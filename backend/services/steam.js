@@ -3,8 +3,6 @@ import { Service } from "../service.js";
 import SteamAPI from "steamapi";
 import { includesAny, isImageUrlValid, strToBool } from "../utils.js";
 
-const DEBUG_GET_ITEMS_SAMPLE = true;
-
 const DEBUG_GET_ITEMS_SAMPLE = false;
 
 export class SteamWebService extends Service {
@@ -104,6 +102,7 @@ export class SteamWebService extends Service {
 
         let response;
         // We need to catch 401 errors here since SteamAPI lib throws on them
+        let response;
         try {
             response = await client.get("/ISteamUser/GetFriendList/v1", {
                 steamid: id,

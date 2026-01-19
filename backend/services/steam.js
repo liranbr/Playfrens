@@ -3,7 +3,7 @@ import { Service } from "../service.js";
 import SteamAPI from "steamapi";
 import { includesAny, isImageUrlValid, strToBool } from "../utils.js";
 
-const DEBUG_GET_ITEMS_SAMPLE = true;
+const DEBUG_GET_ITEMS_SAMPLE = false;
 
 export class SteamWebService extends Service {
     // Add as we discover more of them

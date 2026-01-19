@@ -107,7 +107,8 @@
             width: 100%;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: min(128px, 12vw);
+            column-gap: min(128px, 12vw);
+            row-gap: 64px;
 
             h2 {
                 font-size: clamp(18px, 5.4vw, 27px);

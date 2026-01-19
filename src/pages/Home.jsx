@@ -60,8 +60,7 @@ export function Home() {
                             <p>
                                 You're sitting on Discord with Friend A and Friend B. You could play
                                 the game that your friend group has defaulted to for the past year,
-                                or you could finally get to the co-op that you started that one
-                                time, if you'd just remembered it!
+                                or you could finally play the co-op that you started that one time!
                             </p>
                         </div>
                         <div className="topic">
@@ -83,7 +82,7 @@ export function Home() {
                             <h2>Free and Open Source</h2>
                             <p>
                                 Playfrens is free to use, with no paywalled features, and its code
-                                is public on the GitHub
+                                is public on GitHub
                             </p>
                         </div>
                     </div>

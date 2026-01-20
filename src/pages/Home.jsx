@@ -1,5 +1,4 @@
-import { useNavigate } from "react-router-dom";
-import { Button, EmblaCarousel, SimpleTooltip } from "@/components";
+import { EmblaCarousel } from "@/components";
 import "./Home.css";
 
 export function Home() {
@@ -58,9 +57,9 @@ export function Home() {
                         <div className="topic">
                             <h2>Find</h2>
                             <p>
-                                You're sitting on Discord with Friend A and Friend B. You could play
-                                the same game as always, or, you could finally play the co-op that
-                                you started that one time!
+                                You're sitting on Discord with two friends. You could play the same
+                                game as always, or, you could finally play the co-op that you three
+                                started that one time!
                             </p>
                         </div>
                         <div className="topic">

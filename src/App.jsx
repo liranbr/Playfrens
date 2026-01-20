@@ -198,11 +198,11 @@ const ShareGamesAsText = observer(() => {
 
         return currentFilters.join("  \n");
     };
-    const makeGamesText = () => {
+    const makeGamesText = (withLinks) => {
         const currentGames = [`### ${filteredGames.length} Games`];
         filteredGames.forEach((game) => {
             // If it's a steam game, format the title as a link to its store page
-            if (!!game.storeID && game.storeType === "steam") {
+            if (withLinks && !!game.storeID && game.storeType === "steam") {
                 const steamLink = "https://store.steampowered.com/app/" + game.storeID + "/";
                 currentGames.push("* [" + game.title + "](<" + steamLink + ">)");
             } else currentGames.push("* " + game.title);
@@ -210,9 +210,10 @@ const ShareGamesAsText = observer(() => {
 
         return currentGames.join("  \n");
     };
-    const handleCopy = async () => {
+    const handleCopy = async (withLinks) => {
         try {
-            const text = "## Playfrens Board\n" + makeFiltersText() + "  \n" + makeGamesText();
+            const text =
+                "## Playfrens Board\n" + makeFiltersText() + "  \n" + makeGamesText(withLinks);
             await navigator.clipboard.writeText(text);
             toastSuccess("Copied to clipboard!");
         } catch (err) {
@@ -222,44 +223,59 @@ const ShareGamesAsText = observer(() => {
         }
     };
 
+    const DD = DropdownMenu;
     return (
-        <SimpleTooltip message="Share current games as text" delayDuration={300}>
-            <IconButton icon={<MdShare />} onClick={handleCopy} />
-        </SimpleTooltip>
+        <DD.Root>
+            <SimpleTooltip message="Share current games">
+                <DD.Trigger asChild>
+                    <IconButton icon={<MdShare />} onClick={handleCopy} />
+                </DD.Trigger>
+            </SimpleTooltip>
+            <DD.Portal>
+                <DD.Content
+                    className="rx-dropdown-menu"
+                    align={"start"}
+                    side={"bottom"}
+                    sideOffset={5}
+                >
+                    <DD.Item onClick={() => handleCopy(true)}>Share as text</DD.Item>
+                    <DD.Item onClick={() => handleCopy(false)}>Share as text without links</DD.Item>
+                </DD.Content>
+            </DD.Portal>
+        </DD.Root>
     );
 });
 
 const AppUserAvatar = observer(() => {
     const userStore = useUserStore();
     const { userInfo } = userStore;
+    const DD = DropdownMenu;
     return (
-        <DropdownMenu.Root>
-            <DropdownMenu.Trigger asChild className="rx-avatar">
+        <DD.Root>
+            <DD.Trigger asChild className="rx-avatar">
                 <Avatar.Root>
                     <Avatar.Image src={userInfo?.avatar ?? undefined} />
                     <Avatar.Fallback className="rx-avatarless" asChild>
                         <MdPerson />
                     </Avatar.Fallback>
                 </Avatar.Root>
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Portal>
-                <DropdownMenu.Content
+            </DD.Trigger>
+            <DD.Portal>
+                <DD.Content
                     className="rx-dropdown-menu"
                     align={"start"}
                     side={"bottom"}
                     sideOffset={5}
                 >
                     {userInfo.provider === "steam" && (
-                        <DropdownMenu.Item
-                            onClick={() => globalDialogStore.open(Dialogs.SteamImport)}
-                        >
+                        <DD.Item onClick={() => globalDialogStore.open(Dialogs.SteamImport)}>
                             Import from Steam
-                        </DropdownMenu.Item>
+                        </DD.Item>
                     )}
-                    <DropdownMenu.Item onClick={() => userStore.logout()}>Logout</DropdownMenu.Item>
-                </DropdownMenu.Content>
-            </DropdownMenu.Portal>
-        </DropdownMenu.Root>
+                    <DD.Item onClick={() => userStore.logout()}>Logout</DD.Item>
+                </DD.Content>
+            </DD.Portal>
+        </DD.Root>
     );
 });
 

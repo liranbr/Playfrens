@@ -16,30 +16,33 @@ import {
     MdOutlineGamepad,
     MdOutlineNotifications,
     MdPerson,
+    MdShare,
 } from "react-icons/md";
 
-import { tagTypes } from "@/models";
+import { tagTypes, tagTypeStrings } from "@/models";
 import {
-    useFilterStore,
     backupToFile,
-    restoreFromFile,
     Dialogs,
+    globalDataStore,
     globalDialogStore,
-    useUserStore,
+    restoreFromFile,
     useDataStore,
+    useFilterStore,
+    useUserStore,
 } from "@/stores";
 import {
-    SidebarTagButtonGroup,
-    IconButton,
     CenterAndEdgesRow,
-    GamesGrid,
-    SimpleTooltip,
-    ReminderCard,
     DialogRoot,
+    GamesGrid,
+    IconButton,
+    ReminderCard,
+    SidebarTagButtonGroup,
+    SimpleTooltip,
 } from "@/components";
-import { Login, Home, Contact, Privacy } from "@/pages";
+import { Contact, Home, Login, Privacy } from "@/pages";
 
 import "./App.css";
+import { toastError, toastSuccess } from "@/Utils.jsx";
 
 function AppMenu() {
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -147,7 +150,7 @@ const AppHeader = observer(() => {
                     <input value={search} onChange={updateSearch} placeholder="Search" />
                     <IconButton icon={<MdClose />} type="reset" onClick={updateSearch} />
                 </div>
-                <IconButton style={{ visibility: "hidden" }} /> {/* to center the searchbar */}
+                <ShareGamesAsText />
             </CenterAndEdgesRow>
 
             <div className="app-header-right">
@@ -164,6 +167,65 @@ const AppHeader = observer(() => {
                 <AppUserAvatar />
             </div>
         </CenterAndEdgesRow>
+    );
+});
+
+const ShareGamesAsText = observer(() => {
+    const { search, selectedTagIDs, excludedTagIDs, areFiltersActive, filteredGames } =
+        useFilterStore();
+    const makeFiltersText = () => {
+        if (!areFiltersActive) return "**No filters active**";
+        const currentFilters = [];
+        if (search) currentFilters.push("**Search:** " + search);
+        const tagFiltersLine = (tagSets, filterText) => {
+            if (Object.values(tagSets).some((set) => set.size > 0)) {
+                const selectedTagsText = [];
+                for (const tagType in tagSets) {
+                    if (tagSets[tagType].size > 0) {
+                        const tagNames = Array.from(tagSets[tagType]).map(
+                            (id) => globalDataStore.getTagByID(id, tagType).name,
+                        );
+                        selectedTagsText.push(
+                            tagTypeStrings[tagType].plural + "[" + tagNames.join(", ") + "]",
+                        );
+                    }
+                }
+                currentFilters.push(filterText + selectedTagsText.join(", "));
+            }
+        };
+        tagFiltersLine(selectedTagIDs, "**Selected Tags:** ");
+        tagFiltersLine(excludedTagIDs, "**Excluded Tags:** ");
+
+        return currentFilters.join("  \n");
+    };
+    const makeGamesText = () => {
+        const currentGames = [`### ${filteredGames.length} Games`];
+        filteredGames.forEach((game) => {
+            // If it's a steam game, format the title as a link to its store page
+            if (!!game.storeID && game.storeType === "steam") {
+                const steamLink = "https://store.steampowered.com/app/" + game.storeID + "/";
+                currentGames.push("* [" + game.title + "](<" + steamLink + ">)");
+            } else currentGames.push("* " + game.title);
+        });
+
+        return currentGames.join("  \n");
+    };
+    const handleCopy = async () => {
+        try {
+            const text = "## Playfrens Board\n" + makeFiltersText() + "  \n" + makeGamesText();
+            await navigator.clipboard.writeText(text);
+            toastSuccess("Copied to clipboard!");
+        } catch (err) {
+            const errMsg = "Failed to copy text: " + err;
+            console.error(errMsg);
+            toastError(errMsg);
+        }
+    };
+
+    return (
+        <SimpleTooltip message="Share current games as text" delayDuration={300}>
+            <IconButton icon={<MdShare />} onClick={handleCopy} />
+        </SimpleTooltip>
     );
 });
 

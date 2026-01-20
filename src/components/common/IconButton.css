@@ -15,7 +15,6 @@
 
     &:hover,
     &:active,
-    &:focus,
     &.activate {
         color: #fff;
     }
@@ -33,7 +32,6 @@
 
         &:hover,
         &:active,
-        &:focus,
         &.activate {
             background-color: #55555500;
         }

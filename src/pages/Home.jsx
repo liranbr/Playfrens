@@ -59,8 +59,8 @@ export function Home() {
                             <h2>Find</h2>
                             <p>
                                 You're sitting on Discord with Friend A and Friend B. You could play
-                                the game that your friend group has defaulted to for the past year,
-                                or you could finally play the co-op that you started that one time!
+                                the same game as always, or, you could finally play the co-op that
+                                you started that one time!
                             </p>
                         </div>
                         <div className="topic">
@@ -74,15 +74,15 @@ export function Home() {
                         <div className="topic">
                             <h2>Import from Steam</h2>
                             <p>
-                                Playfrens can import your Games and Friends from Steam, and keep
+                                Playfrens can import your Games and Friends from Steam, and keeps
                                 them synced
                             </p>
                         </div>
                         <div className="topic">
                             <h2>Free and Open Source</h2>
                             <p>
-                                Playfrens is free to use, with no paywalled features, and its code
-                                is public on GitHub
+                                Playfrens is free to use. No paywalls, no ads, no data sold. The
+                                code is public on GitHub
                             </p>
                         </div>
                     </div>

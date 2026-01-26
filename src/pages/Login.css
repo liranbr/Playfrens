@@ -35,9 +35,23 @@
         justify-content: left;
         gap: 8px;
         border-radius: 12px;
+        position: relative;
+        overflow: visible;
 
         svg {
             font-size: 36px;
+        }
+
+        &.last-auth::after {
+            content: "Last used";
+            position: absolute;
+            top: 0;
+            right: 0;
+            transform: translate(25%, -25%);
+            background-color: var(--pf-btn-primary-hover);
+            padding: 2px 4px;
+            border-radius: 8px;
+            font-size: 12px;
         }
     }
 

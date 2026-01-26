@@ -249,6 +249,7 @@ const ShareGamesAsText = observer(() => {
 const AppUserAvatar = observer(() => {
     const userStore = useUserStore();
     const { userInfo } = userStore;
+    localStorage.setItem("last-auth-used", JSON.stringify(userInfo.provider, null, 4));
     const DD = DropdownMenu;
     return (
         <DD.Root>
@@ -267,11 +268,9 @@ const AppUserAvatar = observer(() => {
                     side={"bottom"}
                     sideOffset={5}
                 >
-                    {userInfo.provider === "steam" && (
-                        <DD.Item onClick={() => globalDialogStore.open(Dialogs.SteamImport)}>
-                            Import from Steam
-                        </DD.Item>
-                    )}
+                    <DD.Item onClick={() => globalDialogStore.open(Dialogs.SteamImport)}>
+                        Import from Steam
+                    </DD.Item>
                     <DD.Item onClick={() => userStore.logout()}>Logout</DD.Item>
                 </DD.Content>
             </DD.Portal>

@@ -12,7 +12,7 @@ import {
     TagObject,
     tagTypes,
 } from "@/models";
-import { globalSettingsStore, settingsStorageKey } from "@/stores";
+import { globalSettingsStore, settingsStorageKey, userStore } from "@/stores";
 import { SortingReaction } from "./SortingReaction.js";
 import {
     DELETEME_AllowDBSave,
@@ -638,6 +638,7 @@ export function ExportDataStoreToJSON() {
 export function backupToFile() {
     console.log("Backing up data to file...");
     const data = ExportDataStoreToJSON();
+    const { userInfo } = userStore;
 
     const blob = new Blob([JSON.stringify(data, null, 4)], {
         type: "application/json",
@@ -646,7 +647,7 @@ export function backupToFile() {
     const a = document.createElement("a");
     const timestamp = new Date().toISOString().split(".")[0].replace("T", " ").replaceAll(":", "-");
     a.href = url;
-    a.download = `Playfrens ${timestamp}.json`;
+    a.download = ["Playfrens", userInfo.displayName, timestamp].filter(Boolean).join(" ") + ".json";
     a.click();
     URL.revokeObjectURL(url);
 }

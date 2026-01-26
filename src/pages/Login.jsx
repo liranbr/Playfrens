@@ -22,33 +22,31 @@ export const Login = observer(() => {
                     <h1>Sign in</h1>
                     <span>to use Playfrens</span>
                 </div>
-                <div className="continue-with">
-                    <div className="auth-buttons">
-                        <Button
-                            variant="secondary"
-                            className={lastAuth === "steam" ? "last-auth" : ""}
-                            onClick={() => userStore.login("steam")}
-                        >
-                            <BiLogoSteam />
-                            Continue with Steam
-                        </Button>
-                        <Button
-                            variant="secondary"
-                            className={lastAuth === "google" ? "last-auth" : ""}
-                            onClick={() => userStore.login("google")}
-                        >
-                            <BiLogoGoogle />
-                            Continue with Google
-                        </Button>
-                        <Button
-                            variant="secondary"
-                            className={lastAuth === "discord" ? "last-auth" : ""}
-                            onClick={() => userStore.login("discord")}
-                        >
-                            <BiLogoDiscordAlt />
-                            Continue with Discord
-                        </Button>
-                    </div>
+                <div className="auth-buttons">
+                    <Button
+                        variant="secondary"
+                        className={lastAuth === "steam" ? "last-auth" : ""}
+                        onClick={() => userStore.login("steam")}
+                    >
+                        <BiLogoSteam />
+                        Continue with Steam
+                    </Button>
+                    <Button
+                        variant="secondary"
+                        className={lastAuth === "google" ? "last-auth" : ""}
+                        onClick={() => userStore.login("google")}
+                    >
+                        <BiLogoGoogle />
+                        Continue with Google
+                    </Button>
+                    <Button
+                        variant="secondary"
+                        className={lastAuth === "discord" ? "last-auth" : ""}
+                        onClick={() => userStore.login("discord")}
+                    >
+                        <BiLogoDiscordAlt />
+                        Continue with Discord
+                    </Button>
                 </div>
                 <div className="login-footer">
                     <a href="/privacy">Privacy Policy</a>

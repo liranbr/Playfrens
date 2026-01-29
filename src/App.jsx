@@ -271,6 +271,9 @@ const AppUserAvatar = observer(() => {
                     <DD.Item onClick={() => globalDialogStore.open(Dialogs.SteamImport)}>
                         Import from Steam
                     </DD.Item>
+                    <DD.Item onClick={() => globalDialogStore.open(Dialogs.AccountSettings)}>
+                        Account Settings
+                    </DD.Item>
                     <DD.Item onClick={() => userStore.logout()}>Logout</DD.Item>
                 </DD.Content>
             </DD.Portal>

@@ -31,15 +31,6 @@
         --pf-btn: var(--pf-btn-primary);
         --pf-btn-hover: var(--pf-btn-primary-hover);
         --pf-btn-active: var(--pf-btn-primary-active);
-
-        &:disabled {
-            color: var(--pf-fg-700);
-            --pf-btn: var(--pf-bg-300);
-            --pf-btn-hover: var(--pf-bg-300);
-            --pf-btn-active: var(--pf-bg-300);
-            border: var(--pf-border-300);
-            cursor: default;
-        }
     }
 
     &.btn-secondary {
@@ -52,5 +43,21 @@
         --pf-btn: var(--pf-btn-danger);
         --pf-btn-hover: var(--pf-btn-danger-hover);
         --pf-btn-active: var(--pf-btn-danger-active);
+    }
+
+    &.btn-danger-secondary {
+        --pf-btn: var(--pf-btn-secondary);
+        --pf-btn-hover: var(--pf-btn-secondary-hover);
+        --pf-btn-active: var(--pf-btn-secondary-active);
+        color: hsl(354 90% 65%);
+    }
+
+    &:disabled {
+        color: var(--pf-fg-700);
+        --pf-btn: var(--pf-bg-300);
+        --pf-btn-hover: var(--pf-bg-300);
+        --pf-btn-active: var(--pf-bg-300);
+        border: var(--pf-border-300);
+        cursor: default;
     }
 }

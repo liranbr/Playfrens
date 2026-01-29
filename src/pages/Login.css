@@ -79,6 +79,7 @@
         a {
             color: var(--pf-fg-500);
             cursor: pointer;
+            text-decoration: none;
         }
     }
 }

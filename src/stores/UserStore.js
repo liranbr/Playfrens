@@ -6,7 +6,7 @@ import { loadFromStorage } from "@/Utils.jsx";
 export class UserStore {
     /**
      * Only public profile details
-     * @type {{ provider: string, id: string, displayName: string, avatar: string }}
+     * @type {{ provider: string, id: string, displayName: string, avatar: string, createdAt: Date }}
      */
     userInfo = undefined;
     loading = true;
@@ -37,6 +37,7 @@ export class UserStore {
                     id: user?.id,
                     displayName: user?.display_name,
                     avatar: user?.avatar_url,
+                    createdAt: new Date(user?.created_at),
                 };
             });
         } catch (error) {

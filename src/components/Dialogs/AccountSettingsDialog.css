@@ -1,0 +1,28 @@
+.rx-dialog.account-settings-dialog {
+    padding: 20px;
+}
+
+.account-info,
+.account-stats {
+    dt {
+        font-weight: bold;
+        font-size: 14px;
+    }
+    dd {
+        margin-bottom: 24px;
+        margin-left: 14px;
+    }
+}
+.account-info dd {
+    font-size: 18px;
+}
+.account-data-table {
+    display: grid;
+    grid-column-gap: 12px;
+    grid-template-columns: max-content;
+    margin-bottom: 24px;
+    font-size: 14px;
+    p {
+        grid-column-start: 2;
+    }
+}

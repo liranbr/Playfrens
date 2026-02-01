@@ -146,6 +146,10 @@
             }
         }
     }
+
+    &:has(.cover-skeleton) {
+        box-shadow: none;
+    }
 }
 
 @supports (-moz-animation: none) {

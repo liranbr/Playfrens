@@ -9,12 +9,12 @@ import {
     updateTagBothGameCounters,
     useDataStore,
 } from "@/stores";
-import { useValidatedImage } from "@/hooks/useValidatedImage.js";
-import "../App.css";
-import "./GameGrid.css";
 import { toastError } from "@/Utils.jsx";
 import { SlGameController } from "react-icons/sl";
 import { SimpleTooltip } from "@/components/common/SimpleTooltip.jsx";
+import { GameCoverImage } from "@/components/GameCoverImage.jsx";
+import "../App.css";
+import "./GameGrid.css";
 
 const GameCard = observer(({ game }) => {
     const [draggedOver, setDraggedOver] = useState(false);
@@ -46,7 +46,6 @@ const GameCard = observer(({ game }) => {
             partiesBadge = filteredPartiesAmount + "/" + partiesAmount;
     }
 
-    const gameCover = useValidatedImage(game.coverImageURL);
     const handleDrop = () => {
         setDraggedOver(false);
         if (game.parties.length === 1) {
@@ -75,12 +74,7 @@ const GameCard = observer(({ game }) => {
                 }}
                 onDragLeave={() => setDraggedOver(false)}
             >
-                <img
-                    draggable="false"
-                    alt={game.title + " Card"}
-                    referrerPolicy="no-referrer"
-                    src={gameCover}
-                />
+                <GameCoverImage src={game.coverImageURL} alt={game.title + " Card"} />
                 <p className="game-card-title-overlay">{game.title}</p>
                 {partiesBadge && (
                     <SimpleTooltip message="Groups that pass filters" delayDuration={0}>

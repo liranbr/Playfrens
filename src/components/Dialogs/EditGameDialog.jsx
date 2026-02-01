@@ -10,6 +10,7 @@ import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import * as Switch from "@radix-ui/react-switch";
 import { storeTypes } from "@/models";
 import { getOfficialCoverImageURL, searchTitleOnStore, sgdbDatedTitle } from "@/APIUtils.js";
+import { GameCoverImage } from "@/components/GameCoverImage.jsx";
 
 const GameEntryContext = createContext(null);
 
@@ -373,7 +374,7 @@ function CoversGallery({
                 const coverDisplay = img.preview.includes(".webm") ? (
                     <video {...sharedProps} autoPlay loop muted />
                 ) : (
-                    <img {...sharedProps} alt="Game Cover Art" />
+                    <GameCoverImage {...sharedProps} alt="Game Cover Art" />
                 );
 
                 const classes = ["cover-wrapper"];

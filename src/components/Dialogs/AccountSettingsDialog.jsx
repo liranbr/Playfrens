@@ -56,7 +56,7 @@ export const AccountSettingsDialog = ({ open, closeDialog }) => {
 };
 
 const DeleteAccountButton = () => {
-    const duration = 60; // a minute
+    const duration = 30; // a minute
     const [startedCountdown, setStartedCountdown] = useState(false);
     const [timeRemaining, setTimeRemaining] = useState(duration);
     const [countdownCleared, setCountdownCleared] = useState(false);

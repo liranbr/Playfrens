@@ -1,6 +1,10 @@
 .rx-dialog.steam-import-dialog {
     width: 600px;
     font-size: 16px;
+
+    .rx-dialog-footer {
+        justify-content: space-between;
+    }
 }
 
 input#SteamIDInput {

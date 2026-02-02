@@ -74,7 +74,7 @@ const GameCard = observer(({ game }) => {
                 }}
                 onDragLeave={() => setDraggedOver(false)}
             >
-                <GameCoverImage src={game.coverImageURL} alt={game.title + " Card"} />
+                <GameCoverImage src={game.coverImageURL} />
                 <p className="game-card-title-overlay">{game.title}</p>
                 {partiesBadge && (
                     <SimpleTooltip message="Groups that pass filters" delayDuration={0}>

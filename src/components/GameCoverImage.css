@@ -1,6 +1,6 @@
 .cover-skeleton {
     width: 100%;
-    height: 100%;
+    aspect-ratio: 1 / 1.5;
     display: flex;
     background-color: hsl(var(--hsl-base-bg) 100%);
     animation: pulse 2s ease-in-out infinite;

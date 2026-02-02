@@ -16,6 +16,7 @@ export function useValidatedImage(src, fallback = "/missing_game_cover.png") {
         let cancelled = false;
 
         const sources = [];
+        // TODO: Separate this thumb->full functionality to another function, as thumbnails are also needed
         if (src.includes("cdn2.steamgriddb.com/thumb/")) {
             // try to find the actual image rather than the thumbnail
             const gridSrc = src.replace("/thumb/", "/grid/");

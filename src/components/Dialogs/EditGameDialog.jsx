@@ -297,7 +297,7 @@ function CoversGallery({
     setCoversError,
 }) {
     const currentCoverImage = () => {
-        return { url: coverImageURL, preview: coverImageURL, previousSelection: true };
+        return { url: coverImageURL, thumb: coverImageURL, previousSelection: true };
     };
     const { title, coverImageURL, setCoverImageURL, storeType, storeID, sgdbID, sgdbTitle } =
         useContext(GameEntryContext);
@@ -367,23 +367,17 @@ function CoversGallery({
     return (
         <div className="covers-gallery">
             {images.slice(0, 48).map((img) => {
-                const sharedProps = {
-                    src: img.preview,
-                    onClick: () => setCoverImageURL(img.url),
-                };
-                const coverDisplay = img.preview.includes(".webm") ? (
-                    <video {...sharedProps} autoPlay loop muted />
-                ) : (
-                    <GameCoverImage {...sharedProps} alt="Game Cover Art" />
-                );
-
                 const classes = ["cover-wrapper"];
                 if (img.url === coverImageURL) classes.push("selected-cover");
                 if (img.officialOf === sgdbID) classes.push("official-cover");
                 if (img.previousSelection === true) classes.push("previous-cover");
                 return (
                     <div key={img.url} className={classes.join(" ")}>
-                        {coverDisplay}
+                        <GameCoverImage
+                            src={img.thumb}
+                            validate={false}
+                            onClick={() => setCoverImageURL(img.url)}
+                        />
                     </div>
                 );
             })}

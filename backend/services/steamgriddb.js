@@ -33,7 +33,7 @@ export class SteamGridDBService extends Service {
         ]);
     }
 
-    /** from a sgdbID, and optional animatedOnly and nsfw params, returns sgdb grids{url, preview} */
+    /** from a sgdbID, and optional animatedOnly and nsfw params, returns sgdb grids{url, thumb} */
     async getGrids(req, res) {
         const { sgdbID, nsfw = "false", animatedOnly = "false" } = req.query;
         const { NOT_FOUND, OK } = Response.HttpStatus;
@@ -49,7 +49,7 @@ export class SteamGridDBService extends Service {
         const grids = await client.getGrids(gridOptions);
         if (!grids.length)
             return Response.sendMessage(res, NOT_FOUND, `No grids were found for this game.`);
-        const result = grids.map((grid) => ({ url: grid.url, preview: grid.thumb }));
+        const result = grids.map((grid) => ({ url: grid.url, thumb: grid.thumb }));
 
         Response.send(res, OK, result);
     }

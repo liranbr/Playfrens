@@ -173,6 +173,7 @@ const AppHeader = observer(() => {
 const ShareGamesAsText = observer(() => {
     const { search, selectedTagIDs, excludedTagIDs, areFiltersActive, filteredGames } =
         useFilterStore();
+    const { userInfo } = useUserStore();
     const makeFiltersText = () => {
         if (!areFiltersActive) return "**No filters active**";
         const currentFilters = [];
@@ -182,19 +183,18 @@ const ShareGamesAsText = observer(() => {
                 const selectedTagsText = [];
                 for (const tagType in tagSets) {
                     if (tagSets[tagType].size > 0) {
+                        const tagPlural = tagTypeStrings[tagType].plural;
                         const tagNames = Array.from(tagSets[tagType]).map(
                             (id) => globalDataStore.getTagByID(id, tagType).name,
                         );
-                        selectedTagsText.push(
-                            tagTypeStrings[tagType].plural + "[" + tagNames.join(", ") + "]",
-                        );
+                        selectedTagsText.push(`* ${tagPlural} [${tagNames.join(", ")}]`);
                     }
                 }
-                currentFilters.push(filterText + selectedTagsText.join(", "));
+                currentFilters.push(filterText, ...selectedTagsText);
             }
         };
-        tagFiltersLine(selectedTagIDs, "**Selected Tags:** ");
-        tagFiltersLine(excludedTagIDs, "**Excluded Tags:** ");
+        tagFiltersLine(selectedTagIDs, "**Selected Tags:**");
+        tagFiltersLine(excludedTagIDs, "~~Excluded Tags:~~");
 
         return currentFilters.join("  \n");
     };
@@ -212,8 +212,11 @@ const ShareGamesAsText = observer(() => {
     };
     const handleCopy = async (withLinks) => {
         try {
-            const text =
-                "## Playfrens Board\n" + makeFiltersText() + "  \n" + makeGamesText(withLinks);
+            const text = [
+                `## ${userInfo.displayName}'s Playfrens Board`,
+                makeFiltersText(),
+                makeGamesText(withLinks),
+            ].join("  \n");
             await navigator.clipboard.writeText(text);
             toastSuccess("Copied to clipboard!");
         } catch (err) {

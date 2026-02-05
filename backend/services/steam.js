@@ -10,7 +10,7 @@ export class SteamWebService extends Service {
     STEAM_GAMEPLAY_CATEGORIES = Object.freeze({
         MULTI_PLAYER: 1,
         SINGLE_PLAYER: 2,
-        SHARED_OR_SPLIT_SCREEN: 24,
+        // SHARED_OR_SPLIT_SCREEN: 24, // idk, maybe?
     });
 
     /** TODO: IStoreBrowseService/GetItems for batched calling multiple Metadatas to get their perspective categories, basic info and assets

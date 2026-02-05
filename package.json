@@ -60,6 +60,7 @@
         "globals": "^16.0.0",
         "nodemon": "^3.1.10",
         "prettier": "^3.6.2",
+        "supabase": "^2.74.5",
         "vite": "^6.2.3",
         "vite-plugin-mkcert": "^1.17.8"
     }

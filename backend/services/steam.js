@@ -251,11 +251,11 @@ export class SteamWebService extends Service {
         const data = await this.fetchItems([appId]);
         const url = await this.buildGameCover(appId, data[0]?.assets?.library_capsule_2x ?? null);
         if (url) {
-            const preview = await this.buildGameCover(
+            const thumb = await this.buildGameCover(
                 appId,
                 data[0]?.assets?.library_capsule ?? null,
             );
-            return Response.send(res, OK, { url: url, preview: preview });
+            return Response.send(res, OK, { url: url, thumb: thumb });
         }
         return Response.send(res, NOT_FOUND, `No official Steam cover was found for id ${appId}`);
     }

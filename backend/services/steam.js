@@ -10,7 +10,7 @@ export class SteamWebService extends Service {
     STEAM_GAMEPLAY_CATEGORIES = Object.freeze({
         MULTI_PLAYER: 1,
         SINGLE_PLAYER: 2,
-        SHARED_OR_SPLIT_SCREEN: 24,
+        // SHARED_OR_SPLIT_SCREEN: 24, // idk, maybe?
     });
 
     /** TODO: IStoreBrowseService/GetItems for batched calling multiple Metadatas to get their perspective categories, basic info and assets
@@ -196,6 +196,7 @@ export class SteamWebService extends Service {
                 .filter((v) => /^\d+$/.test(v))
                 .map(Number);
 
+        // passed as numbers [1,2,3] reflecting the category's ID (1 = multi, 2 = single, etc etc)
         categories = categories
             ? categories
                   .split(",")
@@ -247,9 +248,14 @@ export class SteamWebService extends Service {
     async getGameCover(req, res) {
         const { appId } = req.query;
         const { OK, NOT_FOUND } = Response.HttpStatus;
-        const url = await this.buildGameCover(appId);
+        const data = await this.fetchItems([appId]);
+        const url = await this.buildGameCover(appId, data[0]?.assets?.library_capsule_2x ?? null);
         if (url) {
-            return Response.send(res, OK, { url: url, preview: url });
+            const preview = await this.buildGameCover(
+                appId,
+                data[0]?.assets?.library_capsule ?? null,
+            );
+            return Response.send(res, OK, { url: url, preview: preview });
         }
         return Response.send(res, NOT_FOUND, `No official Steam cover was found for id ${appId}`);
     }
@@ -293,8 +299,9 @@ export class SteamWebService extends Service {
         return Response.send(res, BAD_REQUEST, await response.json());
     }
 
-    async buildGameCover(appId) {
+    async buildGameCover(appId, imagePath = "") {
         const base = `https://shared.steamstatic.com/store_item_assets/steam/apps/${appId}/`;
+        if (imagePath) return base + imagePath;
         const urlSuffixes = [
             "library_capsule_600x900_2x.jpg",
             "library_600x900_2x.jpg",

@@ -32,6 +32,10 @@ export const TagGameCounterOptions = {
     countTotal: "Game Count (total)",
     none: "None",
 };
+export const HideGameStoreButtonsOptions = {
+    on: "On",
+    off: "Off",
+};
 
 class SettingsStore {
     // Default values, overridden by settings loaded from storage
@@ -54,6 +58,7 @@ class SettingsStore {
     gameSortMethod = "title";
     gameSortDirection = "asc";
     tagGameCounterDisplay = "countFiltered";
+    hideGameStoreButtons = "off";
 
     constructor(settings = {}) {
         makeAutoObservable(this);
@@ -83,6 +88,11 @@ class SettingsStore {
     setTagGameCounterDisplay(option) {
         if (TagGameCounterOptions[option]) this.tagGameCounterDisplay = option;
         else console.warn(`Invalid TagGameCounterDisplay option: ${option}`);
+    }
+
+    setHideGameStoreButtons(option) {
+        if (HideGameStoreButtonsOptions[option]) this.hideGameStoreButtons = option;
+        else console.warn(`Invalid HideGameStoreButtons option: ${option}`);
     }
 }
 

@@ -50,7 +50,6 @@
         }
 
         .store-game-buttons-area {
-            opacity: 0;
             left: 0;
             bottom: 0;
             right: 0;
@@ -62,6 +61,10 @@
             padding: 16px;
             border-radius: var(--border-radius);
             background-color: transparent;
+
+            &.hide-unless-hover {
+                opacity: 0;
+            }
 
             .store-game-buttons {
                 width: fit-content;
@@ -88,29 +91,29 @@
                     height: 32px;
 
                     &.btn-store-page {
-                        background-color: hsl(215, 98%, 60%);
+                        background-color: hsl(215, 90%, 60%);
                         &:hover {
-                            background-color: hsl(215, 98%, 56%);
+                            background-color: hsl(215, 90%, 56%);
                         }
                         &:active {
-                            background-color: hsl(215, 98%, 52%);
+                            background-color: hsl(215, 90%, 52%);
                         }
                     }
 
                     &.btn-play {
-                        background-color: hsl(50, 98%, 50%);
+                        background-color: hsl(40, 90%, 50%);
                         &:hover {
-                            background-color: hsl(50, 98%, 44%);
+                            background-color: hsl(40, 90%, 44%);
                         }
                         &:active {
-                            background-color: hsl(50, 98%, 40%);
+                            background-color: hsl(40, 90%, 40%);
                         }
                     }
                 }
             }
         }
 
-        &:hover .store-game-buttons-area {
+        &:hover .store-game-buttons-area.hide-unless-hover {
             opacity: 0.3;
             &:hover {
                 opacity: 1;

@@ -6,6 +6,7 @@ import { DialogBase } from "./DialogRoot.jsx";
 import {
     TagGameCounterOptions,
     TagHoverGameHighlightOptions,
+    HideGameStoreButtonsOptions,
     useFilterStore,
     useSettingsStore,
 } from "@/stores";
@@ -56,6 +57,27 @@ export const SettingsDialog = ({ open, closeDialog }) => {
                         <label htmlFor={optKey} key={optKey}>
                             <RadioGroup.Item value={option} id={optKey} />
                             {TagGameCounterOptions[option]}
+                        </label>
+                    );
+                })}
+            </RadioGroup.Root>
+
+            <div className="spacer" />
+            <p>
+                In a Game Page, hide the 'Play' and 'Store Page' buttons unless cover art is hovered
+                on
+            </p>
+            <RadioGroup.Root
+                defaultValue={settingsStore.hideGameStoreButtons}
+                className="rx-radio-group"
+                onValueChange={(option) => settingsStore.setHideGameStoreButtons(option)}
+            >
+                {Object.keys(HideGameStoreButtonsOptions).map((option) => {
+                    const optKey = `hideGameStoreButtons-${option}`;
+                    return (
+                        <label htmlFor={optKey} key={optKey}>
+                            <RadioGroup.Item value={option} id={optKey} />
+                            {HideGameStoreButtonsOptions[option]}
                         </label>
                     );
                 })}

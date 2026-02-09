@@ -15,6 +15,7 @@ import {
     updateTagBothGameCounters,
     useDataStore,
     useFilterStore,
+    useSettingsStore,
 } from "@/stores";
 import { ReminderObject, tagTypes, tagTypeStrings } from "@/models";
 import { useValidatedImage } from "@/hooks/useValidatedImage.js";
@@ -350,6 +351,9 @@ const PartyTabs = ({ game, partyID, setPartyID, renamePartyRef }) => {
 
 export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID }) => {
     const filterStore = useFilterStore();
+    const settingsStore = useSettingsStore();
+    const storeGameButtonsClassname =
+        settingsStore.hideGameStoreButtons === "on" ? " hide-unless-hover" : "";
     const firstPartyIDThatPassesFilters = () => {
         return (
             game.parties.find((party) => filterStore.doesPartyPassFilters(party))?.id ??
@@ -389,7 +393,7 @@ export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID
                 <GameCoverDisplay src={game.coverThumbURL} skeleton={true} />
                 <GameCoverDisplay src={game.coverImageURL} skeleton={false} spinner={true} />
                 {game.storeID && (
-                    <div className="store-game-buttons-area">
+                    <div className={"store-game-buttons-area" + storeGameButtonsClassname}>
                         <div className="store-game-buttons">
                             <a
                                 draggable={false}

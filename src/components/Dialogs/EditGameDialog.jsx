@@ -10,7 +10,8 @@ import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import * as Switch from "@radix-ui/react-switch";
 import { storeTypes } from "@/models";
 import { getOfficialCoverImageURL, searchTitleOnStore, sgdbDatedTitle } from "@/APIUtils.js";
-import { GameCoverImage } from "@/components/GameCoverImage.jsx";
+import { GameCoverDisplay } from "@/components/GameCoverDisplay.jsx";
+import { thumbToCover } from "@/Utils.jsx";
 
 const GameEntryContext = createContext(null);
 
@@ -18,6 +19,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
     const dataStore = useDataStore();
     const [title, setTitle] = useState(game?.title ?? "");
     const [coverImageURL, setCoverImageURL] = useState(game?.coverImageURL ?? "");
+    const [coverThumbURL, setCoverThumbURL] = useState(game?.coverThumbURL ?? "");
     const [sortingTitle, setSortingTitle] = useState(game?.sortingTitle ?? "");
     const [storeType, setStoreType] = useState(game?.storeType ?? "steam");
     const [storeID, setStoreID] = useState(game?.storeID ?? "");
@@ -30,12 +32,13 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
     const titlePlaceholder =
         storeType === "custom" ? "Enter title" : `Search for a ${storeTypes[storeType]} game`;
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (game) {
             const editedSuccess = dataStore.editGame(
                 game,
                 title,
                 coverImageURL,
+                coverThumbURL,
                 sortingTitle,
                 storeType,
                 storeID,
@@ -46,6 +49,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
             const newGame = dataStore.addGame(
                 title,
                 coverImageURL,
+                coverThumbURL,
                 sortingTitle,
                 storeType,
                 storeID,
@@ -86,6 +90,8 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                 setTitle,
                 coverImageURL,
                 setCoverImageURL,
+                coverThumbURL,
+                setCoverThumbURL,
                 sortingTitle,
                 setSortingTitle,
                 storeType,
@@ -194,6 +200,8 @@ function CoverSelector({ saveOnEnter }) {
     const {
         coverImageURL,
         setCoverImageURL,
+        coverThumbURL,
+        setCoverThumbURL,
         storeType,
         storeID,
         setSgdbID,
@@ -270,7 +278,10 @@ function CoverSelector({ saveOnEnter }) {
                         <label>Cover Art URL</label>
                         <input
                             value={coverImageURL}
-                            onChange={(e) => setCoverImageURL(e.target.value)}
+                            onChange={(e) => {
+                                setCoverThumbURL(e.target.value);
+                                setCoverImageURL(e.target.value);
+                            }}
                             onKeyDown={saveOnEnter}
                             placeholder="Choose a cover, or manually enter URL"
                         />
@@ -296,19 +307,30 @@ function CoversGallery({
     coversError,
     setCoversError,
 }) {
+    const {
+        title,
+        coverImageURL,
+        setCoverImageURL,
+        coverThumbURL,
+        setCoverThumbURL,
+        storeType,
+        storeID,
+        sgdbID,
+        sgdbTitle,
+    } = useContext(GameEntryContext);
     const currentCoverImage = () => {
-        return { url: coverImageURL, thumb: coverImageURL, previousSelection: true };
+        return { url: coverImageURL, thumb: coverThumbURL, previousSelection: true };
     };
-    const { title, coverImageURL, setCoverImageURL, storeType, storeID, sgdbID, sgdbTitle } =
-        useContext(GameEntryContext);
     const [images, setImages] = useState(coverImageURL ? [currentCoverImage()] : []);
 
+    // Whenever a cover is selected, preload its full resolution cover
     useEffect(() => {
         if (!coverImageURL) return;
         const img = new Image();
         img.src = coverImageURL;
-    }, [coverImageURL]); // preload to cache full version of the selected cover
+    }, [coverImageURL]);
 
+    // Populate the covers from the currently selected cover, official store, and SGDB
     useEffect(() => {
         if ((!title && !sgdbTitle) || (!storeID && !sgdbID)) return;
         setLoadingCovers(true);
@@ -361,22 +383,25 @@ function CoversGallery({
         if (coversError) return <div>{"" + coversError}</div>;
         if (sgdbID) return <div>Entry has no covers</div>;
         else
-            return <div style={{ userSelect: "none" }}>To browse covers, first select a game.</div>; // no selected entry and no error, means no search has been done yet
+            // no selected entry and no error, means no search has been done yet
+            return <div style={{ userSelect: "none" }}>To browse covers, first select a game.</div>;
     }
 
     return (
         <div className="covers-gallery">
-            {images.slice(0, 48).map((img) => {
+            {images.slice(0, 48).map((cover) => {
                 const classes = ["cover-wrapper"];
-                if (img.url === coverImageURL) classes.push("selected-cover");
-                if (img.officialOf === sgdbID) classes.push("official-cover");
-                if (img.previousSelection === true) classes.push("previous-cover");
+                if (cover.url === coverImageURL) classes.push("selected-cover");
+                if (cover.officialOf === sgdbID) classes.push("official-cover");
+                if (cover.previousSelection === true) classes.push("previous-cover");
                 return (
-                    <div key={img.url} className={classes.join(" ")}>
-                        <GameCoverImage
-                            src={img.thumb}
-                            validate={false}
-                            onClick={() => setCoverImageURL(img.url)}
+                    <div key={cover.url} className={classes.join(" ")}>
+                        <GameCoverDisplay
+                            src={cover.thumb}
+                            onClick={() => {
+                                setCoverThumbURL(cover.thumb);
+                                setCoverImageURL(cover.url);
+                            }}
                         />
                     </div>
                 );

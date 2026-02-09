@@ -1,52 +1,25 @@
 import { useEffect, useState } from "react";
+import { tryLoadImage } from "@/Utils.jsx";
 
-function validateImage(url) {
-    return new Promise((resolve) => {
-        const img = new Image();
-        img.onload = () => resolve(true); // Valid image
-        img.onerror = () => resolve(false); // Broken image
-        img.src = url;
-    });
-}
-
-export function useValidatedImage(src, fallback = "/missing_game_cover.png") {
-    const [validSrc, setValidSrc] = useState(src);
+export function useValidatedImage(srcURL, fallback = "/missing_game_cover.png") {
+    const [validSrc, setValidSrc] = useState(srcURL);
 
     useEffect(() => {
-        let cancelled = false;
+        let canceled = false;
 
-        const sources = [];
-        // TODO: Separate this thumb->full functionality to another function, as thumbnails are also needed
-        if (src.includes("cdn2.steamgriddb.com/thumb/")) {
-            // try to find the actual image rather than the thumbnail
-            const gridSrc = src.replace("/thumb/", "/grid/");
-            sources.push(gridSrc);
-            sources.push(gridSrc.replace(".jpg", ".png"));
-            sources.push(gridSrc.replace(".jpg", ".webp"));
-            sources.push(gridSrc.replace(".webm", ".webp"));
-            sources.push(gridSrc.replace(".webm", ".png"));
+        if (!srcURL) {
+            setValidSrc(fallback);
+            return;
         }
-        sources.push(src);
 
-        // trying to validate the sources as they are ordered until one is valid
-        (async () => {
-            for (const source of sources) {
-                if (cancelled) return;
-                const isValid = await validateImage(source);
-                if (cancelled) return;
-                if (isValid) {
-                    setValidSrc(source);
-                    return;
-                }
-            }
-            if (!cancelled) {
-                setValidSrc(fallback);
-            }
-        })();
+        tryLoadImage(srcURL).then((ok) => {
+            if (!canceled) setValidSrc(ok ? srcURL : fallback); // setting srcURL again to prevent stale state
+        });
+
         return () => {
-            cancelled = true; // operation was cancelled before image validation completed
+            canceled = true; // operation was canceled before image validation completed
         };
-    }, [src, fallback]);
+    }, [srcURL, fallback]);
 
     return validSrc;
 }

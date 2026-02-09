@@ -23,6 +23,7 @@ import { DialogBase } from "./DialogRoot.jsx";
 import "@/components/TagButtonGroup.css";
 import "@/components/TagButton.css";
 import "./GamePageDialog.css";
+import { GameCoverDisplay } from "@/components/GameCoverDisplay.jsx";
 
 const DD = DropdownMenu;
 
@@ -359,7 +360,6 @@ export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID
     const party = game.getParty(partyID);
     const renamePartyRef = useRef(null);
 
-    const gameCover = useValidatedImage(game.coverImageURL);
     const dataStore = useDataStore();
     const partyReminders = dataStore.sortedReminders.filter(
         (reminder) => reminder.gameID === game.id && reminder.partyID === party.id,
@@ -384,7 +384,10 @@ export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID
             <VisuallyHidden>
                 <Dialog.Description>{"Game Page of " + game.title}</Dialog.Description>
             </VisuallyHidden>
-            <div className="gp-cover-art" style={{ backgroundImage: `url(${gameCover})` }}>
+            <div className="gp-cover-art">
+                {/* Thumbnail, Full Cover, and Buttons are all absolutely positioned, stacked on each other */}
+                <GameCoverDisplay src={game.coverThumbURL} skeleton={true} />
+                <GameCoverDisplay src={game.coverImageURL} skeleton={false} spinner={true} />
                 {game.storeID && (
                     <div className="store-game-buttons-area">
                         <div className="store-game-buttons">

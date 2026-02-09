@@ -12,7 +12,7 @@ import {
 import { toastError } from "@/Utils.jsx";
 import { SlGameController } from "react-icons/sl";
 import { SimpleTooltip } from "@/components/common/SimpleTooltip.jsx";
-import { GameCoverImage } from "@/components/GameCoverImage.jsx";
+import { GameCoverDisplay } from "@/components/GameCoverDisplay.jsx";
 import "../App.css";
 import "./GameGrid.css";
 
@@ -74,7 +74,7 @@ const GameCard = observer(({ game }) => {
                 }}
                 onDragLeave={() => setDraggedOver(false)}
             >
-                <GameCoverImage src={game.coverImageURL} />
+                <GameCoverDisplay src={game.coverThumbURL} />
                 <p className="game-card-title-overlay">{game.title}</p>
                 {partiesBadge && (
                     <SimpleTooltip message="Groups that pass filters" delayDuration={0}>
@@ -124,7 +124,7 @@ export const GamesGrid = observer(() => {
         <div className="games-grid-container">
             <div className="games-grid" ref={gridRef}>
                 {filteredGames.map((game, index) => (
-                    <GameCard game={game} key={index} />
+                    <GameCard game={game} key={index + " " + game.id} />
                 ))}
             </div>
             {filteredGames.length === 0 && <EmptyGridPlaceholder />}

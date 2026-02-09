@@ -39,69 +39,77 @@
         background-position: center;
         user-select: none;
         transition: 0.1s;
+        position: relative;
         display: flex;
         flex-direction: column;
         justify-content: end;
         align-items: center;
 
+        .game-cover-display {
+            position: absolute;
+        }
+
         .store-game-buttons-area {
             opacity: 0;
-            width: 100%;
+            left: 0;
+            bottom: 0;
+            right: 0;
             display: flex;
+            position: absolute;
             align-items: center;
             justify-content: center;
             transition: 0.125s ease-in;
             padding: 16px;
             border-radius: var(--border-radius);
             background-color: transparent;
-        }
 
-        .store-game-buttons {
-            width: fit-content;
-            /*margin-bottom: 24px;*/
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            background-color: var(--pf-bg-500);
-            box-shadow: var(--container-shadow);
-            padding: 8px;
-            border-radius: 12px;
-            gap: 8px;
-
-            a {
-                transition: none;
-                font-weight: bold;
-                width: 100px;
-                font-size: 16px;
-                color: var(--pf-bg-500);
-                text-decoration: none;
-                border-radius: 16px;
-                display: inline-flex;
+            .store-game-buttons {
+                width: fit-content;
+                display: flex;
+                flex-direction: row;
                 align-items: center;
-                justify-content: center;
-                height: 32px;
+                background-color: var(--pf-bg-500);
+                box-shadow: var(--container-shadow);
+                padding: 8px;
+                border-radius: 12px;
+                gap: 8px;
 
-                &.btn-store-page {
-                    background-color: hsl(215, 98%, 60%);
-                    &:hover {
-                        background-color: hsl(215, 98%, 56%);
-                    }
-                    &:active {
-                        background-color: hsl(215, 98%, 52%);
-                    }
-                }
+                a {
+                    transition: none;
+                    font-weight: bold;
+                    width: 100px;
+                    font-size: 16px;
+                    color: var(--pf-bg-500);
+                    text-decoration: none;
+                    border-radius: 16px;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    height: 32px;
 
-                &.btn-play {
-                    background-color: hsl(50, 98%, 50%);
-                    &:hover {
-                        background-color: hsl(50, 98%, 44%);
+                    &.btn-store-page {
+                        background-color: hsl(215, 98%, 60%);
+                        &:hover {
+                            background-color: hsl(215, 98%, 56%);
+                        }
+                        &:active {
+                            background-color: hsl(215, 98%, 52%);
+                        }
                     }
-                    &:active {
-                        background-color: hsl(50, 98%, 40%);
+
+                    &.btn-play {
+                        background-color: hsl(50, 98%, 50%);
+                        &:hover {
+                            background-color: hsl(50, 98%, 44%);
+                        }
+                        &:active {
+                            background-color: hsl(50, 98%, 40%);
+                        }
                     }
                 }
             }
         }
+
         &:hover .store-game-buttons-area {
             opacity: 0.3;
             &:hover {

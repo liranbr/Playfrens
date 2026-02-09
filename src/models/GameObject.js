@@ -17,6 +17,7 @@ export const storeTypes = Object.freeze({
  * @property {string} id - A UUID identifier for the game object.
  * @property {string} title - The title of the game.
  * @property {string} coverImageURL - The path to the game's cover image file.
+ * @property {string} coverThumbURL - The path to the game's cover thumbnail file.
  * @property {string} sortingTitle - The (optional) title used for sorting the game.
  * @property {string} storeType - Store that the game is from, options in storeTypes, like 'steam', 'gog'. Can be none.
  * @property {string} storeID - ID of the Game on its store.
@@ -26,6 +27,7 @@ export const storeTypes = Object.freeze({
 export class GameObject {
     title;
     coverImageURL = "/missing_game_cover.png";
+    coverThumbURL = "/missing_game_cover.png";
     sortingTitle = "";
     storeType = "custom";
     storeID = "";
@@ -33,9 +35,20 @@ export class GameObject {
     parties = [new Party({ name: "Group 1" })];
     id; // UUID
 
-    constructor({ title, coverImageURL, sortingTitle, storeType, storeID, sgdbID, parties, id }) {
+    constructor({
+        title,
+        coverImageURL,
+        coverThumbURL,
+        sortingTitle,
+        storeType,
+        storeID,
+        sgdbID,
+        parties,
+        id,
+    }) {
         this.title = title;
         this.coverImageURL = coverImageURL ?? this.coverImageURL;
+        this.coverThumbURL = coverThumbURL ?? this.coverThumbURL;
         this.sortingTitle = sortingTitle ?? this.sortingTitle;
         this.storeType = storeType ? storeType : this.storeType; // so that if empty, makes it the default "custom"
         this.storeID = storeID ?? this.storeID;

@@ -23,6 +23,7 @@ import {
     saveToStorage,
     toastError,
     toastSuccess,
+    coverToThumb,
 } from "@/Utils.jsx";
 import { version } from "/package.json";
 import { Party } from "@/models/GameObject.js";
@@ -99,7 +100,7 @@ export class DataStore {
                     [tT.category]: board[storageKeys[tT.category]],
                     [tT.status]: board[storageKeys[tT.status]],
                 });
-                this.populateGames(board[storageKeys.games], board[storageKeys.version]);
+                await this.populateGames(board[storageKeys.games], board[storageKeys.version]);
                 this.populateReminders(board[storageKeys.reminders]);
                 this.populateTagsCustomOrders(board[storageKeys.tagsCustomOrders]);
                 await saveToStorage(storageKeys.settings, board[storageKeys.settings]); // if it doesn't load correctly, need to reload
@@ -156,20 +157,7 @@ export class DataStore {
         return gameTagIDs;
     }
 
-    // one-time compatibility layer. Converts GameObject jsons with tagID Sets and a Note, into GameObject jsons with a [Party] containing those
-    legacyGamesAddParties(gameJsons) {
-        return gameJsons.filter(Boolean).map(([id, gameJson]) => {
-            const party = new Party({
-                name: "Group 1",
-                tagIDs: this.deserializeGameTagIDs(gameJson.tagIDs),
-                note: gameJson.note,
-            });
-            return [id, { ...gameJson, parties: [party] }];
-        });
-    }
-
-    populateGames(gameJsons, version) {
-        if (version === "0.1.0") gameJsons = this.legacyGamesAddParties(gameJsons);
+    async populateGames(gameJsons, version) {
         const parseParties = (parties) => {
             return parties
                 .filter((party) => {
@@ -187,7 +175,8 @@ export class DataStore {
                 });
         };
 
-        this.allGames = new ObservableMap(
+        let changed = false;
+        const entries = await Promise.all(
             gameJsons
                 .filter(([id, gameJson]) => {
                     if (!id || !gameJson || !gameJson?.id) {
@@ -196,7 +185,11 @@ export class DataStore {
                     }
                     return true;
                 })
-                .map(([id, gameJson]) => {
+                .map(async ([id, gameJson]) => {
+                    if (!gameJson.coverThumbURL) {
+                        gameJson.coverThumbURL = await coverToThumb(gameJson.coverImageURL);
+                        changed = true;
+                    }
                     const game = new GameObject({
                         ...gameJson,
                         parties: parseParties(gameJson.parties),
@@ -205,6 +198,10 @@ export class DataStore {
                     return [id, game];
                 }),
         );
+        runInAction(() => {
+            this.allGames = new ObservableMap(entries);
+            if (changed) saveBoard(ExportDataStoreToJSON());
+        });
     }
 
     populateReminders(reminderJsons) {
@@ -399,13 +396,17 @@ export class DataStore {
         t.filteredGamesCount = filteredGames.filter((game) => game.hasTag(t)).length;
     }
 
-    addGame(title, coverImageURL, sortingTitle, storeType, storeID, sgdbID) {
+    addGame(title, coverImageURL, coverThumbURL, sortingTitle, storeType, storeID, sgdbID) {
         if (!title) {
             toastError("Cannot save a game without a title");
             return null;
         }
         if (!coverImageURL) {
             toastError("Cannot save a game without selecting a cover image");
+            return null;
+        }
+        if (!coverThumbURL) {
+            toastError("Cannot save a game without a cover thumbnail");
             return null;
         }
         if (storeType !== "custom" && !storeID) {
@@ -433,6 +434,7 @@ export class DataStore {
         const newGame = new GameObject({
             title: title,
             coverImageURL: coverImageURL,
+            coverThumbURL: coverThumbURL,
             sortingTitle: sortingTitle,
             storeType: storeType,
             storeID: storeID,
@@ -456,7 +458,7 @@ export class DataStore {
         return toastSuccess(`Deleted ${game.title} from games list`);
     }
 
-    editGame(game, title, coverImageURL, sortingTitle, storeType, storeID, sgdbID) {
+    editGame(game, title, coverImageURL, coverThumbURL, sortingTitle, storeType, storeID, sgdbID) {
         // Editing needs to be in the DataStore rather than the object itself, to prevent duplicate names
         if (!(game instanceof GameObject)) return toastError("Invalid game object: " + game);
         const storedGame = this.allGames.get(game.id);
@@ -468,6 +470,7 @@ export class DataStore {
                 `Cannot save a ${storeTypes[storeType]} game without selecting it from its search`,
             );
         if (!coverImageURL) return toastError("Cannot save a game without a cover image");
+        if (!coverThumbURL) return toastError("Cannot save a game without a cover thumbnail");
 
         const allGamesArray = [...this.allGames.values()];
         if (storeType !== "custom") {
@@ -490,6 +493,7 @@ export class DataStore {
         const oldTitle = storedGame.title;
         storedGame.title = title;
         storedGame.coverImageURL = coverImageURL;
+        storedGame.coverThumbURL = coverThumbURL;
         storedGame.sortingTitle = sortingTitle;
         storedGame.storeType = storeType;
         storedGame.storeID = storeID;
@@ -655,7 +659,7 @@ export function backupToFile() {
 export function restoreFromFile(file) {
     console.log("Restoring data from file...");
     const reader = new FileReader();
-    reader.onload = action(function (e) {
+    reader.onload = action(async function (e) {
         const data = JSON.parse(e.target.result.toString());
         // Populate the DataStore's Tags and Games. They're then localstorage-synced by the reactions.
         const tagCollection = {
@@ -664,7 +668,7 @@ export function restoreFromFile(file) {
             [tT.status]: data[storageKeys[tT.status]],
         };
         dataStore.populateTags(tagCollection);
-        dataStore.populateGames(data[storageKeys.games], data[storageKeys.version]);
+        await dataStore.populateGames(data[storageKeys.games], data[storageKeys.version]);
         dataStore.populateReminders(data[storageKeys.reminders]);
         dataStore.populateTagsCustomOrders(data[storageKeys.tagsCustomOrders]);
         // Load the settings to localstorage, and reload, which also populates the SettingsStore

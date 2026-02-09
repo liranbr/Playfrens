@@ -147,7 +147,8 @@ export class SteamWebService extends Service {
         ];
         for (const suffix of urlSuffixes) {
             const url = base + suffix;
-            if (await isImageUrlValid(url)) return Response.send(res, OK, { url: url, thumb: url });
+            if (await isImageUrlValid(url))
+                return Response.send(res, OK, { url: url, thumb: url.replace("_2x.jpg", ".jpg") });
         }
         return Response.send(res, NOT_FOUND, `No official Steam cover was found for id ${appId}`);
     }

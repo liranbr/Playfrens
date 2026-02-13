@@ -31,6 +31,11 @@ export class SteamWebService extends Service {
         this.registerRoutes([
             {
                 method: "get",
+                path: "/api/steam/getUserIDFromVanityName",
+                handler: this.getUserIDFromVanityName.bind(this),
+            },
+            {
+                method: "get",
                 path: "/api/steam/getUserLibrary",
                 handler: this.getUserLibrary.bind(this),
             },
@@ -65,6 +70,22 @@ export class SteamWebService extends Service {
                 handler: this.getItems.bind(this),
             },
         ]);
+    }
+
+    async getUserIDFromVanityName(req, res) {
+        /** @type {string} */
+        const { vanity } = req.query;
+        const { OK, BAD_REQUEST } = Response.HttpStatus;
+        const isProfileURL = vanity.includes("https://steamcommunity.com/id/");
+        if (!isProfileURL && /\W/.test(vanity)) {
+            Response.sendMessage(res, BAD_REQUEST, "Vanity names do not have symbols!");
+            return;
+        }
+        const client = this.connect();
+        const id = await client.resolve(
+            isProfileURL ? vanity : `https://steamcommunity.com/id/${vanity}`,
+        );
+        Response.send(res, OK, { id });
     }
 
     async getUserLibrary(req, res) {

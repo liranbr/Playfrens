@@ -43,6 +43,10 @@ export async function searchTitleOnStore(title, storeType, lang = "en", cc = "US
     return results;
 }
 
+export async function getSteamIDFromVanity(vanity) {
+    return await fetch(`/api/steam/getUserIDFromVanityName?vanity=${vanity}`);
+}
+
 export function sgdbDatedTitle(SGDBGame) {
     if (isNaN(SGDBGame.release_date)) return SGDBGame.name;
     const year = new Date(SGDBGame.release_date * 1000).getFullYear();

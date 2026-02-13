@@ -3,8 +3,73 @@ import { DialogBase } from "./DialogRoot.jsx";
 import { Button, InfoIcon } from "@/components";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import "./SteamImportDialog.css";
+import { getSteamIDFromVanity } from "@/APIUtils.js";
 
 export const SteamImportDialog = ({ open, closeDialog }) => {
+
+    const processUsername = async () => {
+        /** @type {string} */
+        const id = document.getElementById("SteamIDInput").value;
+        const regexNumbersOnly = /^\d+$/;
+        if (regexNumbersOnly.test(id)) {
+            // Not valid, id length mismatch
+            if (id.length !== 17) return false;
+            // Valid
+            return id;
+        }
+
+        const res = await getSteamIDFromVanity(id);
+        if (!res.ok) {
+            throw Error("Error occured - " + res.status);
+        }
+        const json = await res.json();
+        return json.id;
+    }
+
+    const doImport = async () => {
+        const id = await processUsername();
+        const items = []
+
+
+
+        if (document.getElementById("games-wishlist").checked) {
+            const res = await fetch(`/api/steam/getWishlist?id=${id}&releasedOnly=${document.getElementById("import-unreleased-wishlist-games").checked}`)
+            if (!res.ok) throw Error("Error occured during importing wishlist");
+            const wishlistItems = await res.json();
+            console.log(wishlistItems);
+            items.push(...wishlistItems);
+        }
+        if (document.getElementById("games-library").checked) {
+            const res = await fetch(`/api/steam/getUserLibrary?id=${id}`);
+            if (!res.ok) throw Error("Error occured during importing wishlist");
+            const ids = (await res.json()).map((g) => g.game.id);
+            console.log(ids, ids.length)
+            const other = ids.slice(-34);
+            ids.length = 250;
+            console.log(other);
+            const allow_singleplayer_games = document.getElementById("also-singleplayers-checkbox").checked;
+            const res2 = await fetch(`/api/steam/getItems`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    ids,
+                    categories: [1, ...(allow_singleplayer_games ? [2] : [])],
+                }),
+            });
+            const libraryItems = await res2.json();
+            console.log(libraryItems);
+            items.push(...libraryItems);
+        }
+        const win = window.open("", "_blank");
+        if (!win) throw new Error("Popup blocked");
+
+        const formatted = JSON.stringify(items, null, 2);
+        win.document.write(`<pre>${formatted}</pre>`)
+        return null;
+    }
+
     return (
         <DialogBase
             open={open}
@@ -69,13 +134,16 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                 <InfoIcon message="By default, only games that Steam marks as Multiplayer or Cooperative are imported" />
             </label>
             <label className="checkbox-label">
-                <input type="checkbox" id="also-singleplayers-checkbox" />
-                Include wishlisted games that haven't released yet
+                <input type="checkbox" id="import-unreleased-wishlist-games" />
+                Include wishlisted games that haven&apos;t released yet
                 <InfoIcon message="Wishlist may contain games that have not released yet, but you might want to plan to play them" />
             </label>
 
             <div className="rx-dialog-footer">
                 <h1>NOT IMPLEMENTED YET</h1>
+                <Button variant="secondary" onClick={doImport}>
+                    Test
+                </Button>
                 <Button variant="secondary" onClick={closeDialog}>
                     Close
                 </Button>

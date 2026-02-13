@@ -4,6 +4,7 @@ import SteamAPI from "steamapi";
 import { includesAny, isImageUrlValid, strToBool } from "../utils.js";
 
 const DEBUG_GET_ITEMS_SAMPLE = false;
+const DEFAULT_CHUNK_ARRAY_SIZE = 125;
 
 export class SteamWebService extends Service {
     // Add as we discover more of them
@@ -65,7 +66,7 @@ export class SteamWebService extends Service {
                 handler: this.getWishlist.bind(this),
             },
             {
-                method: "get",
+                method: "post",
                 path: "/api/steam/getItems",
                 handler: this.getItems.bind(this),
             },
@@ -198,7 +199,7 @@ export class SteamWebService extends Service {
      * @return {Object} - The response data from the Steam API
      */
     async getItems(req, res) {
-        let { ids, categories } = req.query;
+        let { ids, categories } = req.body;
         const { OK, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
 
         if (DEBUG_GET_ITEMS_SAMPLE)
@@ -211,20 +212,6 @@ export class SteamWebService extends Service {
                 16000, 16200, 16300, 16500, 16700, 16900, 17000, 17200, 17400, 17500, 17700, 17800,
                 18000, 18200, 18400,
             ];
-        else
-            ids = ids
-                .split(",")
-                .filter((v) => /^\d+$/.test(v))
-                .map(Number);
-
-        // passed as numbers [1,2,3] reflecting the category's ID (1 = multi, 2 = single, etc etc)
-        categories = categories
-            ? categories
-                  .split(",")
-                  .filter((v) => /^\d+$/.test(v))
-                  .map(Number)
-            : [this.STEAM_GAMEPLAY_CATEGORIES["MULTI_PLAYER"]];
-
         try {
             const data = await this.fetchItems(ids);
             const result = data.filter((item) => {
@@ -305,7 +292,7 @@ export class SteamWebService extends Service {
             else {
                 const batches = this.chunkArray(
                     data.items.map((i) => i.appid),
-                    100,
+                    DEFAULT_CHUNK_ARRAY_SIZE,
                 );
                 const results = [];
                 for (const batch of batches) {
@@ -336,7 +323,7 @@ export class SteamWebService extends Service {
     }
 
     async getUserSummaries(ids) {
-        const batches = this.chunkArray(ids, 100);
+        const batches = this.chunkArray(ids, DEFAULT_CHUNK_ARRAY_SIZE);
         const results = [];
         const client = this.connect();
         for (const batch of batches) {
@@ -355,7 +342,7 @@ export class SteamWebService extends Service {
         return id.length === 17 && /^\d+$/.test(id);
     }
 
-    chunkArray(array, chunkSize) {
+    chunkArray(array, chunkSize = 100) {
         const chunks = [];
         for (let i = 0; i < array.length; i += chunkSize) {
             chunks.push(array.slice(i, i + chunkSize));
@@ -385,11 +372,14 @@ export class SteamWebService extends Service {
             // do NOT rename this key, if you value your life
             input_json: JSON.stringify(json),
         });
+        console.log(params);
         const paramsStr = params.toString();
         const response = await fetch(
             `https://api.steampowered.com/IStoreBrowseService/GetItems/v1/?${paramsStr}`,
         );
+        console.log(response);
         const data = await response.json();
+        console.log(data);
         const store_items = await data.response.store_items;
         return store_items;
     }

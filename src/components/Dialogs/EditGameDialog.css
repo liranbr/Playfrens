@@ -14,11 +14,17 @@
         flex: 1 1 0;
         display: flex;
         flex-direction: row;
-        gap: 20px; /* same as the dialog's padding */
         overflow: hidden;
+
+        .separator-vertical {
+            margin: 0 20px; /* same as the dialog's padding */
+        }
 
         .edit-game-fields {
             flex: 1;
+            fieldset {
+                height: 100%;
+            }
 
             .title-and-toggle {
                 display: flex;
@@ -34,6 +40,16 @@
                     border-top-left-radius: 0;
                     border-top-right-radius: 0;
                 }
+            }
+
+            .steam-import-informer {
+                font-size: 16px;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 12px;
             }
         }
         .cover-art-selector {

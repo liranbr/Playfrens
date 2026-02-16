@@ -8,10 +8,19 @@ textarea {
     font-size: inherit;
 }
 
-a {
+a,
+.link-like {
     color: var(--pf-fg-link);
+    cursor: pointer;
     &:hover {
         color: var(--pf-fg-link-hover);
+    }
+
+    &.link-like {
+        background: none;
+        border: none;
+        outline: none;
+        font-size: inherit;
     }
 }
 
@@ -183,6 +192,7 @@ input[type="checkbox"] {
     border: var(--pf-border-700);
     border-radius: 16px;
     padding: 16px;
+    margin: 16px 0;
 
     ol {
         padding-left: 4px;
@@ -209,8 +219,12 @@ input[type="checkbox"] {
             height: 24px;
             width: 24px;
             font-size: 16px;
+            font-family: system-ui;
             color: var(--pf-fg-link);
             border: 2px solid var(--pf-fg-link);
         }
+    }
+    .link-like {
+        font-weight: 500;
     }
 }

@@ -80,6 +80,11 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
         }
     };
 
+    const handleGoToImport = () => {
+        globalDialogStore.insertPrevious(Dialogs.SteamImport);
+        closeDialog();
+    };
+
     const searchTitle = async (query, setResults) =>
         setResults(await searchTitleOnStore(query, storeType));
 
@@ -147,6 +152,14 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                                     onSelect={handleGameSelected}
                                 />
                             </div>
+                            {!advancedView && (
+                                <div className="steam-import-informer">
+                                    <p>Would you like to import your Steam games library?</p>
+                                    <Button variant="secondary" onClick={handleGoToImport}>
+                                        Steam Import Page
+                                    </Button>
+                                </div>
+                            )}
 
                             {(advancedView || sortingTitle) && (
                                 <>
@@ -179,17 +192,17 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                 </div>
 
                 <div className="rx-dialog-footer">
-                    <Button variant="secondary" onClick={() => setAdvancedView(!advancedView)}>
-                        {advancedView ? "Simple" : "Advanced"}
-                    </Button>
-                    <div className="inner-footer">
-                        <Button variant="secondary" onClick={closeDialog}>
-                            Cancel
-                        </Button>
-                        <Button variant="primary" onClick={handleSave}>
-                            Save
+                    <div className="footer-left">
+                        <Button variant="secondary" onClick={() => setAdvancedView(!advancedView)}>
+                            {advancedView ? "Simple" : "Advanced"}
                         </Button>
                     </div>
+                    <Button variant="secondary" onClick={closeDialog}>
+                        Cancel
+                    </Button>
+                    <Button variant="primary" onClick={handleSave}>
+                        Save
+                    </Button>
                 </div>
             </DialogBase>
         </GameEntryContext>

@@ -163,6 +163,13 @@
         justify-content: flex-end;
         align-items: center;
         gap: 16px;
+
+        .footer-left {
+            display: flex;
+            margin-right: auto;
+            justify-content: flex-start;
+            gap: inherit;
+        }
     }
 
     &:focus-visible {

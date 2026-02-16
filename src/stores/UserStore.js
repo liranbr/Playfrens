@@ -1,6 +1,12 @@
 import { createContext, useContext } from "react";
 import { makeAutoObservable, runInAction } from "mobx";
-import { defaultFiltersStorageKey, globalDataStore, globalFilterStore } from "@/stores";
+import {
+    defaultFiltersStorageKey,
+    globalDataStore,
+    globalFilterStore,
+    globalSettingsStore,
+    settingsStorageKey,
+} from "@/stores";
 import { loadFromStorage } from "@/Utils.jsx";
 
 export class UserStore {
@@ -49,10 +55,11 @@ export class UserStore {
     }
 
     async populateStores() {
-        // DataStore.populate loads the board, which the default filters are then loaded from
-        await globalDataStore
-            .populate()
-            .then(() => globalFilterStore.populate(loadFromStorage(defaultFiltersStorageKey, {})));
+        // DataStore.populate loads the board, which the settings and default filters are then loaded from
+        await globalDataStore.populate().then(() => {
+            globalSettingsStore.populate(loadFromStorage(settingsStorageKey, {}));
+            globalFilterStore.populate(loadFromStorage(defaultFiltersStorageKey, {}));
+        });
     }
 
     login(provider) {

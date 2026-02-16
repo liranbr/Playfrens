@@ -55,7 +55,8 @@ export async function saveToStorage(key, value) {
     const { ExportDataStoreToJSON } = await import("./stores/DataStore");
     const { saveBoard } = await import("./APIUtils");
     const data = ExportDataStoreToJSON();
-    saveBoard(data);
+    data[key] = value;
+    await saveBoard(data);
     console.warn("Auto-saved board to backend through reactions. Needs improvement.", ++timesSaved);
 }
 

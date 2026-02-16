@@ -60,8 +60,11 @@ class SettingsStore {
     tagGameCounterDisplay = "countFiltered";
     hideGameStoreButtons = "off";
 
-    constructor(settings = {}) {
+    constructor() {
         makeAutoObservable(this);
+    }
+
+    populate(settings = {}) {
         Object.assign(this, settings);
     }
 
@@ -96,15 +99,15 @@ class SettingsStore {
     }
 }
 
-const storedSettings = loadFromStorage(settingsStorageKey, {});
-const settingsStore = new SettingsStore(storedSettings);
-// whenever settings are changed, auto-save
-reaction(
-    () => JSON.stringify(settingsStore),
-    () => saveToStorage(settingsStorageKey, settingsStore),
-);
+const settingsStore = new SettingsStore(); // After creation, settings are populated by userStore from the board
 // Prefer to use the context version in components, for expanded functionality in the future
 // but the global version is available for non-component uses
 const SettingsStoreContext = createContext(settingsStore);
 export const useSettingsStore = () => useContext(SettingsStoreContext);
 export const globalSettingsStore = settingsStore;
+
+// whenever settings are changed, auto-save
+reaction(
+    () => JSON.stringify(settingsStore),
+    () => saveToStorage(settingsStorageKey, settingsStore),
+);

@@ -1,5 +1,5 @@
-export * from "./SettingsStore.js";
 export * from "./UserStore.js";
+export * from "./SettingsStore.js";
 export * from "./DataStore.js";
 export * from "./FilterStore.js";
 export * from "./DialogStore.js";

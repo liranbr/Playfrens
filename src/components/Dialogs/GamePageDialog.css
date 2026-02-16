@@ -72,7 +72,8 @@
                 flex-direction: row;
                 align-items: center;
                 background-color: var(--pf-bg-500);
-                box-shadow: var(--container-shadow);
+                box-shadow: 0 0 12px rgba(0, 0, 0, 0.9);
+                border: var(--border);
                 padding: 8px;
                 border-radius: 12px;
                 gap: 8px;
@@ -84,7 +85,7 @@
                     font-size: 16px;
                     color: var(--pf-bg-500);
                     text-decoration: none;
-                    border-radius: 16px;
+                    border-radius: 12px;
                     display: inline-flex;
                     align-items: center;
                     justify-content: center;

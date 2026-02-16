@@ -203,7 +203,7 @@ const ShareGamesAsText = observer(() => {
         filteredGames.forEach((game) => {
             // If it's a steam game, format the title as a link to its store page
             if (withLinks && !!game.storeID && game.storeType === "steam") {
-                const steamLink = "https://store.steampowered.com/app/" + game.storeID + "/";
+                const steamLink = "https://s.team/a/" + game.storeID; // using official s.team shortener to fit more games in one message
                 currentGames.push("* [" + game.title + "](<" + steamLink + ">)");
             } else currentGames.push("* " + game.title);
         });

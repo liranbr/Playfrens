@@ -66,12 +66,12 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
             <label className="checkbox-label">
                 <input type="checkbox" id="also-singleplayers-checkbox" />
                 Include Singleplayer games
-                <InfoIcon message="By default, only games that Steam marks as Multiplayer or Cooperative are imported" />
+                <InfoIcon message="By default, only games that Steam marks as Multiplayer or Cooperative are imported. If you have many but only want a few of them, consider adding them manually." />
             </label>
             <label className="checkbox-label">
                 <input type="checkbox" id="also-singleplayers-checkbox" />
                 Include wishlisted games that haven't released yet
-                <InfoIcon message="Wishlist may contain games that have not released yet, but you might want to plan to play them" />
+                <InfoIcon message="Wishlist may contain games that have not released yet, but you may want to plan to play them. If you have many but only want a few of them, consider adding them manually." />
             </label>
 
             <div className="rx-dialog-footer">

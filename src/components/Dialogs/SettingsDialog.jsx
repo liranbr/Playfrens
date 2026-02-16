@@ -27,71 +27,88 @@ export const SettingsDialog = ({ open, closeDialog }) => {
                 <Dialog.Description>Configure application settings</Dialog.Description>
             </VisuallyHidden>
 
-            <p>Highlight games when hovering on a sidebar tag</p>
-            <RadioGroup.Root
-                defaultValue={settingsStore.tagHoverGameHighlight}
-                className="rx-radio-group"
-                onValueChange={(option) => settingsStore.setTagHoverGameHighlight(option)}
-            >
-                {Object.keys(TagHoverGameHighlightOptions).map((option) => {
-                    const optKey = `tagHoverGameHighlight-${option}`;
-                    return (
-                        <label htmlFor={optKey} key={optKey}>
-                            <RadioGroup.Item value={option} id={optKey} />
-                            {TagHoverGameHighlightOptions[option]}
-                        </label>
-                    );
-                })}
-            </RadioGroup.Root>
+            <div className="settings-dialog-body">
+                <div className="setting">
+                    <h3>Tag Hover Highlight</h3>
+                    <p>Highlight games when hovering on a sidebar tag</p>
+                    <RadioGroup.Root
+                        defaultValue={settingsStore.tagHoverGameHighlight}
+                        className="rx-radio-group"
+                        onValueChange={(option) => settingsStore.setTagHoverGameHighlight(option)}
+                    >
+                        {Object.keys(TagHoverGameHighlightOptions).map((option) => {
+                            const optKey = `tagHoverGameHighlight-${option}`;
+                            return (
+                                <label htmlFor={optKey} key={optKey}>
+                                    <RadioGroup.Item value={option} id={optKey} />
+                                    {TagHoverGameHighlightOptions[option]}
+                                </label>
+                            );
+                        })}
+                    </RadioGroup.Root>
+                </div>
 
-            <div className="spacer" />
-            <p>Show a Game Counter next to each Tag in the Sidebar</p>
-            <RadioGroup.Root
-                defaultValue={settingsStore.tagGameCounterDisplay}
-                className="rx-radio-group"
-                onValueChange={(option) => settingsStore.setTagGameCounterDisplay(option)}
-            >
-                {Object.keys(TagGameCounterOptions).map((option) => {
-                    const optKey = `tagGameCounter-${option}`;
-                    return (
-                        <label htmlFor={optKey} key={optKey}>
-                            <RadioGroup.Item value={option} id={optKey} />
-                            {TagGameCounterOptions[option]}
-                        </label>
-                    );
-                })}
-            </RadioGroup.Root>
+                <div className="setting">
+                    <h3>Game Count Badge</h3>
+                    <p>Show a Game Counter next to each Tag in the Sidebar</p>
+                    <RadioGroup.Root
+                        defaultValue={settingsStore.tagGameCounterDisplay}
+                        className="rx-radio-group"
+                        onValueChange={(option) => settingsStore.setTagGameCounterDisplay(option)}
+                    >
+                        {Object.keys(TagGameCounterOptions).map((option) => {
+                            const optKey = `tagGameCounter-${option}`;
+                            return (
+                                <label htmlFor={optKey} key={optKey}>
+                                    <RadioGroup.Item value={option} id={optKey} />
+                                    {TagGameCounterOptions[option]}
+                                </label>
+                            );
+                        })}
+                    </RadioGroup.Root>
+                </div>
 
-            <div className="spacer" />
-            <p>
-                In a Game Page, hide the 'Play' and 'Store Page' buttons unless cover art is hovered
-                on
-            </p>
-            <RadioGroup.Root
-                defaultValue={settingsStore.hideGameStoreButtons}
-                className="rx-radio-group"
-                onValueChange={(option) => settingsStore.setHideGameStoreButtons(option)}
-            >
-                {Object.keys(HideGameStoreButtonsOptions).map((option) => {
-                    const optKey = `hideGameStoreButtons-${option}`;
-                    return (
-                        <label htmlFor={optKey} key={optKey}>
-                            <RadioGroup.Item value={option} id={optKey} />
-                            {HideGameStoreButtonsOptions[option]}
-                        </label>
-                    );
-                })}
-            </RadioGroup.Root>
+                <div className="setting">
+                    <h3>Obscure Game Platform Actions</h3>
+                    <p>
+                        In a Game Page, hide the 'Play' and 'Store Page' buttons unless cover art is
+                        hovered on
+                    </p>
+                    <RadioGroup.Root
+                        defaultValue={settingsStore.hideGameStoreButtons}
+                        className="rx-radio-group"
+                        onValueChange={(option) => settingsStore.setHideGameStoreButtons(option)}
+                    >
+                        {Object.keys(HideGameStoreButtonsOptions).map((option) => {
+                            const optKey = `hideGameStoreButtons-${option}`;
+                            return (
+                                <label htmlFor={optKey} key={optKey}>
+                                    <RadioGroup.Item value={option} id={optKey} />
+                                    {HideGameStoreButtonsOptions[option]}
+                                </label>
+                            );
+                        })}
+                    </RadioGroup.Root>
+                </div>
 
-            <div className="spacer" />
-            <p>Set current filters as the default state to use on load</p>
-            <div className="default-filters-buttons">
-                <Button variant="secondary" onClick={() => filterStore.saveDefaultFilters()}>
-                    Set as Default
-                </Button>
-                <Button variant="secondary" onClick={() => filterStore.resetDefaultFilters()}>
-                    Reset
-                </Button>
+                <div className="setting">
+                    <h3>Default Filter State</h3>
+                    <p>Set current filters as the default state to show on load</p>
+                    <div className="default-filters-buttons">
+                        <Button
+                            variant="secondary"
+                            onClick={() => filterStore.saveDefaultFilters()}
+                        >
+                            Set as Default
+                        </Button>
+                        <Button
+                            variant="secondary"
+                            onClick={() => filterStore.resetDefaultFilters()}
+                        >
+                            Reset
+                        </Button>
+                    </div>
+                </div>
             </div>
 
             <div className="rx-dialog-footer">

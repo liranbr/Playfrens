@@ -61,6 +61,9 @@ function AppMenu() {
                         sideOffset={5}
                     >
                         <DD.Sub>
+                            <DD.Item onClick={() => globalDialogStore.open(Dialogs.Settings)}>
+                                Settings
+                            </DD.Item>
                             <DD.SubTrigger>
                                 File
                                 <MdChevronRight className="rx-dropdown-right-slot" />
@@ -99,9 +102,6 @@ function AppMenu() {
                         >
                             <DD.Item>Discord</DD.Item>
                         </a>
-                        <DD.Item onClick={() => globalDialogStore.open(Dialogs.Settings)}>
-                            Settings
-                        </DD.Item>
                         <DD.Item onClick={() => globalDialogStore.open(Dialogs.About)}>
                             About
                         </DD.Item>

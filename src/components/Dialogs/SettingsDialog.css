@@ -1,8 +1,28 @@
 .settings-dialog {
-    gap: 12px;
-    p {
-        font-size: 16px;
-        color: var(--pf-fg-400);
+    gap: 8px; /* between Title, Body, and Footer */
+
+    .settings-dialog-body {
+        display: flex;
+        flex-direction: column;
+        gap: 36px;
+    }
+
+    .setting {
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        gap: 4px;
+
+        h3 {
+            font-size: 16px;
+            line-height: 1;
+            font-weight: 500;
+            color: #f2f2f2;
+        }
+        p {
+            font-size: 14px;
+            color: var(--pf-fg-400);
+        }
     }
 
     .default-filters-buttons {

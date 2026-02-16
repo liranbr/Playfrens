@@ -56,27 +56,27 @@ export const AccountSettingsDialog = ({ open, closeDialog }) => {
 };
 
 const DeleteAccountButton = () => {
-    const duration = 30; // a minute
+    const durationSeconds = 30;
     const [startedCountdown, setStartedCountdown] = useState(false);
-    const [timeRemaining, setTimeRemaining] = useState(duration);
+    const [secondsRemaining, setSecondsRemaining] = useState(durationSeconds);
     const [countdownCleared, setCountdownCleared] = useState(false);
     useEffect(() => {
         if (startedCountdown) {
             const countdownInterval = setInterval(() => {
-                if (timeRemaining <= 0) {
-                    setTimeRemaining(0);
+                if (secondsRemaining <= 0) {
+                    setSecondsRemaining(0);
                     clearInterval(countdownInterval);
                     setCountdownCleared(true);
                 }
 
-                setTimeRemaining(timeRemaining - 1);
+                setSecondsRemaining(secondsRemaining - 1);
             }, 1000);
 
             return () => clearInterval(countdownInterval);
         }
-    }, [timeRemaining, startedCountdown]);
+    }, [secondsRemaining, startedCountdown]);
     const confirmMessage =
-        timeRemaining > 0 ? `Are you sure? (${timeRemaining})` : "Yes, Delete Account";
+        secondsRemaining > 0 ? `Are you sure? (${secondsRemaining})` : "Yes, Delete Account";
     return startedCountdown ? (
         <Button variant="danger" disabled={!countdownCleared}>
             {confirmMessage /* TODO: actually implement account deletion */}

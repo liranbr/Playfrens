@@ -23,6 +23,9 @@
             font-size: 14px;
             color: var(--pf-fg-400);
         }
+        & > *:not(h3) {
+            margin-left: 8px;
+        }
     }
 
     .default-filters-buttons {

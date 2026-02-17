@@ -2,10 +2,12 @@ import { getSteamIDFromVanity } from "@/APIUtils.js";
 import { Button, InfoIcon } from "@/components";
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { useState } from "react";
 import { DialogBase } from "./DialogRoot.jsx";
 import "./SteamImportDialog.css";
 
 export const SteamImportDialog = ({ open, closeDialog }) => {
+    const [loading, setLoading] = useState(false);
     const processUsername = async () => {
         /** @type {string} */
         const id = document.getElementById("SteamIDInput").value;
@@ -26,48 +28,58 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
     };
 
     const doImport = async () => {
-        const id = await processUsername();
-        const ids = [];
+        if(loading) return;
+        setLoading(true);
+        try {
+            const id = await processUsername();
+            const ids = [];
 
-        if (document.getElementById("games-wishlist").checked) {
-            const res = await fetch(`/api/steam/getWishlistIDs?id=${id}`);
-            if (!res.ok) throw Error("Error occured during importing wishlist");
-            const wishlistItems = await res.json();
-            ids.push(...wishlistItems);
+            if (document.getElementById("games-wishlist").checked) {
+                const res = await fetch(`/api/steam/getWishlistIDs?id=${id}`);
+                if (!res.ok) throw Error("Error occured during importing wishlist");
+                const wishlistItems = await res.json();
+                ids.push(...wishlistItems);
+            }
+
+            if (document.getElementById("games-library").checked) {
+                const res = await fetch(`/api/steam/getUserLibraryIDs?id=${id}`);
+                if (!res.ok) throw Error("Error occured during importing wishlist");
+                const libraryIDs = await res.json();
+                ids.push(...libraryIDs);
+            }
+
+            if (ids.length == 0) return;
+            /** @type {boolean} */
+            const releasedOnly = document.getElementById(
+                "import-unreleased-wishlist-games",
+            ).checked;
+            const allow_singleplayer_games = document.getElementById(
+                "also-singleplayers-checkbox",
+            ).checked;
+            const res2 = await fetch(`/api/steam/getItems`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    ids,
+                    categories: [1, ...(allow_singleplayer_games ? [2] : [])],
+                    releasedOnly,
+                }),
+            });
+            const items = await res2.json();
+
+            const win = window.open("", "_blank");
+            if (!win) throw new Error("Popup blocked");
+
+            const formatted = JSON.stringify(items, null, 2);
+            win.document.write(`<pre>${formatted}</pre>`);
+            setLoading(false);
+            return null;
+        } catch (err) {
+            console.error(err);
         }
-
-        if (document.getElementById("games-library").checked) {
-            const res = await fetch(`/api/steam/getUserLibraryIDs?id=${id}`);
-            if (!res.ok) throw Error("Error occured during importing wishlist");
-            const libraryIDs = await res.json();
-            ids.push(...libraryIDs);
-        }
-
-        if (ids.length == 0) return;
-        /** @type {boolean} */
-        const releasedOnly = document.getElementById("import-unreleased-wishlist-games").checked;
-        const allow_singleplayer_games = document.getElementById(
-            "also-singleplayers-checkbox",
-        ).checked;
-        const res2 = await fetch(`/api/steam/getItems`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                ids,
-                categories: [1, ...(allow_singleplayer_games ? [2] : [])],
-                releasedOnly,
-            }),
-        });
-        const items = await res2.json();
-
-        const win = window.open("", "_blank");
-        if (!win) throw new Error("Popup blocked");
-
-        const formatted = JSON.stringify(items, null, 2);
-        win.document.write(`<pre>${formatted}</pre>`);
-        return null;
+        setLoading(false);
     };
 
     return (
@@ -140,9 +152,8 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
             </label>
 
             <div className="rx-dialog-footer">
-                <h1>NOT IMPLEMENTED YET</h1>
                 <Button variant="secondary" onClick={doImport}>
-                    Test
+                    {loading ? "Loading..." : "Get Data"}
                 </Button>
                 <Button variant="secondary" onClick={closeDialog}>
                     Close

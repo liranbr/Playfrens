@@ -1,12 +1,11 @@
-import * as Dialog from "@radix-ui/react-dialog";
-import { DialogBase } from "./DialogRoot.jsx";
-import { Button, InfoIcon } from "@/components";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import "./SteamImportDialog.css";
 import { getSteamIDFromVanity } from "@/APIUtils.js";
+import { Button, InfoIcon } from "@/components";
+import * as Dialog from "@radix-ui/react-dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { DialogBase } from "./DialogRoot.jsx";
+import "./SteamImportDialog.css";
 
 export const SteamImportDialog = ({ open, closeDialog }) => {
-
     const processUsername = async () => {
         /** @type {string} */
         const id = document.getElementById("SteamIDInput").value;
@@ -24,51 +23,52 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
         }
         const json = await res.json();
         return json.id;
-    }
+    };
 
     const doImport = async () => {
         const id = await processUsername();
-        const items = []
-
-
+        const ids = [];
 
         if (document.getElementById("games-wishlist").checked) {
-            const res = await fetch(`/api/steam/getWishlist?id=${id}&releasedOnly=${document.getElementById("import-unreleased-wishlist-games").checked}`)
+            const res = await fetch(`/api/steam/getWishlistIDs?id=${id}`);
             if (!res.ok) throw Error("Error occured during importing wishlist");
             const wishlistItems = await res.json();
-            console.log(wishlistItems);
-            items.push(...wishlistItems);
+            ids.push(...wishlistItems);
         }
+
         if (document.getElementById("games-library").checked) {
-            const res = await fetch(`/api/steam/getUserLibrary?id=${id}`);
+            const res = await fetch(`/api/steam/getUserLibraryIDs?id=${id}`);
             if (!res.ok) throw Error("Error occured during importing wishlist");
-            const ids = (await res.json()).map((g) => g.game.id);
-            console.log(ids, ids.length)
-            const other = ids.slice(-34);
-            ids.length = 250;
-            console.log(other);
-            const allow_singleplayer_games = document.getElementById("also-singleplayers-checkbox").checked;
-            const res2 = await fetch(`/api/steam/getItems`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    ids,
-                    categories: [1, ...(allow_singleplayer_games ? [2] : [])],
-                }),
-            });
-            const libraryItems = await res2.json();
-            console.log(libraryItems);
-            items.push(...libraryItems);
+            const libraryIDs = await res.json();
+            ids.push(...libraryIDs);
         }
+
+        if (ids.length == 0) return;
+        /** @type {boolean} */
+        const releasedOnly = document.getElementById("import-unreleased-wishlist-games").checked;
+        const allow_singleplayer_games = document.getElementById(
+            "also-singleplayers-checkbox",
+        ).checked;
+        const res2 = await fetch(`/api/steam/getItems`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                ids,
+                categories: [1, ...(allow_singleplayer_games ? [2] : [])],
+                releasedOnly,
+            }),
+        });
+        const items = await res2.json();
+
         const win = window.open("", "_blank");
         if (!win) throw new Error("Popup blocked");
 
         const formatted = JSON.stringify(items, null, 2);
-        win.document.write(`<pre>${formatted}</pre>`)
+        win.document.write(`<pre>${formatted}</pre>`);
         return null;
-    }
+    };
 
     return (
         <DialogBase

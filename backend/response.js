@@ -11,6 +11,7 @@ export class Response {
         UNAUTHORIZED: 401,
         FORBIDDEN: 403,
         NOT_FOUND: 404,
+        GONE: 410,
         TOO_MANY_REQUESTS: 429,
 
         // 5xx: Server Errors

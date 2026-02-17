@@ -78,6 +78,24 @@ export class SteamWebService extends Service {
         ]);
     }
 
+    async getUserIDFromVanityName(req, res) {
+        /** @type {string} */
+        const { vanity } = req.query;
+        const { OK, BAD_REQUEST } = Response.HttpStatus;
+        const isProfileURL =
+            vanity.includes("https://steamcommunity.com/id/") ||
+            vanity.includes("https://steamcommunity.com/profiles/");
+        if (!isProfileURL && /\W/.test(vanity)) {
+            Response.sendMessage(res, BAD_REQUEST, "Vanity names do not have symbols!");
+            return;
+        }
+        const client = this.connect();
+        const id = await client.resolve(
+            isProfileURL ? vanity : `https://steamcommunity.com/id/${vanity}`,
+        );
+        Response.send(res, OK, { id });
+    }
+
     async getUserLibrary(req, res) {
         const { id } = req.query;
         const { OK, BAD_REQUEST, NOT_FOUND } = Response.HttpStatus;
@@ -99,22 +117,25 @@ export class SteamWebService extends Service {
 
     async getUserLibraryIDs(req, res) {
         const { id } = req.query;
-        const { OK, BAD_REQUEST, NOT_FOUND } = Response.HttpStatus;
+        const { OK, BAD_REQUEST, NOT_FOUND, NO_CONTENT } = Response.HttpStatus;
 
         if (!this.isSteamID(id))
             return Response.sendMessage(res, BAD_REQUEST, `Invalid SteamID64 passed: ${id}`);
 
         const client = this.connect();
 
-        const games = await client.getUserOwnedGames(id);
-        if (games.length === 0)
+        try {
+            const games = await client.getUserOwnedGames(id);
+            if (games.length === 0) return Response.send(res, NO_CONTENT, games);
+            const ids = games.map((g) => g.game.id);
+            return Response.send(res, OK, ids);
+        } catch (err) {
             return Response.sendMessage(
                 res,
                 NOT_FOUND,
                 `Couldn't find any games using SteamID64 ${id}`,
             );
-        const ids = games.map((g) => g.game.id);
-        Response.send(res, OK, ids);
+        }
     }
 
     /**
@@ -231,7 +252,7 @@ export class SteamWebService extends Service {
                 // Some items are apparently privated
                 if (!item.visible) return false;
                 if (!Array.isArray(playerCategories)) return false;
-                if(releasedOnly && item?.is_coming_soon === true) unreleasedGamesCount++;
+                if (releasedOnly && item?.is_coming_soon === true) unreleasedGamesCount++;
 
                 return (
                     includesAny(playerCategories, categories) &&
@@ -239,7 +260,8 @@ export class SteamWebService extends Service {
                 );
             });
             console.log(`Sending ${result.length} items as final result.`);
-            if(releasedOnly) console.log(`Of those filtered, ${unreleasedGamesCount} are unreleased.`)
+            if (releasedOnly)
+                console.log(`Of those filtered, ${unreleasedGamesCount} are unreleased.`);
             Response.send(res, OK, result);
         } catch (err) {
             console.error(err);
@@ -304,7 +326,8 @@ export class SteamWebService extends Service {
         if (response.ok) {
             const json = await response.json();
             const data = await json?.response;
-            if (data == undefined) Response.send(res, NO_CONTENT, { message: "FAILED" });
+            if (data == undefined || Object.keys(data).length == 0)
+                return Response.send(res, NO_CONTENT, []);
             else {
                 const results = data.items.map((i) => i.appid);
                 return Response.send(res, OK, results);
@@ -403,4 +426,3 @@ export class SteamWebService extends Service {
         return results;
     }
 }
-

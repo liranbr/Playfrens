@@ -6,6 +6,7 @@ import { Button } from "@/components/index.js";
 import { globalDataStore, userStore } from "@/stores/index.js";
 import { storeTypes, tagTypes } from "@/models/index.js";
 import { useEffect, useState } from "react";
+import { toastError, toastSuccess } from "@/Utils.jsx";
 
 export const AccountSettingsDialog = ({ open, closeDialog }) => {
     const { userInfo } = userStore;
@@ -75,11 +76,29 @@ const DeleteAccountButton = () => {
             return () => clearInterval(countdownInterval);
         }
     }, [secondsRemaining, startedCountdown]);
+    const deleteAccountFunction = async () => {
+        try {
+            const response = await fetch("/auth/deleteAccount", {
+                method: "DELETE",
+                credentials: "include",
+            });
+            if (response.status === 200) {
+                toastSuccess("Account Deleted successfully. Reloading..");
+                setTimeout(() => window.location.reload(), 3000);
+            } else {
+                console.error("Failed to delete Account: ", response);
+                toastError("Failed to delete Account");
+            }
+        } catch (err) {
+            console.error("Failed to delete Account:", err);
+            toastError("Failed to delete Account");
+        }
+    };
     const confirmMessage =
         secondsRemaining > 0 ? `Are you sure? (${secondsRemaining})` : "Yes, Delete Account";
     return startedCountdown ? (
-        <Button variant="danger" disabled={!countdownCleared}>
-            {confirmMessage /* TODO: actually implement account deletion */}
+        <Button variant="danger" disabled={!countdownCleared} onClick={deleteAccountFunction}>
+            {confirmMessage}
         </Button>
     ) : (
         <Button variant="danger-secondary" onClick={() => setStartedCountdown(true)}>

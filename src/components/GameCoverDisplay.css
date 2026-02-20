@@ -21,7 +21,7 @@
 /* might be img, might be video */
 .game-cover-display {
     width: 100%;
-    height: 100%;
+    aspect-ratio: 1 / 1.5;
     object-fit: cover;
     border-radius: inherit;
 }

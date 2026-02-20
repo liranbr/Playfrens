@@ -692,7 +692,7 @@ export function restoreFromFile(file) {
 function defaultTagsSample() {
     return {
         [tT.friend]: [],
-        [tT.category]: ["Playthrough", "Round-based", "Persistent World"],
+        [tT.category]: ["Round-based", "Playthrough", "MMO"],
         [tT.status]: ["Playing", "LFG", "Paused", "Backlog", "Abandoned", "Finished"],
     };
 }

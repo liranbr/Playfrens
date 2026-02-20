@@ -129,6 +129,11 @@ export class LoginService extends Service {
                 path: "/auth/logout",
                 handler: this.logout.bind(this),
             },
+            {
+                method: "delete",
+                path: "/auth/deleteAccount",
+                handler: this.deleteAccount.bind(this),
+            },
             // Login Routers
             loginRoute("steam"),
             loginRoute("google", { scope: ["profile", "openid", "email"] }),
@@ -287,5 +292,35 @@ export class LoginService extends Service {
         if (userError) throw userError;
 
         return user;
+    }
+
+    // Deletes the user upon a Delete Account request
+    async deleteAccount(req, res) {
+        const { OK, NO_CONTENT, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+        if (!req.isAuthenticated())
+            return Response.send(res, NO_CONTENT, { message: "Requester is not logged in." });
+
+        const { status: responseStatus, error: deletionError } = await supabase
+            .from("users")
+            .delete()
+            .eq("id", req.user.id);
+
+        const respondError = (error) => {
+            Response.send(res, INTERNAL_SERVER_ERROR, {
+                message: "Error deleting account: " + error,
+            });
+        };
+
+        if (deletionError) {
+            return respondError(deletionError.message);
+        }
+        // 204 is the expected response for deleting data
+        if (responseStatus === 204) {
+            req.session.destroy((err) => {
+                if (err) return respondError(err);
+                res.clearCookie("connect.sid");
+                return Response.send(res, OK, { message: "Account Deleted" });
+            });
+        } else return respondError(responseStatus);
     }
 }

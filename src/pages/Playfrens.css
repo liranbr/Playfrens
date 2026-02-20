@@ -1,0 +1,138 @@
+.app-header {
+    background-color: var(--pf-bg-900);
+    padding: 0 16px;
+    height: var(--app-header-height);
+    position: fixed;
+    border-bottom: var(--pf-border-500);
+    z-index: 2;
+    .app-brand {
+        margin-left: 16px;
+    }
+}
+
+.app-sidebar-container {
+    min-height: fit-content;
+    max-height: 100%;
+    min-width: fit-content;
+    max-width: fit-content;
+    padding: 12px 0 12px 12px; /* right gap comes from the grid */
+}
+
+.game-search {
+    position: relative;
+    border-radius: var(--app-header-element-height);
+    input {
+        height: var(--app-header-element-height);
+        width: 300px;
+        border-radius: inherit;
+        border: var(--pf-border-500);
+        outline: none;
+        padding: 0 var(--icon-size) 0 12px;
+        font-size: 16px;
+
+        &::placeholder {
+            color: var(--pf-fg-500);
+        }
+        &:focus {
+            border-color: var(--pf-border-color-primary);
+        }
+    }
+    .icon-button {
+        visibility: hidden;
+        position: absolute;
+        width: fit-content;
+        font-size: 20px;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        border-radius: inherit;
+    }
+    &.has-value {
+        input {
+            border: 2px solid var(--pf-btn-primary);
+        }
+        .icon-button {
+            visibility: visible;
+        }
+    }
+}
+
+.app-header-right {
+    display: flex;
+    gap: 12px;
+
+    .new-game-button,
+    .notifications-button,
+    .rx-avatar {
+        display: flex;
+        height: var(--app-header-element-height);
+        align-items: center;
+        justify-content: center;
+        background-color: var(--pf-bg-500);
+        border: var(--pf-border-700);
+        color: var(--pf-fg-300);
+
+        svg {
+            font-size: 26px;
+        }
+
+        &:hover,
+        &:active,
+        &.activated {
+            color: #fff;
+            background-color: var(--pf-bg-300);
+        }
+    }
+
+    .new-game-button {
+        width: fit-content;
+        border-radius: 16px;
+        gap: 4px;
+        padding: 0 8px;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .notifications-button {
+        aspect-ratio: 1;
+        border-radius: 50%;
+        position: relative;
+
+        .notifications-badge {
+            position: absolute;
+            top: -2px;
+            right: -4px;
+            height: 16px;
+            aspect-ratio: 1;
+            box-sizing: content-box;
+            border: 2px solid var(--pf-bg-900);
+            border-radius: 50%;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--pf-btn-danger);
+            font-weight: 500;
+        }
+    }
+
+    .notifications-drawer {
+        max-height: 600px;
+        min-width: 300px;
+        padding: 16px calc(20px - var(--scrollbar-width));
+        background-color: var(--pf-bg-700);
+        border: var(--pf-border-500);
+
+        .reminders-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+            scrollbar-gutter: stable both-edges;
+        }
+    }
+}
+
+.app-header-center {
+    gap: 16px;
+}

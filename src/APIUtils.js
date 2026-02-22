@@ -1,3 +1,5 @@
+import { toastError } from "@/Utils.jsx";
+
 export async function searchTitleOnStore(title, storeType, lang = "en", cc = "US") {
     if (!title || typeof title !== "string" || !title.trim()) return [];
     let fetchResponse;
@@ -11,10 +13,12 @@ export async function searchTitleOnStore(title, storeType, lang = "en", cc = "US
             fetchResponse = await fetch(`/api/steamgriddb/searchTitle?query=${title}`);
             break;
         default:
-            return console.error(`StoreType ${storeType} doesn't have a supported search.`);
+            toastError(`StoreType ${storeType} doesn't have a supported search.`);
+            return;
     }
     const json = await fetchResponse.json();
-    if (!fetchResponse.ok) return console.error(json);
+    if (!fetchResponse.ok)
+        return toastError("Game search request failed, please try again later", json);
     if (json.length === 0) return console.error(`No ${storeType} games were found using ${title}`);
 
     let results = [];
@@ -80,14 +84,14 @@ export async function getBoard() {
 
         if (!response.ok) {
             const error = await response.json();
-            console.error("Error fetching board:", error);
+            toastError("Error loading board, please try again later", error);
             return null;
         }
 
         const { board } = await response.json();
         return board;
     } catch (err) {
-        console.error("Failed to fetch board:", err);
+        toastError("Error loading board, please try again later", err);
         return null;
     }
 }
@@ -103,7 +107,7 @@ export async function saveBoard(data) {
             body: json,
         });
     } catch (err) {
-        console.error("Failed to save board:", err);
+        toastError("Error saving board, please try again later", err);
     }
 }
 
@@ -118,6 +122,6 @@ export async function updateBoard(path, value) {
             body: json,
         });
     } catch (err) {
-        console.error("Failed to partial update board:", err);
+        toastError("Error updating board, please try again later", err);
     }
 }

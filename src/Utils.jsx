@@ -9,19 +9,28 @@ export function setToastSilence(silence) {
 
 /**
  * @param {string} message
+ * @param {string} consoleMessage
  * @returns {true}
  */
-export async function toastSuccess(message) {
-    if (!silentToasts) toast.success(message);
+export async function toastSuccess(message, consoleMessage = "") {
+    if (!silentToasts) {
+        toast.success(message);
+        if (consoleMessage) console.log(consoleMessage);
+    }
     return true;
 }
 
 /**
  * @param {string} message
+ * @param {string} consoleMessage
  * @returns {false}
  */
-export function toastError(message) {
-    if (!silentToasts) toast.error(message);
+export function toastError(message, consoleMessage = "") {
+    if (!silentToasts) {
+        toast.error(message);
+        console.error(message); // reflects toastError on console by default
+        if (consoleMessage) console.error(consoleMessage);
+    }
     return false;
 }
 

@@ -349,7 +349,7 @@ function ToastRoot() {
     );
 }
 
-export const Playfrens = observer(() => {
+const Playfrens = observer(() => {
     const userStore = useUserStore();
     const { loading, userInfo } = userStore;
     useEffect(() => {
@@ -374,3 +374,5 @@ export const Playfrens = observer(() => {
         </>
     );
 });
+
+export default Playfrens;

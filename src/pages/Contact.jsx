@@ -1,5 +1,5 @@
 import "./Contact.css";
 
-export function Contact() {
+export default function Contact() {
     return <div>haven't made yet</div>;
 }

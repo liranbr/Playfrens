@@ -1,5 +1,5 @@
 import "./Privacy.css";
 
-export function Privacy() {
+export default function Privacy() {
     return <div>haven't made yet</div>;
 }

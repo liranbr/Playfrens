@@ -1,8 +1,13 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
-import { Contact, Home, Login, Privacy, Playfrens } from "@/pages";
 import "./App.css";
+
+const Home = lazy(() => import("@/pages/Home.jsx"));
+const Playfrens = lazy(() => import("@/pages/Playfrens.jsx"));
+const Login = lazy(() => import("@/pages/Login.jsx"));
+const Contact = lazy(() => import("@/pages/Contact.jsx"));
+const Privacy = lazy(() => import("@/pages/Privacy.jsx"));
 
 function useScrollbarMeasure() {
     // This measures the width of the user's scrollbar, which varies between OSs and browsers.
@@ -42,13 +47,15 @@ export default function App() {
     return (
         <TooltipProvider delayDuration={750}>
             <BrowserRouter>
-                <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/app" element={<Playfrens />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/contact" element={<Contact />} />
-                    <Route path="/privacy" element={<Privacy />} />
-                </Routes>
+                <Suspense fallback={null}>
+                    <Routes>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/app" element={<Playfrens />} />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/contact" element={<Contact />} />
+                        <Route path="/privacy" element={<Privacy />} />
+                    </Routes>
+                </Suspense>
             </BrowserRouter>
         </TooltipProvider>
     );

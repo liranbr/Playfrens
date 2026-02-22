@@ -2,11 +2,11 @@ import { Link, Navigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { BiLogoDiscordAlt, BiLogoGoogle, BiLogoSteam } from "react-icons/bi";
 import { useUserStore } from "@/stores";
-import { Button, SimpleTooltip } from "@/components";
+import { Button } from "@/components";
 import "./Login.css";
 import { loadFromStorage } from "@/Utils.jsx";
 
-export const Login = observer(() => {
+const Login = observer(() => {
     // TODO: handle '/login?failed=true' in the url
     const userStore = useUserStore();
     const { loading, userInfo } = userStore;

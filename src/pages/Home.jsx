@@ -1,7 +1,7 @@
-import { EmblaCarousel } from "@/components";
+import { EmblaCarousel } from "@/components/EmblaCarousel.jsx";
 import "./Home.css";
 
-export function Home() {
+export default function Home() {
     return (
         <div id="home">
             <div className="sticky-header">

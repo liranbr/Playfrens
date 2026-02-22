@@ -149,6 +149,9 @@
 
     &:has(.cover-skeleton) {
         box-shadow: none;
+        .game-card-title-overlay {
+            opacity: 1; /* While cover is loading, show the title */
+        }
     }
 }
 

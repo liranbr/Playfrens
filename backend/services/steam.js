@@ -251,10 +251,10 @@ export class SteamWebService extends Service {
 
         /**
          * @param {number[]} items
-         * @param {string} group
+         * @param {string} groupName
          * @returns {number[]}
          */
-        const filterItems = (items, group = "") => {
+        const filterItems = (items, groupName = "") => {
             const result = items.filter((item) => {
                 const playerCategories = item.categories?.supported_player_categoryids;
                 // Some items are apparently privated
@@ -262,7 +262,7 @@ export class SteamWebService extends Service {
                 if (!Array.isArray(playerCategories)) return false;
                 return (
                     includesAny(playerCategories, categories) &&
-                    (group !== "wishlist" || !releasedOnly || item?.is_coming_soon !== true)
+                    (groupName !== "wishlist" || !releasedOnly || item?.is_coming_soon !== true)
                 );
             });
             return result;
@@ -272,9 +272,9 @@ export class SteamWebService extends Service {
             const data = [];
             // Overrides ids
             if (groupedIDs) {
-                for (const group in groupedIDs) {
-                    const groupData = await this.fetchItems(groupedIDs[group]);
-                    const result = filterItems(groupData, group);
+                for (const groupName in groupedIDs) {
+                    const groupData = await this.fetchItems(groupedIDs[groupName]);
+                    const result = filterItems(groupData, groupName);
                     data.push(...result);
                 }
             } else {

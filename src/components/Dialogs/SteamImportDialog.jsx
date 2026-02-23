@@ -58,8 +58,8 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
 
             if (ids.length === 0 && frens.length === 0) return;
 
-            const releasedOnly = document.getElementById(
-                "import-unreleased-wishlist-games"
+            const releasedOnly = !document.getElementById(
+                "also-unreleased-wishlist-checkbox"
             ).checked;
 
             const allow_singleplayer_games = document.getElementById(
@@ -244,7 +244,7 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                 <InfoIcon message="By default, only games that Steam marks as Multiplayer or Cooperative are imported" />
             </label>
             <label className="checkbox-label">
-                <input type="checkbox" id="import-unreleased-wishlist-games" />
+                <input type="checkbox" id="also-unreleased-wishlist-checkbox" />
                 Include wishlisted games that haven&apos;t released yet
                 <InfoIcon message="Wishlist may contain games that have not released yet, but you might want to plan to play them" />
             </label>

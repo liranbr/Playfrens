@@ -30,9 +30,12 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
     const doImport = async () => {
         if (loading) return;
         setLoading(true);
+
         try {
             const id = await processUsername();
             const ids = [];
+            let frens = [];
+
             if (document.getElementById("games-wishlist").checked) {
                 const res = await fetch(`/api/steam/getWishlistIDs?id=${id}`);
                 if (!res.ok) throw Error("Error occured during importing wishlist");
@@ -47,49 +50,95 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                 ids.push(...libraryIDs);
             }
 
-            if (ids.length == 0) return;
-            /** @type {boolean} */
+            if (document.getElementById("friends-list").checked) {
+                const res = await fetch(`/api/steam/getFriends?id=${id}`);
+                if (!res.ok) throw Error("Error occured during importing wishlist");
+                frens = await res.json();
+            }
+
+            if (ids.length === 0 && frens.length === 0) return;
+
             const releasedOnly = document.getElementById(
-                "import-unreleased-wishlist-games",
+                "import-unreleased-wishlist-games"
             ).checked;
-            /** @type {boolean} */
+
             const allow_singleplayer_games = document.getElementById(
-                "also-singleplayers-checkbox",
+                "also-singleplayers-checkbox"
             ).checked;
 
             const res2 = await fetch(`/api/steam/getItems`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     ids,
                     categories: [1, ...(allow_singleplayer_games ? [2] : [])],
                     releasedOnly
                 }),
             });
+
             const items = await res2.json();
+
             const categoryMap = {
                 1: "Multiplayer",
                 2: "Singleplayer"
             };
+
             const win = window.open("", "_blank");
+
             win.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Items Test</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; }
-                        .item { margin-bottom: 30px; }
-                        img { width: 300px; display: block; }
-                    </style>
-                </head>
-                <body>
-            `);
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Items Test</title>
+                <style>
+                    body { font-family: Arial, sans-serif; }
+                    .friends-container {
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 6px;
+                        margin-bottom: 20px;
+                        align-items: center;
+                    }
+                    .friends-container img {
+                        width: 64px;
+                        height: 64px;
+                        border-radius: 4px;
+                    }
+                    .item { margin-bottom: 30px; }
+                    .item img { width: 300px; display: block; }
+                </style>
+            </head>
+            <body>
+        `);
+
+            // ===== FRIENDS SECTION (above items) =====
+            if (frens.length > 0) {
+                win.document.write(`<h2>Friends (${frens.length})</h2>`);
+                win.document.write(`<div class="friends-container">`);
+
+                for (const fren of frens) {
+                    if (!fren.visible) continue;
+
+                    const avatarUrl = fren.avatar?.medium || "";
+                    const profileUrl = fren.url || "#";
+                    const nickname = fren.nickname || "Unknown";
+
+                    win.document.write(`
+                    <a href="${profileUrl}" target="_blank" title="${nickname}">
+                        <img src="${avatarUrl}" alt="${nickname}">
+                    </a>
+                `);
+                }
+
+                win.document.write(`</div>`);
+            }
+
+            // ===== ITEMS SECTION =====
             win.document.write(`<h1>Total items: ${items.length}</h1>`);
+
             for (const item of items) {
                 const supportedIds = item.categories?.supported_player_categoryids || [];
+
                 const supportedNames = supportedIds
                     .filter(id => categoryMap[id])
                     .map(id => categoryMap[id]);
@@ -100,28 +149,34 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                 } else {
                     imageUrl = `https://cdn.akamai.steamstatic.com/steam/apps/${item.appid}/header.jpg`;
                 }
+
                 const comingSoonLabel = item.is_coming_soon === true
                     ? `<p style="color:red;"><strong>Coming Soon</strong></p>`
                     : "";
+
                 win.document.write(`
-                    <div class="item">
-                        <h2>${item.name}</h2>
-                        ${comingSoonLabel}
-                        <img src="${imageUrl}" alt="${item.name}">
-                        <p>Supported: ${supportedNames.join(" / ") || "None"}</p>
-                    </div>
-                `);
-            }
-            win.document.write(`
-                </body>
-                </html>
+                <div class="item">
+                    <h2>${item.name}</h2>
+                    ${comingSoonLabel}
+                    <img src="${imageUrl}" alt="${item.name}">
+                    <p>Supported: ${supportedNames.join(" / ") || "None"}</p>
+                </div>
             `);
+            }
+
+            win.document.write(`
+            </body>
+            </html>
+        `);
+
             win.document.close();
             setLoading(false);
             return null;
+
         } catch (err) {
             console.error(err);
         }
+
         setLoading(false);
     };
 

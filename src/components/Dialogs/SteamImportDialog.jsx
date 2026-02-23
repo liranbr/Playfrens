@@ -62,11 +62,66 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
             console.log(libraryItems);
             items.push(...libraryItems);
         }
-        const win = window.open("", "_blank");
-        if (!win) throw new Error("Popup blocked");
 
-        const formatted = JSON.stringify(items, null, 2);
-        win.document.write(`<pre>${formatted}</pre>`)
+        const categoryMap = {
+            1: "Multiplayer",
+            2: "Singleplayer"
+        };
+
+        const win = window.open("", "_blank");
+
+        win.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Items Test</title>
+                <style>
+                    body { font-family: Arial, sans-serif; }
+                    .item { margin-bottom: 30px; }
+                    img { width: 300px; display: block; }
+                </style>
+            </head>
+            <body>
+        `);
+
+        win.document.write(`<h1>Total items: ${items.length}</h1>`);
+
+        for (const item of items) {
+            const supportedIds = item.categories?.supported_player_categoryids || [];
+
+            const supportedNames = supportedIds
+                .filter(id => categoryMap[id])
+                .map(id => categoryMap[id]);
+
+            // Use assets header if available (for coming soon items)
+            let imageUrl;
+
+            if (item.assets?.asset_url_format && item.assets?.header) {
+                imageUrl = `https://cdn.cloudflare.steamstatic.com/${item.assets.asset_url_format.replace("${FILENAME}", item.assets.header)}`;
+            } else {
+                imageUrl = `https://cdn.akamai.steamstatic.com/steam/apps/${item.appid}/header.jpg`;
+            }
+
+            const comingSoonLabel = item.is_coming_soon === true
+                ? `<p style="color:red;"><strong>Coming Soon</strong></p>`
+                : "";
+
+            win.document.write(`
+                <div class="item">
+                    <h2>${item.name}</h2>
+                    ${comingSoonLabel}
+                    <img src="${imageUrl}" alt="${item.name}">
+                    <p>Supported: ${supportedNames.join(" / ") || "None"}</p>
+                </div>
+            `);
+        }
+
+        win.document.write(`
+            </body>
+            </html>
+        `);
+
+        win.document.close();
         return null;
     }
 

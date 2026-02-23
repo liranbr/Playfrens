@@ -1,12 +1,13 @@
-import * as Dialog from "@radix-ui/react-dialog";
-import { DialogBase } from "./DialogRoot.jsx";
-import { Button, InfoIcon } from "@/components";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import "./SteamImportDialog.css";
 import { getSteamIDFromVanity } from "@/APIUtils.js";
+import { Button, InfoIcon } from "@/components";
+import * as Dialog from "@radix-ui/react-dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { useState } from "react";
+import { DialogBase } from "./DialogRoot.jsx";
+import "./SteamImportDialog.css";
 
 export const SteamImportDialog = ({ open, closeDialog }) => {
-
+    const [loading, setLoading] = useState(false);
     const processUsername = async () => {
         /** @type {string} */
         const id = document.getElementById("SteamIDInput").value;
@@ -24,30 +25,37 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
         }
         const json = await res.json();
         return json.id;
-    }
+    };
 
     const doImport = async () => {
-        const id = await processUsername();
-        const items = []
+        if (loading) return;
+        setLoading(true);
+        try {
+            const id = await processUsername();
+            const ids = [];
 
+            if (document.getElementById("games-wishlist").checked) {
+                const res = await fetch(`/api/steam/getWishlistIDs?id=${id}`);
+                if (!res.ok) throw Error("Error occured during importing wishlist");
+                const wishlistItems = await res.json();
+                ids.push(...wishlistItems);
+            }
 
+            if (document.getElementById("games-library").checked) {
+                const res = await fetch(`/api/steam/getUserLibraryIDs?id=${id}`);
+                if (!res.ok) throw Error("Error occured during importing wishlist");
+                const libraryIDs = await res.json();
+                ids.push(...libraryIDs);
+            }
 
-        if (document.getElementById("games-wishlist").checked) {
-            const res = await fetch(`/api/steam/getWishlist?id=${id}&releasedOnly=${document.getElementById("import-unreleased-wishlist-games").checked}`)
-            if (!res.ok) throw Error("Error occured during importing wishlist");
-            const wishlistItems = await res.json();
-            console.log(wishlistItems);
-            items.push(...wishlistItems);
-        }
-        if (document.getElementById("games-library").checked) {
-            const res = await fetch(`/api/steam/getUserLibrary?id=${id}`);
-            if (!res.ok) throw Error("Error occured during importing wishlist");
-            const ids = (await res.json()).map((g) => g.game.id);
-            console.log(ids, ids.length)
-            const other = ids.slice(-34);
-            ids.length = 250;
-            console.log(other);
-            const allow_singleplayer_games = document.getElementById("also-singleplayers-checkbox").checked;
+            if (ids.length == 0) return;
+            /** @type {boolean} */
+            const releasedOnly = document.getElementById(
+                "import-unreleased-wishlist-games",
+            ).checked;
+            const allow_singleplayer_games = document.getElementById(
+                "also-singleplayers-checkbox",
+            ).checked;
             const res2 = await fetch(`/api/steam/getItems`, {
                 method: "POST",
                 headers: {
@@ -56,74 +64,23 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                 body: JSON.stringify({
                     ids,
                     categories: [1, ...(allow_singleplayer_games ? [2] : [])],
+                    releasedOnly,
                 }),
             });
-            const libraryItems = await res2.json();
-            console.log(libraryItems);
-            items.push(...libraryItems);
+            const items = await res2.json();
+
+            const win = window.open("", "_blank");
+            if (!win) throw new Error("Popup blocked");
+
+            const formatted = JSON.stringify(items, null, 2);
+            win.document.write(`<pre>${formatted}</pre>`);
+            setLoading(false);
+            return null;
+        } catch (err) {
+            console.error(err);
         }
-
-        const categoryMap = {
-            1: "Multiplayer",
-            2: "Singleplayer"
-        };
-
-        const win = window.open("", "_blank");
-
-        win.document.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Items Test</title>
-                <style>
-                    body { font-family: Arial, sans-serif; }
-                    .item { margin-bottom: 30px; }
-                    img { width: 300px; display: block; }
-                </style>
-            </head>
-            <body>
-        `);
-
-        win.document.write(`<h1>Total items: ${items.length}</h1>`);
-
-        for (const item of items) {
-            const supportedIds = item.categories?.supported_player_categoryids || [];
-
-            const supportedNames = supportedIds
-                .filter(id => categoryMap[id])
-                .map(id => categoryMap[id]);
-
-            // Use assets header if available (for coming soon items)
-            let imageUrl;
-
-            if (item.assets?.asset_url_format && item.assets?.header) {
-                imageUrl = `https://cdn.cloudflare.steamstatic.com/${item.assets.asset_url_format.replace("${FILENAME}", item.assets.header)}`;
-            } else {
-                imageUrl = `https://cdn.akamai.steamstatic.com/steam/apps/${item.appid}/header.jpg`;
-            }
-
-            const comingSoonLabel = item.is_coming_soon === true
-                ? `<p style="color:red;"><strong>Coming Soon</strong></p>`
-                : "";
-
-            win.document.write(`
-                <div class="item">
-                    <h2>${item.name}</h2>
-                    ${comingSoonLabel}
-                    <img src="${imageUrl}" alt="${item.name}">
-                    <p>Supported: ${supportedNames.join(" / ") || "None"}</p>
-                </div>
-            `);
-        }
-
-        win.document.write(`
-            </body>
-            </html>
-        `);
-
-        win.document.close();
-        return null;
-    }
+        setLoading(false);
+    };
 
     return (
         <DialogBase
@@ -195,9 +152,8 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
             </label>
 
             <div className="rx-dialog-footer">
-                <h1>NOT IMPLEMENTED YET</h1>
                 <Button variant="secondary" onClick={doImport}>
-                    Test
+                    {loading ? "Loading..." : "Get Data"}
                 </Button>
                 <Button variant="secondary" onClick={closeDialog}>
                     Close

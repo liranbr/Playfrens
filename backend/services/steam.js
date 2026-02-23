@@ -1,10 +1,10 @@
+import SteamAPI from "steamapi";
 import { Response } from "../response.js";
 import { Service } from "../service.js";
-import SteamAPI from "steamapi";
-import { includesAny, isImageUrlValid, strToBool } from "../utils.js";
+import { includesAny, isImageUrlValid } from "../utils.js";
 
 const DEBUG_GET_ITEMS_SAMPLE = false;
-const DEFAULT_CHUNK_ARRAY_SIZE = 125;
+const DEFAULT_CHUNK_ARRAY_SIZE = 100;
 
 export class SteamWebService extends Service {
     // Add as we discover more of them
@@ -42,6 +42,11 @@ export class SteamWebService extends Service {
             },
             {
                 method: "get",
+                path: "/api/steam/getUserLibraryIDs",
+                handler: this.getUserLibraryIDs.bind(this),
+            },
+            {
+                method: "get",
                 path: "/api/steam/getFriends",
                 handler: this.getFriends.bind(this),
             },
@@ -66,6 +71,11 @@ export class SteamWebService extends Service {
                 handler: this.getWishlist.bind(this),
             },
             {
+                method: "get",
+                path: "/api/steam/getWishListIDs",
+                handler: this.getWishListIDs.bind(this),
+            },
+            {
                 method: "post",
                 path: "/api/steam/getItems",
                 handler: this.getItems.bind(this),
@@ -77,7 +87,9 @@ export class SteamWebService extends Service {
         /** @type {string} */
         const { vanity } = req.query;
         const { OK, BAD_REQUEST } = Response.HttpStatus;
-        const isProfileURL = vanity.includes("https://steamcommunity.com/id/");
+        const isProfileURL =
+            vanity.includes("https://steamcommunity.com/id/") ||
+            vanity.includes("https://steamcommunity.com/profiles/");
         if (!isProfileURL && /\W/.test(vanity)) {
             Response.sendMessage(res, BAD_REQUEST, "Vanity names do not have symbols!");
             return;
@@ -106,6 +118,29 @@ export class SteamWebService extends Service {
                 `Couldn't find any games using SteamID64 ${id}`,
             );
         Response.send(res, OK, games);
+    }
+
+    async getUserLibraryIDs(req, res) {
+        const { id } = req.query;
+        const { OK, BAD_REQUEST, NOT_FOUND, NO_CONTENT } = Response.HttpStatus;
+
+        if (!this.isSteamID(id))
+            return Response.sendMessage(res, BAD_REQUEST, `Invalid SteamID64 passed: ${id}`);
+
+        const client = this.connect();
+
+        try {
+            const games = await client.getUserOwnedGames(id);
+            if (games.length === 0) return Response.send(res, NO_CONTENT, games);
+            const ids = games.map((g) => g.game.id);
+            return Response.send(res, OK, ids);
+        } catch (err) {
+            return Response.sendMessage(
+                res,
+                NOT_FOUND,
+                `Couldn't find any games using SteamID64 ${id}`,
+            );
+        }
     }
 
     /**
@@ -192,14 +227,14 @@ export class SteamWebService extends Service {
     }
 
     /**
-     * Returns sample items from Steam IStoreBrowseService/GetItems
+     * Returns App Items from Steam IStoreBrowseService/GetItems
      * https://steamapi.xpaw.me/#IStoreBrowseService/GetItems
      * @param {Object} req - The request object
      * @param {Object} res - The response object
      * @return {Object} - The response data from the Steam API
      */
     async getItems(req, res) {
-        let { ids, categories } = req.body;
+        let { ids, categories, releasedOnly = false } = req.body;
         const { OK, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
 
         if (DEBUG_GET_ITEMS_SAMPLE)
@@ -214,15 +249,25 @@ export class SteamWebService extends Service {
             ];
         try {
             const data = await this.fetchItems(ids);
+            console.log(
+                `Filtering by categories: ${categories}${releasedOnly ? " and by released only." : ""}`,
+            );
+            let unreleasedGamesCount = 0;
             const result = data.filter((item) => {
                 const playerCategories = item.categories?.supported_player_categoryids;
                 // Some items are apparently privated
                 if (!item.visible) return false;
                 if (!Array.isArray(playerCategories)) return false;
+                if (releasedOnly && item?.is_coming_soon === true) unreleasedGamesCount++;
 
-                return includesAny(playerCategories, categories);
+                return (
+                    includesAny(playerCategories, categories) &&
+                    (!releasedOnly || item?.is_coming_soon !== true)
+                );
             });
-            console.log("data =>", data.length, "result =>", result.length);
+            console.log(`Sending ${result.length} items as final result.`);
+            if (releasedOnly)
+                console.log(`Of those filtered, ${unreleasedGamesCount} are unreleased.`);
             Response.send(res, OK, result);
         } catch (err) {
             console.error(err);
@@ -272,10 +317,9 @@ export class SteamWebService extends Service {
      * Returns a list of IDs for a user's Wishlist
      * @param {Object} req
      * @param {Object} res
-     * @returns {{name: string, id: string, image: string}[]}
      */
-    async getWishlist(req, res) {
-        const { id, releasedOnly = false } = req.query;
+    async getWishListIDs(req, res) {
+        const { id } = req.query;
         const { OK, NO_CONTENT, BAD_REQUEST } = Response.HttpStatus;
 
         if (!this.isSteamID(id))
@@ -288,23 +332,26 @@ export class SteamWebService extends Service {
         if (response.ok) {
             const json = await response.json();
             const data = await json?.response;
-            if (data == undefined) Response.send(res, NO_CONTENT, { message: "FAILED" });
+            if (data == undefined || Object.keys(data).length == 0)
+                return Response.send(res, NO_CONTENT, []);
             else {
-                const batches = this.chunkArray(
-                    data.items.map((i) => i.appid),
-                    DEFAULT_CHUNK_ARRAY_SIZE,
-                );
-                const results = [];
-                for (const batch of batches) {
-                    let items = await this.fetchItems(batch);
-                    if (strToBool(releasedOnly))
-                        items = items.filter((i) => i?.is_coming_soon !== true);
-                    results.push(...items);
-                }
+                const results = data.items.map((i) => i.appid);
                 return Response.send(res, OK, results);
             }
         }
         return Response.send(res, BAD_REQUEST, await response.json());
+    }
+
+    /**
+     * Returns a list of Items for a user's Wishlist
+     * @param {Object} req
+     * @param {Object} res
+     * @deprecated Use {@link getWishListIDs} instead.
+     */
+    async getWishlist(_req, res) {
+        const { GONE } = Response.HttpStatus;
+
+        return Response.sendMessage(res, GONE, "Deprecated, use getWishListIDs entry instead.");
     }
 
     async buildGameCover(appId, imagePath = "") {
@@ -351,36 +398,37 @@ export class SteamWebService extends Service {
     }
 
     async fetchItems(ids) {
-        const json = {
-            context: {
-                language: "english",
-                country_code: "US",
-            },
-            data_request: {
-                include_assets: true,
-            },
-        };
+        const batches = this.chunkArray(ids, DEFAULT_CHUNK_ARRAY_SIZE);
+        const results = [];
+        for (const batch of batches) {
+            const json = {
+                context: {
+                    language: "english",
+                    country_code: "US",
+                },
+                data_request: {
+                    include_assets: true,
+                },
+            };
 
-        json.ids = ids.map((id) => {
-            return { appid: id };
-        });
-
-        // Steam doesn't like body responses :(
-        // So we have to send everything as URL params
-        const params = new URLSearchParams({
-            key: this.environment_key,
-            // do NOT rename this key, if you value your life
-            input_json: JSON.stringify(json),
-        });
-        console.log(params);
-        const paramsStr = params.toString();
-        const response = await fetch(
-            `https://api.steampowered.com/IStoreBrowseService/GetItems/v1/?${paramsStr}`,
-        );
-        console.log(response);
-        const data = await response.json();
-        console.log(data);
-        const store_items = await data.response.store_items;
-        return store_items;
+            json.ids = batch.map((id) => {
+                return { appid: id };
+            });
+            // Steam doesn't like body responses :(
+            // So we have to send everything as URL params
+            const params = new URLSearchParams({
+                key: this.environment_key,
+                // do NOT rename this key, if you value your life
+                input_json: JSON.stringify(json),
+            });
+            const paramsStr = params.toString();
+            const response = await fetch(
+                `https://api.steampowered.com/IStoreBrowseService/GetItems/v1/?${paramsStr}`,
+            );
+            const data = await response.json();
+            results.push(...(await data.response.store_items));
+        }
+        console.log(`Sending ${results.length} items.`);
+        return results;
     }
 }

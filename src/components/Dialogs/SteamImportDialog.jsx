@@ -33,30 +33,32 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
 
         try {
             const id = await processUsername();
-            const ids = [];
+            const groupedIDs = {};
             let frens = [];
-
-            if (document.getElementById("games-wishlist").checked) {
-                const res = await fetch(`/api/steam/getWishlistIDs?id=${id}`);
-                if (!res.ok) throw Error("Error occured during importing wishlist");
-                const wishlistItems = await res.json();
-                ids.push(...wishlistItems);
-            }
 
             if (document.getElementById("games-library").checked) {
                 const res = await fetch(`/api/steam/getUserLibraryIDs?id=${id}`);
-                if (!res.ok) throw Error("Error occured during importing wishlist");
+                if (!res.ok) throw Error("Error occurred during importing game libraries");
                 const libraryIDs = await res.json();
-                ids.push(...libraryIDs);
+                groupedIDs["game_library"] = libraryIDs;
+
             }
+
+            if (document.getElementById("games-wishlist").checked) {
+                const res = await fetch(`/api/steam/getWishlistIDs?id=${id}`);
+                if (!res.ok) throw Error("Error occurred during importing wishlist");
+                const wishtlistIDs = await res.json();
+                groupedIDs["wishlist"] = wishtlistIDs;
+            }
+
 
             if (document.getElementById("friends-list").checked) {
                 const res = await fetch(`/api/steam/getFriends?id=${id}`);
-                if (!res.ok) throw Error("Error occured during importing wishlist");
+                if (!res.ok) throw Error("Error occurred during importing friend list");
                 frens = await res.json();
             }
 
-            if (ids.length === 0 && frens.length === 0) return;
+            if (Object.keys(groupedIDs).length <= 0 && frens.length <= 0) return;
 
             const releasedOnly = !document.getElementById(
                 "also-unreleased-wishlist-checkbox"
@@ -70,14 +72,17 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    ids,
+                    // groupedIDs is an object containing keys referencing array of IDs, used to filter out between which is library games and wishlist in the request
+                    // When done, returns all items without context from which group they come from.
+                    groupedIDs,
                     categories: [1, ...(allow_singleplayer_games ? [2] : [])],
                     releasedOnly
                 }),
             });
+            console.log(res2);
 
             const items = await res2.json();
-
+            console.log(items);
             const categoryMap = {
                 1: "Multiplayer",
                 2: "Singleplayer"

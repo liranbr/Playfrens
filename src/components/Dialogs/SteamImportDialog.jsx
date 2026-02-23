@@ -28,34 +28,27 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
     };
 
     const doImport = async () => {
-        if (loading) return;
+        const id = await processUsername();
+        const items = []
         setLoading(true);
-        try {
-            const id = await processUsername();
-            const ids = [];
 
-            if (document.getElementById("games-wishlist").checked) {
-                const res = await fetch(`/api/steam/getWishlistIDs?id=${id}`);
-                if (!res.ok) throw Error("Error occured during importing wishlist");
-                const wishlistItems = await res.json();
-                ids.push(...wishlistItems);
-            }
 
-            if (document.getElementById("games-library").checked) {
-                const res = await fetch(`/api/steam/getUserLibraryIDs?id=${id}`);
-                if (!res.ok) throw Error("Error occured during importing wishlist");
-                const libraryIDs = await res.json();
-                ids.push(...libraryIDs);
-            }
-
-            if (ids.length == 0) return;
-            /** @type {boolean} */
-            const releasedOnly = document.getElementById(
-                "import-unreleased-wishlist-games",
-            ).checked;
-            const allow_singleplayer_games = document.getElementById(
-                "also-singleplayers-checkbox",
-            ).checked;
+        if (document.getElementById("games-wishlist").checked) {
+            const res = await fetch(`/api/steam/getWishlist?id=${id}&releasedOnly=${document.getElementById("import-unreleased-wishlist-games").checked}`)
+            if (!res.ok) throw Error("Error occured during importing wishlist");
+            const wishlistItems = await res.json();
+            console.log(wishlistItems);
+            items.push(...wishlistItems);
+        }
+        if (document.getElementById("games-library").checked) {
+            const res = await fetch(`/api/steam/getUserLibrary?id=${id}`);
+            if (!res.ok) throw Error("Error occured during importing wishlist");
+            const ids = (await res.json()).map((g) => g.game.id);
+            console.log(ids, ids.length)
+            const other = ids.slice(-34);
+            ids.length = 250;
+            console.log(other);
+            const allow_singleplayer_games = document.getElementById("also-singleplayers-checkbox").checked;
             const res2 = await fetch(`/api/steam/getItems`, {
                 method: "POST",
                 headers: {
@@ -64,78 +57,75 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                 body: JSON.stringify({
                     ids,
                     categories: [1, ...(allow_singleplayer_games ? [2] : [])],
-                    releasedOnly,
                 }),
             });
-            const items = await res2.json();
+            const libraryItems = await res2.json();
+            console.log(libraryItems);
+            items.push(...libraryItems);
+        }
 
-            const categoryMap = {
-                1: "Multiplayer",
-                2: "Singleplayer"
-            };
+        const categoryMap = {
+            1: "Multiplayer",
+            2: "Singleplayer"
+        };
 
-            const win = window.open("", "_blank");
+        const win = window.open("", "_blank");
 
-            win.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Items Test</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; }
-                        .item { margin-bottom: 30px; }
-                        img { width: 300px; display: block; }
-                    </style>
-                </head>
-                <body>
-            `);
+        win.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Items Test</title>
+                <style>
+                    body { font-family: Arial, sans-serif; }
+                    .item { margin-bottom: 30px; }
+                    img { width: 300px; display: block; }
+                </style>
+            </head>
+            <body>
+        `);
 
-            win.document.write(`<h1>Total items: ${items.length}</h1>`);
+        win.document.write(`<h1>Total items: ${items.length}</h1>`);
 
-            for (const item of items) {
-                const supportedIds = item.categories?.supported_player_categoryids || [];
+        for (const item of items) {
+            const supportedIds = item.categories?.supported_player_categoryids || [];
 
-                const supportedNames = supportedIds
-                    .filter(id => categoryMap[id])
-                    .map(id => categoryMap[id]);
+            const supportedNames = supportedIds
+                .filter(id => categoryMap[id])
+                .map(id => categoryMap[id]);
 
-                // Use assets header if available (for coming soon items)
-                let imageUrl;
+            // Use assets header if available (for coming soon items)
+            let imageUrl;
 
-                if (item.assets?.asset_url_format && item.assets?.header) {
-                    imageUrl = `https://cdn.cloudflare.steamstatic.com/${item.assets.asset_url_format.replace("${FILENAME}", item.assets.header)}`;
-                } else {
-                    imageUrl = `https://cdn.akamai.steamstatic.com/steam/apps/${item.appid}/header.jpg`;
-                }
-
-                const comingSoonLabel = item.is_coming_soon === true
-                    ? `<p style="color:red;"><strong>Coming Soon</strong></p>`
-                    : "";
-
-                win.document.write(`
-                    <div class="item">
-                        <h2>${item.name}</h2>
-                        ${comingSoonLabel}
-                        <img src="${imageUrl}" alt="${item.name}">
-                        <p>Supported: ${supportedNames.join(" / ") || "None"}</p>
-                    </div>
-                `);
+            if (item.assets?.asset_url_format && item.assets?.header) {
+                imageUrl = `https://cdn.cloudflare.steamstatic.com/${item.assets.asset_url_format.replace("${FILENAME}", item.assets.header)}`;
+            } else {
+                imageUrl = `https://cdn.akamai.steamstatic.com/steam/apps/${item.appid}/header.jpg`;
             }
 
+            const comingSoonLabel = item.is_coming_soon === true
+                ? `<p style="color:red;"><strong>Coming Soon</strong></p>`
+                : "";
+
             win.document.write(`
-                </body>
-                </html>
+                <div class="item">
+                    <h2>${item.name}</h2>
+                    ${comingSoonLabel}
+                    <img src="${imageUrl}" alt="${item.name}">
+                    <p>Supported: ${supportedNames.join(" / ") || "None"}</p>
+                </div>
             `);
-
-            win.document.close();
-            setLoading(false);
-            return null;
-        } catch (err) {
-            console.error(err);
         }
-        setLoading(false);
-    };
 
+        win.document.write(`
+            </body>
+            </html>
+        `);
+
+        win.document.close();
+        setLoading(false);
+        return null;
+    }
     return (
         <DialogBase
             open={open}

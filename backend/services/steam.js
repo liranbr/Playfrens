@@ -234,7 +234,8 @@ export class SteamWebService extends Service {
      * @return {Object} - The response data from the Steam API
      */
     async getItems(req, res) {
-        let { ids, categories, releasedOnly = false } = req.body;
+        /** @type {{ids?: number[], groupedIDs?: Object.<string, number[]>, categories?: number[], releasedOnly?: boolean}} */
+        let { ids, groupedIDs, categories, releasedOnly = false } = req.body;
         const { OK, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
 
         if (DEBUG_GET_ITEMS_SAMPLE)
@@ -247,28 +248,45 @@ export class SteamWebService extends Service {
                 16000, 16200, 16300, 16500, 16700, 16900, 17000, 17200, 17400, 17500, 17700, 17800,
                 18000, 18200, 18400,
             ];
-        try {
-            const data = await this.fetchItems(ids);
-            console.log(
-                `Filtering by categories: ${categories}${releasedOnly ? " and by released only." : ""}`,
-            );
-            let unreleasedGamesCount = 0;
-            const result = data.filter((item) => {
+
+        /**
+         * @param {number[]} items
+         * @param {string} group
+         * @returns {number[]}
+         */
+        const filterItems = (items, group = "") => {
+            const result = items.filter((item) => {
                 const playerCategories = item.categories?.supported_player_categoryids;
                 // Some items are apparently privated
                 if (!item.visible) return false;
                 if (!Array.isArray(playerCategories)) return false;
-                if (releasedOnly && item?.is_coming_soon === true) unreleasedGamesCount++;
-
                 return (
                     includesAny(playerCategories, categories) &&
-                    (!releasedOnly || item?.is_coming_soon !== true)
+                    (group !== "wishlist" || !releasedOnly || item?.is_coming_soon !== true)
                 );
             });
-            console.log(`Sending ${result.length} items as final result.`);
-            if (releasedOnly)
-                console.log(`Of those filtered, ${unreleasedGamesCount} are unreleased.`);
-            Response.send(res, OK, result);
+            return result;
+        };
+
+        try {
+            const data = [];
+            // Overrides ids
+            if (groupedIDs) {
+                for (const group in groupedIDs) {
+                    const groupData = await this.fetchItems(groupedIDs[group]);
+                    const result = filterItems(groupData, group);
+                    data.push(...result);
+                }
+            } else {
+                const itemsData = await this.fetchItems(ids);
+                const result = filterItems(itemsData);
+                data.push(result);
+            }
+            console.log(
+                `Filtering by categories: ${categories}${releasedOnly ? " and by released only." : ""}`,
+            );
+            console.log(`Sending ${data.length} items as final result.`);
+            Response.send(res, OK, data);
         } catch (err) {
             console.error(err);
             Response.send(res, INTERNAL_SERVER_ERROR, {

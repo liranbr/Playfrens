@@ -88,6 +88,13 @@
         border-top: var(--pf-border-500);
     }
 
+    .rx-dropdown-label {
+        padding-left: 14px;
+        font-size: 14px;
+        color: var(--pf-fg-300);
+        cursor: default;
+    }
+
     a {
         color: inherit;
         text-decoration: none;

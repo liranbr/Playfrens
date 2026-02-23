@@ -45,6 +45,11 @@ import { toastError, toastSuccess } from "@/Utils.jsx";
 function AppMenu() {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const DD = DropdownMenu;
+    const LinkItem = ({ label, url }) => (
+        <a href={url} target="_blank" rel="noopener noreferrer">
+            <DD.Item>{label}</DD.Item>
+        </a>
+    );
     return (
         <>
             <DD.Root onOpenChange={setDropdownOpen}>
@@ -63,7 +68,7 @@ function AppMenu() {
                                 Settings
                             </DD.Item>
                             <DD.SubTrigger>
-                                File
+                                Backup
                                 <MdChevronRight className="rx-dropdown-right-slot" />
                             </DD.SubTrigger>
                             <DD.SubContent className="rx-dropdown-menu" sideOffset={5}>
@@ -85,24 +90,20 @@ function AppMenu() {
                                 </DD.Item>
                             </DD.SubContent>
                         </DD.Sub>
-                        <DD.Separator />
-                        <a
-                            href="https://github.com/liranbr/Playfrens"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            <DD.Item>GitHub</DD.Item>
-                        </a>
-                        <a
-                            href="https://discord.gg/aTdwEGau4Q"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            <DD.Item>Discord</DD.Item>
-                        </a>
-                        <DD.Item onClick={() => globalDialogStore.open(Dialogs.About)}>
-                            About
-                        </DD.Item>
+                        <DD.Sub>
+                            <DD.SubTrigger>
+                                Links
+                                <MdChevronRight className="rx-dropdown-right-slot" />
+                            </DD.SubTrigger>
+                            <DD.SubContent className="rx-dropdown-menu" sideOffset={5}>
+                                <LinkItem
+                                    label="GitHub"
+                                    url="https://github.com/liranbr/Playfrens"
+                                />
+                                <LinkItem label="Discord" url="https://discord.gg/aTdwEGau4Q" />
+                                <LinkItem label="Homepage" url="/" />
+                            </DD.SubContent>
+                        </DD.Sub>
                     </DD.Content>
                 </DD.Portal>
             </DD.Root>

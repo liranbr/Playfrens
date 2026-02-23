@@ -138,7 +138,7 @@ export class SteamWebService extends Service {
             return Response.sendMessage(
                 res,
                 NOT_FOUND,
-                `Couldn't find any games using SteamID64 ${id}`,
+                `Couldn't find any games using SteamID64 ${id} | ${err}`,
             );
         }
     }

@@ -1,19 +1,20 @@
-import { Link, Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { BiLogoDiscordAlt, BiLogoGoogle, BiLogoSteam } from "react-icons/bi";
 import { useUserStore } from "@/stores";
 import { Button } from "@/components";
 import "./Login.css";
-import { loadFromStorage } from "@/Utils.jsx";
+import { loadFromStorage, toastError } from "@/Utils.jsx";
 
 const Login = observer(() => {
-    // TODO: handle '/login?failed=true' in the url
     const userStore = useUserStore();
     const { loading, userInfo } = userStore;
     const lastAuth = loadFromStorage("last-auth-used", "");
 
     if (loading) return <div className="loading-page">Loading...</div>;
     if (userInfo) return <Navigate to="/app" replace />;
+
+    if (window.location.search.includes("failed=true")) toastError("Login failed.");
 
     return (
         <div id="login">
@@ -53,10 +54,10 @@ const Login = observer(() => {
                     {/* TODO: come to terms with needing to get a privacy policy */}
                 </div>
             </div>
-            <Link to="/" className="app-brand">
+            <a href="/" className="app-brand">
                 <img src="/Playfrens_Logo.png" alt="Playfrens Logo" />
                 Playfrens
-            </Link>
+            </a>
         </div>
     );
 });

@@ -333,23 +333,6 @@ function AppSidebar() {
     );
 }
 
-function ToastRoot() {
-    return (
-        <ToastContainer
-            position="bottom-center"
-            autoClose={3000}
-            closeButton={false}
-            hideProgressBar={true}
-            closeOnClick={true}
-            pauseOnHover={true}
-            draggable={true}
-            progress={undefined}
-            theme="dark"
-            toastClassName="toast-notification"
-        />
-    );
-}
-
 const Playfrens = observer(() => {
     const userStore = useUserStore();
     const { loading, userInfo } = userStore;
@@ -371,7 +354,6 @@ const Playfrens = observer(() => {
                 <GamesGrid />
             </div>
             <DialogRoot />
-            <ToastRoot />
         </>
     );
 });

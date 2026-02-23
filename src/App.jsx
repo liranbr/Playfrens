@@ -2,12 +2,30 @@ import { lazy, Suspense, useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import "./App.css";
+import { ToastContainer } from "react-toastify";
 
 const Home = lazy(() => import("@/pages/Home.jsx"));
 const Playfrens = lazy(() => import("@/pages/Playfrens.jsx"));
 const Login = lazy(() => import("@/pages/Login.jsx"));
 const Contact = lazy(() => import("@/pages/Contact.jsx"));
 const Privacy = lazy(() => import("@/pages/Privacy.jsx"));
+
+function ToastRoot() {
+    return (
+        <ToastContainer
+            position="bottom-center"
+            autoClose={3000}
+            closeButton={false}
+            hideProgressBar={true}
+            closeOnClick={true}
+            pauseOnHover={true}
+            draggable={true}
+            progress={undefined}
+            theme="dark"
+            toastClassName="toast-notification"
+        />
+    );
+}
 
 function useScrollbarMeasure() {
     // This measures the width of the user's scrollbar, which varies between OSs and browsers.
@@ -57,6 +75,7 @@ export default function App() {
                     </Routes>
                 </Suspense>
             </BrowserRouter>
+            <ToastRoot />
         </TooltipProvider>
     );
 }

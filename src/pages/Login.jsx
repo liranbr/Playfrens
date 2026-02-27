@@ -52,7 +52,6 @@ const Login = observer(() => {
                 </div>
                 <div className="login-footer">
                     <a href="/privacy">Privacy Policy</a>
-                    {/* TODO: come to terms with needing to get a privacy policy */}
                 </div>
             </div>
             <a href="/" className="app-brand">

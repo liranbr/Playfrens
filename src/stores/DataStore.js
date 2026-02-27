@@ -383,7 +383,7 @@ export class DataStore {
         return toastSuccess(`Deleted ${tag.name} from ${tag.typeStrings.plural} list`);
     }
 
-    _editTag(tag, { newName }) {
+    oldEditTag(tag, { newName }) {
         if (tag.name === newName) return true; // nothing to do here, until adding more fields to edit
         // Editing needs to be in the DataStore rather than the object itself, to prevent duplicate names
         if (!(tag instanceof TagObject)) return toastError("Invalid tag object: " + tag);

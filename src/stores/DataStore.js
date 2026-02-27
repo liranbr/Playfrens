@@ -479,7 +479,6 @@ export class DataStore {
                 (g) => g.storeID === storeID && g.storeType === storeType && g.id !== game.id,
             );
             if (identicalGame) {
-                console.log(identicalGame.storeType);
                 return toastError(identicalGame.title + " already exists in the games list");
             }
         }
@@ -503,7 +502,6 @@ export class DataStore {
     }
 
     sortTagsByMethod(tagType, sortMethod, isDescending) {
-        // console.log("Sorting Tags of type " + tagType + ", by method " + sortMethod.name);
         const entriesArray = [...this.allTags[tagType].entries()];
         entriesArray.sort(([id1, tag1], [id2, tag2]) => sortMethod(tag1, tag2));
         if (isDescending) entriesArray.reverse();
@@ -528,7 +526,6 @@ export class DataStore {
     }
 
     sortGamesByMethod(sortMethod, isDescending) {
-        // console.log("Sorting games, by method " + sortMethod.name);
         const entriesArray = [...this.allGames.entries()];
         entriesArray.sort(([id1, game1], [id2, game2]) => sortMethod(game1, game2));
         if (isDescending) entriesArray.reverse();

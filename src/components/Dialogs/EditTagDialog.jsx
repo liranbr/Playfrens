@@ -7,21 +7,36 @@ import { Button, InfoIcon } from "@/components";
 
 // Both Edits existing tags, and Adds new ones - depending on whether a TagObject is provided, otherwise based on the newTagType
 export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagOfType = null }) {
-    const editOrAdd = editingTag instanceof TagObject;
-    const mode = editOrAdd ? "Edit" : "Add";
-    const tagType = editOrAdd ? editingTag.type : addingTagOfType;
+    const [advancedView, setAdvancedView] = useState(false);
+    const isEdit = editingTag instanceof TagObject;
+    const mode = isEdit ? "Edit" : "Add";
+    const tagType = isEdit ? editingTag.type : addingTagOfType;
     const title = mode + " " + tagTypeStrings[tagType].single;
-    const description = editOrAdd
+    const description = isEdit
         ? "Editing " + editingTag.name
         : "Adding a new " + tagTypeStrings[tagType].single;
     const dataStore = useDataStore();
 
     const handleSave = () => {
         const newTagName = document.getElementById("tagNameInput").value;
-        const savedSuccess = editOrAdd
-            ? dataStore.editTag(editingTag, newTagName)
-            : dataStore.addTag(new TagObject({ type: tagType, name: newTagName }));
-        if (savedSuccess) closeDialog();
+        const newSteamID = document.getElementById("tagSteamIDInput")?.value ?? "";
+        const newIconURL = document.getElementById("tagIconURLInput")?.value ?? "";
+        const savedSuccess = (() => {
+            if (isEdit) {
+                const data = {}
+                data["name"] = newTagName;
+                newSteamID !== undefined && (data["steamID"] = newSteamID);
+                newIconURL !== undefined && (data["iconURL"] = newIconURL);
+                return dataStore.editTag(editingTag, data);
+            }
+            else {
+                return dataStore.addTag(new (tagType === "friend" ? FriendTagObject : TagObject)({ type: tagType, name: newTagName }))
+            }
+        })()
+
+        if (savedSuccess) {
+            closeDialog();
+        }
     };
     const saveOnEnter = (e) => {
         if (e.key === "Enter") {
@@ -54,6 +69,30 @@ export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagO
                     defaultValue={editingTag?.name}
                     autoFocus
                 />
+                {
+                    tagType === "friend" &&
+                    <>
+                        {
+                            (advancedView || editingTag?.steamID) &&
+                            <>
+                                <label>Steam ID</label>
+                                <input
+                                    id="tagSteamIDInput"
+                                    onKeyDown={saveOnEnter}
+                                    defaultValue={editingTag?.steamID}
+                                    autoFocus
+                                />
+                                <label>Icon URL</label>
+                                <input
+                                    id="tagIconURLInput"
+                                    onKeyDown={saveOnEnter}
+                                    defaultValue={editingTag?.iconURL}
+                                    autoFocus
+                                />
+                            </>
+                        }
+                    </>
+                }
             </fieldset>
 
             {tagType === "friend" && (
@@ -69,6 +108,9 @@ export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagO
             )}
 
             <div className="rx-dialog-footer">
+                {!editingTag?.steamID && <Button variant="secondary" onClick={() => setAdvancedView(!advancedView)}>
+                    {advancedView ? "Simple" : "Advanced"}
+                </Button>}
                 <Button variant="secondary" onClick={closeDialog}>
                     Cancel
                 </Button>

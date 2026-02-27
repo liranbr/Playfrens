@@ -1,0 +1,43 @@
+#card-page {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    .app-brand {
+        position: absolute;
+        top: 32px;
+        left: 32px;
+        margin: 0;
+        color: #fff;
+        text-decoration: none;
+    }
+}
+
+.card-page-body {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--pf-bg-900);
+    height: 450px;
+    min-width: fit-content;
+    width: min(450px, 90%);
+    border-radius: 12px;
+    padding: 36px;
+    box-shadow: 8px 8px hsl(215 98% 42%);
+
+    .card-page-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        span {
+            color: var(--pf-fg-300);
+            font-size: 16px;
+        }
+    }
+}

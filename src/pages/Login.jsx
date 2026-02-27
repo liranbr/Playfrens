@@ -4,6 +4,7 @@ import { BiLogoDiscordAlt, BiLogoGoogle, BiLogoSteam } from "react-icons/bi";
 import { useUserStore } from "@/stores";
 import { Button } from "@/components";
 import "./Login.css";
+import "./CardPage.css";
 import { loadFromStorage, toastError } from "@/Utils.jsx";
 
 const Login = observer(() => {
@@ -17,9 +18,9 @@ const Login = observer(() => {
     if (window.location.search.includes("failed=true")) toastError("Login failed.");
 
     return (
-        <div id="login">
-            <div className="login-body">
-                <div className="login-header">
+        <div id="card-page">
+            <div className="card-page-body">
+                <div className="card-page-header">
                     <h1>Sign in</h1>
                     <span>to use Playfrens</span>
                 </div>

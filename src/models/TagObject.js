@@ -1,4 +1,4 @@
-import { makeAutoObservable } from "mobx";
+import { makeAutoObservable, makeObservable, observable } from "mobx";
 import { compareAlphaIgnoreCase } from "@/Utils.jsx";
 import { v4 as randomUUID } from "uuid";
 
@@ -60,7 +60,13 @@ export class TagObject {
         this.id = id ?? randomUUID();
         this.filteredGamesCount = 0;
         this.totalGamesCount = 0;
-        makeAutoObservable(this);
+        makeObservable(this, {
+            type: observable,
+            name: observable,
+            id: observable,
+            filteredGamesCount: observable,
+            totalGamesCount: observable,
+        });
     }
 
     /** @type {TagTypeStrings} */
@@ -87,14 +93,49 @@ export class TagObject {
     }
 
     toString() {
-        return `TagObject, id: ${this.id}, tagType: ${this.type}, name: ${this.name}`;
+        return `${this.constructor.name}, id: ${this.id}, tagType: ${this.type}, name: ${this.name}`;
     }
 }
 
 // for later, when Friends get unique properties like DiscordID, SteamID, ProfilePictureURL, etc.
-class FriendTagObject extends TagObject {
-    constructor(name, id) {
+export class FriendTagObject extends TagObject {
+    steamID = "";
+    iconURL = "";
+    constructor({ name, id, steamID, iconURL }) {
         super({ type: tagTypes.friend, name: name, id: id });
+        this.steamID = steamID;
+        this.iconURL = iconURL;
+        makeObservable(this, {
+            steamID: observable,
+            iconURL: observable,
+        });
+    }
+
+    toJSON() {
+        const obj = super.toJSON();
+        return {
+            ...obj,
+            steamID: this.steamID,
+            iconURL: this.iconURL,
+        };
+    }
+
+    toString() {
+        const result = super.toString();
+        return `${result}, steamID: ${this.steamID}, iconURL: ${this.iconURL}`;
+    }
+    /**
+     * Only for data that we would like to keep updating without hurting the user's setup.
+     *
+     * For now, only Steam Avatars.
+     */
+    updateSteamData({ iconURL }) {
+        let dataChanged = false;
+        if (iconURL !== undefined && iconURL !== this.iconURL) {
+            this.iconURL = iconURL;
+            dataChanged = true;
+        }
+        return dataChanged;
     }
 }
 

@@ -6,6 +6,7 @@ import {
     compareTagFilteredGamesCount,
     compareTagNamesAZ,
     compareTagTotalGamesCount,
+    FriendTagObject,
     GameObject,
     ReminderObject,
     storeTypes,
@@ -21,6 +22,7 @@ import {
     loadFromStorage,
     moveItemInArray,
     saveToStorage,
+    setToastSilence,
     toastError,
     toastSuccess,
 } from "@/Utils.jsx";
@@ -141,10 +143,14 @@ export class DataStore {
     /** @param {{[key: string]: any[]}} tagCollection - object holding, per tagType, an array of [id, serialized TagObject] entries */
     populateTags(tagCollection) {
         for (const tagType in tagCollection) {
+            console.log(tagType);
             this.allTags[tagType] = new ObservableMap(
                 tagCollection[tagType]
                     .filter(Boolean)
-                    .map(([id, tagJson]) => [id, new TagObject(tagJson)]),
+                    .map(([id, tagJson]) => [
+                        id,
+                        new (tagType === "friend" ? FriendTagObject : TagObject)(tagJson),
+                    ]),
             );
         }
     }
@@ -336,6 +342,36 @@ export class DataStore {
         return toastSuccess(`Added ${tag.name} to ${tag.typeStrings.plural} list`);
     }
 
+    importTags(tags) {
+        setToastSilence(true);
+        let updated = 0;
+        let skipped = 0;
+        const friendList = [...this.allTags[tagTypes.friend].values()];
+        for (const tag of tags) {
+            if (tag instanceof FriendTagObject) {
+                // Check if this friend from Steam is already imported
+                /** @type {FriendTagObject} */
+                const friend = friendList.find(
+                    (t) => t instanceof FriendTagObject && t.steamID === tag.steamID,
+                );
+                // If found, then try updating.
+                if (friend) {
+                    if (friend.updateSteamData({ iconURL: tag.iconURL })) {
+                        updated++;
+                    } else skipped++;
+                    continue;
+                }
+            }
+            this.addTag(tag);
+        }
+        setToastSilence(false);
+        return skipped === tags.length
+            ? toastSuccess("All data is up to date.")
+            : toastSuccess(
+                  `Added ${tags.length - updated - skipped} to ${tags[0].typeStrings.plural} list. (${updated} updated, ${skipped} skipped.)`,
+              );
+    }
+
     deleteTag(tag) {
         if (!(tag instanceof TagObject)) return toastError("Invalid tag object: " + tag);
         if (!this.allTags[tag.type].has(tag.id))
@@ -347,7 +383,7 @@ export class DataStore {
         return toastSuccess(`Deleted ${tag.name} from ${tag.typeStrings.plural} list`);
     }
 
-    editTag(tag, newName) {
+    _editTag(tag, { newName }) {
         if (tag.name === newName) return true; // nothing to do here, until adding more fields to edit
         // Editing needs to be in the DataStore rather than the object itself, to prevent duplicate names
         if (!(tag instanceof TagObject)) return toastError("Invalid tag object: " + tag);
@@ -367,6 +403,44 @@ export class DataStore {
         const oldName = tag.name;
         storedTag.name = newName;
         return toastSuccess(`Updated ${oldName} to ${newName} in ${tag.typeStrings.plural} list`);
+    }
+
+    editTag(tag, data = {}) {
+        if (!(tag instanceof TagObject)) return toastError("Invalid tag object: " + tag);
+        const fullList = this.allTags[tag.type];
+        const storedTag = fullList.get(tag.id);
+        if (!storedTag)
+            return toastError(`${tag.name} does not exist in ${tag.typeStrings.plural} list.`);
+
+        for (const key in data) {
+            // Only for name tag we need to ensure "uniqueness".
+            if (key === "name") {
+                // Also make sure it was changed, skip otherwise.
+                const newName = data[key];
+                if (tag.name === newName) {
+                    // Don't skip the other data!
+                    if (Object.keys(data).length > 1) continue;
+                    else return true;
+                }
+
+                if (!newName || typeof newName !== "string" || !newName.trim()) {
+                    return toastError(`Cannot save a ${tag.typeStrings.single} without a name`);
+                }
+                data["name"] = ensureUniqueName(
+                    [...fullList.values()].map((t) => t.name),
+                    newName,
+                );
+                storedTag.name = data["name"];
+            }
+            // Defined inside so we should update the info
+            else if (key in tag) {
+                console.log(key);
+                storedTag[key] = data[key];
+            }
+        }
+        return toastSuccess(
+            `Updated ${Object.keys(data).length > 1 ? `${Object.keys(data).length} enteries for` : ``} ${storedTag["name"]} in ${tag.typeStrings.plural} list`,
+        );
     }
 
     allTagsFlatForEach(callbackfn) {

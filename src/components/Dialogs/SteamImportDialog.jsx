@@ -5,9 +5,12 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useState } from "react";
 import { DialogBase } from "./DialogRoot.jsx";
 import "./SteamImportDialog.css";
+import { useDataStore } from "@/stores/DataStore.js";
+import { FriendTagObject } from "@/models/TagObject.js";
 
 export const SteamImportDialog = ({ open, closeDialog }) => {
     const [loading, setLoading] = useState(false);
+    const dataStore = useDataStore();
     const processUsername = async () => {
         /** @type {string} */
         const id = document.getElementById("SteamIDInput").value;
@@ -116,29 +119,31 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
             <body>
         `);
 
-            // ===== FRIENDS SECTION (above items) =====
             if (frens.length > 0) {
                 win.document.write(`<h2>Friends (${frens.length})</h2>`);
                 win.document.write(`<div class="friends-container">`);
+                const friendTags = [];
 
                 for (const fren of frens) {
-                    if (!fren.visible) continue;
+                    // if (!fren.visible) continue;
+                    console.log(fren);
 
                     const avatarUrl = fren.avatar?.medium || "";
                     const profileUrl = fren.url || "#";
                     const nickname = fren.nickname || "Unknown";
-
+                    const steamID = fren.steamID;
                     win.document.write(`
                     <a href="${profileUrl}" target="_blank" title="${nickname}">
                         <img src="${avatarUrl}" alt="${nickname}">
                     </a>
                 `);
+                    friendTags.push(new FriendTagObject({ name: nickname, iconURL: avatarUrl, steamID }));
                 }
+                dataStore.importTags(friendTags);
 
                 win.document.write(`</div>`);
             }
 
-            // ===== ITEMS SECTION =====
             win.document.write(`<h1>Total items: ${items.length}</h1>`);
 
             for (const item of items) {

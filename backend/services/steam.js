@@ -357,7 +357,8 @@ export class SteamWebService extends Service {
                 return Response.send(res, OK, results);
             }
         }
-        return Response.send(res, BAD_REQUEST, await response.json());
+        const result = await response.json();
+        return Response.send(res, BAD_REQUEST, result);
     }
 
     /**

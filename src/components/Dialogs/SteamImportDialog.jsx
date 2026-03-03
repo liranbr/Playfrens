@@ -132,9 +132,6 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                 const friendTags = [];
 
                 for (const fren of frens) {
-                    // if (!fren.visible) continue;
-                    console.log(fren);
-
                     const avatarUrl = fren.avatar?.medium || "";
                     const profileUrl = fren.url || "#";
                     const nickname = fren.nickname || "Unknown";
@@ -152,13 +149,11 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
             }
 
             win?.document.write(`<h1>Total items: ${items.length}</h1>`);
-            // console.log(items);
             const games = []
             for (const item of items) {
                 const game = {};
 
                 let imageUrl;
-                console.log(item);
                 if (item.assets?.asset_url_format) {
                     imageUrl = `https://shared.steamstatic.com/store_item_assets/${item.assets.asset_url_format.replace("${FILENAME}", item.assets.library_capsule_2x ?? item.assets.library_capsule)}`;
                 } else {

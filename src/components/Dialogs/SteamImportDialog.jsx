@@ -30,6 +30,7 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
         return json.id;
     };
 
+    const DEBUG_OPEN_DATA_IN_NEW_TAB = false;
     const doImport = async () => {
         if (loading) return;
         setLoading(true);
@@ -50,8 +51,10 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
             if (document.getElementById("games-wishlist").checked) {
                 const res = await fetch(`/api/steam/getWishlistIDs?id=${id}`);
                 if (!res.ok) throw Error("Error occurred during importing wishlist");
-                const wishtlistIDs = await res.json();
-                groupedIDs["wishlist"] = wishtlistIDs;
+                if (res.status !== 204) {
+                    const wishtlistIDs = await res.json();
+                    groupedIDs["wishlist"] = wishtlistIDs;
+                }
             }
 
 
@@ -91,37 +94,41 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                 2: "Singleplayer"
             };
 
-            const win = window.open("", "_blank");
+            // For debugging, don't enable for production
+            const win = DEBUG_OPEN_DATA_IN_NEW_TAB ? window.open("", "_blank") : null;
 
-            win.document.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
+            win?.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
                 <title>Items Test</title>
                 <style>
-                    body { font-family: Arial, sans-serif; }
-                    .friends-container {
-                        display: flex;
-                        flex-wrap: wrap;
-                        gap: 6px;
-                        margin-bottom: 20px;
-                        align-items: center;
-                    }
-                    .friends-container img {
-                        width: 64px;
-                        height: 64px;
-                        border-radius: 4px;
-                    }
-                    .item { margin-bottom: 30px; }
-                    .item img { width: 300px; display: block; }
+                body { font-family: Arial, sans-serif; }
+                .friends-container {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 6px;
+                    margin-bottom: 20px;
+                    align-items: center;
+                }
+                .friends-container img {
+                    width: 64px;
+                    height: 64px;
+                    border-radius: 4px;
+                }
+                .item { margin-bottom: 30px; }
+                .item img { width: 300px; display: block; }
                 </style>
-            </head>
-            <body>
-        `);
+                </head>
+                <body>
+            `);
+
 
             if (frens.length > 0) {
-                win.document.write(`<h2>Friends (${frens.length})</h2>`);
-                win.document.write(`<div class="friends-container">`);
+                if (DEBUG_OPEN_DATA_IN_NEW_TAB) {
+                    win?.document.write(`<h2>Friends (${frens.length})</h2>`);
+                    win?.document.write(`<div class="friends-container">`);
+                }
                 const friendTags = [];
 
                 for (const fren of frens) {
@@ -132,7 +139,7 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                     const profileUrl = fren.url || "#";
                     const nickname = fren.nickname || "Unknown";
                     const steamID = fren.steamID;
-                    win.document.write(`
+                    win?.document.write(`
                     <a href="${profileUrl}" target="_blank" title="${nickname}">
                         <img src="${avatarUrl}" alt="${nickname}">
                     </a>
@@ -141,45 +148,59 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                 }
                 dataStore.importTags(friendTags);
 
-                win.document.write(`</div>`);
+                win?.document.write(`</div>`);
             }
 
-            win.document.write(`<h1>Total items: ${items.length}</h1>`);
-
+            win?.document.write(`<h1>Total items: ${items.length}</h1>`);
+            // console.log(items);
+            const games = []
             for (const item of items) {
-                const supportedIds = item.categories?.supported_player_categoryids || [];
-
-                const supportedNames = supportedIds
-                    .filter(id => categoryMap[id])
-                    .map(id => categoryMap[id]);
+                const game = {};
 
                 let imageUrl;
-                if (item.assets?.asset_url_format && item.assets?.header) {
-                    imageUrl = `https://cdn.cloudflare.steamstatic.com/${item.assets.asset_url_format.replace("${FILENAME}", item.assets.header)}`;
+                console.log(item);
+                if (item.assets?.asset_url_format) {
+                    imageUrl = `https://shared.steamstatic.com/store_item_assets/${item.assets.asset_url_format.replace("${FILENAME}", item.assets.library_capsule_2x ?? item.assets.library_capsule)}`;
                 } else {
-                    imageUrl = `https://cdn.akamai.steamstatic.com/steam/apps/${item.appid}/header.jpg`;
+                    imageUrl = `https://cdn.akamai.steamstatic.com/steam/apps/${item.appid}/${item.assets.library_capsule_2x ?? item.assets.library_capsule}`;
                 }
+                game["title"] = item.name
+                game["coverImageURL"] = imageUrl;
+                game["sortingTitle"] = "";
+                game["storeType"] = "steam";
+                game["storeID"] = item.id;
 
-                const comingSoonLabel = item.is_coming_soon === true
-                    ? `<p style="color:red;"><strong>Coming Soon</strong></p>`
-                    : "";
+                games.push(game);
+                if (DEBUG_OPEN_DATA_IN_NEW_TAB) {
+                    const supportedIds = item.categories?.supported_player_categoryids || [];
 
-                win.document.write(`
-                <div class="item">
-                    <h2>${item.name}</h2>
-                    ${comingSoonLabel}
-                    <img src="${imageUrl}" alt="${item.name}">
-                    <p>Supported: ${supportedNames.join(" / ") || "None"}</p>
-                </div>
-            `);
+                    const supportedNames = supportedIds
+                        .filter(id => categoryMap[id])
+                        .map(id => categoryMap[id]);
+
+                    const comingSoonLabel = item.is_coming_soon === true
+                        ? `<p style="color:red;"><strong>Coming Soon</strong></p>`
+                        : "";
+
+                    win?.document.write(`
+                        <div class="item">
+                        <h2>${item.name}</h2>
+                        ${comingSoonLabel}
+                        <img src="${imageUrl}" alt="${item.name}">
+                        <p>Supported: ${supportedNames.join(" / ") || "None"}</p>
+                        </div>
+                        `);
+
+                }
             }
+            dataStore.importGames(games);
 
-            win.document.write(`
+            win?.document.write(`
             </body>
             </html>
         `);
 
-            win.document.close();
+            win?.document.close();
             setLoading(false);
             return null;
 

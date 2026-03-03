@@ -109,12 +109,38 @@ export class LoginService extends Service {
         const loginCallbackRoute = (provider, callbackPath) => ({
             method: "get",
             path: `/auth/${provider}/${callbackPath}`,
-            handler: [
-                passport.authenticate(provider, {
-                    failureRedirect: loginFailedRoute,
-                }),
-                this.loginCallback.bind(this),
-            ],
+            handler: (req, res, next) => {
+                passport.authenticate(
+                    provider,
+                    {
+                        failureRedirect: loginFailedRoute,
+                    },
+                    (err, user, info) => {
+                        console.log("OAuth ERROR:", err);
+                        console.log("OAuth INFO:", info);
+                        console.log("OAuth USER:", user);
+
+                        if (err) {
+                            console.error("OAuth fatal error:", err);
+                            return next(err);
+                        }
+
+                        if (!user) {
+                            console.error("OAuth login failed:", info);
+                            return res.redirect(loginFailedRoute);
+                        }
+
+                        req.logIn(user, (loginErr) => {
+                            if (loginErr) {
+                                console.error("Session login error:", loginErr);
+                                return next(loginErr);
+                            }
+
+                            return this.loginCallback(req, res, next);
+                        });
+                    },
+                )(req, res, next);
+            },
         });
 
         super.listen();
@@ -148,7 +174,10 @@ export class LoginService extends Service {
 
     // Return function called after successful login
     async loginCallback(req, res) {
-        console.log(`Hello, ${req.user?.display_name} from ${req.user?.provider}! 👋`);
+        console.log("USER", req.user);
+        console.log(
+            `Hello, ${req.user?.display_name || req.user?.username || "unknown user"} from ${req.user?.provider}! 👋`,
+        );
         res.redirect("/app");
     }
 

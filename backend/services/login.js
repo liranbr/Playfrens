@@ -162,7 +162,7 @@ export class LoginService extends Service {
             },
             // Login Routers
             loginRoute("steam"),
-            loginRoute("google", { scope: ["profile", "openid", "email"] }),
+            loginRoute("google", { scope: ["profile", "openid"] }),
             loginRoute("discord"),
             // Strategy Callbacks
             loginCallbackRoute("steam", "return"),
@@ -261,17 +261,6 @@ export class LoginService extends Service {
             }
         })();
 
-        const email = (() => {
-            switch (provider) {
-                case "google":
-                    return profile.emails?.[0]?.value;
-                // case "discord":
-                // return profile.email;
-                default:
-                    return null;
-            }
-        })();
-
         let userId;
 
         if (existingUser) {
@@ -282,20 +271,17 @@ export class LoginService extends Service {
                 .update({
                     display_name: profile.displayName,
                     avatar_url,
-                    email,
                     last_login: new Date(),
                 })
                 .eq("id", userId);
             if (updateError) throw updateError;
         } else {
             // Insert new user
-            console.log(email);
             const { data: newUser, error: insertError } = await supabase
                 .from("users")
                 .insert({
                     display_name: profile.displayName,
                     avatar_url,
-                    email,
                     provider,
                     provider_id: providerId,
                     last_login: new Date(),

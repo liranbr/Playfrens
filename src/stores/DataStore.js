@@ -513,10 +513,39 @@ export class DataStore {
             sgdbID: sgdbID,
         });
         if (this.allGames.has(newGame.id))
-            throw new Error("What do you MEAN this uuid already exists");
+            throw new Error(`What do you MEAN this uuid (${newGame.id}) already exists`);
         this.allGames.set(newGame.id, newGame);
         toastSuccess("Added " + title + " to games list");
         return newGame; // used to open the GamePage right after adding the game
+    }
+
+    importGames(games) {
+        let importedGames = 0,
+            skipped = 0;
+        const allGamesArray = [...this.allGames.values()];
+        for (const game of games) {
+            let { title } = game;
+            const { coverImageURL, sortingTitle, storeType, storeID, sgdbID } = game;
+            title = ensureUniqueName(
+                allGamesArray.map((g) => g.title),
+                title,
+            );
+            const newGame = new GameObject({
+                title: title,
+                coverImageURL: coverImageURL,
+                sortingTitle: sortingTitle,
+                storeType: storeType,
+                storeID: storeID,
+                sgdbID: sgdbID,
+            });
+            if (this.allGames.has(newGame.id)) {
+                console.error(`What do you MEAN this uuid (${newGame.id}) already exists`);
+                skipped++;
+            }
+            this.allGames.set(newGame.id, newGame);
+            importedGames++;
+        }
+        toastSuccess(`Imported ${importedGames} games. (${skipped} skipped)`);
     }
 
     deleteGame(game) {

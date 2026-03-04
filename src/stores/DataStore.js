@@ -24,6 +24,7 @@ import {
     saveToStorage,
     setToastSilence,
     toastError,
+    toastInfo,
     toastSuccess,
 } from "@/Utils.jsx";
 import { version } from "/package.json";
@@ -354,6 +355,7 @@ export class DataStore {
                 const friend = friendList.find(
                     (t) => t instanceof FriendTagObject && t.steamID === tag.steamID,
                 );
+                console.log(friend);
                 // If found, then try updating.
                 if (friend) {
                     if (friend.updateSteamData({ iconURL: tag.iconURL })) {
@@ -366,7 +368,7 @@ export class DataStore {
         }
         setToastSilence(false);
         return skipped === tags.length
-            ? toastSuccess("All data is up to date.")
+            ? toastInfo("Friends data is up to date.")
             : toastSuccess(
                   `Added ${tags.length - updated - skipped} to ${tags[0].typeStrings.plural} list. (${updated} updated, ${skipped} skipped.)`,
               );
@@ -519,33 +521,42 @@ export class DataStore {
         return newGame; // used to open the GamePage right after adding the game
     }
 
-    importGames(games) {
+    importSteamGames(games) {
         let importedGames = 0,
             skipped = 0;
-        const allGamesArray = [...this.allGames.values()];
+
         for (const game of games) {
-            let { title } = game;
-            const { coverImageURL, sortingTitle, storeType, storeID, sgdbID } = game;
-            title = ensureUniqueName(
-                allGamesArray.map((g) => g.title),
+            const { title, coverImageURL, sortingTitle, storeType, storeID, sgdbID } = game;
+
+            // People don't import the same game twice! So we skip those for now!
+            const alreadyExists = [...this.allGames.values()].some(
+                (g) => storeType === g.storeType && g.storeID === storeID,
+            );
+            if (alreadyExists) {
+                skipped++;
+                continue;
+            }
+
+            const uniqueTitle = ensureUniqueName(
+                [...this.allGames.values()].map((g) => g.title),
                 title,
             );
+
             const newGame = new GameObject({
-                title: title,
-                coverImageURL: coverImageURL,
-                sortingTitle: sortingTitle,
-                storeType: storeType,
-                storeID: storeID,
-                sgdbID: sgdbID,
+                title: uniqueTitle,
+                coverImageURL,
+                sortingTitle,
+                storeType,
+                storeID,
+                sgdbID,
             });
-            if (this.allGames.has(newGame.id)) {
-                console.error(`What do you MEAN this uuid (${newGame.id}) already exists`);
-                skipped++;
-            }
+
             this.allGames.set(newGame.id, newGame);
             importedGames++;
         }
-        toastSuccess(`Imported ${importedGames} games. (${skipped} skipped)`);
+
+        if (importedGames === 0) toastInfo(`All Steam games data is up to date.`);
+        else toastSuccess(`Imported ${importedGames} games. (${skipped} skipped)`);
     }
 
     deleteGame(game) {

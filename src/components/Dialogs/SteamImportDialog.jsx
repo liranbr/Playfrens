@@ -188,7 +188,7 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
 
                 }
             }
-            dataStore.importGames(games);
+            dataStore.importSteamGames(games);
 
             win?.document.write(`
             </body>
@@ -276,11 +276,11 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
             </label>
 
             <div className="rx-dialog-footer">
-                <Button variant="secondary" onClick={doImport}>
-                    {loading ? "Loading..." : "Get Data"}
-                </Button>
                 <Button variant="secondary" onClick={closeDialog}>
                     Close
+                </Button>
+                <Button variant="primary" onClick={doImport}>
+                    {loading ? "Loading..." : "Import"}
                 </Button>
             </div>
         </DialogBase>

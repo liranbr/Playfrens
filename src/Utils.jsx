@@ -18,6 +18,15 @@ export async function toastSuccess(message) {
 
 /**
  * @param {string} message
+ * @returns {true}
+ */
+export async function toastInfo(message) {
+    if (!silentToasts) toast.info(message);
+    return true;
+}
+
+/**
+ * @param {string} message
  * @returns {false}
  */
 export function toastError(message) {

@@ -8,10 +8,19 @@ textarea {
     font-size: inherit;
 }
 
-a {
+a,
+.link-like {
     color: var(--pf-fg-link);
+    cursor: pointer;
     &:hover {
         color: var(--pf-fg-link-hover);
+    }
+    &.link-like {
+        background: none;
+        border: none;
+        outline: none;
+        font-size: inherit;
+        width: fit-content;
     }
 }
 
@@ -178,11 +187,11 @@ input[type="checkbox"] {
 .dialog-callout {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
     background: var(--pf-bg-700);
     border: var(--pf-border-700);
     border-radius: 16px;
-    padding: 16px;
+    padding: 12px 16px;
 
     ol {
         padding-left: 4px;

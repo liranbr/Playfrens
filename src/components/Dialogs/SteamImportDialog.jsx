@@ -10,6 +10,7 @@ import { FriendTagObject } from "@/models/TagObject.js";
 
 export const SteamImportDialog = ({ open, closeDialog }) => {
     const [loading, setLoading] = useState(false);
+    const [instrExpanded, setInstrExpanded] = useState(false);
     const dataStore = useDataStore();
     const processUsername = async () => {
         /** @type {string} */
@@ -30,6 +31,10 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
         return json.id;
     };
 
+    const handleToggleInstr = () => {
+        setInstrExpanded(!instrExpanded);
+    };
+
     const DEBUG_OPEN_DATA_IN_NEW_TAB = false;
     const doImport = async () => {
         if (loading) return;
@@ -45,7 +50,6 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                 if (!res.ok) throw Error("Error occurred during importing game libraries");
                 const libraryIDs = await res.json();
                 groupedIDs["game_library"] = libraryIDs;
-
             }
 
             if (document.getElementById("games-wishlist").checked) {
@@ -57,7 +61,6 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                 }
             }
 
-
             if (document.getElementById("friends-list").checked) {
                 const res = await fetch(`/api/steam/getFriends?id=${id}`);
                 if (!res.ok) throw Error("Error occurred during importing friend list");
@@ -66,12 +69,11 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
 
             if (Object.keys(groupedIDs).length <= 0 && frens.length <= 0) return;
 
-            const releasedOnly = !document.getElementById(
-                "also-unreleased-wishlist-checkbox"
-            ).checked;
+            const releasedOnly = !document.getElementById("also-unreleased-wishlist-checkbox")
+                .checked;
 
             const allow_singleplayer_games = document.getElementById(
-                "also-singleplayers-checkbox"
+                "also-singleplayers-checkbox",
             ).checked;
 
             const res2 = await fetch(`/api/steam/getItems`, {
@@ -82,7 +84,7 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                     // When done, returns all items without context from which group they come from.
                     groupedIDs,
                     categories: [1, ...(allow_singleplayer_games ? [2] : [])],
-                    releasedOnly
+                    releasedOnly,
                 }),
             });
             console.log(res2);
@@ -91,7 +93,7 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
             console.log(items);
             const categoryMap = {
                 1: "Multiplayer",
-                2: "Singleplayer"
+                2: "Singleplayer",
             };
 
             // For debugging, don't enable for production
@@ -123,7 +125,6 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                 <body>
             `);
 
-
             if (frens.length > 0) {
                 if (DEBUG_OPEN_DATA_IN_NEW_TAB) {
                     win?.document.write(`<h2>Friends (${frens.length})</h2>`);
@@ -141,7 +142,9 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                         <img src="${avatarUrl}" alt="${nickname}">
                     </a>
                 `);
-                    friendTags.push(new FriendTagObject({ name: nickname, iconURL: avatarUrl, steamID }));
+                    friendTags.push(
+                        new FriendTagObject({ name: nickname, iconURL: avatarUrl, steamID }),
+                    );
                 }
                 dataStore.importTags(friendTags);
 
@@ -149,7 +152,7 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
             }
 
             win?.document.write(`<h1>Total items: ${items.length}</h1>`);
-            const games = []
+            const games = [];
             for (const item of items) {
                 const game = {};
 
@@ -159,7 +162,7 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                 } else {
                     imageUrl = `https://cdn.akamai.steamstatic.com/steam/apps/${item.appid}/${item.assets.library_capsule_2x ?? item.assets.library_capsule}`;
                 }
-                game["title"] = item.name
+                game["title"] = item.name;
                 game["coverImageURL"] = imageUrl;
                 game["sortingTitle"] = "";
                 game["storeType"] = "steam";
@@ -170,12 +173,13 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                     const supportedIds = item.categories?.supported_player_categoryids || [];
 
                     const supportedNames = supportedIds
-                        .filter(id => categoryMap[id])
-                        .map(id => categoryMap[id]);
+                        .filter((id) => categoryMap[id])
+                        .map((id) => categoryMap[id]);
 
-                    const comingSoonLabel = item.is_coming_soon === true
-                        ? `<p style="color:red;"><strong>Coming Soon</strong></p>`
-                        : "";
+                    const comingSoonLabel =
+                        item.is_coming_soon === true
+                            ? `<p style="color:red;"><strong>Coming Soon</strong></p>`
+                            : "";
 
                     win?.document.write(`
                         <div class="item">
@@ -185,7 +189,6 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                         <p>Supported: ${supportedNames.join(" / ") || "None"}</p>
                         </div>
                         `);
-
                 }
             }
             dataStore.importSteamGames(games);
@@ -198,7 +201,6 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
             win?.document.close();
             setLoading(false);
             return null;
-
         } catch (err) {
             console.error(err);
         }
@@ -227,18 +229,23 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
 
             <div className="dialog-callout">
                 <b>The Steam profile and imported data must be public for this to work.</b>
-                <ol>
-                    <li>
-                        From your Steam Profile, click the <b>Edit Profile</b> button
-                    </li>
-                    <li>
-                        Open the <b>Privacy Settings</b>
-                    </li>
-                    <li>
-                        Set <b>My Profile</b>, <b>Game details</b>, and <b>Friends List</b> to{" "}
-                        <b>Public</b>
-                    </li>
-                </ol>
+                {instrExpanded && (
+                    <ol className={"steam-privacy-instructions"}>
+                        <li>
+                            From your Steam Profile, click the <b>Edit Profile</b> button
+                        </li>
+                        <li>
+                            Open the <b>Privacy Settings</b>
+                        </li>
+                        <li>
+                            Set <b>My Profile</b>, <b>Game details</b>, and <b>Friends List</b> to{" "}
+                            <b>Public</b>
+                        </li>
+                    </ol>
+                )}
+                <button className="link-like expander" onClick={handleToggleInstr}>
+                    {instrExpanded ? "minimize" : "how to"}
+                </button>
             </div>
 
             <fieldset>

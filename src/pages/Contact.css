@@ -1,6 +1,7 @@
 .contact-links {
     height: 100%;
     width: 100%;
+    flex-grow: 1;
 
     & > *:not(h2) {
         margin-left: 8px;

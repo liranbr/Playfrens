@@ -1,5 +1,6 @@
 #card-page {
-    height: 100vh;
+    min-height: 100vh;
+    padding: clamp(16px, 5%, 64px);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -22,8 +23,10 @@
     align-items: center;
     justify-content: space-between;
     background-color: var(--pf-bg-900);
-    height: 450px;
-    min-width: fit-content;
+    min-height: 450px;
+    height: fit-content;
+    max-height: 100% !important;
+    min-width: 300px;
     width: min(450px, 90%);
     border-radius: 12px;
     padding: 36px;

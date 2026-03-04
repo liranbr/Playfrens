@@ -1,0 +1,12 @@
+h2,
+h3 {
+    margin-top: 1.5em;
+    margin-bottom: 0.25em;
+}
+h2 + h3 {
+    margin-top: 0; /* for cases where there's a subheading right under a heading */
+}
+
+.card-page-body {
+    width: min(700px, 90%) !important;
+}

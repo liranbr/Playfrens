@@ -14,7 +14,13 @@ import {
     globalDialogStore,
     useDataStore,
 } from "@/stores";
-import { SidebarTagButton, IconButton, CenterAndEdgesRow, SimpleTooltip } from "@/components";
+import {
+    SidebarTagButton,
+    IconButton,
+    CenterAndEdgesRow,
+    SimpleTooltip,
+    ArrowToFeature,
+} from "@/components";
 import "./TagButtonGroup.css";
 import { useState } from "react";
 
@@ -30,9 +36,11 @@ export const SidebarTagButtonGroup = observer(({ tagType }) => {
             <CenterAndEdgesRow className="ui-card-header">
                 <SidebarTBGMenu tagType={tagType} />
                 <h4>{typeStrings.plural.toUpperCase()}</h4>
-                <SimpleTooltip message={"Add a new " + typeStrings.single}>
-                    <IconButton icon={<MdAdd />} onClick={handleAddButtonClick} />
-                </SimpleTooltip>
+                <ArrowToFeature enable={allTags[tagType].size === 0}>
+                    <SimpleTooltip message={"Add a new " + typeStrings.single}>
+                        <IconButton icon={<MdAdd />} onClick={handleAddButtonClick} />
+                    </SimpleTooltip>
+                </ArrowToFeature>
             </CenterAndEdgesRow>
 
             <div className="tag-button-list">

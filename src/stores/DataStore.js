@@ -145,7 +145,6 @@ export class DataStore {
     /** @param {{[key: string]: any[]}} tagCollection - object holding, per tagType, an array of [id, serialized TagObject] entries */
     populateTags(tagCollection) {
         for (const tagType in tagCollection) {
-            console.log(tagType);
             this.allTags[tagType] = new ObservableMap(
                 tagCollection[tagType]
                     .filter(Boolean)

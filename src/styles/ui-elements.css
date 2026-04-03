@@ -205,9 +205,10 @@ input[type="checkbox"] {
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
         border: none;
+        width: fit-content;
         border-left: 4px solid hsl(var(--hsl-base-btn-primary) 60%);
         gap: 8px;
-        padding: 8px;
+        padding: 12px;
 
         p {
             color: var(--pf-fg-500);

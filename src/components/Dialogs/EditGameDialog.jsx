@@ -193,7 +193,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
 
                 <div className="rx-dialog-footer">
                     <div className="footer-left">
-                        <Button variant="secondary" onClick={() => setAdvancedView(!advancedView)}>
+                        <Button variant="ghost" onClick={() => setAdvancedView(!advancedView)}>
                             {advancedView ? "Simple" : "Advanced"}
                         </Button>
                     </div>
@@ -374,8 +374,10 @@ function CoversGallery({
                     covers.push(currentCoverImage());
                 }
                 if (officialCoverImage) {
-                    if (!coverImageURL) setCoverImageURL(officialCoverImage.url);
-                    else if (coverImageURL === officialCoverImage.url)
+                    if (!coverImageURL) {
+                        setCoverImageURL(officialCoverImage.url);
+                        setCoverThumbURL(officialCoverImage.thumb);
+                    } else if (coverImageURL === officialCoverImage.url)
                         officialCoverImage.previousSelection = true;
                     officialCoverImage.officialOf = sgdbID;
                     covers.push(officialCoverImage);

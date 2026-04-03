@@ -24,16 +24,20 @@ export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagO
         const newIconURL = document.getElementById("tagIconURLInput")?.value ?? "";
         const savedSuccess = (() => {
             if (isEdit) {
-                const data = {}
+                const data = {};
                 data["name"] = newTagName;
                 newSteamID !== undefined && (data["steamID"] = newSteamID);
                 newIconURL !== undefined && (data["iconURL"] = newIconURL);
                 return dataStore.editTag(editingTag, data);
+            } else {
+                return dataStore.addTag(
+                    new (tagType === "friend" ? FriendTagObject : TagObject)({
+                        type: tagType,
+                        name: newTagName,
+                    }),
+                );
             }
-            else {
-                return dataStore.addTag(new (tagType === "friend" ? FriendTagObject : TagObject)({ type: tagType, name: newTagName }))
-            }
-        })()
+        })();
 
         if (savedSuccess) {
             closeDialog();
@@ -70,37 +74,30 @@ export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagO
                     defaultValue={editingTag?.name}
                     autoFocus
                 />
-                {
-                    tagType === "friend" &&
+                {tagType === "friend" && (advancedView || editingTag?.steamID) && (
                     <>
-                        {
-                            (advancedView || editingTag?.steamID) &&
-                            <>
-                                <label>Steam ID</label>
-                                <input
-                                    id="tagSteamIDInput"
-                                    onKeyDown={saveOnEnter}
-                                    defaultValue={editingTag?.steamID}
-                                    autoFocus
-                                />
-                                <label>Icon URL</label>
-                                <input
-                                    id="tagIconURLInput"
-                                    onKeyDown={saveOnEnter}
-                                    defaultValue={editingTag?.iconURL}
-                                    autoFocus
-                                />
-                            </>
-                        }
+                        <label>Steam ID</label>
+                        <input
+                            id="tagSteamIDInput"
+                            onKeyDown={saveOnEnter}
+                            defaultValue={editingTag?.steamID}
+                            autoFocus
+                        />
+                        <label>Icon URL</label>
+                        <input
+                            id="tagIconURLInput"
+                            onKeyDown={saveOnEnter}
+                            defaultValue={editingTag?.iconURL}
+                            autoFocus
+                        />
                     </>
-                }
+                )}
             </fieldset>
 
             {tagType === "friend" && (
-                <div className="dialog-callout info">
-                    <span className="info-icon" />
+                <div className="dialog-callout info" style={{ marginTop: "16px" }}>
                     <p>
-                        You can import your Steam friends list{" "}
+                        You can import Steam friends{" "}
                         <button className="link-like" onClick={handleGoToImport}>
                             here
                         </button>
@@ -109,9 +106,13 @@ export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagO
             )}
 
             <div className="rx-dialog-footer">
-                {!editingTag?.steamID && <Button variant="secondary" onClick={() => setAdvancedView(!advancedView)}>
-                    {advancedView ? "Simple" : "Advanced"}
-                </Button>}
+                {tagType === "friend" && !editingTag?.steamID && (
+                    <div className="footer-left">
+                        <Button variant="ghost" onClick={() => setAdvancedView(!advancedView)}>
+                            {advancedView ? "Simple" : "Advanced"}
+                        </Button>
+                    </div>
+                )}
                 <Button variant="secondary" onClick={closeDialog}>
                     Cancel
                 </Button>

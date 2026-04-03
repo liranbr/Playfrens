@@ -32,6 +32,11 @@ export class SteamWebService extends Service {
         this.registerRoutes([
             {
                 method: "get",
+                path: "/api/steam/getUserIDFromVanityName",
+                handler: this.getUserIDFromVanityName.bind(this),
+            },
+            {
+                method: "get",
                 path: "/api/steam/getUserLibrary",
                 handler: this.getUserLibrary.bind(this),
             },

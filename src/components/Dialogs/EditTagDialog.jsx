@@ -1,9 +1,10 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { DialogBase } from "./DialogRoot.jsx";
-import { TagObject, tagTypeStrings } from "@/models";
+import { TagObject, tagTypeStrings, FriendTagObject } from "@/models";
 import { Dialogs, globalDialogStore, useDataStore } from "@/stores";
 import { Button, InfoIcon } from "@/components";
+import { useState } from "react";
 
 // Both Edits existing tags, and Adds new ones - depending on whether a TagObject is provided, otherwise based on the newTagType
 export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagOfType = null }) {

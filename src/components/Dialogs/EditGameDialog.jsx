@@ -193,7 +193,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
 
                 <div className="rx-dialog-footer">
                     <div className="footer-left">
-                        <Button variant="secondary" onClick={() => setAdvancedView(!advancedView)}>
+                        <Button variant="ghost" onClick={() => setAdvancedView(!advancedView)}>
                             {advancedView ? "Simple" : "Advanced"}
                         </Button>
                     </div>

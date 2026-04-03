@@ -374,8 +374,10 @@ function CoversGallery({
                     covers.push(currentCoverImage());
                 }
                 if (officialCoverImage) {
-                    if (!coverImageURL) setCoverImageURL(officialCoverImage.url);
-                    else if (coverImageURL === officialCoverImage.url)
+                    if (!coverImageURL) {
+                        setCoverImageURL(officialCoverImage.url);
+                        setCoverThumbURL(officialCoverImage.thumb);
+                    } else if (coverImageURL === officialCoverImage.url)
                         officialCoverImage.previousSelection = true;
                     officialCoverImage.officialOf = sgdbID;
                     covers.push(officialCoverImage);

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { ToastContainer } from "react-toastify";
 import { Navigate } from "react-router-dom";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Avatar from "@radix-ui/react-avatar";
@@ -37,6 +36,7 @@ import {
     ReminderCard,
     SidebarTagButtonGroup,
     SimpleTooltip,
+    ArrowToFeature,
 } from "@/components";
 
 import "./Playfrens.css";
@@ -153,13 +153,15 @@ const AppHeader = observer(() => {
             </CenterAndEdgesRow>
 
             <div className="app-header-right">
-                <button
-                    className="new-game-button"
-                    onClick={() => globalDialogStore.open(Dialogs.EditGame)}
-                >
-                    <MdOutlineGamepad />
-                    Add Game
-                </button>
+                <ArrowToFeature enable={globalDataStore.allGames.size === 0}>
+                    <button
+                        className="new-game-button"
+                        onClick={() => globalDialogStore.open(Dialogs.EditGame)}
+                    >
+                        <MdOutlineGamepad />
+                        Add Game
+                    </button>
+                </ArrowToFeature>
 
                 <Notifications />
 

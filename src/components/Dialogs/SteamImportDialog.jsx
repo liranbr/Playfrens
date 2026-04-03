@@ -156,17 +156,23 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
             for (const item of items) {
                 const game = {};
 
-                let imageUrl;
+                let imageUrl, thumbUrl;
                 if (item.assets?.asset_url_format) {
-                    imageUrl = `https://shared.steamstatic.com/store_item_assets/${item.assets.asset_url_format.replace("${FILENAME}", item.assets.library_capsule_2x ?? item.assets.library_capsule)}`;
+                    imageUrl = `https://shared.steamstatic.com/store_item_assets/${item.assets.asset_url_format.replace("${FILENAME}", item.assets.library_capsule_2x ?? item.assets.library_capsule)}`.split("?")[0];
+                    thumbUrl = `https://shared.steamstatic.com/store_item_assets/${item.assets.asset_url_format.replace("${FILENAME}", item.assets.library_capsule)}`.split("?")[0];
                 } else {
-                    imageUrl = `https://cdn.akamai.steamstatic.com/steam/apps/${item.appid}/${item.assets.library_capsule_2x ?? item.assets.library_capsule}`;
+                    imageUrl = `https://cdn.akamai.steamstatic.com/steam/apps/${item.appid}/${item.assets.library_capsule_2x ?? item.assets.library_capsule}`.split("?")[0];
+                    thumbUrl = imageUrl;
                 }
                 game["title"] = item.name;
                 game["coverImageURL"] = imageUrl;
+                game["coverThumbURL"] = thumbUrl;
+                console.log(imageUrl, thumbUrl);
+                game["thumbUrl"] = thumbUrl;
                 game["sortingTitle"] = "";
                 game["storeType"] = "steam";
                 game["storeID"] = item.id;
+                console.log(item.name, game["coverImageURL"]);
 
                 games.push(game);
                 if (DEBUG_OPEN_DATA_IN_NEW_TAB) {

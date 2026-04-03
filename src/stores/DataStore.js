@@ -528,7 +528,15 @@ export class DataStore {
             skipped = 0;
 
         for (const game of games) {
-            const { title, coverImageURL, sortingTitle, storeType, storeID, sgdbID } = game;
+            const {
+                title,
+                coverImageURL,
+                coverThumbURL,
+                sortingTitle,
+                storeType,
+                storeID,
+                sgdbID,
+            } = game;
 
             // People don't import the same game twice! So we skip those for now!
             const alreadyExists = [...this.allGames.values()].some(
@@ -547,6 +555,7 @@ export class DataStore {
             const newGame = new GameObject({
                 title: uniqueTitle,
                 coverImageURL,
+                coverThumbURL,
                 sortingTitle,
                 storeType,
                 storeID,

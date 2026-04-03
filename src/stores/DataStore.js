@@ -803,7 +803,15 @@ function defaultTagsSample() {
     return {
         [tT.friend]: [],
         [tT.category]: ["Playthrough", "Round-based", "Persistent World"],
-        [tT.status]: ["Playing", "LFG", "Paused", "Backlog", "Abandoned", "Finished"],
+        [tT.status]: [
+            "Playing",
+            "Play Anytime",
+            "LFG",
+            "Paused",
+            "Backlog",
+            "Abandoned",
+            "Finished",
+        ],
     };
 }
 

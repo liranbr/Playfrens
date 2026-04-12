@@ -1,12 +1,12 @@
 import { getSteamIDFromVanity } from "@/APIUtils.js";
 import { Button, InfoIcon } from "@/components";
+import { FriendTagObject } from "@/models/TagObject.js";
+import { useDataStore } from "@/stores/DataStore.js";
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useState } from "react";
 import { DialogBase } from "./DialogRoot.jsx";
 import "./SteamImportDialog.css";
-import { useDataStore } from "@/stores/DataStore.js";
-import { FriendTagObject } from "@/models/TagObject.js";
 
 export const SteamImportDialog = ({ open, closeDialog }) => {
     const [loading, setLoading] = useState(false);
@@ -126,10 +126,9 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
             `);
 
             if (frens.length > 0) {
-                if (DEBUG_OPEN_DATA_IN_NEW_TAB) {
-                    win?.document.write(`<h2>Friends (${frens.length})</h2>`);
-                    win?.document.write(`<div class="friends-container">`);
-                }
+                win?.document.write(`<h2>Friends (${frens.length})</h2>`);
+                win?.document.write(`<div class="friends-container">`);
+
                 const friendTags = [];
 
                 for (const fren of frens) {
@@ -158,10 +157,19 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
 
                 let imageUrl, thumbUrl;
                 if (item.assets?.asset_url_format) {
-                    imageUrl = `https://shared.steamstatic.com/store_item_assets/${item.assets.asset_url_format.replace("${FILENAME}", item.assets.library_capsule_2x ?? item.assets.library_capsule)}`.split("?")[0];
-                    thumbUrl = `https://shared.steamstatic.com/store_item_assets/${item.assets.asset_url_format.replace("${FILENAME}", item.assets.library_capsule)}`.split("?")[0];
+                    imageUrl =
+                        `https://shared.steamstatic.com/store_item_assets/${item.assets.asset_url_format.replace("${FILENAME}", item.assets.library_capsule_2x ?? item.assets.library_capsule)}`.split(
+                            "?",
+                        )[0];
+                    thumbUrl =
+                        `https://shared.steamstatic.com/store_item_assets/${item.assets.asset_url_format.replace("${FILENAME}", item.assets.library_capsule)}`.split(
+                            "?",
+                        )[0];
                 } else {
-                    imageUrl = `https://cdn.akamai.steamstatic.com/steam/apps/${item.appid}/${item.assets.library_capsule_2x ?? item.assets.library_capsule}`.split("?")[0];
+                    imageUrl =
+                        `https://cdn.akamai.steamstatic.com/steam/apps/${item.appid}/${item.assets.library_capsule_2x ?? item.assets.library_capsule}`.split(
+                            "?",
+                        )[0];
                     thumbUrl = imageUrl;
                 }
                 game["title"] = item.name;

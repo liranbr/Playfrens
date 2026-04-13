@@ -96,6 +96,7 @@ function EmptyGridPlaceholder() {
         <span className="empty-grid-placeholder">
             <SlGameController />
             <p>{message}</p>
+            <img src="/Playfrens_empty_couch.png" alt="So much space for games!" />
         </span>
     );
 }

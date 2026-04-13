@@ -191,4 +191,10 @@
         font-style: italic;
         color: var(--pf-fg-700);
     }
+
+    img {
+        width: min(600px, 50vw);
+        margin-top: 128px;
+        opacity: 0.6;
+    }
 }

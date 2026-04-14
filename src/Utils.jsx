@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { toast } from "react-toastify";
 
 let silentToasts = false;
@@ -217,4 +217,51 @@ export async function coverToThumb(coverURL) {
     }
     const thumbURL = await findFirstValidImage(sources);
     return thumbURL ?? coverURL;
+}
+
+/**
+ * Checks if an object's fields differ from provided values
+ *
+ * @template {object} T
+ * @param {T} obj - The object we are checking
+ * @param {Partial<T>} partial - a partial object containing Key/value that will be compared with obj
+ * @returns {boolean} true if any value is different
+ *
+ * Example:
+ * obj = { icon: "a", type: "b" }
+ *
+ * partial1 = { icon: "x" }
+ * partial2 = { icon: "a" }
+ * partial3 = { bad_key_icon: "a" }
+ * partial1 -> compares obj.icon !== "x" (true)
+ * partial2 -> compares obj.icon !== "a" (false)
+ * partial3 -> nothing to compare (false)
+ */
+export function shouldUpdateObject(obj, partial = {}) {
+    return Object.entries(partial).some(([key, value]) => {
+        return obj[key] !== value;
+    });
+}
+
+/**
+ * Updates an object's fields from a partial object (only if values differ)
+ *
+ * @template {object} T
+ * @param {T} obj - The object to update
+ * @param {Partial<T>} partial - Key/value pairs to apply
+ * @returns {boolean} true if any value was changed
+ */
+export function updateObject(obj, partial = {}) {
+    let updated = false;
+
+    for (const key of /** @type {Array<keyof T>} */ (Object.keys(partial))) {
+        const value = partial[key];
+
+        if (obj[key] !== value) {
+            obj[key] = value;
+            updated = true;
+        }
+    }
+
+    return updated;
 }

@@ -7,14 +7,16 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useState } from "react";
 import { DialogBase } from "./DialogRoot.jsx";
 import "./SteamImportDialog.css";
+import { toastError, toastSuccess } from "@/Utils.jsx";
 
 export const SteamImportDialog = ({ open, closeDialog }) => {
     const [loading, setLoading] = useState(false);
-    const [instrExpanded, setInstrExpanded] = useState(false);
+    const [instructionsVisible, setInstructionsVisible] = useState(false);
     const dataStore = useDataStore();
     const processUsername = async () => {
         /** @type {string} */
         const id = document.getElementById("SteamIDInput").value;
+
         const regexNumbersOnly = /^\d+$/;
         if (regexNumbersOnly.test(id)) {
             // Not valid, id length mismatch
@@ -31,11 +33,13 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
         return json.id;
     };
 
-    const handleToggleInstr = () => {
-        setInstrExpanded(!instrExpanded);
-    };
-
     const DEBUG_OPEN_DATA_IN_NEW_TAB = false;
+    const handleImport = async () => {
+        const steamID = await processUsername();
+        const importValid = !!steamID;
+        if (importValid) toastSuccess("Yippeee " + steamID);
+        else toastError("AAAA");
+    };
     const doImport = async () => {
         if (loading) return;
         setLoading(true);
@@ -243,22 +247,29 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
 
             <div className="dialog-callout">
                 <b>The Steam profile and imported data must be public for this to work.</b>
-                {instrExpanded && (
-                    <ol className={"steam-privacy-instructions"}>
-                        <li>
-                            From your Steam Profile, click the <b>Edit Profile</b> button
-                        </li>
-                        <li>
-                            Open the <b>Privacy Settings</b>
-                        </li>
-                        <li>
-                            Set <b>My Profile</b>, <b>Game details</b>, and <b>Friends List</b> to{" "}
-                            <b>Public</b>
-                        </li>
-                    </ol>
-                )}
-                <button className="link-like expander" onClick={handleToggleInstr}>
-                    {instrExpanded ? "minimize" : "how to"}
+                <ol
+                    className={
+                        "steam-privacy-instructions" + (instructionsVisible ? "" : " instr-hidden")
+                    }
+                >
+                    <li>
+                        From your Steam Profile, click the <b>Edit Profile</b> button
+                    </li>
+                    <li>
+                        Open the <b>Privacy Settings</b>
+                    </li>
+                    <li>
+                        Set <b>My Profile</b>, <b>Game details</b>, and <b>Friends List</b> to{" "}
+                        <b>Public</b>
+                    </li>
+                </ol>
+                <button
+                    className="link-like expander"
+                    onClick={() => {
+                        setInstructionsVisible((curr) => !curr);
+                    }}
+                >
+                    {instructionsVisible ? "minimize" : "how to"}
                 </button>
             </div>
 
@@ -300,7 +311,7 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                 <Button variant="secondary" onClick={closeDialog}>
                     Close
                 </Button>
-                <Button variant="primary" onClick={doImport}>
+                <Button variant="primary" onClick={handleImport}>
                     {loading ? "Loading..." : "Import"}
                 </Button>
             </div>

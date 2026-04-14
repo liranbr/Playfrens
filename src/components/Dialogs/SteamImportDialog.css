@@ -9,6 +9,14 @@ input#SteamIDInput {
 
 .steam-privacy-instructions {
     font-size: 14px;
+    line-height: 1.5;
+    height: 64px; /* 3 lines of 14px * 1.5 line-height */
+    overflow: hidden;
+    transition: 0.2s ease;
+
+    &.instr-hidden {
+        height: 0;
+    }
 }
 
 .link-like.expander {

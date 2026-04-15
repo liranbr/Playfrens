@@ -1,6 +1,7 @@
-import { createContext, useContext } from "react";
 import { action, computed, makeAutoObservable, ObservableMap, reaction, runInAction } from "mobx";
+import { createContext, useContext } from "react";
 
+import { saveBoard } from "@/APIUtils.js";
 import {
     compareGameTitlesAZ,
     compareTagFilteredGamesCount,
@@ -13,24 +14,25 @@ import {
     TagObject,
     tagTypes,
 } from "@/models";
+import { Party } from "@/models/GameObject.js";
 import { globalSettingsStore, settingsStorageKey, userStore } from "@/stores";
-import { SortingReaction } from "./SortingReaction.js";
 import {
-    DELETEME_AllowDBSave,
+    coverToThumb,
     deleteItemFromArray,
+    DELETEME_AllowDBSave,
     ensureUniqueName,
     loadFromStorage,
     moveItemInArray,
     saveToStorage,
     setToastSilence,
+    shouldUpdateObject,
     toastError,
     toastInfo,
     toastSuccess,
-    coverToThumb,
+    updateObject,
 } from "@/Utils.jsx";
+import { SortingReaction } from "./SortingReaction.js";
 import { version } from "/package.json";
-import { Party } from "@/models/GameObject.js";
-import { saveBoard } from "@/APIUtils.js";
 
 const tT = tagTypes; // Short alias for convenience, used a lot here
 export const defaultFiltersStorageKey = "defaultFilters";
@@ -339,34 +341,47 @@ export class DataStore {
         return toastSuccess(`Added ${tag.name} to ${tag.typeStrings.plural} list`);
     }
 
-    importTags(tags) {
-        setToastSilence(true);
-        let updated = 0;
-        let skipped = 0;
-        const friendList = [...this.allTags[tagTypes.friend].values()];
-        for (const tag of tags) {
-            if (tag instanceof FriendTagObject) {
-                // Check if this friend from Steam is already imported
-                /** @type {FriendTagObject} */
-                const friend = friendList.find(
-                    (t) => t instanceof FriendTagObject && t.steamID === tag.steamID,
-                );
-                console.log(friend);
-                // If found, then try updating.
-                if (friend) {
-                    if (friend.updateSteamData({ iconURL: tag.iconURL })) {
-                        updated++;
-                    } else skipped++;
-                    continue;
-                }
+    // Flags which needs to be added, updated or skipped.
+    preImportFriends(remoteFriends) {
+        /** @type {{ toAdd: object[], toUpdate: {old: object[], latest: object[]}, toSkip: object[] }} remoteFriends */
+        const list = { toAdd: [], toUpdate: { old: [], latest: [] }, toSkip: [] };
+        const currentFriendList = [...this.allTags[tagTypes.friend].values()];
+        for (const remoteFriend of remoteFriends) {
+            /** @type {FriendTagObject} */
+            const frenExists = currentFriendList.find(
+                (t) => t instanceof FriendTagObject && t.steamID === remoteFriend.steamID,
+            );
+
+            if (!frenExists) {
+                list.toAdd.push(remoteFriend);
+            } else if (shouldUpdateObject(frenExists, { iconURL: remoteFriend.iconURL })) {
+                list.toUpdate.old.push(frenExists);
+                list.toUpdate.latest.push(remoteFriend);
+            } else {
+                list.toSkip.push(remoteFriend);
             }
-            this.addTag(tag);
         }
+        return list;
+    }
+
+    /**
+     * Call preImportFriends before calling this function to get the list
+     * Updates Friends using a list of sorted remote friend tags
+     * @param {{ toAdd: object[], toUpdate: {old: object[], latest: object[]}, toSkip: object[] }} remoteFriends
+     */
+    importFriends(remoteFriends) {
+        setToastSilence(true);
+        const { old, latest } = remoteFriends.toUpdate;
+        for (let i = 0; i < old.length && i < latest.length; i++) updateObject(old[i], {iconURL: latest[i].iconURL});
+        const toAdd = remoteFriends.toAdd;
+        toAdd.forEach((element) => {
+            this.addTag(element);
+        });
         setToastSilence(false);
-        return skipped === tags.length
+        return remoteFriends.toAdd.length === 0 && remoteFriends.toUpdate.latest.length === 0
             ? toastInfo("Friends data is up to date.")
             : toastSuccess(
-                  `Added ${tags.length - updated - skipped} to ${tags[0].typeStrings.plural} list. (${updated} updated, ${skipped} skipped.)`,
+                  `Added ${remoteFriends.toAdd.length} to friend list. (${remoteFriends.toUpdate.latest.length} updated, ${remoteFriends.toSkip.length} skipped.)`,
               );
     }
 

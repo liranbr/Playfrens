@@ -1,5 +1,5 @@
 # So what are we playing?
-[Playfrens](https://playfrens.onrender.com/) helps you play with friends.  
+[Playfrens](https://playfrens.com/) helps you play with friends.  
 Manage your games library to find, plan, and play together!
 
 Playfrens is the only library manager where you and your friends can organize your shared interest in games, not just ownership, to easily answer questions like:  

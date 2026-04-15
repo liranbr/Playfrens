@@ -194,7 +194,7 @@
 
     img {
         width: min(600px, 50vw);
-        margin-top: 128px;
+        margin-top: 32px;
         opacity: 0.6;
     }
 }

@@ -89,7 +89,7 @@ const GameCard = observer(({ game }) => {
 
 function EmptyGridPlaceholder() {
     const dataStore = useDataStore();
-    const noGamesAddedYet = "No games added yet";
+    const noGamesAddedYet = "So much space for games!";
     const noFilteredResults = "No Results";
     const message = dataStore.allGames.size === 0 ? noGamesAddedYet : noFilteredResults;
     return (

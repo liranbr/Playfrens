@@ -1,5 +1,5 @@
-import { makeAutoObservable, makeObservable, observable } from "mobx";
 import { compareAlphaIgnoreCase } from "@/Utils.jsx";
+import { makeObservable, observable } from "mobx";
 import { v4 as randomUUID } from "uuid";
 
 export const tagTypes = {

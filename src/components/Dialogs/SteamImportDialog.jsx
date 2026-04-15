@@ -2,12 +2,12 @@ import { getSteamIDFromVanity } from "@/APIUtils.js";
 import { Button, InfoIcon } from "@/components";
 import { FriendTagObject } from "@/models/TagObject.js";
 import { useDataStore } from "@/stores/DataStore.js";
+import { toastError, toastSuccess } from "@/Utils.jsx";
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useState } from "react";
 import { DialogBase } from "./DialogRoot.jsx";
 import "./SteamImportDialog.css";
-import { toastError, toastSuccess } from "@/Utils.jsx";
 
 export const SteamImportDialog = ({ open, closeDialog }) => {
     const [loading, setLoading] = useState(false);
@@ -149,7 +149,9 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                         new FriendTagObject({ name: nickname, iconURL: avatarUrl, steamID }),
                     );
                 }
-                dataStore.importTags(friendTags);
+
+                const result = dataStore.preImportFriends(friendTags);
+                dataStore.importFriends(result);
 
                 win?.document.write(`</div>`);
             }
@@ -311,7 +313,7 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                 <Button variant="secondary" onClick={closeDialog}>
                     Close
                 </Button>
-                <Button variant="primary" onClick={handleImport}>
+                <Button variant="primary" onClick={doImport}>
                     {loading ? "Loading..." : "Import"}
                 </Button>
             </div>

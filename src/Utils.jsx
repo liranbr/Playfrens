@@ -227,15 +227,14 @@ export async function coverToThumb(coverURL) {
  * @param {Partial<T>} partial - a partial object containing Key/value that will be compared with obj
  * @returns {boolean} true if any value is different
  *
- * Example:
- * obj = { icon: "a", type: "b" }
- *
- * partial1 = { icon: "x" }
- * partial2 = { icon: "a" }
- * partial3 = { bad_key_icon: "a" }
- * partial1 -> compares obj.icon !== "x" (true)
- * partial2 -> compares obj.icon !== "a" (false)
- * partial3 -> nothing to compare (false)
+ * @example 
+ * const obj = { icon: "a", type: "b" }; 
+ * const p1 = { icon: "x" };
+ * const p2 = { icon: "a" };
+ * const p3 = { bad_key_icon: "a" };
+ * shouldUPdateObject(obj, p1); // true
+ * shouldUPdateObject(obj, p2); // false (matching values)
+ * shouldUPdateObject(obj, p3); // false (nothing to compare)
  */
 export function shouldUpdateObject(obj, partial = {}) {
     return Object.entries(partial).some(([key, value]) => {

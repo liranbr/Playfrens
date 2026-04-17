@@ -161,23 +161,18 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
             for (const item of items) {
                 const game = {};
 
-                let imageUrl, thumbUrl;
-                if (item.assets?.asset_url_format) {
-                    imageUrl =
-                        `https://shared.steamstatic.com/store_item_assets/${item.assets.asset_url_format.replace("${FILENAME}", item.assets.library_capsule_2x ?? item.assets.library_capsule)}`.split(
-                            "?",
-                        )[0];
-                    thumbUrl =
-                        `https://shared.steamstatic.com/store_item_assets/${item.assets.asset_url_format.replace("${FILENAME}", item.assets.library_capsule)}`.split(
-                            "?",
-                        )[0];
-                } else {
-                    imageUrl =
-                        `https://cdn.akamai.steamstatic.com/steam/apps/${item.appid}/${item.assets.library_capsule_2x ?? item.assets.library_capsule}`.split(
-                            "?",
-                        )[0];
-                    thumbUrl = imageUrl;
-                }
+                const buildSteamAssetURL = (item, filename) => {
+                    if (!filename) return null;
+                    const base = item.assets?.asset_url_format
+                        ? `https://shared.steamstatic.com/store_item_assets/${item.assets.asset_url_format.replace("${FILENAME}", filename)}`
+                        : `https://cdn.akamai.steamstatic.com/steam/apps/${item.appid}/${filename}`;
+
+                    return base.split("?")[0];
+                };
+
+                const imageUrl = buildSteamAssetURL(item, item.assets?.library_capsule_2x ?? item.assets?.library_capsule);
+                const thumbUrl = buildSteamAssetURL(item, item.assets?.library_capsule);
+
                 game["title"] = item.name;
                 game["coverImageURL"] = imageUrl;
                 game["coverThumbURL"] = thumbUrl;

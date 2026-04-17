@@ -91,10 +91,8 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                     releasedOnly,
                 }),
             });
-            console.log(res2);
 
             const items = await res2.json();
-            console.log(items);
             const categoryMap = {
                 1: "Multiplayer",
                 2: "Singleplayer",
@@ -176,12 +174,10 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                 game["title"] = item.name;
                 game["coverImageURL"] = imageUrl;
                 game["coverThumbURL"] = thumbUrl;
-                console.log(imageUrl, thumbUrl);
                 game["thumbUrl"] = thumbUrl;
                 game["sortingTitle"] = "";
                 game["storeType"] = "steam";
                 game["storeID"] = item.id;
-                console.log(item.name, game["coverImageURL"]);
 
                 games.push(game);
                 if (DEBUG_OPEN_DATA_IN_NEW_TAB) {

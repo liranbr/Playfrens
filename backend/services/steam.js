@@ -86,18 +86,19 @@ export class SteamWebService extends Service {
     async getUserIDFromVanityName(req, res) {
         /** @type {string} */
         const { vanity } = req.query;
-        const { OK, BAD_REQUEST } = Response.HttpStatus;
+        const { OK /*BAD_REQUEST*/ } = Response.HttpStatus;
         const isProfileURL =
             vanity.includes("https://steamcommunity.com/id/") ||
             vanity.includes("https://steamcommunity.com/profiles/");
-        if (!isProfileURL && /\W/.test(vanity)) {
-            Response.sendMessage(res, BAD_REQUEST, "Vanity names do not have symbols!");
-            return;
-        }
+        // if (!isProfileURL && /\W/.test(vanity)) {
+        //     Response.sendMessage(res, BAD_REQUEST, "Vanity names do not have symbols!");
+        //     return;
+        // }
         const client = this.connect();
         const id = await client.resolve(
             isProfileURL ? vanity : `https://steamcommunity.com/id/${vanity}`,
         );
+        console.log(res, id);
         Response.send(res, OK, { id });
     }
 

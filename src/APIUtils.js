@@ -48,6 +48,7 @@ export async function searchTitleOnStore(title, storeType, lang = "en", cc = "US
 }
 
 export async function getSteamIDFromVanity(vanity) {
+    if (!vanity) throw Error(`Invalid Steam ID/Name passed "${vanity}".`);
     return await fetch(`/api/steam/getUserIDFromVanityName?vanity=${vanity}`);
 }
 

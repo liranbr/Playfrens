@@ -35,10 +35,17 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
 
     const DEBUG_OPEN_DATA_IN_NEW_TAB = false;
     const handleImport = async () => {
-        const steamID = await processUsername();
-        const importValid = !!steamID;
-        if (importValid) toastSuccess("Yippeee " + steamID);
-        else toastError("AAAA");
+        try {
+            const steamID = await processUsername();
+            const importValid = !!steamID;
+            if (importValid) toastSuccess("Valid!!! :) " + steamID);
+        }
+        catch (e) {
+            /** @type {Error} */
+            const error = e;
+            toastError(error.message);
+        }
+
     };
     const doImport = async () => {
         if (loading) return;
@@ -304,7 +311,7 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                 <Button variant="secondary" onClick={closeDialog}>
                     Close
                 </Button>
-                <Button variant="primary" onClick={doImport}>
+                <Button variant="primary" onClick={handleImport}>
                     {loading ? "Loading..." : "Import"}
                 </Button>
             </div>

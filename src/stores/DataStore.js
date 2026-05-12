@@ -343,8 +343,7 @@ export class DataStore {
 
     // Flags which needs to be added, updated or skipped.
     preImportFriends(remoteFriends) {
-        /** @type {{ toAdd: object[], toUpdate: {old: object[], latest: object[]}, toSkip: object[] }} remoteFriends */
-        const list = { toAdd: [], toUpdate: { old: [], latest: [] }, toSkip: [] };
+        const list = this.#preImportList();
         const currentFriendList = [...this.allTags[tagTypes.friend].values()];
         for (const remoteFriend of remoteFriends) {
             /** @type {FriendTagObject} */
@@ -372,7 +371,8 @@ export class DataStore {
     importFriends(remoteFriends) {
         setToastSilence(true);
         const { old, latest } = remoteFriends.toUpdate;
-        for (let i = 0; i < old.length && i < latest.length; i++) updateObject(old[i], {iconURL: latest[i].iconURL});
+        for (let i = 0; i < old.length && i < latest.length; i++)
+            updateObject(old[i], { iconURL: latest[i].iconURL });
         const toAdd = remoteFriends.toAdd;
         toAdd.forEach((element) => {
             this.addTag(element);
@@ -537,11 +537,35 @@ export class DataStore {
         return newGame; // used to open the GamePage right after adding the game
     }
 
-    importSteamGames(games) {
-        let importedGames = 0,
-            skipped = 0;
+    preImportSteamGames(remoteGames) {
+        const list = this.#preImportList();
+        const currentGameList = [...this.allGames.values()];
+        for (const remoteGame of remoteGames) {
+            // Only import if its not from Steam and mismatched ID.
+            /** @type {GameObject} */
+            const gameExists = currentGameList.find((t) => {
+                return (
+                    t instanceof GameObject &&
+                    t.storeID === remoteGame.storeID &&
+                    t.storeType == "steam"
+                );
+            });
 
-        for (const game of games) {
+            if (!gameExists) list.toAdd.push(remoteGame);
+            else list.toSkip.push(remoteGame);
+        }
+
+        return list;
+    }
+
+    /**
+     * Call preImportSteamGames before calling this function to get the list
+     * Add/Skip Games using a list of sorted remote game objects
+     * @param {{ toAdd: object[], toUpdate: {old: object[], latest: object[]}, toSkip: object[] }} remoteGames
+     */
+    importSteamGames(remoteGames) {
+        const { toAdd } = remoteGames;
+        toAdd.forEach((element) => {
             const {
                 title,
                 coverImageURL,
@@ -550,16 +574,7 @@ export class DataStore {
                 storeType,
                 storeID,
                 sgdbID,
-            } = game;
-
-            // People don't import the same game twice! So we skip those for now!
-            const alreadyExists = [...this.allGames.values()].some(
-                (g) => storeType === g.storeType && g.storeID === storeID,
-            );
-            if (alreadyExists) {
-                skipped++;
-                continue;
-            }
+            } = element;
 
             const uniqueTitle = ensureUniqueName(
                 [...this.allGames.values()].map((g) => g.title),
@@ -577,11 +592,12 @@ export class DataStore {
             });
 
             this.allGames.set(newGame.id, newGame);
-            importedGames++;
-        }
-
-        if (importedGames === 0) toastInfo(`All Steam games data is up to date.`);
-        else toastSuccess(`Imported ${importedGames} games. (${skipped} skipped)`);
+        });
+        return remoteGames.toAdd.length === 0 && remoteGames.toUpdate.latest.length === 0
+            ? toastInfo("No Games to import.")
+            : toastSuccess(
+                  `Added ${remoteGames.toAdd.length} to friend list. (${remoteGames.toSkip.length} skipped.)`,
+              );
     }
 
     deleteGame(game) {
@@ -669,6 +685,10 @@ export class DataStore {
 
         // Needs to be runInAction because used by reaction, which seems to lose binding otherwise
         runInAction(() => this.allGames.replace(entriesArray));
+    }
+
+    #preImportList() {
+        return { toAdd: [], toUpdate: { old: [], latest: [] }, toSkip: [] };
     }
 }
 

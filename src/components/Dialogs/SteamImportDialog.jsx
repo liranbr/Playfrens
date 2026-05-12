@@ -2,6 +2,7 @@ import { getSteamIDFromVanity } from "@/APIUtils.js";
 import { Button, InfoIcon } from "@/components";
 import { FriendTagObject } from "@/models/TagObject.js";
 import { useDataStore } from "@/stores/DataStore.js";
+import { Dialogs, globalDialogStore } from "@/stores/DialogStore.js";
 import { toastError, toastSuccess } from "@/Utils.jsx";
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
@@ -38,18 +39,21 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
         try {
             const steamID = await processUsername();
             const importValid = !!steamID;
-            if (importValid) toastSuccess("Valid!!! :) " + steamID);
-        }
-        catch (e) {
+            if (importValid) {
+                toastSuccess("Valid!!! :) " + steamID);
+                doImport();
+            }
+        } catch (e) {
             /** @type {Error} */
             const error = e;
             toastError(error.message);
         }
-
     };
     const doImport = async () => {
         if (loading) return;
         setLoading(true);
+        let friendsResult = [],
+            gamesResult = [];
 
         try {
             const id = await processUsername();
@@ -155,8 +159,8 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                     );
                 }
 
-                const result = dataStore.preImportFriends(friendTags);
-                dataStore.importFriends(result);
+                friendsResult = dataStore.preImportFriends(friendTags);
+                // dataStore.importFriends(friendsResult);
 
                 win?.document.write(`</div>`);
             }
@@ -175,7 +179,10 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                     return base.split("?")[0];
                 };
 
-                const imageUrl = buildSteamAssetURL(item, item.assets?.library_capsule_2x ?? item.assets?.library_capsule);
+                const imageUrl = buildSteamAssetURL(
+                    item,
+                    item.assets?.library_capsule_2x ?? item.assets?.library_capsule,
+                );
                 const thumbUrl = buildSteamAssetURL(item, item.assets?.library_capsule);
 
                 game["title"] = item.name;
@@ -209,7 +216,14 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                         `);
                 }
             }
-            dataStore.importSteamGames(games);
+            gamesResult = dataStore.preImportSteamGames(games);
+            globalDialogStore.open(Dialogs.SteamImportConfirm, {
+                gamesResult,
+                friendsResult,
+            });
+            // closeDialog();
+
+            // dataStore.importSteamGames(gamesResult);
 
             win?.document.write(`
             </body>

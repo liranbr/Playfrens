@@ -1,16 +1,17 @@
-import { action, makeAutoObservable } from "mobx";
-import { ChoosePartyToAddTagDialog } from "@/components/Dialogs/ChoosePartyToAddTagDialog.jsx";
-import { AccountSettingsDialog } from "@/components/Dialogs/AccountSettingsDialog.jsx";
-import { GenericWarningDialog } from "@/components/Dialogs/GenericWarningDialog.jsx";
-import { DeleteWarningDialog } from "@/components/Dialogs/DeleteWarningDialog.jsx";
-import { SteamImportDialog } from "@/components/Dialogs/SteamImportDialog.jsx";
-import { EditGameDialog } from "@/components/Dialogs/EditGameDialog.jsx";
-import { GamePageDialog } from "@/components/Dialogs/GamePageDialog.jsx";
-import { SettingsDialog } from "@/components/Dialogs/SettingsDialog.jsx";
-import { EditTagDialog } from "@/components/Dialogs/EditTagDialog.jsx";
 import { AboutDialog } from "@/components/Dialogs/AboutDialog.jsx";
-import { List, Item } from "linked-list";
+import { AccountSettingsDialog } from "@/components/Dialogs/AccountSettingsDialog.jsx";
+import { ChoosePartyToAddTagDialog } from "@/components/Dialogs/ChoosePartyToAddTagDialog.jsx";
+import { DeleteWarningDialog } from "@/components/Dialogs/DeleteWarningDialog.jsx";
+import { EditGameDialog } from "@/components/Dialogs/EditGameDialog.jsx";
+import { EditTagDialog } from "@/components/Dialogs/EditTagDialog.jsx";
+import { GamePageDialog } from "@/components/Dialogs/GamePageDialog.jsx";
+import { GenericWarningDialog } from "@/components/Dialogs/GenericWarningDialog.jsx";
+import { SettingsDialog } from "@/components/Dialogs/SettingsDialog.jsx";
+import { SteamConfirmImportDialog } from "@/components/Dialogs/SteamConfirmImportDialog.jsx";
+import { SteamImportDialog } from "@/components/Dialogs/SteamImportDialog.jsx";
 import { parseDuration } from "@/Utils";
+import { Item, List } from "linked-list";
+import { action, makeAutoObservable } from "mobx";
 
 export const Dialogs = {
     ChoosePartyToAddTag: ChoosePartyToAddTagDialog,
@@ -18,6 +19,7 @@ export const Dialogs = {
     GenericWarning: GenericWarningDialog,
     DeleteWarning: DeleteWarningDialog,
     SteamImport: SteamImportDialog,
+    SteamImportConfirm: SteamConfirmImportDialog,
     EditGame: EditGameDialog,
     GamePage: GamePageDialog,
     Settings: SettingsDialog,

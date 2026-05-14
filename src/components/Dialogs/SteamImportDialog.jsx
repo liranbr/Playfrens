@@ -32,6 +32,7 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                 toastSuccess("DEBUGGING: Fetched user library");
                 const libraryIDs = await res.json();
                 console.log("Library IDs:\n" + libraryIDs);
+                await doImport();
             }
         } catch (e) {
             toastError(e.message);
@@ -44,7 +45,8 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
             gamesResult = [];
 
         try {
-            const id = await processUsername();
+            const username = document.getElementById("SteamIDInput").value;
+            const id = await processUsername(username);
             const groupedIDs = {};
             let frens = [];
 
@@ -281,7 +283,7 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                     <br />
                     <small>Examples: gabelogannewell, 76561197960287930</small>
                 </label>
-                <input id="SteamIDInput" autoFocus placeholder="Username" />
+                <input id="SteamIDInput" autoFocus placeholder="Username" defaultValue={"shakkourshadi"} />
             </fieldset>
 
             <label className="checkbox-label">

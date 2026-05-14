@@ -1,0 +1,55 @@
+.rx-dialog.steam-confirm-import-dialog {
+    display: flex;
+    flex-direction: column;
+    width: 900px;
+    max-width: 85vw;
+    height: 825px; /* fits a little over two rows of covers, to indicate scrolling */
+    max-height: 85vh;
+    overflow: hidden;
+    h2 {
+        flex: 0 1 fit-content;
+    }
+    .steam-confirm-import-body {
+        flex: 1 1 0;
+        display: flex;
+        flex-direction: row;
+        overflow: hidden;
+
+        .separator-vertical {
+            margin: 0 20px;
+        }
+        .steam-confirm-import-fieldset {
+            flex: 1;
+            overflow-y: auto;
+            label {
+                width: fit-content;
+                border-bottom: 1px solid white;
+            }
+            .steam-confirm-import-list {
+                display: flex;
+                flex-wrap: wrap;
+                margin-left: 12px;
+                .steam-confirm-import-item {
+                    border: 2px solid grey;
+                    margin: 2px;
+                    padding: 2px 4px;
+                    border-radius: 10px;
+                    font-size: 14px;
+
+                    &.import-item-add {
+                        border: 2px solid hsl(120, 50%, 40%);
+                        background-color: hsla(120, 50%, 40%, 0.2);
+                    }
+                    &.import-item-skip {
+                        border: 2px solid hsl(0, 0%, 50%);
+                        background-color: hsla(0, 0%, 50%, 0.2);
+                    }
+                    &.import-item-update {
+                        border: 2px solid hsl(216, 65%, 40%);
+                        background-color: hsla(216, 65%, 40%, 0.2);
+                    }
+                }
+            }
+        }
+    }
+}

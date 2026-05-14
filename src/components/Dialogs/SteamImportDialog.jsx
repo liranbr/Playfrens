@@ -41,23 +41,27 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
     const doImport = async () => {
         if (loading) return;
         setLoading(true);
-        let friendsResult = [],
-            gamesResult = [];
 
+        const importFriends = document.getElementById("friends-list").checked;
+        const importLibrary = document.getElementById("games-library").checked;
+        const importWishlist = document.getElementById("games-wishlist").checked;
+
+        let friendsResult = {},
+            gamesResult = {};
         try {
             const username = document.getElementById("SteamIDInput").value;
             const id = await processUsername(username);
             const groupedIDs = {};
             let frens = [];
 
-            if (document.getElementById("games-library").checked) {
+            if (importLibrary) {
                 const res = await fetch(`/api/steam/getUserLibraryIDs?id=${id}`);
                 if (!res.ok) throw Error("Error occurred during importing game libraries");
                 const libraryIDs = await res.json();
                 groupedIDs["game_library"] = libraryIDs;
             }
 
-            if (document.getElementById("games-wishlist").checked) {
+            if (importWishlist) {
                 const res = await fetch(`/api/steam/getWishlistIDs?id=${id}`);
                 if (!res.ok) throw Error("Error occurred during importing wishlist");
                 if (res.status !== 204) {
@@ -66,7 +70,7 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                 }
             }
 
-            if (document.getElementById("friends-list").checked) {
+            if (importFriends) {
                 const res = await fetch(`/api/steam/getFriends?id=${id}`);
                 if (!res.ok) throw Error("Error occurred during importing friend list");
                 frens = await res.json();
@@ -149,6 +153,7 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                     );
                 }
 
+
                 friendsResult = dataStore.preImportFriends(friendTags);
                 // dataStore.importFriends(friendsResult);
 
@@ -206,7 +211,13 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                         `);
                 }
             }
-            gamesResult = dataStore.preImportSteamGames(games);
+
+            if (importLibrary || importWishlist)
+                gamesResult = dataStore.preImportSteamGames(games);
+
+
+
+
             globalDialogStore.open(Dialogs.SteamImportConfirm, {
                 gamesResult,
                 friendsResult,

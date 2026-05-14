@@ -14,39 +14,27 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
     const [loading, setLoading] = useState(false);
     const [instructionsVisible, setInstructionsVisible] = useState(false);
     const dataStore = useDataStore();
-    const processUsername = async () => {
-        /** @type {string} */
-        const id = document.getElementById("SteamIDInput").value;
-
-        const regexNumbersOnly = /^\d+$/;
-        if (regexNumbersOnly.test(id)) {
-            // Not valid, id length mismatch
-            if (id.length !== 17) return false;
-            // Valid
-            return id;
-        }
-
-        const res = await getSteamIDFromVanity(id);
-        if (!res.ok) {
-            throw Error("Error occured - " + res.status);
-        }
-        const json = await res.json();
-        return json.id;
-    };
 
     const DEBUG_OPEN_DATA_IN_NEW_TAB = false;
-    const handleImport = async () => {
+    const validateInput = async () => {
         try {
-            const steamID = await processUsername();
+            const username = document.getElementById("SteamIDInput").value;
+            const steamID = await processUsername(username);
             const importValid = !!steamID;
             if (importValid) {
-                toastSuccess("Valid!!! :) " + steamID);
-                doImport();
+                // TODO: Remove these temp debugging messages later
+                // TODO: If valid username, check access to the chosen data
+                toastSuccess("DEBUGGING: Valid username" + steamID);
+
+                // Testing games library
+                const res = await fetch(`/api/steam/getUserLibraryIDs?id=${steamID}`);
+                if (!res.ok) throw Error("Error occurred during importing game libraries");
+                toastSuccess("DEBUGGING: Fetched user library");
+                const libraryIDs = await res.json();
+                console.log("Library IDs:\n" + libraryIDs);
             }
         } catch (e) {
-            /** @type {Error} */
-            const error = e;
-            toastError(error.message);
+            toastError(e.message);
         }
     };
     const doImport = async () => {
@@ -313,7 +301,7 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
             <label className="checkbox-label">
                 <input type="checkbox" id="also-singleplayers-checkbox" />
                 Include Singleplayer games
-                <InfoIcon message="By default, only games that Steam marks as Multiplayer or Cooperative are imported. If you have many but only want a few of them, consider adding them manually." />
+                <InfoIcon message="By default, only games that Steam marks as Multiplayer or Cooperative are imported. If you only want to add a few singleplayers, consider adding them manually." />
             </label>
             <label className="checkbox-label">
                 <input type="checkbox" id="also-unreleased-wishlist-checkbox" />
@@ -325,10 +313,28 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                 <Button variant="secondary" onClick={closeDialog}>
                     Close
                 </Button>
-                <Button variant="primary" onClick={handleImport}>
+                <Button variant="primary" onClick={validateInput}>
                     {loading ? "Loading..." : "Import"}
                 </Button>
             </div>
         </DialogBase>
     );
+};
+
+// Gets SteamID64, from a SteamID64 or Custom URL, with or without the full steam url
+const processUsername = async (username) => {
+    if (!username) throw Error("Invalid username format");
+    username = username.trim();
+    if (username === "") throw Error("Username cannot be empty");
+
+    // Checks for a clean SteamID64
+    const IdIsNumbersOnly = /^\d+$/.test(username);
+    if (IdIsNumbersOnly && username.length === 17) return username; // Valid SteamID64
+
+    // Handles clean customURL, or full url + SteamID64/customURL
+    const res = await getSteamIDFromVanity(username);
+    if (!res.ok) throw Error(await res.text());
+
+    const json = await res.json();
+    return json.id;
 };

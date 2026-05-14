@@ -86,20 +86,32 @@ export class SteamWebService extends Service {
     async getUserIDFromVanityName(req, res) {
         /** @type {string} */
         const { vanity } = req.query;
-        const { OK /*BAD_REQUEST*/ } = Response.HttpStatus;
+        const { OK, NOT_FOUND, BAD_REQUEST } = Response.HttpStatus;
+        const vanityCleaned = vanity.trim();
         const isProfileURL =
-            vanity.includes("https://steamcommunity.com/id/") ||
-            vanity.includes("https://steamcommunity.com/profiles/");
-        // if (!isProfileURL && /\W/.test(vanity)) {
-        //     Response.sendMessage(res, BAD_REQUEST, "Vanity names do not have symbols!");
-        //     return;
-        // }
+            vanityCleaned.startsWith("http://steamcommunity.com/id/") ||
+            vanityCleaned.startsWith("https://steamcommunity.com/id/") ||
+            vanityCleaned.startsWith("http://steamcommunity.com/profiles/") ||
+            vanityCleaned.startsWith("https://steamcommunity.com/profiles/");
+        if (!isProfileURL && !/^[A-Za-z0-9_-]+$/.test(vanity)) {
+            Response.sendMessage(
+                res,
+                BAD_REQUEST,
+                "Steam Custom URLs can only have alphanumeric, underscore, or hyphen characters!",
+            );
+            return;
+        }
         const client = this.connect();
-        const id = await client.resolve(
-            isProfileURL ? vanity : `https://steamcommunity.com/id/${vanity}`,
-        );
-        console.log(res, id);
-        Response.send(res, OK, { id });
+        try {
+            const id = await client.resolve(
+                isProfileURL ? vanityCleaned : `https://steamcommunity.com/id/${vanityCleaned}`,
+            );
+            Response.send(res, OK, { id });
+        } catch (e) {
+            if (e.message === "No match") {
+                Response.sendMessage(res, NOT_FOUND, "Steam user not found.");
+            } else Response.sendMessage(res, BAD_REQUEST, e.message);
+        }
     }
 
     async getUserLibrary(req, res) {

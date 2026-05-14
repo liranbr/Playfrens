@@ -3,45 +3,45 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { DialogBase } from "./DialogRoot";
 import "./SteamConfirmImportDialog.css";
 
-const ChangesColumn = ({ data }) => {
+const ChangesColumn = ({ data, title }) => {
 
     const { toAdd, toUpdate, toSkip } = data;
+    const { old } = toUpdate;
 
     const appendItem = (name, indx, type = "add") => {
-        return <div className={`steam-confirm-import-item import-item-${type}`} key={`${name}-${indx}`}>{name}</div>;
+        return <div className={`steam-confirm-import-item item-${type}`} key={`${name}-${indx}`}>{name}</div>;
+    }
+
+    const createList = (data, type, label) => {
+        return (<>
+            {
+                data.length > 0 && <>
+                    <label><i>{label} {data.length} item{data.length > 1 ? "s" : ""}:</i></label>
+                    <div className="steam-confirm-import-list">
+                        {data.map((d, i) => appendItem(d.title || d.name, i, type))}
+                    </div>
+                </>
+            }
+        </>
+        )
     }
 
     return (<div className="steam-confirm-import-fieldset">
+        <h2>{title}</h2>
         <fieldset>
-            {toAdd.length > 0 &&
-                <>
-                    <label><i>Adding {toAdd.length} item{toAdd.length > 1 ? "s" : ""}:</i></label>
-                    <div className="steam-confirm-import-list">
-                        {toAdd.map((d, i) => appendItem(d.title || d.name, i, "add"))}
-                    </div>
-                </>
-            }
-            {toUpdate.old.length > 0 &&
-                <>
-                    <label><i>Updating {toUpdate.old.length} item{toUpdate.old.length > 1 ? "s" : ""}:</i></label>
-                    <div className="steam-confirm-import-list">
-                        {toUpdate.old.map((d, i) => appendItem(d.title || d.name, i, "update"))}
-                    </div>
-                </>
-            }
-            {toSkip.length > 0 &&
-                <>
-                    <label><i>Skipping {toSkip.length} item{toSkip.length > 1 ? "s" : ""}:</i></label>
-                    <div className="steam-confirm-import-list">
-                        {toSkip.map((d, i) => appendItem(d.title || d.name, i, "skip"))}
-                    </div>
-                </>
-            }
+            {createList(toAdd, "add", "Adding")}
+            {createList(old, "update", "Updating")}
+            {createList(toSkip, "skip", "Skipping")}
         </fieldset>
     </div>)
 }
 export const SteamConfirmImportDialog = ({ open, closeDialog, gamesResult, friendsResult }) => {
     console.log(gamesResult, friendsResult);
+    const importingGames = Object.keys(gamesResult).length > 0;
+    const importingFriends = Object.keys(friendsResult).length > 0;
+
+    console.log(importingGames, importingFriends)
+
     return (
         <DialogBase
             open={open}
@@ -59,9 +59,9 @@ export const SteamConfirmImportDialog = ({ open, closeDialog, gamesResult, frien
                 <Dialog.Description>Confirm if these matches your results.</Dialog.Description>
             </VisuallyHidden>
             <div className="steam-confirm-import-body">
-                <ChangesColumn data={gamesResult} />
-                <div className="separator-vertical" />
-                <ChangesColumn data={friendsResult} />
+                {importingGames && <ChangesColumn data={gamesResult} title="Games" />}
+                {importingGames && importingFriends && <div className="separator-vertical" />}
+                {importingFriends && <ChangesColumn data={friendsResult} title="Friends" />}
             </div>
         </DialogBase>
     );

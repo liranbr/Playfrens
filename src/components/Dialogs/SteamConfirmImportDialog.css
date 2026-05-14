@@ -36,15 +36,15 @@
                     border-radius: 10px;
                     font-size: 14px;
 
-                    &.import-item-add {
+                    &.item-add {
                         border: 2px solid hsl(120, 50%, 40%);
                         background-color: hsla(120, 50%, 40%, 0.2);
                     }
-                    &.import-item-skip {
+                    &.item-skip {
                         border: 2px solid hsl(0, 0%, 50%);
                         background-color: hsla(0, 0%, 50%, 0.2);
                     }
-                    &.import-item-update {
+                    &.item-update {
                         border: 2px solid hsl(216, 65%, 40%);
                         background-color: hsla(216, 65%, 40%, 0.2);
                     }

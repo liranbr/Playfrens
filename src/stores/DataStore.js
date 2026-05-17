@@ -565,6 +565,10 @@ export class DataStore {
      */
     importSteamGames(remoteGames) {
         const { toAdd } = remoteGames;
+        if (!toAdd) {
+            toastError("Bad object passed, {remoteGames.toAdd} is null.");
+            return;
+        }
         toAdd.forEach((element) => {
             const {
                 title,
@@ -596,7 +600,7 @@ export class DataStore {
         return remoteGames.toAdd.length === 0 && remoteGames.toUpdate.latest.length === 0
             ? toastInfo("No Games to import.")
             : toastSuccess(
-                  `Added ${remoteGames.toAdd.length} to friend list. (${remoteGames.toSkip.length} skipped.)`,
+                  `Added ${remoteGames.toAdd.length} to games list. (${remoteGames.toSkip.length} skipped.)`,
               );
     }
 

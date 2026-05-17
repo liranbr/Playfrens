@@ -2,6 +2,8 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { DialogBase } from "./DialogRoot";
 import "./SteamConfirmImportDialog.css";
+import { Button } from "../common/Button";
+import { useDataStore } from "@/stores";
 
 const ChangesColumn = ({ data, title }) => {
 
@@ -16,7 +18,7 @@ const ChangesColumn = ({ data, title }) => {
         return (<>
             {
                 data.length > 0 && <>
-                    <label><i>{label} {data.length} item{data.length > 1 ? "s" : ""}:</i></label>
+                    <label>{label} {data.length} item{data.length > 1 ? "s" : ""}:</label>
                     <div className="steam-confirm-import-list">
                         {data.map((d, i) => appendItem(d.title || d.name, i, type))}
                     </div>
@@ -26,22 +28,43 @@ const ChangesColumn = ({ data, title }) => {
         )
     }
 
-    return (<div className="steam-confirm-import-fieldset">
-        <h2>{title}</h2>
-        <fieldset>
-            {createList(toAdd, "add", "Adding")}
-            {createList(old, "update", "Updating")}
-            {createList(toSkip, "skip", "Skipping")}
-        </fieldset>
-    </div>)
+    const allSkipped = toSkip.length > 0 && toAdd.length == 0 && old.length == 0;
+
+    return (
+        <div className="steam-confirm-import-container">
+            <div className="steam-confirm-import-header">
+                <h2>{title}</h2>
+            </div>
+            <div className="steam-confirm-import-scrollable">
+                {
+                    allSkipped &&
+                    <div className="dialog-callout info" style={{ marginTop: "16px" }}>
+                        <p>
+                            No {title} to add or update.
+                        </p>
+                    </div>
+                }
+                {
+                    <fieldset>
+                        {createList(toAdd, "add", "Adding")}
+                        {createList(old, "update", "Updating")}
+                        {createList(toSkip, "skip", "Skipping")}
+                    </fieldset>
+                }
+            </div>
+        </div>
+    )
 }
 export const SteamConfirmImportDialog = ({ open, closeDialog, gamesResult, friendsResult }) => {
-    console.log(gamesResult, friendsResult);
+    const dataStore = useDataStore();
+    const pushImport = () => {
+        dataStore.importFriends(friendsResult);
+        dataStore.importSteamGames(gamesResult);
+        closeDialog();
+    }
+
     const importingGames = Object.keys(gamesResult).length > 0;
     const importingFriends = Object.keys(friendsResult).length > 0;
-
-    console.log(importingGames, importingFriends)
-
     return (
         <DialogBase
             open={open}
@@ -62,6 +85,14 @@ export const SteamConfirmImportDialog = ({ open, closeDialog, gamesResult, frien
                 {importingGames && <ChangesColumn data={gamesResult} title="Games" />}
                 {importingGames && importingFriends && <div className="separator-vertical" />}
                 {importingFriends && <ChangesColumn data={friendsResult} title="Friends" />}
+            </div>
+            <div className="rx-dialog-footer">
+                <Button variant="secondary" onClick={closeDialog}>
+                    Cancel
+                </Button>
+                <Button variant="primary" onClick={pushImport}>
+                    Import
+                </Button>
             </div>
         </DialogBase>
     );

@@ -227,8 +227,8 @@ export async function coverToThumb(coverURL) {
  * @param {Partial<T>} partial - a partial object containing Key/value that will be compared with obj
  * @returns {boolean} true if any value is different
  *
- * @example 
- * const obj = { icon: "a", type: "b" }; 
+ * @example
+ * const obj = { icon: "a", type: "b" };
  * const p1 = { icon: "x" };
  * const p2 = { icon: "a" };
  * const p3 = { bad_key_icon: "a" };
@@ -264,3 +264,24 @@ export function updateObject(obj, partial = {}) {
 
     return updated;
 }
+
+export const HttpStatus = Object.freeze({
+    // 2xx: Success
+    OK: 200,
+    CREATED: 201,
+    ACCEPTED: 202,
+    NO_CONTENT: 204,
+
+    // 4xx: Client Errors
+    BAD_REQUEST: 400,
+    UNAUTHORIZED: 401,
+    FORBIDDEN: 403,
+    NOT_FOUND: 404,
+    GONE: 410,
+    TOO_MANY_REQUESTS: 429,
+
+    // 5xx: Server Errors
+    INTERNAL_SERVER_ERROR: 500,
+    NOT_IMPLEMENTED: 501,
+    SERVICE_UNAVAILABLE: 503,
+}); // TODO: Replace all hardcoded magic numbers with these

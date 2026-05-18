@@ -3,7 +3,7 @@ import { Button, InfoIcon } from "@/components";
 import { FriendTagObject } from "@/models/TagObject.js";
 import { useDataStore } from "@/stores/DataStore.js";
 import { Dialogs, globalDialogStore } from "@/stores/DialogStore.js";
-import { toastError, toastSuccess } from "@/Utils.jsx";
+import { HttpStatus, toastError, toastSuccess } from "@/Utils.jsx";
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useState } from "react";
@@ -14,44 +14,64 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
     const [loading, setLoading] = useState(false);
     const [instructionsVisible, setInstructionsVisible] = useState(false);
     const dataStore = useDataStore();
+    const { NO_CONTENT, UNAUTHORIZED, NOT_FOUND } = HttpStatus;
+    const [validUser, setValidUser] = useState(true);
+    const [validLibrary, setValidLibrary] = useState(true);
+    const [validWishlist, setValidWishlist] = useState(true);
+    const [validFriends, setValidFriends] = useState(true);
+    const [validating, setValidating] = useState(false);
 
     const DEBUG_OPEN_DATA_IN_NEW_TAB = false;
     const validateInput = async () => {
         try {
+            setValidating(true);
+            setValidLibrary(true);
+            setValidWishlist(true);
+            setValidFriends(true);
+            setValidUser(false); // about to test it, and it can fail with a thrown error
             const username = document.getElementById("SteamIDInput").value;
             const steamID = await processUsername(username);
             const importValid = !!steamID;
+            setValidUser(!!steamID);
             if (importValid) {
                 const importingFriends = document.getElementById("friends-list").checked;
                 const importingLibrary = document.getElementById("games-library").checked;
                 const importingWishlist = document.getElementById("games-wishlist").checked;
                 // TODO: Remove these temp debugging messages later
                 // TODO: If valid username, check access to the chosen data, and ask for identity confirmation
-                toastSuccess("[DEBUGGING] Valid username: " + steamID);
 
-                const testImport = async (importingData, apiQuery, dataName) => {
+                const testImport = async (importingData, apiQuery, dataName, setValid) => {
                     if (importingData) {
                         const res = await fetch(`/api/steam/${apiQuery}?id=${steamID}`); // TODO: Avoid fetching twice, for validation + import
-                        if ([204, 401, 404].includes(res.status)) {
-                            // 204 = NO_CONTENT, 401 = UNAUTHORIZED, 404 = NOT_FOUND TODO: Standardize these results, to differentiate between empty vs unauthorized
+                        if ([NO_CONTENT, UNAUTHORIZED, NOT_FOUND].includes(res.status)) {
+                            // TODO: Standardize these results in the backend, to differentiate between empty vs unauthorized
+                            setValid(false);
                             toastError(`Can't access ${dataName}, or it is empty.`);
-                        } else if (!res.ok)
+                        } else if (!res.ok) {
+                            setValid(false);
                             throw Error(`Error occurred while importing ${dataName}`);
-                        else {
+                        } else {
                             const dataIDs = await res.json();
-                            toastSuccess(`[DEBUGGING] Fetched ${dataName}`);
+                            setValid(true);
                             console.log("${dataName} IDs:\n" + dataIDs);
                         }
                     }
                 };
 
-                await testImport(importingFriends, "getFriends", "Friendslist");
-                await testImport(importingLibrary, "getUserLibraryIDs", "Games library");
-                await testImport(importingWishlist, "getWishlistIDs", "Wishlist");
+                await testImport(importingFriends, "getFriends", "Friendslist", setValidFriends);
+                await testImport(
+                    importingLibrary,
+                    "getUserLibraryIDs",
+                    "Games library",
+                    setValidLibrary,
+                );
+                await testImport(importingWishlist, "getWishlistIDs", "Wishlist", setValidWishlist);
+                setValidating(false);
                 // await doImport();
             }
         } catch (e) {
             toastError(e.message);
+            setValidating(false);
         }
     };
     const doImport = async () => {
@@ -311,19 +331,35 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                     autoFocus
                     placeholder="Username"
                     defaultValue={"shakkourshadi"}
+                    aria-invalid={!validUser && !validating}
                 />
             </fieldset>
 
             <label className="checkbox-label">
-                <input type="checkbox" id="games-library" defaultChecked />
+                <input
+                    type="checkbox"
+                    id="games-library"
+                    defaultChecked
+                    aria-invalid={!validLibrary}
+                />
                 Games Library
             </label>
             <label className="checkbox-label">
-                <input type="checkbox" id="games-wishlist" defaultChecked />
+                <input
+                    type="checkbox"
+                    id="games-wishlist"
+                    defaultChecked
+                    aria-invalid={!validWishlist}
+                />
                 Games Wishlist
             </label>
             <label className="checkbox-label">
-                <input type="checkbox" id="friends-list" defaultChecked />
+                <input
+                    type="checkbox"
+                    id="friends-list"
+                    defaultChecked
+                    aria-invalid={!validFriends}
+                />
                 Friends
             </label>
 
@@ -344,7 +380,7 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                     Close
                 </Button>
                 <Button variant="primary" onClick={!loading ? validateInput : undefined}>
-                    {loading ? "Loading..." : "Preview Import"}
+                    {loading ? "Loading..." : "Preview Data"}
                 </Button>
             </div>
         </DialogBase>

@@ -1,6 +1,13 @@
 .rx-dialog.steam-import-dialog {
     width: 600px;
     font-size: 16px;
+
+    [aria-invalid="true"] {
+        outline: 3px solid red !important;
+    }
+    input[type="checkbox"] {
+        outline-offset: 2px;
+    }
 }
 
 input#SteamIDInput {

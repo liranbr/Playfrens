@@ -22,17 +22,33 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
             const steamID = await processUsername(username);
             const importValid = !!steamID;
             if (importValid) {
+                const importingFriends = document.getElementById("friends-list").checked;
+                const importingLibrary = document.getElementById("games-library").checked;
+                const importingWishlist = document.getElementById("games-wishlist").checked;
                 // TODO: Remove these temp debugging messages later
-                // TODO: If valid username, check access to the chosen data
-                toastSuccess("DEBUGGING: Valid username" + steamID);
+                // TODO: If valid username, check access to the chosen data, and ask for identity confirmation
+                toastSuccess("[DEBUGGING] Valid username: " + steamID);
 
-                // Testing games library
-                const res = await fetch(`/api/steam/getUserLibraryIDs?id=${steamID}`);
-                if (!res.ok) throw Error("Error occurred during importing game libraries");
-                toastSuccess("DEBUGGING: Fetched user library");
-                const libraryIDs = await res.json();
-                console.log("Library IDs:\n" + libraryIDs);
-                await doImport();
+                const testImport = async (importingData, apiQuery, dataName) => {
+                    if (importingData) {
+                        const res = await fetch(`/api/steam/${apiQuery}?id=${steamID}`); // TODO: Avoid fetching twice, for validation + import
+                        if ([204, 401, 404].includes(res.status)) {
+                            // 204 = NO_CONTENT, 401 = UNAUTHORIZED, 404 = NOT_FOUND TODO: Standardize these results, to differentiate between empty vs unauthorized
+                            toastError(`Can't access ${dataName}, or it is empty.`);
+                        } else if (!res.ok)
+                            throw Error(`Error occurred while importing ${dataName}`);
+                        else {
+                            const dataIDs = await res.json();
+                            toastSuccess(`[DEBUGGING] Fetched ${dataName}`);
+                            console.log("${dataName} IDs:\n" + dataIDs);
+                        }
+                    }
+                };
+
+                await testImport(importingFriends, "getFriends", "Friendslist");
+                await testImport(importingLibrary, "getUserLibraryIDs", "Games library");
+                await testImport(importingWishlist, "getWishlistIDs", "Wishlist");
+                // await doImport();
             }
         } catch (e) {
             toastError(e.message);
@@ -42,9 +58,9 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
         if (loading) return;
         setLoading(true);
 
-        const importFriends = document.getElementById("friends-list").checked;
-        const importLibrary = document.getElementById("games-library").checked;
-        const importWishlist = document.getElementById("games-wishlist").checked;
+        const importingFriends = document.getElementById("friends-list").checked;
+        const importingLibrary = document.getElementById("games-library").checked;
+        const importingWishlist = document.getElementById("games-wishlist").checked;
 
         let friendsResult = {},
             gamesResult = {};
@@ -54,14 +70,14 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
             const groupedIDs = {};
             let frens = [];
 
-            if (importLibrary) {
+            if (importingLibrary) {
                 const res = await fetch(`/api/steam/getUserLibraryIDs?id=${id}`);
                 if (!res.ok) throw Error("Error occurred during importing game libraries");
                 const libraryIDs = await res.json();
                 groupedIDs["game_library"] = libraryIDs;
             }
 
-            if (importWishlist) {
+            if (importingWishlist) {
                 const res = await fetch(`/api/steam/getWishlistIDs?id=${id}`);
                 if (!res.ok) throw Error("Error occurred during importing wishlist");
                 if (res.status !== 204) {
@@ -70,7 +86,7 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                 }
             }
 
-            if (importFriends) {
+            if (importingFriends) {
                 const res = await fetch(`/api/steam/getFriends?id=${id}`);
                 if (!res.ok) throw Error("Error occurred during importing friend list");
                 frens = await res.json();
@@ -153,7 +169,6 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                     );
                 }
 
-
                 friendsResult = dataStore.preImportFriends(friendTags);
                 // dataStore.importFriends(friendsResult);
 
@@ -212,11 +227,8 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                 }
             }
 
-            if (importLibrary || importWishlist)
+            if (importingLibrary || importingWishlist)
                 gamesResult = dataStore.preImportSteamGames(games);
-
-
-
 
             globalDialogStore.open(Dialogs.SteamImportConfirm, {
                 gamesResult,
@@ -294,7 +306,12 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                     <br />
                     <small>Examples: gabelogannewell, 76561197960287930</small>
                 </label>
-                <input id="SteamIDInput" autoFocus placeholder="Username" defaultValue={"shakkourshadi"} />
+                <input
+                    id="SteamIDInput"
+                    autoFocus
+                    placeholder="Username"
+                    defaultValue={"shakkourshadi"}
+                />
             </fieldset>
 
             <label className="checkbox-label">
@@ -326,8 +343,8 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                 <Button variant="secondary" onClick={closeDialog}>
                     Close
                 </Button>
-                <Button variant="primary" onClick={validateInput}>
-                    {loading ? "Loading..." : "Import"}
+                <Button variant="primary" onClick={!loading ? validateInput : undefined}>
+                    {loading ? "Loading..." : "Preview Import"}
                 </Button>
             </div>
         </DialogBase>

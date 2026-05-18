@@ -362,8 +362,8 @@ export class SteamWebService extends Service {
         if (response.ok) {
             const json = await response.json();
             const data = await json?.response;
-            if (data == undefined || Object.keys(data).length == 0)
-                return Response.send(res, NO_CONTENT, []);
+            if (data === undefined || Object.keys(data).length === 0)
+                return Response.send(res, NO_CONTENT, []); // TODO: Separate NO_CONTENT vs UNAUTHORIZED
             else {
                 const results = data.items.map((i) => i.appid);
                 return Response.send(res, OK, results);

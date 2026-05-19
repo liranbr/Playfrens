@@ -29,6 +29,9 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
     const validateInput = async () => {
         setErrors({});
         const nextErrors = {};
+        if (!(form.importLibrary || form.importWishlist || form.importFriendslist))
+            nextErrors.importLibrary = "Choose some data to import";
+
         try {
             let steamID;
             try {
@@ -62,7 +65,7 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
             toastError(err);
         }
         if (Object.keys(nextErrors).length === 0) {
-            toastSuccess("You're super hecking valid");
+            console.log("Valid user and imports");
             return true;
         }
         return false;

@@ -363,7 +363,7 @@ export class SteamWebService extends Service {
             const json = await response.json();
             const data = await json?.response;
             if (data === undefined || Object.keys(data).length === 0)
-                return Response.send(res, NO_CONTENT, []); // TODO: Separate NO_CONTENT vs UNAUTHORIZED
+                return Response.send(res, NO_CONTENT, []); // Steam doesn't differentiate between Empty vs Unauthorized, seems to return an empty map either way
             else {
                 const results = data.items.map((i) => i.appid);
                 return Response.send(res, OK, results);

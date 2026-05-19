@@ -15,65 +15,59 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
     const [instructionsVisible, setInstructionsVisible] = useState(false);
     const dataStore = useDataStore();
     const { NO_CONTENT, UNAUTHORIZED, NOT_FOUND } = HttpStatus;
-    const [validUser, setValidUser] = useState(true);
-    const [validLibrary, setValidLibrary] = useState(true);
-    const [validWishlist, setValidWishlist] = useState(true);
-    const [validFriends, setValidFriends] = useState(true);
-    const [validating, setValidating] = useState(false);
+    const [form, setForm] = useState({
+        username: "",
+        importLibrary: true,
+        importWishlist: true,
+        importFriendslist: true,
+    });
+    const [errors, setErrors] = useState({}); // used in validation
 
     const DEBUG_OPEN_DATA_IN_NEW_TAB = false;
+    // TODO LATER: Remove these temp debugging messages later
+    // TODO LATER: Avoid fetching twice, for validation + import
     const validateInput = async () => {
+        setErrors({});
+        const nextErrors = {};
         try {
-            setValidating(true);
-            setValidLibrary(true);
-            setValidWishlist(true);
-            setValidFriends(true);
-            setValidUser(false); // about to test it, and it can fail with a thrown error
-            const username = document.getElementById("SteamIDInput").value;
-            const steamID = await processUsername(username);
-            const importValid = !!steamID;
-            setValidUser(!!steamID);
-            if (importValid) {
-                const importingFriends = document.getElementById("friends-list").checked;
-                const importingLibrary = document.getElementById("games-library").checked;
-                const importingWishlist = document.getElementById("games-wishlist").checked;
-                // TODO: Remove these temp debugging messages later
-                // TODO: If valid username, check access to the chosen data, and ask for identity confirmation
-
-                const testImport = async (importingData, apiQuery, dataName, setValid) => {
-                    if (importingData) {
-                        const res = await fetch(`/api/steam/${apiQuery}?id=${steamID}`); // TODO: Avoid fetching twice, for validation + import
-                        if ([NO_CONTENT, UNAUTHORIZED, NOT_FOUND].includes(res.status)) {
-                            // TODO: Standardize these results in the backend, to differentiate between empty vs unauthorized
-                            setValid(false);
-                            toastError(`Can't access ${dataName}, or it is empty.`);
-                        } else if (!res.ok) {
-                            setValid(false);
-                            throw Error(`Error occurred while importing ${dataName}`);
-                        } else {
-                            const dataIDs = await res.json();
-                            setValid(true);
-                            console.log("${dataName} IDs:\n" + dataIDs);
-                        }
-                    }
-                };
-
-                await testImport(importingFriends, "getFriends", "Friendslist", setValidFriends);
-                await testImport(
-                    importingLibrary,
-                    "getUserLibraryIDs",
-                    "Games library",
-                    setValidLibrary,
-                );
-                await testImport(importingWishlist, "getWishlistIDs", "Wishlist", setValidWishlist);
-                setValidating(false);
-                // await doImport();
+            let steamID;
+            try {
+                steamID = await processUsername(form.username);
+            } catch (e) {
+                setErrors({ username: e.message });
+                return false;
             }
+
+            const testImport = async (dataString, dataTitle, apiQuery) => {
+                if (form[dataString]) {
+                    const res = await fetch(`/api/steam/${apiQuery}?id=${steamID}`);
+                    if ([NO_CONTENT, UNAUTHORIZED, NOT_FOUND].includes(res.status))
+                        nextErrors[dataString] = `Can't access ${dataTitle}, or it is empty.`;
+                    else if (!res.ok)
+                        nextErrors[dataString] = `Error occurred while importing ${dataTitle}`;
+                }
+            };
+
+            const checks = [];
+            checks.push(testImport("importLibrary", "Games library", "getUserLibraryIDs"));
+            checks.push(testImport("importWishlist", "Wishlist", "getWishlistIDs"));
+            checks.push(testImport("importFriendslist", "Friendslist", "getFriends"));
+            await Promise.all(checks);
+            setErrors(nextErrors);
         } catch (e) {
             toastError(e.message);
-            setValidating(false);
         }
+
+        for (const err of Object.values(nextErrors)) {
+            toastError(err);
+        }
+        if (Object.keys(nextErrors).length === 0) {
+            toastSuccess("You're super hecking valid");
+            return true;
+        }
+        return false;
     };
+
     const doImport = async () => {
         if (loading) return;
         setLoading(true);
@@ -330,8 +324,14 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                     id="SteamIDInput"
                     autoFocus
                     placeholder="Username"
-                    defaultValue={"shakkourshadi"}
-                    aria-invalid={!validUser && !validating}
+                    value={form.username}
+                    onChange={(e) =>
+                        setForm((curr) => ({
+                            ...curr,
+                            username: e.target.value,
+                        }))
+                    }
+                    aria-invalid={!!errors.username}
                 />
             </fieldset>
 
@@ -339,8 +339,14 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                 <input
                     type="checkbox"
                     id="games-library"
-                    defaultChecked
-                    aria-invalid={!validLibrary}
+                    checked={form.importLibrary}
+                    onChange={(e) =>
+                        setForm((curr) => ({
+                            ...curr,
+                            importLibrary: e.target.checked,
+                        }))
+                    }
+                    aria-invalid={!!errors.importLibrary}
                 />
                 Games Library
             </label>
@@ -348,8 +354,14 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                 <input
                     type="checkbox"
                     id="games-wishlist"
-                    defaultChecked
-                    aria-invalid={!validWishlist}
+                    checked={form.importWishlist}
+                    onChange={(e) =>
+                        setForm((curr) => ({
+                            ...curr,
+                            importWishlist: e.target.checked,
+                        }))
+                    }
+                    aria-invalid={!!errors.importWishlist}
                 />
                 Games Wishlist
             </label>
@@ -357,8 +369,14 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                 <input
                     type="checkbox"
                     id="friends-list"
-                    defaultChecked
-                    aria-invalid={!validFriends}
+                    checked={form.importFriendslist}
+                    onChange={(e) =>
+                        setForm((curr) => ({
+                            ...curr,
+                            importFriendslist: e.target.checked,
+                        }))
+                    }
+                    aria-invalid={!!errors.importFriendslist}
                 />
                 Friends
             </label>

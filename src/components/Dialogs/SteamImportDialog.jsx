@@ -37,35 +37,36 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
             try {
                 steamID = await processUsername(form.username);
             } catch (e) {
-                setErrors({ username: e.message });
-                return false;
+                nextErrors["username"] = e.message;
             }
 
-            const testImport = async (dataString, dataTitle, apiQuery) => {
-                if (form[dataString]) {
-                    const res = await fetch(`/api/steam/${apiQuery}?id=${steamID}`);
-                    if ([NO_CONTENT, UNAUTHORIZED, NOT_FOUND].includes(res.status))
-                        nextErrors[dataString] = `Can't access ${dataTitle}, or it is empty.`;
-                    else if (!res.ok)
-                        nextErrors[dataString] = `Error occurred while importing ${dataTitle}`;
-                }
-            };
+            if (steamID) {
+                const testImport = async (dataString, dataTitle, apiQuery) => {
+                    if (form[dataString]) {
+                        const res = await fetch(`/api/steam/${apiQuery}?id=${steamID}`);
+                        if ([NO_CONTENT, UNAUTHORIZED, NOT_FOUND].includes(res.status))
+                            nextErrors[dataString] = `Can't access ${dataTitle}, or it is empty.`;
+                        else if (!res.ok)
+                            nextErrors[dataString] = `Error occurred while importing ${dataTitle}`;
+                    }
+                };
 
-            const checks = [];
-            checks.push(testImport("importLibrary", "Games library", "getUserLibraryIDs"));
-            checks.push(testImport("importWishlist", "Wishlist", "getWishlistIDs"));
-            checks.push(testImport("importFriendslist", "Friendslist", "getFriends"));
-            await Promise.all(checks);
+                const checks = [];
+                checks.push(testImport("importLibrary", "Games library", "getUserLibraryIDs"));
+                checks.push(testImport("importWishlist", "Wishlist", "getWishlistIDs"));
+                checks.push(testImport("importFriendslist", "Friendslist", "getFriends"));
+                await Promise.all(checks);
+            }
             setErrors(nextErrors);
         } catch (e) {
             toastError(e.message);
         }
 
-        for (const err of Object.values(nextErrors)) {
-            toastError(err);
-        }
         if (Object.keys(nextErrors).length === 0) {
             return true;
+        }
+        for (const err of Object.values(nextErrors)) {
+            toastError(err);
         }
         return false;
     };
@@ -417,7 +418,7 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
 
 // Gets SteamID64, from a SteamID64 or Custom URL, with or without the full steam url
 const processUsername = async (username) => {
-    if (!username) throw Error("Invalid username format");
+    if (typeof username !== "string") throw Error("Invalid username format");
     username = username.trim();
     if (username === "") throw Error("Username cannot be empty");
 

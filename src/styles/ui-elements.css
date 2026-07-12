@@ -171,6 +171,9 @@ input[type="checkbox"] {
     align-items: center;
     justify-content: left;
     color: var(--pf-fg-100);
+    &:has(input[type="checkbox"][disabled]) {
+        color: var(--pf-fg-700);
+    }
 }
 
 .loading-page {

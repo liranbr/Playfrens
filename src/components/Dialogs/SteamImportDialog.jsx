@@ -65,7 +65,6 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
             toastError(err);
         }
         if (Object.keys(nextErrors).length === 0) {
-            console.log("Valid user and imports");
             return true;
         }
         return false;
@@ -386,12 +385,20 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
 
             <div className="spacer" />
             <label className="checkbox-label">
-                <input type="checkbox" id="also-singleplayers-checkbox" />
+                <input
+                    type="checkbox"
+                    id="also-singleplayers-checkbox"
+                    disabled={!(form.importLibrary || form.importWishlist)}
+                />
                 Include Singleplayer games
                 <InfoIcon message="By default, only games that Steam marks as Multiplayer or Cooperative are imported. If you only want to add a few singleplayers, consider adding them manually." />
             </label>
             <label className="checkbox-label">
-                <input type="checkbox" id="also-unreleased-wishlist-checkbox" />
+                <input
+                    type="checkbox"
+                    id="also-unreleased-wishlist-checkbox"
+                    disabled={!form.importWishlist}
+                />
                 Include wishlisted games that haven&apos;t released yet
                 <InfoIcon message="Wishlist may contain games that have not released yet, but you might want to plan to play them" />
             </label>

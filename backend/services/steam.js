@@ -37,6 +37,11 @@ export class SteamWebService extends Service {
             },
             {
                 method: "get",
+                path: "/api/steam/getUserSummary",
+                handler: this.getUserSummary.bind(this),
+            },
+            {
+                method: "get",
                 path: "/api/steam/getUserLibrary",
                 handler: this.getUserLibrary.bind(this),
             },
@@ -111,6 +116,27 @@ export class SteamWebService extends Service {
             if (e.message === "No match") {
                 Response.sendMessage(res, NOT_FOUND, "Steam user not found.");
             } else Response.sendMessage(res, BAD_REQUEST, e.message);
+        }
+    }
+
+    /**
+     * Returns a Steam user's public profile summary (nickname, avatar, profile URL)
+     * @param {Object} req
+     * @param {Object} res
+     */
+    async getUserSummary(req, res) {
+        const { id } = req.query;
+        const { OK, BAD_REQUEST, NOT_FOUND } = Response.HttpStatus;
+
+        if (!this.isSteamID(id))
+            return Response.sendMessage(res, BAD_REQUEST, `Invalid SteamID64 passed: ${id}`);
+
+        const client = this.connect();
+        try {
+            const summary = await client.getUserSummary(id);
+            Response.send(res, OK, summary);
+        } catch {
+            Response.sendMessage(res, NOT_FOUND, `Couldn't find Steam profile for SteamID64 ${id}`);
         }
     }
 

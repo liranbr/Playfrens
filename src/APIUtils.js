@@ -52,6 +52,11 @@ export async function getSteamIDFromVanity(vanity) {
     return await fetch(`/api/steam/getUserIDFromVanityName?vanity=${vanity}`);
 }
 
+export async function getSteamUserSummary(id) {
+    if (!id) throw Error(`Invalid SteamID64 passed "${id}".`);
+    return await fetch(`/api/steam/getUserSummary?id=${id}`);
+}
+
 export function sgdbDatedTitle(SGDBGame) {
     if (isNaN(SGDBGame.release_date)) return SGDBGame.name;
     const year = new Date(SGDBGame.release_date * 1000).getFullYear();

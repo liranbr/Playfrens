@@ -58,8 +58,11 @@ const ChangesColumn = ({ data, title }) => {
 export const SteamConfirmImportDialog = ({ open, closeDialog, gamesResult, friendsResult }) => {
     const dataStore = useDataStore();
     const pushImport = () => {
-        dataStore.importFriends(friendsResult);
-        dataStore.importSteamGames(gamesResult);
+        /** Lazy catch error so in cases like {@link friendsResult} is null, does not crash and stops {@link gamesResult} from not importing */
+        try { dataStore.importFriends(friendsResult); }
+        catch { /* empty */ }
+        try { dataStore.importSteamGames(gamesResult); }
+        catch { /* empty */ }
         closeDialog();
     }
 

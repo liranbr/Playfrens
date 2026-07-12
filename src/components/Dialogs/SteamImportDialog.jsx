@@ -3,7 +3,7 @@ import { Button, InfoIcon } from "@/components";
 import { FriendTagObject } from "@/models/TagObject.js";
 import { useDataStore } from "@/stores/DataStore.js";
 import { Dialogs, globalDialogStore } from "@/stores/DialogStore.js";
-import { HttpStatus, toastError, toastSuccess } from "@/Utils.jsx";
+import { HttpStatus, toastError, toastInfo, toastSuccess } from "@/Utils.jsx";
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useState } from "react";
@@ -29,8 +29,10 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
     const validateInput = async () => {
         setErrors({});
         const nextErrors = {};
-        if (!(form.importLibrary || form.importWishlist || form.importFriendslist))
-            nextErrors.importLibrary = "Choose some data to import";
+        if (!(form.importLibrary || form.importWishlist || form.importFriendslist)) {
+            toastInfo("Choose some data to import");
+            return false;
+        }
 
         try {
             let steamID;

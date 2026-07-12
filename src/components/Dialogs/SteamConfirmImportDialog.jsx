@@ -3,30 +3,36 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { DialogBase } from "./DialogRoot";
 import "./SteamConfirmImportDialog.css";
 import { Button } from "../common/Button";
-import { useDataStore } from "@/stores";
+import { globalDialogStore, useDataStore } from "@/stores";
 
 const ChangesColumn = ({ data, title }) => {
-
     const { toAdd, toUpdate, toSkip } = data;
     const { old } = toUpdate;
 
     const appendItem = (name, indx, type = "add") => {
-        return <div className={`steam-confirm-import-item item-${type}`} key={`${name}-${indx}`}>{name}</div>;
-    }
+        return (
+            <div className={`steam-confirm-import-item item-${type}`} key={`${name}-${indx}`}>
+                {name}
+            </div>
+        );
+    };
 
     const createList = (data, type, label) => {
-        return (<>
-            {
-                data.length > 0 && <>
-                    <label>{label} {data.length} item{data.length > 1 ? "s" : ""}:</label>
-                    <div className="steam-confirm-import-list">
-                        {data.map((d, i) => appendItem(d.title || d.name, i, type))}
-                    </div>
-                </>
-            }
-        </>
-        )
-    }
+        return (
+            <>
+                {data.length > 0 && (
+                    <>
+                        <label>
+                            {label} {data.length} item{data.length > 1 ? "s" : ""}:
+                        </label>
+                        <div className="steam-confirm-import-list">
+                            {data.map((d, i) => appendItem(d.title || d.name, i, type))}
+                        </div>
+                    </>
+                )}
+            </>
+        );
+    };
 
     const allSkipped = toSkip.length > 0 && toAdd.length == 0 && old.length == 0;
 
@@ -36,14 +42,11 @@ const ChangesColumn = ({ data, title }) => {
                 <h2>{title}</h2>
             </div>
             <div className="steam-confirm-import-scrollable">
-                {
-                    allSkipped &&
+                {allSkipped && (
                     <div className="dialog-callout info" style={{ marginTop: "16px" }}>
-                        <p>
-                            No {title} to add or update.
-                        </p>
+                        <p>No {title} to add or update.</p>
                     </div>
-                }
+                )}
                 {
                     <fieldset>
                         {createList(toAdd, "add", "Adding")}
@@ -53,18 +56,24 @@ const ChangesColumn = ({ data, title }) => {
                 }
             </div>
         </div>
-    )
-}
+    );
+};
 export const SteamConfirmImportDialog = ({ open, closeDialog, gamesResult, friendsResult }) => {
     const dataStore = useDataStore();
     const pushImport = () => {
         /** Lazy catch error so in cases like {@link friendsResult} is null, does not crash and stops {@link gamesResult} from not importing */
-        try { dataStore.importFriends(friendsResult); }
-        catch { /* empty */ }
-        try { dataStore.importSteamGames(gamesResult); }
-        catch { /* empty */ }
-        closeDialog();
-    }
+        try {
+            dataStore.importFriends(friendsResult);
+        } catch {
+            /* empty */
+        }
+        try {
+            dataStore.importSteamGames(gamesResult);
+        } catch {
+            /* empty */
+        }
+        globalDialogStore.closeMultiple(2);
+    };
 
     const importingGames = Object.keys(gamesResult).length > 0;
     const importingFriends = Object.keys(friendsResult).length > 0;

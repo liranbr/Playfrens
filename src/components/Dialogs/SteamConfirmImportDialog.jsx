@@ -62,7 +62,7 @@ export const SteamConfirmImportDialog = ({ open, closeDialog, gamesResult, frien
     const dataStore = useDataStore();
 
     const importingGames = Object.keys(gamesResult).length > 0;
-    const importingFriends = Object.keys(friendsResult).length > 0; \
+    const importingFriends = Object.keys(friendsResult).length > 0;
 
     const pushImport = () => {
         importingFriends && dataStore.importFriends(friendsResult);

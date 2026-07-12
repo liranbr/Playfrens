@@ -9,6 +9,41 @@
     h2 {
         flex: 0 1 fit-content;
     }
+
+    .steam-confirm-import-profile {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: fit-content;
+        margin-bottom: 8px;
+        color: inherit;
+        text-decoration: none;
+
+        .rx-avatar {
+            width: 96px;
+            height: 96px;
+            border-radius: 0;
+        }
+        h3 {
+            align-self: flex-start;
+            font-size: 32px;
+        }
+        a {
+            color: inherit;
+            text-decoration: none;
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+        p {
+            align-self: flex-end;
+        }
+        .steam-confirm-import-info {
+            padding-left: 8px;
+            height: 100%;
+            align-items: flex-start;
+        }
+    }
     .steam-confirm-import-body {
         flex: 1 1 0;
         display: flex;

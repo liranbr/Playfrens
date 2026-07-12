@@ -1,5 +1,7 @@
 import * as Dialog from "@radix-ui/react-dialog";
+import * as Avatar from "@radix-ui/react-avatar";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { MdPerson } from "react-icons/md";
 import { DialogBase } from "./DialogRoot";
 import "./SteamConfirmImportDialog.css";
 import { Button } from "../common/Button";
@@ -42,11 +44,11 @@ const ChangesColumn = ({ data, title }) => {
                 <h2>{title}</h2>
             </div>
             <div className="steam-confirm-import-scrollable">
-                {allSkipped && (
+                {/* {allSkipped && (
                     <div className="dialog-callout info" style={{ marginTop: "16px" }}>
                         <p>No {title} to add or update.</p>
                     </div>
-                )}
+                )} */}
                 {
                     <fieldset>
                         {createList(toAdd, "add", "Adding")}
@@ -58,7 +60,64 @@ const ChangesColumn = ({ data, title }) => {
         </div>
     );
 };
-export const SteamConfirmImportDialog = ({ open, closeDialog, gamesResult, friendsResult }) => {
+const SteamProfileHeader = ({ steamProfile, gamesResult, friendsResult }) => {
+    if (!steamProfile) return null;
+    const { name, iconURL, profileURL } = steamProfile;
+
+    let importGamesInfo = undefined;
+    if (gamesResult) {
+        const gameChanges = []
+        const { toAdd, toSkip } = gamesResult;
+        const toUpdate = gamesResult.toUpdate.old;
+        if (toAdd.length) gameChanges.push("add " + toAdd.length);
+        if (toUpdate.length) gameChanges.push("update " + toUpdate.length);
+        if (toSkip.length) gameChanges.push("skip " + toSkip.length);
+        importGamesInfo = "Games: will " + gameChanges.join(", ");
+    }
+
+    let importFriendsInfo = undefined;
+    if (friendsResult) {
+        const friendsChanges = []
+        const { toAdd, toSkip } = friendsResult;
+        const toUpdate = friendsResult.toUpdate.old;
+        if (toAdd.length) friendsChanges.push("add " + toAdd.length);
+        if (toUpdate.length) friendsChanges.push("update " + toUpdate.length);
+        if (toSkip.length) friendsChanges.push("skip " + toSkip.length);
+        importFriendsInfo = "Friends: will " + friendsChanges.join(", ");
+    }
+
+    return (
+        <div className="steam-confirm-import-profile">
+            <Avatar.Root className="rx-avatar">
+                <Avatar.Image src={iconURL || undefined} referrerPolicy="no-referrer" />
+                <Avatar.Fallback className="rx-avatarless" asChild>
+                    <MdPerson />
+                </Avatar.Fallback>
+            </Avatar.Root>
+            <div className="steam-confirm-import-info">
+                <h3>
+                    <a
+                        href={profileURL || undefined}
+                        target="_blank"
+                        rel="noreferrer"
+                    >
+                        {name}
+                    </a>
+                </h3>
+                {importGamesInfo && <p>{importGamesInfo}</p>}
+                {importFriendsInfo && <p>{importFriendsInfo}</p>}
+            </div>
+        </div>
+    );
+};
+
+export const SteamConfirmImportDialog = ({
+    open,
+    closeDialog,
+    gamesResult,
+    friendsResult,
+    steamProfile,
+}) => {
     const dataStore = useDataStore();
 
     const importingGames = Object.keys(gamesResult).length > 0;
@@ -86,6 +145,7 @@ export const SteamConfirmImportDialog = ({ open, closeDialog, gamesResult, frien
             <VisuallyHidden>
                 <Dialog.Description>Confirm if these matches your results.</Dialog.Description>
             </VisuallyHidden>
+            <SteamProfileHeader steamProfile={steamProfile} gamesResult={gamesResult} friendsResult={friendsResult} />
             <div className="steam-confirm-import-body">
                 {importingGames && <ChangesColumn data={gamesResult} title="Games" />}
                 {importingGames && importingFriends && <div className="separator-vertical" />}

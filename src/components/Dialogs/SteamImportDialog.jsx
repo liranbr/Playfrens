@@ -1,4 +1,4 @@
-import { getSteamIDFromVanity } from "@/APIUtils.js";
+import { getSteamIDFromVanity, getSteamUserSummary } from "@/APIUtils.js";
 import { Button, InfoIcon } from "@/components";
 import { FriendTagObject } from "@/models/TagObject.js";
 import { useDataStore } from "@/stores/DataStore.js";
@@ -89,6 +89,17 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
             const id = await processUsername(username);
             const groupedIDs = {};
             let frens = [];
+
+            let steamProfile = null;
+            const summaryRes = await getSteamUserSummary(id);
+            if (summaryRes.ok) {
+                const summary = await summaryRes.json();
+                steamProfile = {
+                    name: summary.nickname,
+                    iconURL: summary.avatar?.large || "",
+                    profileURL: summary.url || "",
+                };
+            }
 
             if (importingLibrary) {
                 const res = await fetch(`/api/steam/getUserLibraryIDs?id=${id}`);
@@ -253,6 +264,7 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
             globalDialogStore.open(Dialogs.SteamImportConfirm, {
                 gamesResult,
                 friendsResult,
+                steamProfile,
             });
             // closeDialog();
 

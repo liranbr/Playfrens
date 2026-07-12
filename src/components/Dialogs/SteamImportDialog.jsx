@@ -65,6 +65,7 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
         }
 
         if (Object.keys(nextErrors).length === 0) {
+            await doImport();
             return true;
         }
         for (const err of Object.values(nextErrors)) {

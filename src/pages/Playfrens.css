@@ -60,6 +60,7 @@
 .app-header-right {
     display: flex;
     gap: 12px;
+    overflow: visible;
 
     .new-game-button,
     .notifications-button,

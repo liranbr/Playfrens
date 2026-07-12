@@ -11,7 +11,7 @@ import * as Switch from "@radix-ui/react-switch";
 import { storeTypes } from "@/models";
 import { getOfficialCoverImageURL, searchTitleOnStore, sgdbDatedTitle } from "@/APIUtils.js";
 import { GameCoverDisplay } from "@/components/GameCoverDisplay.jsx";
-import { thumbToCover } from "@/Utils.jsx";
+import { HttpStatus, thumbToCover } from "@/Utils.jsx";
 
 const GameEntryContext = createContext(null);
 
@@ -193,7 +193,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
 
                 <div className="rx-dialog-footer">
                     <div className="footer-left">
-                        <Button variant="secondary" onClick={() => setAdvancedView(!advancedView)}>
+                        <Button variant="ghost" onClick={() => setAdvancedView(!advancedView)}>
                             {advancedView ? "Simple" : "Advanced"}
                         </Button>
                     </div>
@@ -356,7 +356,7 @@ function CoversGallery({
 
         const sgdbReq = fetch(`/api/steamgriddb/getGrids?${params}`).then((res) => {
             if (!res.ok) {
-                if (res.status === 404) return []; // having no results is fine
+                if (res.status === HttpStatus.NOT_FOUND) return []; // having no results is fine
                 throw new Error(`Status ${res.status}, failed to fetch grids for id ${sgdbID}`);
             }
             return res.json();
@@ -374,8 +374,10 @@ function CoversGallery({
                     covers.push(currentCoverImage());
                 }
                 if (officialCoverImage) {
-                    if (!coverImageURL) setCoverImageURL(officialCoverImage.url);
-                    else if (coverImageURL === officialCoverImage.url)
+                    if (!coverImageURL) {
+                        setCoverImageURL(officialCoverImage.url);
+                        setCoverThumbURL(officialCoverImage.thumb);
+                    } else if (coverImageURL === officialCoverImage.url)
                         officialCoverImage.previousSelection = true;
                     officialCoverImage.officialOf = sgdbID;
                     covers.push(officialCoverImage);

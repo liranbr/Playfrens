@@ -1,0 +1,107 @@
+.rx-dialog.steam-confirm-import-dialog {
+    display: flex;
+    flex-direction: column;
+    width: 900px;
+    max-width: 85vw;
+    height: 825px; /* fits a little over two rows of covers, to indicate scrolling */
+    max-height: 85vh;
+    overflow: hidden;
+    h2 {
+        flex: 0 1 fit-content;
+    }
+
+    .steam-confirm-import-profile {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: fit-content;
+        margin-bottom: 8px;
+        color: inherit;
+        text-decoration: none;
+
+        .rx-avatar {
+            width: 96px;
+            height: 96px;
+            border-radius: 0;
+        }
+        h3 {
+            align-self: flex-start;
+            font-size: 32px;
+        }
+        a {
+            color: inherit;
+            text-decoration: none;
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+        p {
+            align-self: flex-end;
+        }
+        .steam-confirm-import-info {
+            padding-left: 8px;
+            height: 100%;
+            align-items: flex-start;
+        }
+    }
+    .steam-confirm-import-body {
+        flex: 1 1 0;
+        display: flex;
+        flex-direction: row;
+        overflow: hidden;
+
+        .separator-vertical {
+            margin: 0 20px;
+        }
+
+        .steam-confirm-import-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .steam-confirm-import-header {
+            background-color: var(--pf-bg-900);
+            z-index: 1;
+            box-shadow: -0px 5px 10px var(--pf-bg-900);
+            h2 {
+                margin: 0;
+            }
+        }
+
+        .steam-confirm-import-scrollable {
+            overflow-y: auto;
+            label {
+                width: fit-content;
+                border-bottom: 1px solid white;
+            }
+            .steam-confirm-import-list {
+                display: flex;
+                flex-wrap: wrap;
+                margin-left: 12px;
+                .steam-confirm-import-item {
+                    margin: 2px;
+                    padding: 2px 4px;
+                    border-radius: 6px;
+                    font-size: 12px;
+
+                    &.item-add {
+                        border: 2px solid hsl(120, 50%, 40%);
+                        background-color: hsla(120, 50%, 40%, 0.2);
+                        color: hsl(120, 50%, 80%);
+                    }
+                    &.item-skip {
+                        border: 1px solid hsl(0, 0%, 40%);
+                        background-color: hsla(0, 0%, 40%, 0.2);
+                        color: hsl(0, 0%, 80%);
+                    }
+                    &.item-update {
+                        border: 2px solid hsl(216, 65%, 40%);
+                        background-color: hsla(216, 65%, 40%, 0.2);
+                        color: hsl(216, 65%, 80%);
+                    }
+                }
+            }
+        }
+    }
+}

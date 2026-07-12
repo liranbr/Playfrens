@@ -80,7 +80,6 @@ function PrivacyPolicy() {
                     Supabase <a href="https://supabase.com/legal/dpa">(Compliance Link)</a> is the
                     host of our database.
                 </p>
-                {/* TODO: Figure out hosting and update that here to replace onrender, maybe self-host supabase */}
             </p>
             <h2 id="sharing-data">Sharing data</h2>
             <p>

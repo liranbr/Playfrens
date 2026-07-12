@@ -53,11 +53,18 @@
         color: hsl(354 90% 65%);
     }
 
+    &.btn-ghost {
+        --pf-btn: transparent;
+        --pf-btn-hover: rgba(255, 255, 255, 0.08);
+        --pf-btn-active: rgba(255, 255, 255, 0.12);
+        color: var(--pf-fg-500);
+    }
+
     &:disabled {
-        color: var(--pf-fg-700);
         --pf-btn: var(--pf-bg-300);
         --pf-btn-hover: var(--pf-bg-300);
         --pf-btn-active: var(--pf-bg-300);
+        color: var(--pf-fg-700);
         border: var(--pf-border-300);
         cursor: default;
     }

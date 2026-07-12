@@ -1,0 +1,15 @@
+.arrow-container {
+    position: relative;
+    overflow: visible;
+}
+
+.arrow-to-feature {
+    --sizePx: 32px; /* default, overwritten in js */
+    font-size: var(--sizePx);
+    position: absolute;
+    bottom: calc(var(--sizePx) * -1);
+    left: calc(var(--sizePx) * -1);
+    pointer-events: none;
+    color: var(--pf-fg-link);
+    filter: drop-shadow(0 0 8px var(--pf-btn-primary));
+}

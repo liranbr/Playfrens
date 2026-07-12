@@ -9,6 +9,7 @@ const Playfrens = lazy(() => import("@/pages/Playfrens.jsx"));
 const Login = lazy(() => import("@/pages/Login.jsx"));
 const Contact = lazy(() => import("@/pages/Contact.jsx"));
 const Privacy = lazy(() => import("@/pages/Privacy.jsx"));
+const NotFound = lazy(() => import("@/pages/NotFound.jsx"));
 
 function ToastRoot() {
     return (
@@ -67,11 +68,12 @@ export default function App() {
             <BrowserRouter>
                 <Suspense fallback={null}>
                     <Routes>
-                        <Route path="/" element={<Home />} />
+                        <Route index element={<Home />} />
                         <Route path="/app" element={<Playfrens />} />
                         <Route path="/login" element={<Login />} />
                         <Route path="/contact" element={<Contact />} />
                         <Route path="/privacy" element={<Privacy />} />
+                        <Route path="*" element={<NotFound />} />
                     </Routes>
                 </Suspense>
             </BrowserRouter>

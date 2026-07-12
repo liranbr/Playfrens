@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { toast } from "react-toastify";
 
 let silentToasts = false;
@@ -22,7 +22,15 @@ export async function toastSuccess(message, consoleMessage = "") {
 
 /**
  * @param {string} message
- * @param {string} consoleMessage
+ * @returns {true}
+ */
+export async function toastInfo(message) {
+    if (!silentToasts) toast.info(message);
+    return true;
+}
+
+/**
+ * @param {string} message
  * @returns {false}
  */
 export function toastError(message, consoleMessage = "") {
@@ -210,3 +218,70 @@ export async function coverToThumb(coverURL) {
     const thumbURL = await findFirstValidImage(sources);
     return thumbURL ?? coverURL;
 }
+
+/**
+ * Checks if an object's fields differ from provided values
+ *
+ * @template {object} T
+ * @param {T} obj - The object we are checking
+ * @param {Partial<T>} partial - a partial object containing Key/value that will be compared with obj
+ * @returns {boolean} true if any value is different
+ *
+ * @example
+ * const obj = { icon: "a", type: "b" };
+ * const p1 = { icon: "x" };
+ * const p2 = { icon: "a" };
+ * const p3 = { bad_key_icon: "a" };
+ * shouldUPdateObject(obj, p1); // true
+ * shouldUPdateObject(obj, p2); // false (matching values)
+ * shouldUPdateObject(obj, p3); // false (nothing to compare)
+ */
+export function shouldUpdateObject(obj, partial = {}) {
+    return Object.entries(partial).some(([key, value]) => {
+        return obj[key] !== value;
+    });
+}
+
+/**
+ * Updates an object's fields from a partial object (only if values differ)
+ *
+ * @template {object} T
+ * @param {T} obj - The object to update
+ * @param {Partial<T>} partial - Key/value pairs to apply
+ * @returns {boolean} true if any value was changed
+ */
+export function updateObject(obj, partial = {}) {
+    let updated = false;
+
+    for (const key of /** @type {Array<keyof T>} */ (Object.keys(partial))) {
+        const value = partial[key];
+
+        if (obj[key] !== value) {
+            obj[key] = value;
+            updated = true;
+        }
+    }
+
+    return updated;
+}
+
+export const HttpStatus = Object.freeze({
+    // 2xx: Success
+    OK: 200,
+    CREATED: 201,
+    ACCEPTED: 202,
+    NO_CONTENT: 204,
+
+    // 4xx: Client Errors
+    BAD_REQUEST: 400,
+    UNAUTHORIZED: 401,
+    FORBIDDEN: 403,
+    NOT_FOUND: 404,
+    GONE: 410,
+    TOO_MANY_REQUESTS: 429,
+
+    // 5xx: Server Errors
+    INTERNAL_SERVER_ERROR: 500,
+    NOT_IMPLEMENTED: 501,
+    SERVICE_UNAVAILABLE: 503,
+});

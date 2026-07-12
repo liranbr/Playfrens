@@ -7,7 +7,7 @@ import {
     globalSettingsStore,
     settingsStorageKey,
 } from "@/stores";
-import { loadFromStorage } from "@/Utils.jsx";
+import { HttpStatus, loadFromStorage } from "@/Utils.jsx";
 
 export class UserStore {
     /**
@@ -32,7 +32,7 @@ export class UserStore {
         try {
             const res = await fetch("/auth/me", { credentials: "include" });
             // Invalid response, or '204 no content' = no user data
-            if (!res.ok || res.status === 204) {
+            if (!res.ok || res.status === HttpStatus.NO_CONTENT) {
                 throw new Error(res.statusText);
             }
             const data = await res.json();

@@ -65,9 +65,13 @@ export default function Home() {
                         <div className="topic">
                             <h2>Plan</h2>
                             <p>
-                                Add games that haven't released yet, or that you haven't bought yet,
-                                to plan ahead with friends. If looking forward to some release date
-                                or a big update, you can add a Reminder
+                                Besides your current library, you can also add games that you don't
+                                have or aren't out yet, to plan ahead with friends
+                            </p>
+                            <br />
+                            <p>
+                                If you're looking forward to some release date, or when a friend
+                                will have free time, you can add Reminders
                             </p>
                         </div>
                         <div className="topic">

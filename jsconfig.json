@@ -3,7 +3,8 @@
         "target": "es6",
         "paths": {
             "@/*": ["./src/*"]
-        }
+        },
+        "jsx": "react"
     },
     "exclude": ["node_modules"]
 }

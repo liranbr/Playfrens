@@ -1,33 +1,38 @@
-import { createContext, useContext } from "react";
 import { action, computed, makeAutoObservable, ObservableMap, reaction, runInAction } from "mobx";
+import { createContext, useContext } from "react";
 
+import { saveBoard } from "@/APIUtils.js";
 import {
     compareGameTitlesAZ,
     compareTagFilteredGamesCount,
     compareTagNamesAZ,
     compareTagTotalGamesCount,
+    FriendTagObject,
     GameObject,
     ReminderObject,
     storeTypes,
     TagObject,
     tagTypes,
 } from "@/models";
+import { Party } from "@/models/GameObject.js";
 import { globalSettingsStore, settingsStorageKey, userStore } from "@/stores";
-import { SortingReaction } from "./SortingReaction.js";
 import {
-    DELETEME_AllowDBSave,
+    coverToThumb,
     deleteItemFromArray,
+    DELETEME_AllowDBSave,
     ensureUniqueName,
     loadFromStorage,
     moveItemInArray,
     saveToStorage,
+    setToastSilence,
+    shouldUpdateObject,
     toastError,
+    toastInfo,
     toastSuccess,
-    coverToThumb,
+    updateObject,
 } from "@/Utils.jsx";
+import { SortingReaction } from "./SortingReaction.js";
 import { version } from "/package.json";
-import { Party } from "@/models/GameObject.js";
-import { saveBoard } from "@/APIUtils.js";
 
 const tT = tagTypes; // Short alias for convenience, used a lot here
 export const defaultFiltersStorageKey = "defaultFilters";
@@ -145,7 +150,10 @@ export class DataStore {
             this.allTags[tagType] = new ObservableMap(
                 tagCollection[tagType]
                     .filter(Boolean)
-                    .map(([id, tagJson]) => [id, new TagObject(tagJson)]),
+                    .map(([id, tagJson]) => [
+                        id,
+                        new (tagType === "friend" ? FriendTagObject : TagObject)(tagJson),
+                    ]),
             );
         }
     }
@@ -333,6 +341,50 @@ export class DataStore {
         return toastSuccess(`Added ${tag.name} to ${tag.typeStrings.plural} list`);
     }
 
+    // Flags which needs to be added, updated or skipped.
+    preImportFriends(remoteFriends) {
+        const list = this.#preImportList();
+        const currentFriendList = [...this.allTags[tagTypes.friend].values()];
+        for (const remoteFriend of remoteFriends) {
+            /** @type {FriendTagObject} */
+            const frenExists = currentFriendList.find(
+                (t) => t instanceof FriendTagObject && t.steamID === remoteFriend.steamID,
+            );
+
+            if (!frenExists) {
+                list.toAdd.push(remoteFriend);
+            } else if (shouldUpdateObject(frenExists, { iconURL: remoteFriend.iconURL })) {
+                list.toUpdate.old.push(frenExists);
+                list.toUpdate.latest.push(remoteFriend);
+            } else {
+                list.toSkip.push(remoteFriend);
+            }
+        }
+        return list;
+    }
+
+    /**
+     * Call preImportFriends before calling this function to get the list
+     * Updates Friends using a list of sorted remote friend tags
+     * @param {{ toAdd: object[], toUpdate: {old: object[], latest: object[]}, toSkip: object[] }} remoteFriends
+     */
+    importFriends(remoteFriends) {
+        setToastSilence(true);
+        const { old, latest } = remoteFriends.toUpdate;
+        for (let i = 0; i < old.length && i < latest.length; i++)
+            updateObject(old[i], { iconURL: latest[i].iconURL });
+        const toAdd = remoteFriends.toAdd;
+        toAdd.forEach((element) => {
+            this.addTag(element);
+        });
+        setToastSilence(false);
+        return remoteFriends.toAdd.length === 0 && remoteFriends.toUpdate.latest.length === 0
+            ? toastInfo("Friends data is up to date.")
+            : toastSuccess(
+                  `Added ${remoteFriends.toAdd.length} to friend list. (${remoteFriends.toUpdate.latest.length} updated, ${remoteFriends.toSkip.length} skipped.)`,
+              );
+    }
+
     deleteTag(tag) {
         if (!(tag instanceof TagObject)) return toastError("Invalid tag object: " + tag);
         if (!this.allTags[tag.type].has(tag.id))
@@ -344,7 +396,7 @@ export class DataStore {
         return toastSuccess(`Deleted ${tag.name} from ${tag.typeStrings.plural} list`);
     }
 
-    editTag(tag, newName) {
+    oldEditTag(tag, { newName }) {
         if (tag.name === newName) return true; // nothing to do here, until adding more fields to edit
         // Editing needs to be in the DataStore rather than the object itself, to prevent duplicate names
         if (!(tag instanceof TagObject)) return toastError("Invalid tag object: " + tag);
@@ -364,6 +416,44 @@ export class DataStore {
         const oldName = tag.name;
         storedTag.name = newName;
         return toastSuccess(`Updated ${oldName} to ${newName} in ${tag.typeStrings.plural} list`);
+    }
+
+    editTag(tag, data = {}) {
+        if (!(tag instanceof TagObject)) return toastError("Invalid tag object: " + tag);
+        const fullList = this.allTags[tag.type];
+        const storedTag = fullList.get(tag.id);
+        if (!storedTag)
+            return toastError(`${tag.name} does not exist in ${tag.typeStrings.plural} list.`);
+
+        for (const key in data) {
+            // Only for name tag we need to ensure "uniqueness".
+            if (key === "name") {
+                // Also make sure it was changed, skip otherwise.
+                const newName = data[key];
+                if (tag.name === newName) {
+                    // Don't skip the other data!
+                    if (Object.keys(data).length > 1) continue;
+                    else return true;
+                }
+
+                if (!newName || typeof newName !== "string" || !newName.trim()) {
+                    return toastError(`Cannot save a ${tag.typeStrings.single} without a name`);
+                }
+                data["name"] = ensureUniqueName(
+                    [...fullList.values()].map((t) => t.name),
+                    newName,
+                );
+                storedTag.name = data["name"];
+            }
+            // Defined inside so we should update the info
+            else if (key in tag) {
+                console.log(key);
+                storedTag[key] = data[key];
+            }
+        }
+        return toastSuccess(
+            `Updated ${Object.keys(data).length > 1 ? `${Object.keys(data).length} enteries for` : ``} ${storedTag["name"]} in ${tag.typeStrings.plural} list`,
+        );
     }
 
     allTagsFlatForEach(callbackfn) {
@@ -441,10 +531,74 @@ export class DataStore {
             sgdbID: sgdbID,
         });
         if (this.allGames.has(newGame.id))
-            throw new Error("What do you MEAN this uuid already exists");
+            throw new Error(`What do you MEAN this uuid (${newGame.id}) already exists`);
         this.allGames.set(newGame.id, newGame);
         toastSuccess("Added " + title + " to games list");
         return newGame; // used to open the GamePage right after adding the game
+    }
+
+    preImportSteamGames(remoteGames) {
+        const list = this.#preImportList();
+        const currentGameList = [...this.allGames.values()];
+        for (const remoteGame of remoteGames) {
+            // Only import if its not from Steam and mismatched ID.
+            /** @type {GameObject} */
+            const gameExists = currentGameList.find((t) => {
+                return (
+                    t instanceof GameObject &&
+                    t.storeID === remoteGame.storeID &&
+                    t.storeType == "steam"
+                );
+            });
+
+            if (!gameExists) list.toAdd.push(remoteGame);
+            else list.toSkip.push(remoteGame);
+        }
+
+        return list;
+    }
+
+    /**
+     * Call preImportSteamGames before calling this function to get the list
+     * Add/Skip Games using a list of sorted remote game objects
+     * @param {{ toAdd: object[], toUpdate: {old: object[], latest: object[]}, toSkip: object[] }} remoteGames
+     */
+    importSteamGames(remoteGames) {
+        const { toAdd } = remoteGames;
+        if (!toAdd) return;
+        toAdd.forEach((element) => {
+            const {
+                title,
+                coverImageURL,
+                coverThumbURL,
+                sortingTitle,
+                storeType,
+                storeID,
+                sgdbID,
+            } = element;
+
+            const uniqueTitle = ensureUniqueName(
+                [...this.allGames.values()].map((g) => g.title),
+                title,
+            );
+
+            const newGame = new GameObject({
+                title: uniqueTitle,
+                coverImageURL,
+                coverThumbURL,
+                sortingTitle,
+                storeType,
+                storeID,
+                sgdbID,
+            });
+
+            this.allGames.set(newGame.id, newGame);
+        });
+        return remoteGames.toAdd.length === 0 && remoteGames.toUpdate.latest.length === 0
+            ? toastInfo("No Games to import.")
+            : toastSuccess(
+                  `Added ${remoteGames.toAdd.length} to games list. (${remoteGames.toSkip.length} skipped.)`,
+              );
     }
 
     deleteGame(game) {
@@ -532,6 +686,10 @@ export class DataStore {
 
         // Needs to be runInAction because used by reaction, which seems to lose binding otherwise
         runInAction(() => this.allGames.replace(entriesArray));
+    }
+
+    #preImportList() {
+        return { toAdd: [], toUpdate: { old: [], latest: [] }, toSkip: [] };
     }
 }
 
@@ -689,8 +847,16 @@ export function restoreFromFile(file) {
 function defaultTagsSample() {
     return {
         [tT.friend]: [],
-        [tT.category]: ["Round-based", "Playthrough", "MMO"],
-        [tT.status]: ["Playing", "LFG", "Paused", "Backlog", "Abandoned", "Finished"],
+        [tT.category]: ["Playthrough", "Round-based", "Persistent World"],
+        [tT.status]: [
+            "Playing",
+            "Play Anytime",
+            "LFG",
+            "Paused",
+            "Backlog",
+            "Abandoned",
+            "Finished",
+        ],
     };
 }
 

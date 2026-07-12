@@ -2,11 +2,32 @@
     width: 600px;
     font-size: 16px;
 
-    .rx-dialog-footer {
-        justify-content: space-between;
+    [aria-invalid="true"] {
+        outline: 3px solid red !important;
+    }
+    input[type="checkbox"] {
+        outline-offset: 2px;
     }
 }
 
 input#SteamIDInput {
     margin-bottom: 4px;
+}
+
+.steam-privacy-instructions {
+    font-size: 14px;
+    line-height: 1.5;
+    height: 64px; /* 3 lines of 14px * 1.5 line-height */
+    overflow: hidden;
+    transition: 0.2s ease;
+
+    &.instr-hidden {
+        height: 0;
+    }
+}
+
+.link-like.expander {
+    font-size: 14px !important;
+    font-weight: 500;
+    opacity: 0.75;
 }

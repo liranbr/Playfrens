@@ -1,4 +1,4 @@
-import { toastError } from "@/Utils.jsx";
+import { HttpStatus, toastError } from "@/Utils.jsx";
 
 export async function searchTitleOnStore(title, storeType, lang = "en", cc = "US") {
     if (!title || typeof title !== "string" || !title.trim()) return [];
@@ -47,6 +47,16 @@ export async function searchTitleOnStore(title, storeType, lang = "en", cc = "US
     return results;
 }
 
+export async function getSteamIDFromVanity(vanity) {
+    if (!vanity) throw Error(`Invalid Steam ID/Name passed "${vanity}".`);
+    return await fetch(`/api/steam/getUserIDFromVanityName?vanity=${vanity}`);
+}
+
+export async function getSteamUserSummary(id) {
+    if (!id) throw Error(`Invalid SteamID64 passed "${id}".`);
+    return await fetch(`/api/steam/getUserSummary?id=${id}`);
+}
+
 export function sgdbDatedTitle(SGDBGame) {
     if (isNaN(SGDBGame.release_date)) return SGDBGame.name;
     const year = new Date(SGDBGame.release_date * 1000).getFullYear();
@@ -77,7 +87,7 @@ export async function getBoard() {
             credentials: "include",
         });
 
-        if (response.status === 204) {
+        if (response.status === HttpStatus.NO_CONTENT) {
             // No board found for this user
             return null;
         }

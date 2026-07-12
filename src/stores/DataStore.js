@@ -565,10 +565,7 @@ export class DataStore {
      */
     importSteamGames(remoteGames) {
         const { toAdd } = remoteGames;
-        if (!toAdd) {
-            toastError("Bad object passed, {remoteGames.toAdd} is null.");
-            return;
-        }
+        if (!toAdd) return;
         toAdd.forEach((element) => {
             const {
                 title,

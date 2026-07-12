@@ -3,7 +3,7 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { DialogBase } from "./DialogRoot";
 import "./SteamConfirmImportDialog.css";
 import { Button } from "../common/Button";
-import { useDataStore } from "@/stores";
+import { globalDialogStore, useDataStore } from "@/stores";
 
 const ChangesColumn = ({ data, title }) => {
 
@@ -63,8 +63,8 @@ export const SteamConfirmImportDialog = ({ open, closeDialog, gamesResult, frien
         catch { /* empty */ }
         try { dataStore.importSteamGames(gamesResult); }
         catch { /* empty */ }
-        closeDialog();
     }
+        globalDialogStore.closeMultiple(2);
 
     const importingGames = Object.keys(gamesResult).length > 0;
     const importingFriends = Object.keys(friendsResult).length > 0;

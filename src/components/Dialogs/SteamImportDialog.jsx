@@ -3,7 +3,7 @@ import { Button, InfoIcon } from "@/components";
 import { FriendTagObject } from "@/models/TagObject.js";
 import { useDataStore } from "@/stores/DataStore.js";
 import { Dialogs, globalDialogStore } from "@/stores/DialogStore.js";
-import { HttpStatus, toastError, toastInfo, toastSuccess } from "@/Utils.jsx";
+import { HttpStatus, toastError, toastInfo } from "@/Utils.jsx";
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useState } from "react";

@@ -1,4 +1,4 @@
-import { toastError } from "@/Utils.jsx";
+import { HttpStatus, toastError } from "@/Utils.jsx";
 
 export async function searchTitleOnStore(title, storeType, lang = "en", cc = "US") {
     if (!title || typeof title !== "string" || !title.trim()) return [];
@@ -82,7 +82,7 @@ export async function getBoard() {
             credentials: "include",
         });
 
-        if (response.status === 204) {
+        if (response.status === HttpStatus.NO_CONTENT) {
             // No board found for this user
             return null;
         }

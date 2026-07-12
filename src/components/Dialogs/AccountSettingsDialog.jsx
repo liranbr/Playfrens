@@ -7,6 +7,7 @@ import { globalDataStore, userStore } from "@/stores/index.js";
 import { storeTypes, tagTypes } from "@/models/index.js";
 import { useEffect, useState } from "react";
 import { toastError, toastSuccess } from "@/Utils.jsx";
+import { HttpStatus } from "../../Utils.jsx";
 
 export const AccountSettingsDialog = ({ open, closeDialog }) => {
     const { userInfo } = userStore;
@@ -60,7 +61,9 @@ const DEBUGGING_SKIP_ACCOUNT_DELETION_WARNING = false;
 const DeleteAccountButton = () => {
     const WARNING_DURATION_SECONDS = 30;
     const [startedCountdown, setStartedCountdown] = useState(false);
-    const [secondsRemaining, setSecondsRemaining] = useState(DEBUGGING_SKIP_ACCOUNT_DELETION_WARNING ? 1 : WARNING_DURATION_SECONDS);
+    const [secondsRemaining, setSecondsRemaining] = useState(
+        DEBUGGING_SKIP_ACCOUNT_DELETION_WARNING ? 1 : WARNING_DURATION_SECONDS,
+    );
     const [countdownCleared, setCountdownCleared] = useState(false);
     useEffect(() => {
         if (startedCountdown) {
@@ -83,7 +86,7 @@ const DeleteAccountButton = () => {
                 method: "DELETE",
                 credentials: "include",
             });
-            if (response.status === 200) {
+            if (response.status === HttpStatus.OK) {
                 toastSuccess("Account Deleted successfully. Reloading..");
                 setTimeout(() => window.location.reload(), 3000);
             } else {

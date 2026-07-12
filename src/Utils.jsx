@@ -284,4 +284,4 @@ export const HttpStatus = Object.freeze({
     INTERNAL_SERVER_ERROR: 500,
     NOT_IMPLEMENTED: 501,
     SERVICE_UNAVAILABLE: 503,
-}); // TODO: Replace all hardcoded magic numbers with these
+});

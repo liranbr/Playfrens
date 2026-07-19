@@ -110,7 +110,7 @@ function PrivacyPolicy() {
             </p>
             <h2 id="contact">Contact</h2>
             <p>
-                See <a href="https://playfrens.onrender.com/contact">Contact page</a>.
+                See <a href="/contact">Contact page</a>.
             </p>
         </div>
     );

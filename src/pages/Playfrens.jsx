@@ -212,7 +212,7 @@ const ShareGamesAsText = observer(() => {
         return currentGames.join("  \n");
     };
     const handleCopy = async (withLinks) => {
-        const pfLink = "https://playfrens.onrender.com/";
+        const pfLink = "https://playfrens.com/";
         try {
             const text = [
                 `## ${userInfo.displayName}'s [Playfrens](<${pfLink}>) Board`,

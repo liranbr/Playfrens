@@ -89,7 +89,7 @@ app.use((err, _req, res, _next) => {
     res.status(500).json({ error: err.message });
 });
 
-// Production should not release with HTTPS, this is mostly for testing purposes.
+// Production should not release with HTTPS (which is provided by a provider when hosted), this is mostly for testing purposes.
 const makeHTTPS = (app) => {
     const pems = selfsigned.generate([{ name: "commonName", value: env.DOMAIN }], {
         days: 365,

@@ -31,12 +31,30 @@ async function getGrids(req, res) {
     Response.send(res, OK, result);
 }
 
-/** from a storeType and storeID, returns SGDBGame */
+/**
+ * From a storeType and storeID, returns SGDBGame.
+ * Falls back to a title search if SGDB hasn't linked this storeID to a game yet (common for newly released games).
+ */
 async function getGameFromStore(req, res) {
-    const { storeType, storeID } = req.query;
+    const { storeType, storeID, title } = req.query;
     const { NOT_FOUND, OK } = Response.HttpStatus;
 
-    const game = await client.getGame({ type: storeType, id: storeID });
+    let game;
+    try {
+        game = await client.getGame({ type: storeType, id: storeID });
+    } catch {
+        game = null;
+    }
+
+    if (!game && title) {
+        try {
+            const results = await client.searchGame(title);
+            game = results[0] ?? null;
+        } catch {
+            game = null;
+        }
+    }
+
     if (!game)
         return Response.send(
             res,
@@ -64,3 +82,4 @@ router.get("/getGameFromStore", getGameFromStore);
 router.get("/searchTitle", searchTitle);
 
 export default router;
+

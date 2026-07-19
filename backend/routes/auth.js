@@ -8,7 +8,6 @@ const LOGIN_FAILED_ROUTE = "/login?failed=true";
 
 // Return function called after successful login
 async function loginCallback(req, res) {
-    console.log("USER", req.user);
     console.log(
         `Hello, ${req.user?.display_name || req.user?.username || "unknown user"} from ${req.user?.provider}! 👋`,
     );
@@ -132,3 +131,4 @@ router.get("/google/callback", authCallback("google"));
 router.get("/discord/callback", authCallback("discord"));
 
 export default router;
+

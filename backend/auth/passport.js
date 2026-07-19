@@ -100,7 +100,11 @@ async function upsertUser(profile, provider) {
 export function configurePassport() {
     passport.serializeUser((user, done) => done(null, user.id));
     passport.deserializeUser(async (id, done) => {
-        const { data: user, error } = await supabase.from("users").select("*").eq("id", id).single();
+        const { data: user, error } = await supabase
+            .from("users")
+            .select("*")
+            .eq("id", id)
+            .single();
         done(error, user);
     });
 
@@ -134,7 +138,6 @@ export function configurePassport() {
             },
             async (accessToken, refreshToken, profile, done) => {
                 try {
-                    console.log(profile);
                     const user = await upsertUser(profile, "google");
                     done(null, user);
                 } catch (err) {
@@ -154,7 +157,6 @@ export function configurePassport() {
             },
             async (accessToken, refreshToken, profile, done) => {
                 try {
-                    console.log(profile);
                     const user = await upsertUser(profile, "discord");
                     done(null, user);
                 } catch (err) {
@@ -164,3 +166,4 @@ export function configurePassport() {
         ),
     );
 }
+

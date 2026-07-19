@@ -40,7 +40,6 @@ async function updateBoard(req, res) {
     }
 
     const { path, value } = req.body;
-    console.log(path, value);
     if (!Array.isArray(path) || value === undefined) {
         return Response.send(res, BAD_REQUEST, {
             error: "Invalid partial update payload",
@@ -95,3 +94,4 @@ router.post("/update", updateBoard);
 router.get("/", getBoard);
 
 export default router;
+

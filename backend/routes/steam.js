@@ -302,10 +302,6 @@ async function getItems(req, res) {
             const result = filterItems(itemsData);
             data.push(result);
         }
-        console.log(
-            `Filtering by categories: ${categories}${releasedOnly ? " and by released only." : ""}`,
-        );
-        console.log(`Sending ${data.length} items as final result.`);
         Response.send(res, OK, data);
     } catch (err) {
         console.error(err);

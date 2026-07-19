@@ -72,8 +72,23 @@ export async function isImageUrlValid(url) {
     }
 }
 
-export function asyncHandler(fn) {
-    return function (req, res, next) {
-        Promise.resolve(fn(req, res, next)).catch(next);
-    };
+/**
+ * Logs every route a Router mounts, reading it straight off the Router's own internal stack.
+ * @param {string} prefix - path the router is mounted at like "/api/steam"
+ * @param {import('express').Router} router
+ * @param {string} label - heading printed above the group, should be the router's file name
+ */
+export function logRoutes(prefix, router, label) {
+    const { FgYellow, FgCyan, FgGreen, Reset, FgRGB } = ConsoleColors;
+    console.log(`${FgYellow}${label}${Reset}`);
+    for (const layer of router.stack) {
+        if (!layer.route) continue;
+        const routePath = layer.route.path === "/" ? "" : layer.route.path;
+        for (const routeLayer of layer.route.stack) {
+            const name = routeLayer.handle.name?.replace(/^bound\s*/, "") || "anonymous";
+            console.log(
+                `  ${FgCyan}[${name}]${Reset} ${FgGreen}${routeLayer.method.toUpperCase()} ${FgRGB(255, 165, 0)}${resolveBaseURL("frontend")}${prefix}${routePath}${Reset}`,
+            );
+        }
+    }
 }

@@ -175,7 +175,6 @@ function tryLoadVideo(url) {
 
 // Find a game's full cover URL from its thumbnail URL (educated guesses)
 export async function thumbToCover(thumbURL) {
-    console.log("Converting thumbnail URL to cover image URL");
     if (!thumbURL) return thumbURL;
     const sources = [];
     if (thumbURL.includes("cdn2.steamgriddb.com/thumb/")) {

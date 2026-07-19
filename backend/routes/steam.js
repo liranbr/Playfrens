@@ -25,9 +25,11 @@ function chunkArray(array, chunkSize = 100) {
     return chunks;
 }
 
-/** TODO: IStoreBrowseService/GetItems for batched calling multiple Metadatas to get their perspective categories, basic info and assets
- * Example:
- * https://api.steampowered.com/IStoreBrowseService/GetItems/v1/?key=<STEAM_WEBAPI_KEY>&input_json=%7B%22ids%22%3A%5B%7B%22appid%22%3A440%7D%2C%7B%22appid%22%3A570%7D%2C%7B%22appid%22%3A620%7D%5D%2C%22context%22%3A%7B%22language%22%3A%22english%22%2C%22country_code%22%3A%22US%22%7D%2C%22data_request%22%3A%7B%22include_assets%22%3Atrue%7D%7D
+/**
+ * Fetches App metadata of multiple IDs.
+ * @todo IStoreBrowseService/GetItems for batched calling multiple Metadatas to get their perspective categories, basic info and assets
+ * @example "https://api.steampowered.com/IStoreBrowseService/GetItems/v1/?key=<STEAM_WEBAPI_KEY>&input_json=%7B%22ids%22%3A%5B%7B%22appid%22%3A440%7D%2C%7B%22appid%22%3A570%7D%2C%7B%22appid%22%3A620%7D%5D%2C%22context%22%3A%7B%22language%22%3A%22english%22%2C%22country_code%22%3A%22US%22%7D%2C%22data_request%22%3A%7B%22include_assets%22%3Atrue%7D%7D"
+ *
  */
 async function fetchItems(ids) {
     const batches = chunkArray(ids, DEFAULT_CHUNK_ARRAY_SIZE);
@@ -396,3 +398,4 @@ router.get("/getWishListIDs", getWishListIDs);
 router.post("/getItems", getItems);
 
 export default router;
+

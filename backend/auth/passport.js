@@ -13,6 +13,7 @@ async function upsertUser(profile, provider) {
                 return profile.identifier;
             case "google":
             case "discord":
+            case "email":
                 return profile.id;
         }
         return undefined;
@@ -60,6 +61,7 @@ async function upsertUser(profile, provider) {
             .update({
                 display_name: profile.displayName,
                 avatar_url,
+                email: profile.email,
                 last_login: new Date(),
             })
             .eq("id", userId);
@@ -71,6 +73,7 @@ async function upsertUser(profile, provider) {
             .insert({
                 display_name: profile.displayName,
                 avatar_url,
+                email: profile.email,
                 provider,
                 provider_id: providerId,
                 last_login: new Date(),

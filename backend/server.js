@@ -47,7 +47,7 @@ app.use(
             secure: isProd || strToBool(env.USE_HTTPS),
             httpOnly: true,
             sameSite: isProd ? "none" : "lax",
-            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+            maxAge: 180 * 24 * 60 * 60 * 1000, // 180 days
         },
     }),
 );
@@ -105,3 +105,4 @@ const isHTTPS = strToBool(env.USE_HTTPS);
         `${ConsoleColors.FgRGB(191, 255, 0)} Playfrens server running @ ${resolveBaseURL()}${ConsoleColors.Reset}`,
     );
 });
+

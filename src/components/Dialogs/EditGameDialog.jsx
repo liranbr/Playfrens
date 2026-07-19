@@ -211,6 +211,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
 
 function CoverSelector({ saveOnEnter }) {
     const {
+        title,
         coverImageURL,
         setCoverImageURL,
         coverThumbURL,
@@ -239,7 +240,7 @@ function CoverSelector({ saveOnEnter }) {
     useEffect(() => {
         if (!(storeType && storeID)) return;
         setLoadingCovers(true); // starting the fetch process. next step is fetching the entry's covers.
-        const params = new URLSearchParams({ storeType, storeID });
+        const params = new URLSearchParams({ storeType, storeID, title });
         fetch(`/api/steamgriddb/getGameFromStore?${params}`)
             .then((res) => {
                 if (!res.ok)

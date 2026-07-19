@@ -90,6 +90,22 @@ async function getUserSummaries(ids) {
     return results;
 }
 
+/** Returns a Steam user's public profile summary like nickname, avatar and profile URL. */
+async function getUserSummary(req, res) {
+    const { id } = req.query;
+    const { OK, BAD_REQUEST, NOT_FOUND } = Response.HttpStatus;
+
+    if (!isSteamID(id))
+        return Response.sendMessage(res, BAD_REQUEST, `Invalid SteamID64 passed: ${id}`);
+
+    try {
+        const summary = await client.getUserSummary(id);
+        Response.send(res, OK, summary);
+    } catch {
+        Response.sendMessage(res, NOT_FOUND, `Couldn't find Steam profile for SteamID64 ${id}`);
+    }
+}
+
 async function getUserIDFromVanityName(req, res) {
     /** @type {string} */
     const { vanity } = req.query;
@@ -124,11 +140,16 @@ async function getUserLibrary(req, res) {
     const { id } = req.query;
     const { OK, BAD_REQUEST, NOT_FOUND } = Response.HttpStatus;
 
-    if (!isSteamID(id)) return Response.sendMessage(res, BAD_REQUEST, `Invalid SteamID64 passed: ${id}`);
+    if (!isSteamID(id))
+        return Response.sendMessage(res, BAD_REQUEST, `Invalid SteamID64 passed: ${id}`);
 
     const games = await client.getUserOwnedGames(id, { includeExtendedAppInfo: true });
     if (games.length === 0)
-        return Response.sendMessage(res, NOT_FOUND, `Couldn't find any games using SteamID64 ${id}`);
+        return Response.sendMessage(
+            res,
+            NOT_FOUND,
+            `Couldn't find any games using SteamID64 ${id}`,
+        );
     Response.send(res, OK, games);
 }
 
@@ -136,7 +157,8 @@ async function getUserLibraryIDs(req, res) {
     const { id } = req.query;
     const { OK, BAD_REQUEST, NOT_FOUND, NO_CONTENT } = Response.HttpStatus;
 
-    if (!isSteamID(id)) return Response.sendMessage(res, BAD_REQUEST, `Invalid SteamID64 passed: ${id}`);
+    if (!isSteamID(id))
+        return Response.sendMessage(res, BAD_REQUEST, `Invalid SteamID64 passed: ${id}`);
 
     try {
         const games = await client.getUserOwnedGames(id);
@@ -158,7 +180,8 @@ async function getUserLibraryIDs(req, res) {
 async function getFriends(req, res) {
     const { id } = req.query;
     const { OK, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED } = Response.HttpStatus;
-    if (!isSteamID(id)) return Response.sendMessage(res, BAD_REQUEST, `Invalid SteamID64 passed: ${id}`);
+    if (!isSteamID(id))
+        return Response.sendMessage(res, BAD_REQUEST, `Invalid SteamID64 passed: ${id}`);
 
     // We need to catch 401 errors here since SteamAPI lib throws on them
     let response;
@@ -174,12 +197,20 @@ async function getFriends(req, res) {
             });
         }
         console.error("Error fetching friends list:", error);
-        return Response.sendMessage(res, UNAUTHORIZED, `Couldn't get friends list for SteamID64 ${id}`);
+        return Response.sendMessage(
+            res,
+            UNAUTHORIZED,
+            `Couldn't get friends list for SteamID64 ${id}`,
+        );
     }
     const friends = response.friendslist?.friends || [];
 
     if (friends.length === 0)
-        return Response.sendMessage(res, NOT_FOUND, `Couldn't find any friends using SteamID64 ${id}`);
+        return Response.sendMessage(
+            res,
+            NOT_FOUND,
+            `Couldn't find any friends using SteamID64 ${id}`,
+        );
     const friendSummaries = await getUserSummaries(friends.map((f) => f.steamid));
 
     Response.send(res, OK, friendSummaries);
@@ -192,7 +223,8 @@ async function getSteamCapsules(req, res) {
     const { id } = req.query;
     const { OK, BAD_REQUEST } = Response.HttpStatus;
 
-    if (!isSteamID(id)) return Response.sendMessage(res, BAD_REQUEST, `Invalid SteamID64 passed: ${id}`);
+    if (!isSteamID(id))
+        return Response.sendMessage(res, BAD_REQUEST, `Invalid SteamID64 passed: ${id}`);
 
     const games = await client.getUserOwnedGames(id, { includeExtendedAppInfo: true });
 
@@ -318,7 +350,8 @@ async function getWishListIDs(req, res) {
     const { id } = req.query;
     const { OK, NO_CONTENT, BAD_REQUEST } = Response.HttpStatus;
 
-    if (!isSteamID(id)) return Response.sendMessage(res, BAD_REQUEST, `Invalid SteamID64 passed: ${id}`);
+    if (!isSteamID(id))
+        return Response.sendMessage(res, BAD_REQUEST, `Invalid SteamID64 passed: ${id}`);
 
     const response = await fetch(
         `https://api.steampowered.com/IWishlistService/GetWishlist/v1?steamid=${id}`,
@@ -342,6 +375,7 @@ async function getWishListIDs(req, res) {
  * Returns a list of Items for a user's Wishlist
  * @deprecated Use getWishListIDs instead.
  */
+// eslint-disable-next-line no-unused-vars
 async function getWishlist(_req, res) {
     const { GONE } = Response.HttpStatus;
 
@@ -350,13 +384,14 @@ async function getWishlist(_req, res) {
 
 const router = Router();
 router.get("/getUserIDFromVanityName", getUserIDFromVanityName);
+router.get("/getUserSummary", getUserSummary);
 router.get("/getUserLibrary", getUserLibrary);
 router.get("/getUserLibraryIDs", getUserLibraryIDs);
 router.get("/getFriends", getFriends);
 router.get("/getSteamCapsules", getSteamCapsules);
 router.get("/searchTitle", searchTitle);
 router.get("/getGameCover", getGameCover);
-router.get("/getWishlist", getWishlist);
+// router.get("/getWishlist", getWishlist);
 router.get("/getWishListIDs", getWishListIDs);
 router.post("/getItems", getItems);
 

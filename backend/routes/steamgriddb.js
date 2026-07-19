@@ -18,7 +18,12 @@ async function getGrids(req, res) {
         types: strToBool(animatedOnly) ? ["animated"] : [],
         nsfw: nsfw,
     };
-    const grids = await client.getGrids(gridOptions);
+    let grids;
+    try {
+        grids = await client.getGrids(gridOptions);
+    } catch {
+        grids = [];
+    }
     if (!grids.length)
         return Response.sendMessage(res, NOT_FOUND, `No grids were found for this game.`);
     const result = grids.map((grid) => ({ url: grid.url, thumb: grid.thumb }));

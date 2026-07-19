@@ -7,7 +7,7 @@ import https from "https";
 import selfsigned from "selfsigned";
 import path from "path";
 import { fileURLToPath } from "url";
-import { ConsoleColors, resolveBaseURL, strToBool } from "./utils.js";
+import { ConsoleColors, logRoutes, resolveBaseURL, strToBool } from "./utils.js";
 import { configurePassport } from "./auth/passport.js";
 import generalRoutes from "./routes/general.js";
 import authRoutes from "./routes/auth.js";
@@ -56,18 +56,24 @@ app.use(passport.session());
 configurePassport();
 
 // Routes
-app.use("/api", generalRoutes);
-app.use("/auth", authRoutes);
-app.use("/api/steam", steamRoutes);
-app.use("/api/steamgriddb", steamgriddbRoutes);
-app.use("/api/board", boardRoutes);
+const mounts = [
+    ["/api", generalRoutes, "general.js"],
+    ["/auth", authRoutes, "auth.js"],
+    ["/api/steam", steamRoutes, "steam.js"],
+    ["/api/steamgriddb", steamgriddbRoutes, "steamgriddb.js"],
+    ["/api/board", boardRoutes, "board.js"],
+];
+for (const [prefix, router, label] of mounts) {
+    app.use(prefix, router);
+    logRoutes(prefix, router, label);
+}
 
-// NOTICE: The follow 2 calls down below assumes we have a public folder for server.js
+// NOTICE: The following 2 calls down below assumes we have a public folder for server.js
 // In normal development, we use Vite instead, making both of these only functional when publishing.
 // Serve static frontend build
 app.use(express.static(path.join(__dirname, "public")));
 
-// SPA fallback — only for non-API routes
+// Fallback just in case of API routes falling apart
 app.use((req, res, next) => {
     const apiPrefixes = ["/api", "/auth"];
     if (apiPrefixes.some((prefix) => req.path.startsWith(prefix))) {

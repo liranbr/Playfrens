@@ -23,7 +23,7 @@ function pruneUserCache() {
     }
 }
 
-async function upsertUser(profile, provider) {
+export async function upsertUser(profile, provider) {
     const providerId = (() => {
         switch (provider) {
             case "steam":
@@ -219,3 +219,4 @@ export function configurePassport() {
         ),
     );
 }
+

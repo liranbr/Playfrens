@@ -68,6 +68,53 @@ export class UserStore {
     logout() {
         window.open("/auth/logout", "_self");
     }
+
+    async postAuth(path, body) {
+        try {
+            const res = await fetch(`/auth/email/${path}`, {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) return { ok: false, error: data?.error || "Something went wrong." };
+            return { ok: true, ...data };
+        } catch {
+            return { ok: false, error: "Could not reach the server." };
+        }
+    }
+
+    async signupWithEmail(email, password) {
+        const result = await this.postAuth("signup", { email, password });
+        if (result.ok && !result.confirmationRequired) {
+            await this.getUser();
+            await this.populateStores();
+        }
+        return result;
+    }
+
+    async loginWithEmail(email, password) {
+        const result = await this.postAuth("login", { email, password });
+        if (result.ok) {
+            await this.getUser();
+            await this.populateStores();
+        }
+        return result;
+    }
+
+    async sendMagicLink(email) {
+        return this.postAuth("magic-link", { email });
+    }
+
+    async completeMagicLinkSession(accessToken) {
+        const result = await this.postAuth("session", { access_token: accessToken });
+        if (result.ok) {
+            await this.getUser();
+            await this.populateStores();
+        }
+        return result;
+    }
 }
 
 export const userStore = new UserStore();

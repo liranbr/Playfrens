@@ -6,7 +6,7 @@ import { Strategy as DiscordStrategy } from "passport-discord";
 import { resolveBaseURL } from "../utils.js";
 import { supabase } from "../supabaseClient.js";
 
-async function upsertUser(profile, provider) {
+export async function upsertUser(profile, provider) {
     const providerId = (() => {
         switch (provider) {
             case "steam":

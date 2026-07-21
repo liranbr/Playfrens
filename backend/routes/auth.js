@@ -1,10 +1,14 @@
 import { Router } from "express";
 import passport from "passport";
 import { Response } from "../response.js";
-import { supabase } from "../supabaseClient.js";
+import { supabase, supabaseAuth } from "../supabaseClient.js";
+import { upsertUser } from "../auth/passport.js";
+import { resolveBaseURL } from "../utils.js";
 
 const router = Router();
 const LOGIN_FAILED_ROUTE = "/login?failed=true";
+// Not under /auth — that prefix is reserved for backend routes (see vite.config.js proxy).
+const EMAIL_CALLBACK_URL = `${resolveBaseURL("frontend")}/login/callback`;
 
 // Return function called after successful login
 async function loginCallback(req, res) {
@@ -109,6 +113,106 @@ async function deleteAccount(req, res) {
     } else return respondError(responseStatus);
 }
 
+function emailProfileFrom(supabaseUser) {
+    return {
+        id: supabaseUser.id,
+        email: supabaseUser.email,
+        displayName: supabaseUser.email.split("@")[0],
+    };
+}
+
+function establishEmailSession(req, res, supabaseUser) {
+    const { OK, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+    return upsertUser(emailProfileFrom(supabaseUser), "email").then(
+        (user) =>
+            new Promise((resolve) => {
+                req.logIn(user, (err) => {
+                    if (err) {
+                        Response.send(res, INTERNAL_SERVER_ERROR, { error: err.message });
+                    } else {
+                        Response.send(res, OK, { user });
+                    }
+                    resolve();
+                });
+            }),
+    );
+}
+
+async function emailSignup(req, res) {
+    const { BAD_REQUEST, OK, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+    const { email, password } = req.body;
+    if (!email || !password) {
+        return Response.send(res, BAD_REQUEST, { error: "Email and password are required." });
+    }
+
+    const { data, error } = await supabaseAuth.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: EMAIL_CALLBACK_URL },
+    });
+    if (error) return Response.send(res, BAD_REQUEST, { error: error.message });
+
+    // No session yet if "Confirm email" is enabled on the Supabase project.
+    if (!data.session) {
+        return Response.send(res, OK, { confirmationRequired: true });
+    }
+
+    try {
+        await establishEmailSession(req, res, data.user);
+    } catch (err) {
+        Response.send(res, INTERNAL_SERVER_ERROR, { error: err.message });
+    }
+}
+
+async function emailLogin(req, res) {
+    const { BAD_REQUEST, UNAUTHORIZED, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+    const { email, password } = req.body;
+    if (!email || !password) {
+        return Response.send(res, BAD_REQUEST, { error: "Email and password are required." });
+    }
+
+    const { data, error } = await supabaseAuth.auth.signInWithPassword({ email, password });
+    if (error) return Response.send(res, UNAUTHORIZED, { error: "Invalid email or password." });
+
+    try {
+        await establishEmailSession(req, res, data.user);
+    } catch (err) {
+        Response.send(res, INTERNAL_SERVER_ERROR, { error: err.message });
+    }
+}
+
+async function emailMagicLink(req, res) {
+    const { BAD_REQUEST, OK, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+    const { email } = req.body;
+    if (!email) return Response.send(res, BAD_REQUEST, { error: "Email is required." });
+
+    const { error } = await supabaseAuth.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: EMAIL_CALLBACK_URL },
+    });
+    if (error) return Response.send(res, INTERNAL_SERVER_ERROR, { error: error.message });
+
+    Response.send(res, OK, { message: "Magic link sent, check your email." });
+}
+
+// access_token comes from the URL fragment, which never reaches the server directly.
+async function emailSession(req, res) {
+    const { BAD_REQUEST, UNAUTHORIZED, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+    const { access_token } = req.body;
+    if (!access_token) return Response.send(res, BAD_REQUEST, { error: "Missing access token." });
+
+    const { data, error } = await supabaseAuth.auth.getUser(access_token);
+    if (error || !data?.user) {
+        return Response.send(res, UNAUTHORIZED, { error: "Invalid or expired link." });
+    }
+
+    try {
+        await establishEmailSession(req, res, data.user);
+    } catch (err) {
+        Response.send(res, INTERNAL_SERVER_ERROR, { error: err.message });
+    }
+}
+
 router.get("/me", getRequestIdentity);
 router.get("/logout", logout);
 router.delete("/deleteAccount", deleteAccount);
@@ -123,6 +227,12 @@ router.get(
     }),
 );
 router.get("/discord", passport.authenticate("discord", { failureRedirect: LOGIN_FAILED_ROUTE }));
+
+// Email login (password + magic link), built on Supabase Auth
+router.post("/email/signup", emailSignup);
+router.post("/email/login", emailLogin);
+router.post("/email/magic-link", emailMagicLink);
+router.post("/email/session", emailSession);
 
 // Strategy callbacks
 // Google and Discord - if renamed, update accordingly in the respective developer portal

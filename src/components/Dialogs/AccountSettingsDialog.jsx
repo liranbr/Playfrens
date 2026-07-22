@@ -6,8 +6,7 @@ import { Button } from "@/components/index.js";
 import { globalDataStore, userStore } from "@/stores/index.js";
 import { storeTypes, tagTypes } from "@/models/index.js";
 import { useEffect, useState } from "react";
-import { toastError, toastSuccess } from "@/Utils.jsx";
-import { HttpStatus } from "../../Utils.jsx";
+import { toastError, toastSuccess, HttpStatus } from "@/Utils";
 
 export const AccountSettingsDialog = ({ open, closeDialog }) => {
     const { userInfo } = userStore;

@@ -5,7 +5,7 @@ import { useUserStore } from "@/stores";
 import { Button } from "@/components";
 import "./Login.css";
 import "./CardPage.css";
-import { loadFromStorage, toastError } from "@/Utils.jsx";
+import { loadFromStorage, toastError } from "@/Utils";
 
 const Login = observer(() => {
     const userStore = useUserStore();

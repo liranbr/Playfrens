@@ -1,4 +1,4 @@
-import { HttpStatus, toastError } from "@/Utils.jsx";
+import { HttpStatus, toastError } from "@/Utils";
 
 export async function searchTitleOnStore(title, storeType, lang = "en", cc = "US") {
     if (!title || typeof title !== "string" || !title.trim()) return [];

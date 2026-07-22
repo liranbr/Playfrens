@@ -165,6 +165,7 @@ export class DataStore {
         return gameTagIDs;
     }
 
+    // eslint-disable-next-line no-unused-vars -- unused, kept for future use case.
     async populateGames(gameJsons, version) {
         const parseParties = (parties) => {
             return parties

@@ -18,7 +18,6 @@ import {
     useSettingsStore,
 } from "@/stores";
 import { ReminderObject, tagTypes, tagTypeStrings } from "@/models";
-import { useValidatedImage } from "@/hooks/useValidatedImage.js";
 import { DialogBase } from "./DialogRoot.jsx";
 
 import "@/components/TagButtonGroup.css";

@@ -287,8 +287,6 @@ const AddReminderPopover = ({ game, party }) => {
 };
 
 const PartyTabs = ({ game, partyID, setPartyID, renamePartyRef }) => {
-    if (game.parties.length <= 1) return null;
-
     const filterStore = useFilterStore();
     const tabClassName = (party) => (filterStore.doesPartyPassFilters(party) ? "" : "filtered-out");
 
@@ -309,6 +307,8 @@ const PartyTabs = ({ game, partyID, setPartyID, renamePartyRef }) => {
     useEffect(() => {
         renameRef.current?.select();
     }, [renamingID]); // selects the name of the renamed party upon rename start
+
+    if (game.parties.length <= 1) return null;
 
     return (
         <ToggleGroup.Root

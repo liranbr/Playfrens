@@ -11,7 +11,8 @@
 }
 
 .app-sidebar-container {
-    min-height: fit-content;
+    /* Safari won't stretch a flex item to fill when min-height: fit-content; instead of auto; */
+    min-height: auto;
     max-height: 100%;
     min-width: fit-content;
     max-width: fit-content;

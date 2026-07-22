@@ -91,7 +91,9 @@ const SidebarTBGMenu = observer(({ tagType }) => {
                             onPointerDown={(e) => e.stopPropagation()}
                         >
                             <Select.Value />
-                            <Select.Icon children={<MdKeyboardArrowDown />} />
+                            <Select.Icon>
+                                <MdKeyboardArrowDown />
+                            </Select.Icon>
                         </Select.Trigger>
                         <Select.Content position="popper" className="rx-select-content">
                             <Select.Viewport>

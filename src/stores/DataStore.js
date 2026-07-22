@@ -30,7 +30,7 @@ import {
     toastInfo,
     toastSuccess,
     updateObject,
-} from "@/Utils.jsx";
+} from "@/Utils";
 import { SortingReaction } from "./SortingReaction.js";
 import { version } from "/package.json";
 

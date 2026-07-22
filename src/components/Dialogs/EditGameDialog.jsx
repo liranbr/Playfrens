@@ -11,7 +11,7 @@ import * as Switch from "@radix-ui/react-switch";
 import { storeTypes } from "@/models";
 import { getOfficialCoverImageURL, searchTitleOnStore, sgdbDatedTitle } from "@/APIUtils.js";
 import { GameCoverDisplay } from "@/components/GameCoverDisplay.jsx";
-import { HttpStatus, thumbToCover } from "@/Utils.jsx";
+import { HttpStatus } from "@/Utils";
 
 const GameEntryContext = createContext(null);
 

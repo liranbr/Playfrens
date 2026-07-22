@@ -1,5 +1,6 @@
-import React, { useEffect, useRef } from "react";
-import { PrevButton, NextButton, usePrevNextButtons } from "./EmblaCarouselArrowButtons";
+import { useCallback, useEffect, useRef } from "react";
+import { PrevButton, NextButton } from "./EmblaCarouselArrowButtons";
+import { usePrevNextButtons } from "@/hooks/usePrevNextButtons.js";
 import useEmblaCarousel from "embla-carousel-react";
 import "./EmblaCarousel.css";
 
@@ -18,6 +19,12 @@ export const EmblaCarousel = () => {
             autoplayTimeoutRef.current = null;
         }
     };
+
+    const handleScrollNext = useCallback(() => {
+        if (autoplayEnabledRef.current) {
+            emblaApi?.scrollNext();
+        }
+    }, [emblaApi]);
 
     useEffect(() => {
         if (!emblaApi) return;
@@ -50,13 +57,7 @@ export const EmblaCarousel = () => {
             clearAutoplayTimeout();
             autoplayEnabledRef.current = false;
         }); // if user clicks on the content, it should stay rather than auto-scrolling to the next slide
-    }, [emblaApi]);
-
-    const handleScrollNext = () => {
-        if (autoplayEnabledRef.current) {
-            emblaApi?.scrollNext();
-        }
-    };
+    }, [emblaApi, handleScrollNext]);
 
     const { prevBtnDisabled, nextBtnDisabled, onPrevButtonClick, onNextButtonClick } =
         usePrevNextButtons(emblaApi, () => {

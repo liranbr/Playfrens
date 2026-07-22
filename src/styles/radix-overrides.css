@@ -124,17 +124,21 @@
 }
 
 .rx-dialog {
+    --dialog-pad-y: 20px;
+    --dialog-pad-x: calc(20px - var(--scrollbar-width));
+    --dialog-radius: 12px;
+
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     background-color: var(--pf-bg-900);
     width: 425px;
-    padding: 20px calc(20px - var(--scrollbar-width));
+    padding: 0 var(--dialog-pad-x) var(--dialog-pad-y);
     height: fit-content;
     max-height: 85vh;
     overflow-y: auto;
     border: var(--pf-border-700);
-    border-radius: 12px;
+    border-radius: var(--dialog-radius);
     box-shadow: 0 0 20px rgba(0, 0, 0, 1);
     position: fixed;
     top: 50%;
@@ -157,11 +161,18 @@
 
     h2 {
         font-size: 18px;
-        margin-bottom: 12px;
         text-align: center;
         overflow: hidden;
         text-wrap: nowrap;
         text-overflow: ellipsis;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        flex-shrink: 0;
+        margin: 0 calc(-1 * var(--dialog-pad-x));
+        padding: var(--dialog-pad-y) var(--dialog-pad-x) 12px;
+        background-color: var(--pf-bg-900);
+        border-radius: var(--dialog-radius) var(--dialog-radius) 0 0;
     }
 
     .rx-dialog-footer {

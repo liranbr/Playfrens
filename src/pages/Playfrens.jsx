@@ -9,6 +9,7 @@ import {
     MdClose,
     MdFilterAltOff,
     MdMenu,
+    MdOutlineCheckCircle,
     MdOutlineFileDownload,
     MdOutlineFileUpload,
     MdOutlineGamepad,
@@ -313,9 +314,16 @@ const Notifications = observer(() => {
             </Popover.Trigger>
             <Popover.Content className="rx-popover notifications-drawer" align="end" sideOffset={5}>
                 <div className="reminders-list">
-                    {reminders.map((reminder) => (
-                        <ReminderCard key={reminder.id} reminder={reminder} outsideOfGamePage />
-                    ))}
+                    {reminders.length === 0 ? (
+                        <div className="no-reminders">
+                            <MdOutlineCheckCircle />
+                            You have no reminders.
+                        </div>
+                    ) : (
+                        reminders.map((reminder) => (
+                            <ReminderCard key={reminder.id} reminder={reminder} outsideOfGamePage />
+                        ))
+                    )}
                 </div>
             </Popover.Content>
         </Popover.Root>

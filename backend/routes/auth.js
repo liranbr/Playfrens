@@ -135,7 +135,7 @@ router.get(
     oauthLimiter,
     passport.authenticate("google", {
         failureRedirect: LOGIN_FAILED_ROUTE,
-        scope: ["profile", "openid"],
+        scope: ["profile", "email", "openid"],
     }),
 );
 router.get(

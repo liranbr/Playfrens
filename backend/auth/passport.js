@@ -105,7 +105,9 @@ export function configurePassport() {
             .select("*")
             .eq("id", id)
             .single();
-        done(error, user);
+        // No rows? Then account was deleted, treat as logged out instead of erroring.
+        if (error) return done(error.code === "PGRST116" ? null : error, false);
+        done(null, user);
     });
 
     const URL = resolveBaseURL("frontend");
@@ -166,4 +168,3 @@ export function configurePassport() {
         ),
     );
 }
-

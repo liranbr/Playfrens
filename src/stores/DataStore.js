@@ -474,22 +474,16 @@ export class DataStore {
         t.totalGamesCount = [...this.allGames.values()].filter((game) => game.hasTag(t)).length;
     }
 
-    /** @param {(game: GameObject, tag: TagObject) => boolean} doesGameQualifyForTag - also know as FilterStore.doesGameQualifyForTag */
-    updateAllTagFilteredGamesCounters(doesGameQualifyForTag) {
+    updateAllTagFilteredGamesCounters(filteredGames) {
         this.allTagsFlatForEach(
-            (t) =>
-                (t.filteredGamesCount = [...this.allGames.values()].filter((game) =>
-                    doesGameQualifyForTag(game, t),
-                ).length),
+            (t) => (t.filteredGamesCount = filteredGames.filter((game) => game.hasTag(t)).length),
         );
     }
 
-    /** @param {(game: GameObject, tag: TagObject) => boolean} doesGameQualifyForTag - used whenever adding/removing a tag from a game. not the prettiest, but is efficient */
-    updateTagFilteredGamesCounter(tag, doesGameQualifyForTag) {
+    updateTagFilteredGamesCounter(tag, filteredGames) {
+        // used whenever adding/removing a tag from a game. not the prettiest, but is efficient
         const t = this.allTags[tag.type].get(tag.id);
-        t.filteredGamesCount = [...this.allGames.values()].filter((game) =>
-            doesGameQualifyForTag(game, t),
-        ).length;
+        t.filteredGamesCount = filteredGames.filter((game) => game.hasTag(t)).length;
     }
 
     addGame(title, coverImageURL, coverThumbURL, sortingTitle, storeType, storeID, sgdbID) {

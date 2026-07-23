@@ -147,24 +147,13 @@ class FilterStore {
     }
 
     doesGamePassFilters(game) {
-        if (this.search && !game.title.toLowerCase().includes(this.search.toLowerCase()))
-            return false;
+        if (this.search) {
+            if (!game.title.toLowerCase().includes(this.search.toLowerCase())) {
+                return false;
+            }
+        }
 
         return game.parties.some((party) => this.doesPartyPassFilters(party));
-    }
-
-    /**
-     * Similar to {@link doesGamePassFilters}, but also requires the matching party to have `tag`, so a
-     * game isn't counted for `tag` just because an unrelated party pass the active filters.
-     * @param {import("@/models").GameObject} game
-     * @param {TagObject} tag
-     * @returns {boolean}
-     */
-    doesGameQualifyForTag(game, tag) {
-        if (this.search && !game.title.toLowerCase().includes(this.search.toLowerCase()))
-            return false;
-
-        return game.parties.some((party) => this.doesPartyPassFilters(party) && party.hasTag(tag));
     }
 
     /**
@@ -207,17 +196,12 @@ export const globalFilterStore = filterStore;
 // filtered games is in the FilterStore, so this provides it to the DataStore, only when filteredGames/allGames changes
 reaction(
     () => filterStore.filteredGames,
-    () =>
-        globalDataStore.updateAllTagFilteredGamesCounters((game, tag) =>
-            filterStore.doesGameQualifyForTag(game, tag),
-        ),
+    (filteredGames) => globalDataStore.updateAllTagFilteredGamesCounters(filteredGames),
     { fireImmediately: true },
 );
 // and this is a wrapper function to update the other cases that can change this counter;
 // used when adding/removing a tag from a game
 export function updateTagBothGameCounters(tag) {
-    globalDataStore.updateTagFilteredGamesCounter(tag, (game, t) =>
-        filterStore.doesGameQualifyForTag(game, t),
-    );
+    globalDataStore.updateTagFilteredGamesCounter(tag, filterStore.filteredGames);
     globalDataStore.updateTagTotalGamesCounter(tag);
 }

@@ -26,6 +26,28 @@ async function upsertUser(profile, provider) {
         .eq("provider_id", providerId)
         .single();
 
+    const display_name = (() => {
+        switch (provider) {
+            // passport-discord has no "displayName" field, Discord calls this "global_name", but will fallback to username if it was never set.
+            case "discord":
+                return profile.global_name || profile.username;
+            default:
+                return profile.displayName;
+        }
+    })();
+
+    const email = (() => {
+        switch (provider) {
+            case "google":
+                return profile.emails?.length ? profile.emails[0].value : null;
+            case "discord":
+                return profile.email ?? null;
+            default:
+                // For Steam, has no email.
+                return null;
+        }
+    })();
+
     const avatar_url = (() => {
         switch (provider) {
             case "steam":
@@ -58,7 +80,8 @@ async function upsertUser(profile, provider) {
         const { error: updateError } = await supabase
             .from("users")
             .update({
-                display_name: profile.displayName,
+                display_name,
+                email,
                 avatar_url,
                 last_login: new Date(),
             })
@@ -69,7 +92,8 @@ async function upsertUser(profile, provider) {
         const { data: newUser, error: insertError } = await supabase
             .from("users")
             .insert({
-                display_name: profile.displayName,
+                display_name,
+                email,
                 avatar_url,
                 provider,
                 provider_id: providerId,
@@ -155,7 +179,7 @@ export function configurePassport() {
                 clientID: process.env.DISCORD_CLIENT_ID,
                 clientSecret: process.env.DISCORD_CLIENT_SECRET,
                 callbackURL: `${URL}/auth/discord/callback`,
-                scope: ["identify"],
+                scope: ["identify", "email"],
             },
             async (accessToken, refreshToken, profile, done) => {
                 try {

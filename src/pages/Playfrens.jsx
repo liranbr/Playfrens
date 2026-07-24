@@ -261,7 +261,7 @@ const AppUserAvatar = observer(() => {
         <DD.Root>
             <DD.Trigger asChild className="rx-avatar">
                 <Avatar.Root>
-                    <Avatar.Image src={userInfo?.avatar ?? undefined} />
+                    <Avatar.Image src={userInfo?.avatar ?? undefined} referrerPolicy="no-referrer" />
                     <Avatar.Fallback className="rx-avatarless" asChild>
                         <MdPerson />
                     </Avatar.Fallback>

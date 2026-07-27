@@ -1,17 +1,14 @@
 import { Router } from "express";
 import { Response } from "../response.js";
 import { supabase } from "../supabaseClient.js";
+import { requireAuth } from "../auth/requireAuth.js";
 
 /**
  * Replaces the entire Board entry with a new one.
  * Receives { data }
  */
 async function saveBoard(req, res) {
-    const { OK, UNAUTHORIZED, BAD_REQUEST } = Response.HttpStatus;
-
-    if (!req.isAuthenticated()) {
-        return Response.send(res, UNAUTHORIZED, { error: "Not logged in" });
-    }
+    const { OK, BAD_REQUEST } = Response.HttpStatus;
 
     const { data } = req.body;
     if (!data) {
@@ -35,10 +32,6 @@ async function saveBoard(req, res) {
 async function updateBoard(req, res) {
     const { OK, BAD_REQUEST } = Response.HttpStatus;
 
-    if (!req.isAuthenticated()) {
-        return Response.send(res, BAD_REQUEST, { error: "Not logged in" });
-    }
-
     const { path, value } = req.body;
     if (!Array.isArray(path) || value === undefined) {
         return Response.send(res, BAD_REQUEST, {
@@ -60,11 +53,7 @@ async function updateBoard(req, res) {
  * Fetch a board by ID.
  */
 async function getBoard(req, res) {
-    const { OK, BAD_REQUEST, INTERNAL_SERVER_ERROR, NO_CONTENT } = Response.HttpStatus;
-
-    if (!req.isAuthenticated()) {
-        return Response.send(res, BAD_REQUEST, { error: "Not logged in" });
-    }
+    const { OK, INTERNAL_SERVER_ERROR, NO_CONTENT } = Response.HttpStatus;
 
     try {
         const { data: board, error } = await supabase
@@ -89,6 +78,7 @@ async function getBoard(req, res) {
 }
 
 const router = Router();
+router.use(requireAuth);
 router.post("/save", saveBoard);
 router.post("/update", updateBoard);
 router.get("/", getBoard);

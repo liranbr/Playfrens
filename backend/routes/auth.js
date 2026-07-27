@@ -3,6 +3,7 @@ import passport from "passport";
 import rateLimit from "express-rate-limit";
 import { Response } from "../response.js";
 import { supabase } from "../supabaseClient.js";
+import { requireAuth } from "../auth/requireAuth.js";
 
 const router = Router();
 const LOGIN_FAILED_ROUTE = "/login?failed=true";
@@ -75,11 +76,6 @@ async function getRequestIdentity(req, res) {
 }
 
 async function logout(req, res, next) {
-    const { UNAUTHORIZED } = Response.HttpStatus;
-
-    if (!req.isAuthenticated()) {
-        return Response.send(res, UNAUTHORIZED, { error: "Not logged in" });
-    }
     console.log(`Logging out ${req.user.display_name} 🚪`);
     req.logout((err) => {
         if (err) return next(err);
@@ -121,7 +117,7 @@ async function deleteAccount(req, res) {
 }
 
 router.get("/me", getRequestIdentity);
-router.get("/logout", logout);
+router.get("/logout", requireAuth, logout);
 router.delete("/deleteAccount", deleteAccount);
 
 // Login routes

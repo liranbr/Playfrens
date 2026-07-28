@@ -1,7 +1,10 @@
 import { EmblaCarousel } from "@/components/EmblaCarousel.jsx";
+import { usePageMeta } from "@/hooks/usePageMeta.js";
 import "./Home.css";
 
 export default function Home() {
+    usePageMeta({ path: "/" });
+
     return (
         <div id="home">
             <div className="sticky-header">

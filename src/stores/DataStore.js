@@ -1,7 +1,7 @@
 import { action, computed, makeAutoObservable, ObservableMap, reaction, runInAction } from "mobx";
 import { createContext, useContext } from "react";
 
-import { saveBoard } from "@/APIUtils.js";
+import { saveBoard, updateBoard } from "@/APIUtils.js";
 import {
     compareGameTitlesAZ,
     compareTagFilteredGamesCount,
@@ -18,8 +18,8 @@ import { Party } from "@/models/GameObject.js";
 import { globalSettingsStore, settingsStorageKey, userStore } from "@/stores";
 import {
     coverToThumb,
+    debounce,
     deleteItemFromArray,
-    DELETEME_AllowDBSave,
     ensureUniqueName,
     loadFromStorage,
     moveItemInArray,
@@ -75,6 +75,11 @@ export class DataStore {
     };
     allReminders = [];
 
+    // True once the initial board load finishes, so we don't sync a half-populated board and clobber saved data.
+    #isHydrated = false;
+    // Per-key debounce timers, so rapid successive edits collapse into one backend request.
+    #syncTimers = {};
+
     constructor() {
         makeAutoObservable(this, { sortedReminders: computed });
 
@@ -111,25 +116,47 @@ export class DataStore {
                 await saveToStorage(storageKeys.settings, board[storageKeys.settings]); // if it doesn't load correctly, need to reload
                 await saveToStorage(storageKeys.defaultFilters, board[storageKeys.defaultFilters]);
             }
-            DELETEME_AllowDBSave();
+            this.#isHydrated = true;
         } catch (error) {
             console.info(error);
             toastError(error);
         }
 
-        // on any change to tags or games, save them
-        function saveReaction(storageKey, item) {
+        // keep localStorage and the backend in sync, per key
+        const watchAndSync = (storageKey, item) => {
             reaction(
                 () => JSON.stringify(item),
-                () => saveToStorage(storageKey, item),
+                () => {
+                    saveToStorage(storageKey, item);
+                    this.#syncKeyToBackend(storageKey, item);
+                },
             );
-        }
-        saveReaction(storageKeys[tT.friend], this.allTags[tT.friend]);
-        saveReaction(storageKeys[tT.category], this.allTags[tT.category]);
-        saveReaction(storageKeys[tT.status], this.allTags[tT.status]);
-        saveReaction(storageKeys.games, this.allGames);
-        saveReaction(storageKeys.reminders, this.allReminders);
-        saveReaction(storageKeys.tagsCustomOrders, this.tagsCustomOrders);
+        };
+        watchAndSync(storageKeys[tT.friend], this.allTags[tT.friend]);
+        watchAndSync(storageKeys[tT.category], this.allTags[tT.category]);
+        watchAndSync(storageKeys[tT.status], this.allTags[tT.status]);
+        watchAndSync(storageKeys.games, this.allGames);
+        watchAndSync(storageKeys.reminders, this.allReminders);
+        watchAndSync(storageKeys.tagsCustomOrders, this.tagsCustomOrders);
+    }
+
+    // Debounced partial update (update_board_path) instead of re-uploading the whole board.
+    #syncKeyToBackend(storageKey, item) {
+        if (!this.#isHydrated) return;
+        debounce(this.#syncTimers, storageKey, () => updateBoard([storageKey], item), 650);
+    }
+
+    // For stores that own board data outside DataStore (Settings, saved Default Filters) to sync their own key.
+    syncBoardKeyToBackend(storageKey, item) {
+        this.#syncKeyToBackend(storageKey, item);
+    }
+
+    // Call only after SettingsStore's initial populate, otherwise this echoes the just-loaded settings right back.
+    watchSettingsForBackendSync() {
+        reaction(
+            () => JSON.stringify(globalSettingsStore),
+            () => this.syncBoardKeyToBackend(storageKeys.settings, globalSettingsStore),
+        );
     }
 
     // Used when loading some predefined set, like the starting defaults

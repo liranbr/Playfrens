@@ -143,7 +143,12 @@ export class DataStore {
     // Debounced partial update (update_board_path) instead of re-uploading the whole board.
     #syncKeyToBackend(storageKey, item) {
         if (!this.#isHydrated) return;
-        debounce(this.#syncTimers, storageKey, () => updateBoard([storageKey], item), 650);
+        debounce(
+            this.#syncTimers,
+            storageKey,
+            () => updateBoard([storageKey], item).catch(() => {}),
+            650,
+        );
     }
 
     // For stores that own board data outside DataStore (Settings, saved Default Filters) to sync their own key.
@@ -235,7 +240,7 @@ export class DataStore {
         );
         runInAction(() => {
             this.allGames = new ObservableMap(entries);
-            if (changed) saveBoard(ExportDataStoreToJSON());
+            if (changed) saveBoard(ExportDataStoreToJSON()).catch(() => {});
         });
     }
 

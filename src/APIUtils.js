@@ -1,3 +1,4 @@
+import { enqueueRequest } from "@/services/RequestQueue.js";
 import { HttpStatus, toastError } from "@/Utils.jsx";
 
 export async function searchTitleOnStore(title, storeType, lang = "en", cc = "US") {
@@ -107,31 +108,29 @@ export async function getBoard() {
 }
 
 // Replaces the entire Board
-export async function saveBoard(data) {
-    try {
+export function saveBoard(data) {
+    return enqueueRequest(async () => {
         const json = JSON.stringify({ data });
-        await fetch("/api/board/save", {
+        const response = await fetch("/api/board/save", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
             body: json,
         });
-    } catch (err) {
-        toastError("Error saving board, please try again later", err);
-    }
+        if (!response.ok) throw new Error(`Failed to save board (status ${response.status})`);
+    });
 }
 
 // Updates parts of the Board
-export async function updateBoard(path, value) {
-    try {
+export function updateBoard(path, value) {
+    return enqueueRequest(async () => {
         const json = JSON.stringify({ path: path, value: value });
-        await fetch("/api/board/update", {
+        const response = await fetch("/api/board/update", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
             body: json,
         });
-    } catch (err) {
-        toastError("Error updating board, please try again later", err);
-    }
+        if (!response.ok) throw new Error(`Failed to update board (status ${response.status})`);
+    });
 }

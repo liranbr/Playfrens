@@ -4,6 +4,7 @@ import { Navigate } from "react-router-dom";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Avatar from "@radix-ui/react-avatar";
 import * as Popover from "@radix-ui/react-popover";
+import { BsChatHeartFill } from "react-icons/bs";
 import {
     MdChevronRight,
     MdClose,
@@ -105,6 +106,15 @@ function AppMenu() {
                                 <LinkItem label="Homepage" url="/" />
                             </DD.SubContent>
                         </DD.Sub>
+                        <DD.Separator />
+                        <DD.Item
+                            onClick={() => {
+                                window.location.href =
+                                    "mailto:playfrens@proton.me?subject=Feedback";
+                            }}
+                        >
+                            <BsChatHeartFill /> Feedback
+                        </DD.Item>
                     </DD.Content>
                 </DD.Portal>
             </DD.Root>

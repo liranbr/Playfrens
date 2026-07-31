@@ -20,6 +20,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
     const [title, setTitle] = useState(game?.title ?? "");
     const [coverImageURL, setCoverImageURL] = useState(game?.coverImageURL ?? "");
     const [coverThumbURL, setCoverThumbURL] = useState(game?.coverThumbURL ?? "");
+    const [coverIsOfficial, setCoverIsOfficial] = useState(game?.coverIsOfficial ?? false);
     const [sortingTitle, setSortingTitle] = useState(game?.sortingTitle ?? "");
     const [storeType, setStoreType] = useState(game?.storeType ?? "steam");
     const [storeID, setStoreID] = useState(game?.storeID ?? "");
@@ -39,6 +40,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                 title,
                 coverImageURL,
                 coverThumbURL,
+                coverIsOfficial,
                 sortingTitle,
                 storeType,
                 storeID,
@@ -50,6 +52,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                 title,
                 coverImageURL,
                 coverThumbURL,
+                coverIsOfficial,
                 sortingTitle,
                 storeType,
                 storeID,
@@ -97,6 +100,8 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                 setCoverImageURL,
                 coverThumbURL,
                 setCoverThumbURL,
+                coverIsOfficial,
+                setCoverIsOfficial,
                 sortingTitle,
                 setSortingTitle,
                 storeType,
@@ -216,6 +221,7 @@ function CoverSelector({ saveOnEnter }) {
         setCoverImageURL,
         coverThumbURL,
         setCoverThumbURL,
+        setCoverIsOfficial,
         storeType,
         storeID,
         setSgdbID,
@@ -295,6 +301,7 @@ function CoverSelector({ saveOnEnter }) {
                             onChange={(e) => {
                                 setCoverThumbURL(e.target.value);
                                 setCoverImageURL(e.target.value);
+                                setCoverIsOfficial(false);
                             }}
                             onKeyDown={saveOnEnter}
                             placeholder="Choose a cover, or manually enter URL"
@@ -327,6 +334,7 @@ function CoversGallery({
         setCoverImageURL,
         coverThumbURL,
         setCoverThumbURL,
+        setCoverIsOfficial,
         storeType,
         storeID,
         sgdbID,
@@ -378,8 +386,11 @@ function CoversGallery({
                     if (!coverImageURL) {
                         setCoverImageURL(officialCoverImage.url);
                         setCoverThumbURL(officialCoverImage.thumb);
-                    } else if (coverImageURL === officialCoverImage.url)
+                        setCoverIsOfficial(true);
+                    } else if (coverImageURL === officialCoverImage.url) {
                         officialCoverImage.previousSelection = true;
+                        setCoverIsOfficial(true);
+                    }
                     officialCoverImage.officialOf = sgdbID;
                     covers.push(officialCoverImage);
                 }
@@ -417,6 +428,7 @@ function CoversGallery({
                             onClick={() => {
                                 setCoverThumbURL(cover.thumb);
                                 setCoverImageURL(cover.url);
+                                setCoverIsOfficial(cover.officialOf === sgdbID);
                             }}
                         />
                     </div>

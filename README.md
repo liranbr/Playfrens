@@ -14,4 +14,4 @@ Playfrens is the only library manager where you and your friends can organize yo
 https://playfrens.com/  
 No paywalls, no ads, no data shared or sold.
 
-If you prefer running Playfrens locally, see [self_hosting.md](self_hosting.md)
+If you would prefer to run Playfrens locally, see [self_hosting.md](self_hosting.md)

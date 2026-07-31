@@ -92,6 +92,7 @@ function AppMenu() {
                                 </DD.Item>
                             </DD.SubContent>
                         </DD.Sub>
+                        <DD.Separator />
                         <DD.Sub>
                             <DD.SubTrigger>
                                 Links
@@ -107,14 +108,10 @@ function AppMenu() {
                             </DD.SubContent>
                         </DD.Sub>
                         <DD.Separator />
-                        <DD.Item
-                            onClick={() => {
-                                window.location.href =
-                                    "mailto:playfrens@proton.me?subject=Feedback";
-                            }}
-                        >
-                            <BsChatHeartFill /> Feedback
-                        </DD.Item>
+                        <LinkItem
+                            label="Send feedback"
+                            url="mailto:playfrens@proton.me?subject=Feedback"
+                        />
                     </DD.Content>
                 </DD.Portal>
             </DD.Root>

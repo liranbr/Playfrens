@@ -82,7 +82,7 @@ function PrivacyPolicy() {
                     <a href="https://render.com/docs/certifications-compliance">
                         (Compliance Link)
                     </a>{" "}
-                    is the host of our backend server, and domain provider.
+                    is the host of our backend server.
                 </p>
                 <p>
                     Supabase <a href="https://supabase.com/legal/dpa">(Compliance Link)</a> is the

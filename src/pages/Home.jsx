@@ -70,9 +70,8 @@ export default function Home() {
                             <p>
                                 Besides your current library, you can also add games that you don't
                                 have or aren't out yet, to plan ahead with friends
-                            </p>
-                            <br />
-                            <p>
+                                <br />
+                                <br />
                                 If you're looking forward to some release date, or when a friend
                                 will have free time, you can add Reminders
                             </p>
@@ -87,8 +86,8 @@ export default function Home() {
                         <div className="topic">
                             <h2>Free and Open Source</h2>
                             <p>
-                                Playfrens is free to use. No paywalls, no ads, no data sold. The
-                                code is public on GitHub, under active development
+                                Playfrens is free to use. No paywalls, no ads, no data shared or
+                                sold. The code is public on GitHub, under active development
                             </p>
                         </div>
                     </div>

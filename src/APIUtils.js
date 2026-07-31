@@ -80,6 +80,33 @@ export async function getOfficialCoverImageURL(storeType, storeID) {
     return json;
 }
 
+/**
+ * Batched version of getOfficialCoverImageURL, for refreshing many games' official covers at once.
+ * @param {string} storeType
+ * @param {string[]} storeIDs
+ * @returns {Promise<{[storeID: string]: {url: string, thumb: string}}>} map of storeID -> cover, missing entries mean no official cover was found
+ */
+export async function getOfficialCoverImageURLs(storeType, storeIDs) {
+    if (!storeType || !storeIDs?.length) return {};
+    let fetchResponse;
+    switch (storeType) {
+        case "steam":
+            fetchResponse = await fetch(`/api/steam/getGameCovers`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ appIds: storeIDs }),
+            });
+            break;
+        default:
+            return console.error(
+                `StoreType ${storeType} doesn't have a supported batched game cover fetcher.`,
+            );
+    }
+    const json = await fetchResponse.json();
+    if (!fetchResponse.ok) return console.error(json);
+    return json;
+}
+
 export async function getBoard() {
     try {
         const response = await fetch("/api/board", {

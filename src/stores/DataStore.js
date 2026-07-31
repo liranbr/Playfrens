@@ -1,7 +1,7 @@
 import { action, computed, makeAutoObservable, ObservableMap, reaction, runInAction } from "mobx";
 import { createContext, useContext } from "react";
 
-import { saveBoard } from "@/APIUtils.js";
+import { getOfficialCoverImageURLs, saveBoard } from "@/APIUtils.js";
 import {
     compareGameTitlesAZ,
     compareTagFilteredGamesCount,
@@ -206,10 +206,41 @@ export class DataStore {
                     return [id, game];
                 }),
         );
+
+        changed = (await this.#refreshOfficialCovers(entries)) || changed;
+
         runInAction(() => {
             this.allGames = new ObservableMap(entries);
             if (changed) saveBoard(ExportDataStoreToJSON());
         });
+    }
+
+    /**
+     * Refreshes official store covers for games flagged coverIsOfficial.
+     * @param {[string, GameObject][]} entries
+     * @returns {Promise<boolean>} true if any cover was changed
+     */
+    async #refreshOfficialCovers(entries) {
+        const officialSteamGames = entries
+            .map(([, game]) => game)
+            .filter((game) => game.storeType === "steam" && game.coverIsOfficial && game.storeID);
+        if (officialSteamGames.length === 0) return false; // Based and skin-pilled
+
+        const covers = await getOfficialCoverImageURLs(
+            "steam",
+            officialSteamGames.map((game) => game.storeID),
+        );
+        if (!covers) return false;
+
+        let changed = false;
+        for (const game of officialSteamGames) {
+            const cover = covers[game.storeID];
+            if (!cover || cover.url === game.coverImageURL) continue;
+            game.coverImageURL = cover.url;
+            game.coverThumbURL = cover.thumb;
+            changed = true;
+        }
+        return changed;
     }
 
     populateReminders(reminderJsons) {
@@ -486,7 +517,16 @@ export class DataStore {
         t.filteredGamesCount = filteredGames.filter((game) => game.hasTag(t)).length;
     }
 
-    addGame(title, coverImageURL, coverThumbURL, sortingTitle, storeType, storeID, sgdbID) {
+    addGame(
+        title,
+        coverImageURL,
+        coverThumbURL,
+        coverIsOfficial,
+        sortingTitle,
+        storeType,
+        storeID,
+        sgdbID,
+    ) {
         if (!title) {
             toastError("Cannot save a game without a title");
             return null;
@@ -525,6 +565,7 @@ export class DataStore {
             title: title,
             coverImageURL: coverImageURL,
             coverThumbURL: coverThumbURL,
+            coverIsOfficial: coverIsOfficial,
             sortingTitle: sortingTitle,
             storeType: storeType,
             storeID: storeID,
@@ -586,6 +627,7 @@ export class DataStore {
                 title: uniqueTitle,
                 coverImageURL,
                 coverThumbURL,
+                coverIsOfficial: storeType === "steam",
                 sortingTitle,
                 storeType,
                 storeID,
@@ -612,7 +654,17 @@ export class DataStore {
         return toastSuccess(`Deleted ${game.title} from games list`);
     }
 
-    editGame(game, title, coverImageURL, coverThumbURL, sortingTitle, storeType, storeID, sgdbID) {
+    editGame(
+        game,
+        title,
+        coverImageURL,
+        coverThumbURL,
+        coverIsOfficial,
+        sortingTitle,
+        storeType,
+        storeID,
+        sgdbID,
+    ) {
         // Editing needs to be in the DataStore rather than the object itself, to prevent duplicate names
         if (!(game instanceof GameObject)) return toastError("Invalid game object: " + game);
         const storedGame = this.allGames.get(game.id);
@@ -647,6 +699,7 @@ export class DataStore {
         storedGame.title = title;
         storedGame.coverImageURL = coverImageURL;
         storedGame.coverThumbURL = coverThumbURL;
+        storedGame.coverIsOfficial = coverIsOfficial;
         storedGame.sortingTitle = sortingTitle;
         storedGame.storeType = storeType;
         storedGame.storeID = storeID;

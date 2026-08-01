@@ -147,7 +147,7 @@ export class DataStore {
             this.#syncTimers,
             storageKey,
             () => updateBoard([storageKey], item).catch(() => {}),
-            650,
+            100,
         );
     }
 

@@ -1,18 +1,21 @@
-import { getSteamIDFromVanity, getSteamUserSummary } from "@/APIUtils.js";
 import { Button, InfoIcon } from "@/components";
-import { FriendTagObject } from "@/models/TagObject.js";
+import { fetchSteamImportData, getLastSteamSync, processUsername } from "@/services/SteamImport.js";
 import { useDataStore } from "@/stores/DataStore.js";
 import { Dialogs, globalDialogStore } from "@/stores/DialogStore.js";
 import { HttpStatus, toastError, toastInfo } from "@/Utils";
+import * as Avatar from "@radix-ui/react-avatar";
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useState } from "react";
+import { MdPerson } from "react-icons/md";
 import { DialogBase } from "./DialogRoot.jsx";
 import "./SteamImportDialog.css";
 
 export const SteamImportDialog = ({ open, closeDialog }) => {
     const [loading, setLoading] = useState(false);
+    const [syncing, setSyncing] = useState(false);
     const [instructionsVisible, setInstructionsVisible] = useState(false);
+    const [lastSync] = useState(() => getLastSteamSync());
     const dataStore = useDataStore();
     const { NO_CONTENT, UNAUTHORIZED, NOT_FOUND } = HttpStatus;
     const [form, setForm] = useState({
@@ -23,8 +26,6 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
     });
     const [errors, setErrors] = useState({}); // used in validation
 
-    const DEBUG_OPEN_DATA_IN_NEW_TAB = false;
-    // TODO LATER: Remove these temp debugging messages later
     // TODO LATER: Avoid fetching twice, for validation + import
     const validateInput = async () => {
         setErrors({});
@@ -74,215 +75,65 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
         return false;
     };
 
-    const doImport = async () => {
+    // Pass overrideSteamID/overrideOptions to re-run a previous sync (see the "Sync Now" button)
+    // instead of reading the manual entry form.
+    const doImport = async (overrideSteamID, overrideOptions) => {
         if (loading) return;
         setLoading(true);
 
-        const importingFriends = document.getElementById("friends-list").checked;
-        const importingLibrary = document.getElementById("games-library").checked;
-        const importingWishlist = document.getElementById("games-wishlist").checked;
+        const importOptions = overrideOptions ?? {
+            importFriendslist: document.getElementById("friends-list").checked,
+            importLibrary: document.getElementById("games-library").checked,
+            importWishlist: document.getElementById("games-wishlist").checked,
+            includeSingleplayer: document.getElementById("also-singleplayers-checkbox").checked,
+            includeUnreleasedWishlist: document.getElementById("also-unreleased-wishlist-checkbox")
+                .checked,
+        };
 
-        let friendsResult = {},
-            gamesResult = {};
         try {
-            const username = document.getElementById("SteamIDInput").value;
-            const id = await processUsername(username);
-            const groupedIDs = {};
-            let frens = [];
+            const steamID =
+                overrideSteamID ??
+                (await processUsername(document.getElementById("SteamIDInput").value));
 
-            let steamProfile = null;
-            const summaryRes = await getSteamUserSummary(id);
-            if (summaryRes.ok) {
-                const summary = await summaryRes.json();
-                steamProfile = {
-                    name: summary.nickname,
-                    iconURL: summary.avatar?.large || "",
-                    profileURL: summary.url || "",
-                };
+            const {
+                steamProfile: profileInfo,
+                friendTags,
+                games,
+            } = await fetchSteamImportData(steamID, importOptions);
+
+            if (friendTags.length === 0 && games.length === 0) {
+                toastInfo("No data found to import.");
+                setLoading(false);
+                setSyncing(false);
+                return;
             }
 
-            if (importingLibrary) {
-                const res = await fetch(`/api/steam/getUserLibraryIDs?id=${id}`);
-                if (!res.ok) throw Error("Error occurred during importing game libraries");
-                const libraryIDs = await res.json();
-                groupedIDs["game_library"] = libraryIDs;
-            }
-
-            if (importingWishlist) {
-                const res = await fetch(`/api/steam/getWishlistIDs?id=${id}`);
-                if (!res.ok) throw Error("Error occurred during importing wishlist");
-                if (res.status !== 204) {
-                    const wishtlistIDs = await res.json();
-                    groupedIDs["wishlist"] = wishtlistIDs;
-                }
-            }
-
-            if (importingFriends) {
-                const res = await fetch(`/api/steam/getFriends?id=${id}`);
-                if (!res.ok) throw Error("Error occurred during importing friend list");
-                frens = await res.json();
-            }
-
-            if (Object.keys(groupedIDs).length <= 0 && frens.length <= 0) return;
-
-            const releasedOnly = !document.getElementById("also-unreleased-wishlist-checkbox")
-                .checked;
-
-            const allow_singleplayer_games = document.getElementById(
-                "also-singleplayers-checkbox",
-            ).checked;
-
-            const res2 = await fetch(`/api/steam/getItems`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    // groupedIDs is an object containing keys referencing array of IDs, used to filter out between which is library games and wishlist in the request
-                    // When done, returns all items without context from which group they come from.
-                    groupedIDs,
-                    categories: [1, ...(allow_singleplayer_games ? [2] : [])],
-                    releasedOnly,
-                }),
-            });
-
-            const items = await res2.json();
-            const categoryMap = {
-                1: "Multiplayer",
-                2: "Singleplayer",
-            };
-
-            // For debugging, don't enable for production
-            const win = DEBUG_OPEN_DATA_IN_NEW_TAB ? window.open("", "_blank") : null;
-
-            win?.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                <title>Items Test</title>
-                <style>
-                body { font-family: Arial, sans-serif; }
-                .friends-container {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 6px;
-                    margin-bottom: 20px;
-                    align-items: center;
-                }
-                .friends-container img {
-                    width: 64px;
-                    height: 64px;
-                    border-radius: 4px;
-                }
-                .item { margin-bottom: 30px; }
-                .item img { width: 300px; display: block; }
-                </style>
-                </head>
-                <body>
-            `);
-
-            if (frens.length > 0) {
-                win?.document.write(`<h2>Friends (${frens.length})</h2>`);
-                win?.document.write(`<div class="friends-container">`);
-
-                const friendTags = [];
-
-                for (const fren of frens) {
-                    const avatarUrl = fren.avatar?.medium || "";
-                    const profileUrl = fren.url || "#";
-                    const nickname = fren.nickname || "Unknown";
-                    const steamID = fren.steamID;
-                    win?.document.write(`
-                    <a href="${profileUrl}" target="_blank" title="${nickname}">
-                        <img src="${avatarUrl}" alt="${nickname}">
-                    </a>
-                `);
-                    friendTags.push(
-                        new FriendTagObject({ name: nickname, iconURL: avatarUrl, steamID }),
-                    );
-                }
-
-                friendsResult = dataStore.preImportFriends(friendTags);
-                // dataStore.importFriends(friendsResult);
-
-                win?.document.write(`</div>`);
-            }
-
-            win?.document.write(`<h1>Total items: ${items.length}</h1>`);
-            const games = [];
-            for (const item of items) {
-                const game = {};
-
-                const buildSteamAssetURL = (item, filename) => {
-                    if (!filename) return null;
-                    const base = item.assets?.asset_url_format
-                        ? `https://shared.steamstatic.com/store_item_assets/${item.assets.asset_url_format.replace("${FILENAME}", filename)}`
-                        : `https://cdn.akamai.steamstatic.com/steam/apps/${item.appid}/${filename}`;
-
-                    return base.split("?")[0];
-                };
-
-                const imageUrl = buildSteamAssetURL(
-                    item,
-                    item.assets?.library_capsule_2x ?? item.assets?.library_capsule,
-                );
-                const thumbUrl = buildSteamAssetURL(item, item.assets?.library_capsule);
-
-                game["title"] = item.name;
-                game["coverImageURL"] = imageUrl;
-                game["coverThumbURL"] = thumbUrl;
-                game["thumbUrl"] = thumbUrl;
-                game["sortingTitle"] = "";
-                game["storeType"] = "steam";
-                game["storeID"] = item.id;
-
-                games.push(game);
-                if (DEBUG_OPEN_DATA_IN_NEW_TAB) {
-                    const supportedIds = item.categories?.supported_player_categoryids || [];
-
-                    const supportedNames = supportedIds
-                        .filter((id) => categoryMap[id])
-                        .map((id) => categoryMap[id]);
-
-                    const comingSoonLabel =
-                        item.is_coming_soon === true
-                            ? `<p style="color:red;"><strong>Coming Soon</strong></p>`
-                            : "";
-
-                    win?.document.write(`
-                        <div class="item">
-                        <h2>${item.name}</h2>
-                        ${comingSoonLabel}
-                        <img src="${imageUrl}" alt="${item.name}">
-                        <p>Supported: ${supportedNames.join(" / ") || "None"}</p>
-                        </div>
-                        `);
-                }
-            }
-
-            if (importingLibrary || importingWishlist)
-                gamesResult = dataStore.preImportSteamGames(games);
+            const friendsResult = importOptions.importFriendslist
+                ? dataStore.preImportFriends(friendTags)
+                : {};
+            const gamesResult =
+                importOptions.importLibrary || importOptions.importWishlist
+                    ? dataStore.preImportSteamGames(games)
+                    : {};
 
             globalDialogStore.open(Dialogs.SteamImportConfirm, {
                 gamesResult,
                 friendsResult,
-                steamProfile,
+                steamProfile: {
+                    name: profileInfo?.name || steamID,
+                    iconURL: profileInfo?.iconURL || "",
+                    profileURL: profileInfo?.profileURL || "",
+                    steamID,
+                },
+                syncOptions: importOptions,
             });
-            // closeDialog();
-
-            // dataStore.importSteamGames(gamesResult);
-
-            win?.document.write(`
-            </body>
-            </html>
-        `);
-
-            win?.document.close();
-            setLoading(false);
-            return null;
         } catch (err) {
             console.error(err);
+            toastError("Something went wrong while importing from Steam.");
         }
 
         setLoading(false);
+        setSyncing(false);
     };
 
     return (
@@ -303,6 +154,49 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                     Here you can import your games and friends from your Steam account.
                 </Dialog.Description>
             </VisuallyHidden>
+
+            {lastSync && (
+                <>
+                    <div className="steam-last-sync">
+                        <Avatar.Root className="rx-avatar">
+                            <Avatar.Image
+                                src={lastSync.iconURL || undefined}
+                                referrerPolicy="no-referrer"
+                            />
+                            <Avatar.Fallback className="rx-avatarless" asChild>
+                                <MdPerson />
+                            </Avatar.Fallback>
+                        </Avatar.Root>
+                        <div className="steam-last-sync-details">
+                            <a
+                                href={lastSync.profileURL || undefined}
+                                target="_blank"
+                                rel="noreferrer"
+                            >
+                                {lastSync.name}
+                            </a>
+                            <small>
+                                Last synced: {new Date(lastSync.syncedAt).toLocaleString()}
+                            </small>
+                        </div>
+                        <Button
+                            variant="secondary"
+                            onClick={
+                                !loading
+                                    ? () => {
+                                          setSyncing(true);
+                                          return doImport(lastSync.steamID, lastSync.options);
+                                      }
+                                    : undefined
+                            }
+                        >
+                            {loading && syncing ? "Syncing..." : "Sync Now"}
+                        </Button>
+                    </div>
+                    <div className="separator" />
+                    <div className="steam-last-sync-divider">Or import a different profile</div>
+                </>
+            )}
 
             <div className="dialog-callout">
                 <b>The Steam profile and imported data must be public for this to work.</b>
@@ -429,22 +323,4 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
             </div>
         </DialogBase>
     );
-};
-
-// Gets SteamID64, from a SteamID64 or Custom URL, with or without the full steam url
-const processUsername = async (username) => {
-    if (typeof username !== "string") throw Error("Invalid username format");
-    username = username.trim();
-    if (username === "") throw Error("Username cannot be empty");
-
-    // Checks for a clean SteamID64
-    const IdIsNumbersOnly = /^\d+$/.test(username);
-    if (IdIsNumbersOnly && username.length === 17) return username; // Valid SteamID64
-
-    // Handles clean customURL, or full url + SteamID64/customURL
-    const res = await getSteamIDFromVanity(username);
-    if (!res.ok) throw Error(await res.text());
-
-    const json = await res.json();
-    return json.id;
 };

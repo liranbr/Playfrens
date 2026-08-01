@@ -6,6 +6,7 @@ import { DialogBase } from "./DialogRoot";
 import "./SteamConfirmImportDialog.css";
 import { Button } from "../common/Button";
 import { globalDialogStore, useDataStore } from "@/stores";
+import { saveLastSteamSync } from "@/services/SteamImport.js";
 
 const ChangesColumn = ({ data, title }) => {
     const { toAdd, toUpdate, toSkip } = data;
@@ -106,6 +107,7 @@ export const SteamConfirmImportDialog = ({
     gamesResult,
     friendsResult,
     steamProfile,
+    syncOptions,
 }) => {
     const dataStore = useDataStore();
 
@@ -115,6 +117,12 @@ export const SteamConfirmImportDialog = ({
     const pushImport = () => {
         importingFriends && dataStore.importFriends(friendsResult);
         importingGames && dataStore.importSteamGames(gamesResult);
+        if (steamProfile?.steamID)
+            saveLastSteamSync({
+                steamID: steamProfile.steamID,
+                profile: steamProfile,
+                options: syncOptions,
+            });
         globalDialogStore.closeMultiple(2);
     };
 

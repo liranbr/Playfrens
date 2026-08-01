@@ -13,6 +13,7 @@ import "./SteamImportDialog.css";
 
 export const SteamImportDialog = ({ open, closeDialog }) => {
     const [loading, setLoading] = useState(false);
+    const [syncing, setSyncing] = useState(false);
     const [instructionsVisible, setInstructionsVisible] = useState(false);
     const [lastSync] = useState(() => getLastSteamSync());
     const dataStore = useDataStore();
@@ -103,6 +104,7 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
             if (friendTags.length === 0 && games.length === 0) {
                 toastInfo("No data found to import.");
                 setLoading(false);
+                setSyncing(false);
                 return;
             }
 
@@ -131,6 +133,7 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
         }
 
         setLoading(false);
+        setSyncing(false);
     };
 
     return (
@@ -180,11 +183,14 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                             variant="secondary"
                             onClick={
                                 !loading
-                                    ? () => doImport(lastSync.steamID, lastSync.options)
+                                    ? () => {
+                                          setSyncing(true);
+                                          return doImport(lastSync.steamID, lastSync.options);
+                                      }
                                     : undefined
                             }
                         >
-                            {loading ? "Syncing..." : "Sync Now"}
+                            {loading && syncing ? "Syncing..." : "Sync Now"}
                         </Button>
                     </div>
                     <div className="separator" />

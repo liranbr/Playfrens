@@ -42,7 +42,9 @@ export class UserStore {
                     provider: user?.provider,
                     id: user?.id,
                     displayName: user?.display_name,
-                    avatar: user?.avatar_url,
+                    // Proxied server-side (backend/routes/auth.js) instead of hotlinking the provider's
+                    // URL directly. `u` just busts the browser cache on account switches.
+                    avatar: user?.avatar_url ? `/auth/avatar?u=${user.id}` : null,
                     createdAt: new Date(user?.created_at),
                 };
             });

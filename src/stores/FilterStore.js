@@ -2,7 +2,7 @@ import { createContext, useContext } from "react";
 import { makeAutoObservable, reaction } from "mobx";
 import { TagObject, tagTypes } from "@/models";
 import { defaultFiltersStorageKey, globalDataStore, globalSettingsStore } from "@/stores";
-import { loadFromStorage, saveToStorage, toastSuccess } from "@/Utils.jsx";
+import { saveToStorage, toastSuccess } from "@/Utils";
 
 class FilterStore {
     search = "";
@@ -56,16 +56,19 @@ class FilterStore {
     }
 
     saveDefaultFilters() {
-        saveToStorage(defaultFiltersStorageKey, {
+        const defaultFilters = {
             search: this.search,
             selectedTagIDs: this.selectedTagIDs,
             excludedTagIDs: this.excludedTagIDs,
-        });
+        };
+        saveToStorage(defaultFiltersStorageKey, defaultFilters);
+        globalDataStore.syncBoardKeyToBackend(defaultFiltersStorageKey, defaultFilters);
         toastSuccess("Saved Default Filters state");
     }
 
     resetDefaultFilters() {
         saveToStorage(defaultFiltersStorageKey, {});
+        globalDataStore.syncBoardKeyToBackend(defaultFiltersStorageKey, {});
         toastSuccess("Default state was reset");
     }
 

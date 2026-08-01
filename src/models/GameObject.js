@@ -1,5 +1,5 @@
 import { makeAutoObservable } from "mobx";
-import { toastSuccess, toastError, compareAlphaIgnoreCase } from "@/Utils.jsx";
+import { toastSuccess, toastError, compareAlphaIgnoreCase } from "@/Utils";
 import { TagObject, tagTypes } from "@/models";
 import { v4 as randomUUID } from "uuid";
 

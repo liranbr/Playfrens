@@ -6,7 +6,7 @@ import { Button } from "@/components";
 import { usePageMeta } from "@/hooks/usePageMeta.js";
 import "./Login.css";
 import "./CardPage.css";
-import { loadFromStorage, toastError } from "@/Utils.jsx";
+import { loadFromStorage, toastError } from "@/Utils";
 
 const Login = observer(() => {
     const userStore = useUserStore();

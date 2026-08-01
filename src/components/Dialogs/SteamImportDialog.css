@@ -8,6 +8,9 @@
     input[type="checkbox"] {
         outline-offset: 2px;
     }
+    .separator {
+        margin: 8px 0 12px;
+    }
 }
 
 input#SteamIDInput {
@@ -30,4 +33,41 @@ input#SteamIDInput {
     font-size: 14px !important;
     font-weight: 500;
     opacity: 0.75;
+}
+
+.steam-last-sync {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .rx-avatar {
+        width: 48px;
+        height: 48px;
+        flex-shrink: 0;
+    }
+    .steam-last-sync-details {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 0;
+
+        a {
+            color: inherit;
+            font-size: 16px;
+            text-decoration: none;
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+        small {
+            opacity: 0.7;
+        }
+    }
+}
+
+.steam-last-sync-divider {
+    font-size: 13px;
+    opacity: 0.6;
+    text-align: center;
+    margin-bottom: 12px;
 }

@@ -1,7 +1,6 @@
 import { action, computed, makeAutoObservable, ObservableMap, reaction, runInAction } from "mobx";
 import { createContext, useContext } from "react";
-
-import { getOfficialCoverImageURLs, saveBoard } from "@/APIUtils.js";
+import { getOfficialCoverImageURLs, saveBoard, updateBoard } from "@/APIUtils.js";
 import {
     compareGameTitlesAZ,
     compareTagFilteredGamesCount,
@@ -18,8 +17,8 @@ import { Party } from "@/models/GameObject.js";
 import { globalSettingsStore, settingsStorageKey, userStore } from "@/stores";
 import {
     coverToThumb,
+    debounce,
     deleteItemFromArray,
-    DELETEME_AllowDBSave,
     ensureUniqueName,
     loadFromStorage,
     moveItemInArray,
@@ -30,7 +29,7 @@ import {
     toastInfo,
     toastSuccess,
     updateObject,
-} from "@/Utils.jsx";
+} from "@/Utils";
 import { SortingReaction } from "./SortingReaction.js";
 import { version } from "/package.json";
 
@@ -75,6 +74,11 @@ export class DataStore {
     };
     allReminders = [];
 
+    // True once the initial board load finishes, so we don't sync a half-populated board and clobber saved data.
+    #isHydrated = false;
+    // Per-key debounce timers, so rapid successive edits collapse into one backend request.
+    #syncTimers = {};
+
     constructor() {
         makeAutoObservable(this, { sortedReminders: computed });
 
@@ -111,25 +115,52 @@ export class DataStore {
                 await saveToStorage(storageKeys.settings, board[storageKeys.settings]); // if it doesn't load correctly, need to reload
                 await saveToStorage(storageKeys.defaultFilters, board[storageKeys.defaultFilters]);
             }
-            DELETEME_AllowDBSave();
+            this.#isHydrated = true;
         } catch (error) {
             console.info(error);
             toastError(error);
         }
 
-        // on any change to tags or games, save them
-        function saveReaction(storageKey, item) {
+        // keep localStorage and the backend in sync, per key
+        const watchAndSync = (storageKey, item) => {
             reaction(
                 () => JSON.stringify(item),
-                () => saveToStorage(storageKey, item),
+                () => {
+                    saveToStorage(storageKey, item);
+                    this.#syncKeyToBackend(storageKey, item);
+                },
             );
-        }
-        saveReaction(storageKeys[tT.friend], this.allTags[tT.friend]);
-        saveReaction(storageKeys[tT.category], this.allTags[tT.category]);
-        saveReaction(storageKeys[tT.status], this.allTags[tT.status]);
-        saveReaction(storageKeys.games, this.allGames);
-        saveReaction(storageKeys.reminders, this.allReminders);
-        saveReaction(storageKeys.tagsCustomOrders, this.tagsCustomOrders);
+        };
+        watchAndSync(storageKeys[tT.friend], this.allTags[tT.friend]);
+        watchAndSync(storageKeys[tT.category], this.allTags[tT.category]);
+        watchAndSync(storageKeys[tT.status], this.allTags[tT.status]);
+        watchAndSync(storageKeys.games, this.allGames);
+        watchAndSync(storageKeys.reminders, this.allReminders);
+        watchAndSync(storageKeys.tagsCustomOrders, this.tagsCustomOrders);
+    }
+
+    // Debounced partial update (update_board_path) instead of re-uploading the whole board.
+    #syncKeyToBackend(storageKey, item) {
+        if (!this.#isHydrated) return;
+        debounce(
+            this.#syncTimers,
+            storageKey,
+            () => updateBoard([storageKey], item).catch(() => {}),
+            100,
+        );
+    }
+
+    // For stores that own board data outside DataStore (Settings, saved Default Filters) to sync their own key.
+    syncBoardKeyToBackend(storageKey, item) {
+        this.#syncKeyToBackend(storageKey, item);
+    }
+
+    // Call only after SettingsStore's initial populate, otherwise this echoes the just-loaded settings right back.
+    watchSettingsForBackendSync() {
+        reaction(
+            () => JSON.stringify(globalSettingsStore),
+            () => this.syncBoardKeyToBackend(storageKeys.settings, globalSettingsStore),
+        );
     }
 
     // Used when loading some predefined set, like the starting defaults
@@ -165,6 +196,7 @@ export class DataStore {
         return gameTagIDs;
     }
 
+    // eslint-disable-next-line no-unused-vars -- unused, kept for future use case.
     async populateGames(gameJsons, version) {
         const parseParties = (parties) => {
             return parties
@@ -211,7 +243,7 @@ export class DataStore {
 
         runInAction(() => {
             this.allGames = new ObservableMap(entries);
-            if (changed) saveBoard(ExportDataStoreToJSON());
+            if (changed) saveBoard(ExportDataStoreToJSON()).catch(() => {});
         });
     }
 
@@ -710,7 +742,7 @@ export class DataStore {
 
     sortTagsByMethod(tagType, sortMethod, isDescending) {
         const entriesArray = [...this.allTags[tagType].entries()];
-        entriesArray.sort(([id1, tag1], [id2, tag2]) => sortMethod(tag1, tag2));
+        entriesArray.sort(([, tag1], [, tag2]) => sortMethod(tag1, tag2));
         if (isDescending) entriesArray.reverse();
 
         // Needs to be runInAction because used by reaction, which seems to lose binding otherwise
@@ -734,7 +766,7 @@ export class DataStore {
 
     sortGamesByMethod(sortMethod, isDescending) {
         const entriesArray = [...this.allGames.entries()];
-        entriesArray.sort(([id1, game1], [id2, game2]) => sortMethod(game1, game2));
+        entriesArray.sort(([, game1], [, game2]) => sortMethod(game1, game2));
         if (isDescending) entriesArray.reverse();
 
         // Needs to be runInAction because used by reaction, which seems to lose binding otherwise
@@ -797,17 +829,17 @@ function setTagSorting(tagType, sortSetting, sortDirection) {
         );
     } else if (sortSetting === "name") {
         sortingReactions[tagType] = new SortingReaction(
-            () => [[...dataStore.allTags[tagType]].map(([id, tag]) => tag.name)],
+            () => [[...dataStore.allTags[tagType]].map(([, tag]) => tag.name)],
             () => dataStore.sortTagsByMethod(tagType, compareTagNamesAZ, isDescending),
         );
     } else if (sortSetting === "countFiltered") {
         sortingReactions[tagType] = new SortingReaction(
-            () => [[...dataStore.allTags[tagType]].map(([id, tag]) => tag.filteredGamesCount)],
+            () => [[...dataStore.allTags[tagType]].map(([, tag]) => tag.filteredGamesCount)],
             () => dataStore.sortTagsByMethod(tagType, compareTagFilteredGamesCount, isDescending),
         );
     } else if (sortSetting === "countTotal") {
         sortingReactions[tagType] = new SortingReaction(
-            () => [[...dataStore.allTags[tagType]].map(([id, tag]) => tag.totalGamesCount)],
+            () => [[...dataStore.allTags[tagType]].map(([, tag]) => tag.totalGamesCount)],
             () => dataStore.sortTagsByMethod(tagType, compareTagTotalGamesCount, isDescending),
         );
     }
@@ -820,7 +852,7 @@ function setGameSorting(sortSetting, sortDirection) {
 
     if (sortSetting === "title") {
         sortingReactions.games = new SortingReaction(
-            () => [[...dataStore.allGames].map(([id, game]) => [game.title, game.sortingTitle])],
+            () => [[...dataStore.allGames].map(([, game]) => [game.title, game.sortingTitle])],
             () => {
                 dataStore.sortGamesByMethod(compareGameTitlesAZ, isDescending);
             },

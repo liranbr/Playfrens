@@ -11,7 +11,7 @@ import * as Switch from "@radix-ui/react-switch";
 import { storeTypes } from "@/models";
 import { getOfficialCoverImageURL, searchTitleOnStore, sgdbDatedTitle } from "@/APIUtils.js";
 import { GameCoverDisplay } from "@/components/GameCoverDisplay.jsx";
-import { HttpStatus, thumbToCover } from "@/Utils.jsx";
+import { HttpStatus } from "@/Utils";
 
 const GameEntryContext = createContext(null);
 
@@ -138,7 +138,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                                     }}
                                 >
                                     {Object.entries(storeTypes)
-                                        .filter(([key, value]) => ["steam", "custom"].includes(key)) // other store types not supported yet
+                                        .filter(([key]) => ["steam", "custom"].includes(key)) // other store types not supported yet
                                         .map(([key, value]) => (
                                             <ToggleGroup.Item key={key} value={key}>
                                                 {value}
@@ -219,7 +219,7 @@ function CoverSelector({ saveOnEnter }) {
         title,
         coverImageURL,
         setCoverImageURL,
-        coverThumbURL,
+        // coverThumbURL,
         setCoverThumbURL,
         setCoverIsOfficial,
         storeType,
@@ -264,6 +264,7 @@ function CoverSelector({ saveOnEnter }) {
                 setCoversError(err);
             })
             .finally(() => setLoadingCovers(false));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [storeID]);
 
     return (
@@ -403,6 +404,7 @@ function CoversGallery({
                 setCoversError(err);
             })
             .finally(() => setLoadingCovers(false));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [sgdbID, animatedOnly]);
 
     if (loadingCovers) return <Spinner />;

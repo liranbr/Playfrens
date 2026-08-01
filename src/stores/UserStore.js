@@ -7,7 +7,7 @@ import {
     globalSettingsStore,
     settingsStorageKey,
 } from "@/stores";
-import { HttpStatus, loadFromStorage } from "@/Utils.jsx";
+import { HttpStatus, loadFromStorage } from "@/Utils";
 
 export class UserStore {
     /**
@@ -26,13 +26,46 @@ export class UserStore {
                     this.loading = false;
                 }),
             );
+
+        // Verify with the server whenever the tab becomes active again, since a cached tab
+        // can still show as "logged in" state after a logout that happened elsewhere in the meantime.
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible") this.getUser();
+        });
+        window.addEventListener("pageshow", (event) => {
+            if (event.persisted) this.getUser();
+        });
+
+        // Catch session invalidation the moment any request discovers it, not just on focus.
+        // Only reacts to the backend's own NOT_AUTHENTICATED code (see Response.sendUnauthenticated) -
+        // other 401s (e.g. a private Steam profile in steam.js) carry a different code and are left alone.
+        const originalFetch = window.fetch;
+        window.fetch = async (...args) => {
+            const response = await originalFetch(...args);
+            if (response.status === HttpStatus.UNAUTHORIZED) {
+                const body = await response
+                    .clone()
+                    .json()
+                    .catch(() => null);
+                if (body?.code === "NOT_AUTHENTICATED") {
+                    runInAction(() => {
+                        this.userInfo = undefined;
+                    });
+                }
+            }
+            return response;
+        };
     }
 
     async getUser() {
         try {
             const res = await fetch("/auth/me", { credentials: "include" });
-            // Invalid response, or '204 no content' = no user data
-            if (!res.ok || res.status === HttpStatus.NO_CONTENT) {
+            // Invalid response, or '204 no content' = no user data, or '401 unauthorized'= for steam users
+            if (
+                !res.ok ||
+                res.status === HttpStatus.NO_CONTENT ||
+                res.status === HttpStatus.UNAUTHORIZED
+            ) {
                 throw new Error(res.statusText);
             }
             const data = await res.json();
@@ -42,7 +75,9 @@ export class UserStore {
                     provider: user?.provider,
                     id: user?.id,
                     displayName: user?.display_name,
-                    avatar: user?.avatar_url,
+                    // Proxied server-side (backend/routes/auth.js) instead of hotlinking the provider's
+                    // URL directly. `u` just busts the browser cache on account switches.
+                    avatar: user?.avatar_url ? `/auth/avatar?u=${user.id}` : null,
                     createdAt: new Date(user?.created_at),
                 };
             });
@@ -59,6 +94,7 @@ export class UserStore {
         await globalDataStore.populate().then(() => {
             globalSettingsStore.populate(loadFromStorage(settingsStorageKey, {}));
             globalFilterStore.populate(loadFromStorage(defaultFiltersStorageKey, {}));
+            globalDataStore.watchSettingsForBackendSync();
         });
     }
 

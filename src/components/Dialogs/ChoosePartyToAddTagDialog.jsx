@@ -2,7 +2,6 @@ import { DialogBase } from "./DialogRoot.jsx";
 import * as Dialog from "@radix-ui/react-dialog";
 import { updateTagBothGameCounters } from "@/stores";
 import "./ChoosePartyToAddTagDialog.css";
-import { tagTypeStrings } from "@/models";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 export const ChoosePartyToAddTagDialog = ({ open, closeDialog, game, tag }) => {

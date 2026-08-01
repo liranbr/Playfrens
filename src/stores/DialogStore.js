@@ -9,6 +9,7 @@ import { GenericWarningDialog } from "@/components/Dialogs/GenericWarningDialog.
 import { SettingsDialog } from "@/components/Dialogs/SettingsDialog.jsx";
 import { SteamConfirmImportDialog } from "@/components/Dialogs/SteamConfirmImportDialog.jsx";
 import { SteamImportDialog } from "@/components/Dialogs/SteamImportDialog.jsx";
+import { SyncErrorDialog } from "@/components/Dialogs/SyncErrorDialog.jsx";
 import { parseDuration } from "@/Utils";
 import { Item, List } from "linked-list";
 import { action, makeAutoObservable } from "mobx";
@@ -25,6 +26,7 @@ export const Dialogs = {
     Settings: SettingsDialog,
     EditTag: EditTagDialog,
     About: AboutDialog,
+    SyncError: SyncErrorDialog,
 };
 
 class DialogList extends List {

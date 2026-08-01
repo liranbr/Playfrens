@@ -42,7 +42,7 @@ import {
 } from "@/components";
 
 import "./Playfrens.css";
-import { toastError, toastSuccess } from "@/Utils.jsx";
+import { toastError, toastSuccess } from "@/Utils";
 
 function AppMenu() {
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -92,6 +92,7 @@ function AppMenu() {
                                 </DD.Item>
                             </DD.SubContent>
                         </DD.Sub>
+                        <DD.Separator />
                         <DD.Sub>
                             <DD.SubTrigger>
                                 Links
@@ -107,14 +108,10 @@ function AppMenu() {
                             </DD.SubContent>
                         </DD.Sub>
                         <DD.Separator />
-                        <DD.Item
-                            onClick={() => {
-                                window.location.href =
-                                    "mailto:playfrens@proton.me?subject=Feedback";
-                            }}
-                        >
-                            <BsChatHeartFill /> Feedback
-                        </DD.Item>
+                        <LinkItem
+                            label="Send feedback"
+                            url="mailto:playfrens@proton.me?subject=Feedback"
+                        />
                     </DD.Content>
                 </DD.Portal>
             </DD.Root>
@@ -271,7 +268,7 @@ const AppUserAvatar = observer(() => {
         <DD.Root>
             <DD.Trigger asChild className="rx-avatar">
                 <Avatar.Root>
-                    <Avatar.Image src={userInfo?.avatar ?? undefined} />
+                    <Avatar.Image src={userInfo?.avatar ?? undefined} referrerPolicy="no-referrer" />
                     <Avatar.Fallback className="rx-avatarless" asChild>
                         <MdPerson />
                     </Avatar.Fallback>
@@ -357,11 +354,6 @@ function AppSidebar() {
 const Playfrens = observer(() => {
     const userStore = useUserStore();
     const { loading, userInfo } = userStore;
-    useEffect(() => {
-        const checkEvery = 5 * 60 * 1000; // Check connection every 5 minutes
-        const intervalId = setInterval(() => userStore.getUser(), checkEvery);
-        return () => clearInterval(intervalId);
-    }, []);
 
     if (loading) return <div className="loading-page">Loading...</div>;
     // 'Protected Route' requires the user be logged in

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { tryLoadImage } from "@/Utils.jsx";
+import { tryLoadImage } from "@/Utils";
 
 export function useValidatedImage(srcURL, fallback = "/missing_game_cover.png") {
     const [validSrc, setValidSrc] = useState(srcURL);

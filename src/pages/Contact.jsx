@@ -1,7 +1,14 @@
+import { usePageMeta } from "@/hooks/usePageMeta.js";
 import "./Contact.css";
 import "./CardPage.css";
 
 export default function Contact() {
+    usePageMeta({
+        title: "Contact",
+        description: "Need help? Join our Discord or send us an email!",
+        path: "/contact",
+    });
+
     return (
         <div id="card-page">
             <div className="card-page-body">
@@ -19,7 +26,10 @@ export default function Contact() {
                     </a>
                     <p>Share feedback, report bugs, or just say hi</p>
                     <h2>Email</h2>
-                    <p>To contact us privately, you can email us at</p>
+                    <p>
+                        To contact us privately, share feedback, or let us know what
+                        you&apos;d like to see next, email us at
+                    </p>
                     <a href="mailto:playfrens@proton.me">playfrens@proton.me</a>
                 </div>
             </div>

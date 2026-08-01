@@ -6,6 +6,7 @@ import { DialogBase } from "./DialogRoot";
 import "./SteamConfirmImportDialog.css";
 import { Button } from "../common/Button";
 import { globalDialogStore, useDataStore } from "@/stores";
+import { saveLastSteamSync } from "@/services/SteamImport.js";
 
 const ChangesColumn = ({ data, title }) => {
     const { toAdd, toUpdate, toSkip } = data;
@@ -36,19 +37,12 @@ const ChangesColumn = ({ data, title }) => {
         );
     };
 
-    const allSkipped = toSkip.length > 0 && toAdd.length == 0 && old.length == 0;
-
     return (
         <div className="steam-confirm-import-container">
             <div className="steam-confirm-import-header">
                 <h2>{title}</h2>
             </div>
             <div className="steam-confirm-import-scrollable">
-                {/* {allSkipped && (
-                    <div className="dialog-callout info" style={{ marginTop: "16px" }}>
-                        <p>No {title} to add or update.</p>
-                    </div>
-                )} */}
                 {
                     <fieldset>
                         {createList(toAdd, "add", "Adding")}
@@ -66,7 +60,7 @@ const SteamProfileHeader = ({ steamProfile, gamesResult, friendsResult }) => {
 
     let importGamesInfo = undefined;
     if (gamesResult) {
-        const gameChanges = []
+        const gameChanges = [];
         const { toAdd, toSkip } = gamesResult;
         const toUpdate = gamesResult.toUpdate.old;
         if (toAdd.length) gameChanges.push("add " + toAdd.length);
@@ -77,7 +71,7 @@ const SteamProfileHeader = ({ steamProfile, gamesResult, friendsResult }) => {
 
     let importFriendsInfo = undefined;
     if (friendsResult) {
-        const friendsChanges = []
+        const friendsChanges = [];
         const { toAdd, toSkip } = friendsResult;
         const toUpdate = friendsResult.toUpdate.old;
         if (toAdd.length) friendsChanges.push("add " + toAdd.length);
@@ -96,11 +90,7 @@ const SteamProfileHeader = ({ steamProfile, gamesResult, friendsResult }) => {
             </Avatar.Root>
             <div className="steam-confirm-import-info">
                 <h3>
-                    <a
-                        href={profileURL || undefined}
-                        target="_blank"
-                        rel="noreferrer"
-                    >
+                    <a href={profileURL || undefined} target="_blank" rel="noreferrer">
                         {name}
                     </a>
                 </h3>
@@ -117,6 +107,7 @@ export const SteamConfirmImportDialog = ({
     gamesResult,
     friendsResult,
     steamProfile,
+    syncOptions,
 }) => {
     const dataStore = useDataStore();
 
@@ -126,6 +117,12 @@ export const SteamConfirmImportDialog = ({
     const pushImport = () => {
         importingFriends && dataStore.importFriends(friendsResult);
         importingGames && dataStore.importSteamGames(gamesResult);
+        if (steamProfile?.steamID)
+            saveLastSteamSync({
+                steamID: steamProfile.steamID,
+                profile: steamProfile,
+                options: syncOptions,
+            });
         globalDialogStore.closeMultiple(2);
     };
 
@@ -145,7 +142,11 @@ export const SteamConfirmImportDialog = ({
             <VisuallyHidden>
                 <Dialog.Description>Confirm if these matches your results.</Dialog.Description>
             </VisuallyHidden>
-            <SteamProfileHeader steamProfile={steamProfile} gamesResult={gamesResult} friendsResult={friendsResult} />
+            <SteamProfileHeader
+                steamProfile={steamProfile}
+                gamesResult={gamesResult}
+                friendsResult={friendsResult}
+            />
             <div className="steam-confirm-import-body">
                 {importingGames && <ChangesColumn data={gamesResult} title="Games" />}
                 {importingGames && importingFriends && <div className="separator-vertical" />}
@@ -162,3 +163,4 @@ export const SteamConfirmImportDialog = ({
         </DialogBase>
     );
 };
+

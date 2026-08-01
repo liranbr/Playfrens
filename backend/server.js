@@ -33,7 +33,7 @@ app.use(express.urlencoded({ extended: true }));
 // Enable Cross-Origin Resource Sharing
 app.use(
     cors({
-        origin: resolveBaseURL("frontend"),
+        origin: resolveBaseURL(),
         credentials: true,
     }),
 );

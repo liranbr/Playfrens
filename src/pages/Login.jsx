@@ -3,14 +3,22 @@ import { observer } from "mobx-react-lite";
 import { BiLogoDiscordAlt, BiLogoGoogle, BiLogoSteam } from "react-icons/bi";
 import { useUserStore } from "@/stores";
 import { Button } from "@/components";
+import { usePageMeta } from "@/hooks/usePageMeta.js";
 import "./Login.css";
 import "./CardPage.css";
-import { loadFromStorage, toastError } from "@/Utils.jsx";
+import { loadFromStorage, toastError } from "@/Utils";
 
 const Login = observer(() => {
     const userStore = useUserStore();
     const { loading, userInfo } = userStore;
     const lastAuth = loadFromStorage("last-auth-used", "");
+
+    usePageMeta({
+        title: "Sign in",
+        description: "Sign in to Playfrens.",
+        path: "/login",
+        noindex: true,
+    });
 
     if (loading) return <div className="loading-page">Loading...</div>;
     if (userInfo) return <Navigate to="/app" replace />;

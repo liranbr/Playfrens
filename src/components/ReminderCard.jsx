@@ -1,13 +1,13 @@
 import { observer } from "mobx-react-lite";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Popover from "@radix-ui/react-popover";
-import { MdClose, MdDeleteOutline, MdEdit, MdMoreVert, MdRemove } from "react-icons/md";
+import { MdClose, MdDeleteOutline, MdEdit, MdMoreVert } from "react-icons/md";
 import { useRef, useState } from "react";
 import { Dialogs, globalDialogStore, useDataStore } from "@/stores";
 import { Button, IconButton } from "@/components";
+// eslint-disable-next-line no-unused-vars -- for reference
 import { ReminderObject } from "@/models";
 import "./ReminderCard.css";
-
 /** @param {ReminderObject} props.reminder */
 export const ReminderCard = observer(({ reminder, outsideOfGamePage = false }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);

@@ -342,6 +342,31 @@ async function getGameCover(req, res) {
 }
 
 /**
+ * Returns image capsules for multiple Steam games given an array of App IDs.
+ * Returns a map of appId -> {url, thumb}; appIds with no official cover found are omitted.
+ */
+async function getGameCovers(req, res) {
+    const { appIds } = req.body;
+    const { OK, BAD_REQUEST } = Response.HttpStatus;
+
+    if (!Array.isArray(appIds) || appIds.length === 0)
+        return Response.sendMessage(res, BAD_REQUEST, "appIds must be a non-empty array");
+
+    const items = await fetchItems(appIds);
+    const itemsByAppId = new Map(items.map((item) => [String(item.appid), item]));
+
+    const covers = {};
+    for (const appId of appIds) {
+        const item = itemsByAppId.get(String(appId));
+        const url = await buildGameCover(appId, item?.assets?.library_capsule_2x ?? null);
+        if (!url) continue;
+        const thumb = await buildGameCover(appId, item?.assets?.library_capsule ?? null);
+        covers[appId] = { url, thumb };
+    }
+    return Response.send(res, OK, covers);
+}
+
+/**
  * Returns a list of IDs for a user's Wishlist
  */
 async function getWishListIDs(req, res) {
@@ -389,6 +414,7 @@ router.get("/getFriends", getFriends);
 router.get("/getSteamCapsules", getSteamCapsules);
 router.get("/searchTitle", searchTitle);
 router.get("/getGameCover", getGameCover);
+router.post("/getGameCovers", getGameCovers);
 // router.get("/getWishlist", getWishlist);
 router.get("/getWishListIDs", getWishListIDs);
 router.post("/getItems", getItems);

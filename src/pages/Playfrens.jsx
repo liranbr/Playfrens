@@ -354,11 +354,6 @@ function AppSidebar() {
 const Playfrens = observer(() => {
     const userStore = useUserStore();
     const { loading, userInfo } = userStore;
-    useEffect(() => {
-        const checkEvery = 5 * 60 * 1000; // Check connection every 5 minutes
-        const intervalId = setInterval(() => userStore.getUser(), checkEvery);
-        return () => clearInterval(intervalId);
-    }, [userStore]);
 
     if (loading) return <div className="loading-page">Loading...</div>;
     // 'Protected Route' requires the user be logged in

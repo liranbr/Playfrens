@@ -55,26 +55,8 @@ export function loadFromStorage(key, fallback) {
     }
 }
 
-let timesSaved = 0;
-
-// THIS IS REALLY BAD, BUT THIS IS FOR DEVELOPMENT REASONS FOR NOW, SEE BELOW
-// TODO: REMOVE THIS HACK AND MAKE A PROPER SOLUTION FOR AUTO-SAVING TO THE BACKEND
-let allowDBSave = false;
-export function DELETEME_AllowDBSave() {
-    allowDBSave = true;
-}
-
-export async function saveToStorage(key, value) {
+export function saveToStorage(key, value) {
     localStorage.setItem(key, JSON.stringify(value, null, 4));
-    // THIS IS REALLY BAD, BUT THIS IS FOR DEVELOPMENT REASONS FOR NOW
-    // A WISE MAN ONCE SAID "CLEAN CODE, I NEED. SPAGHETTI I MUST."
-    if (!allowDBSave) return;
-    const { ExportDataStoreToJSON } = await import("./stores/DataStore");
-    const { saveBoard } = await import("./APIUtils");
-    const data = ExportDataStoreToJSON();
-    data[key] = value;
-    await saveBoard(data);
-    console.warn("Auto-saved board to backend through reactions. Needs improvement.", ++timesSaved);
 }
 
 export function deleteItemFromArray(arr, item) {
@@ -91,6 +73,13 @@ export function useDebouncedCallback(callback, delay) {
         }, delay);
     };
 }
+
+// Sets a timeout, which gets refereshed when called again.
+export function debounce(timers, key, callback, delay) {
+    clearTimeout(timers[key]);
+    timers[key] = setTimeout(callback, delay);
+}
+
 export function moveItemInArray(arr, fromIndex, toIndex) {
     if (fromIndex < 0 || fromIndex >= arr.length || toIndex < 0 || toIndex > arr.length)
         throw new Error("Index out of bounds");

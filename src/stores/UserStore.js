@@ -94,6 +94,7 @@ export class UserStore {
         await globalDataStore.populate().then(() => {
             globalSettingsStore.populate(loadFromStorage(settingsStorageKey, {}));
             globalFilterStore.populate(loadFromStorage(defaultFiltersStorageKey, {}));
+            globalDataStore.watchSettingsForBackendSync();
         });
     }
 

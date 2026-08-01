@@ -56,16 +56,19 @@ class FilterStore {
     }
 
     saveDefaultFilters() {
-        saveToStorage(defaultFiltersStorageKey, {
+        const defaultFilters = {
             search: this.search,
             selectedTagIDs: this.selectedTagIDs,
             excludedTagIDs: this.excludedTagIDs,
-        });
+        };
+        saveToStorage(defaultFiltersStorageKey, defaultFilters);
+        globalDataStore.syncBoardKeyToBackend(defaultFiltersStorageKey, defaultFilters);
         toastSuccess("Saved Default Filters state");
     }
 
     resetDefaultFilters() {
         saveToStorage(defaultFiltersStorageKey, {});
+        globalDataStore.syncBoardKeyToBackend(defaultFiltersStorageKey, {});
         toastSuccess("Default state was reset");
     }
 

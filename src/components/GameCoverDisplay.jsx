@@ -8,7 +8,7 @@ export const GameCoverDisplay = observer(
     ({ src, className = "", skeleton = true, spinner = false, ...rest }) => {
         const [loaded, setLoaded] = useState(false);
         const gameCover = useValidatedImage(src);
-        const handleLoaded = (e) => {
+        const handleLoaded = () => {
             setLoaded(true);
         };
         const callTwoEvents = (a, b) => (e) => {

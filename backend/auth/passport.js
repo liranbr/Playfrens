@@ -134,7 +134,7 @@ export function configurePassport() {
         done(null, user);
     });
 
-    const URL = resolveBaseURL("frontend");
+    const URL = resolveBaseURL();
 
     passport.use(
         new SteamStrategy(

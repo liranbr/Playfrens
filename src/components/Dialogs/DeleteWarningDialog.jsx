@@ -10,7 +10,7 @@ export function DeleteWarningDialog({ open, closeDialog, itemName, deleteFunctio
 
     return (
         <DialogBase open={open} onOpenChange={closeDialog}>
-            <Dialog.Title>Delete '{itemName}'</Dialog.Title>
+            <Dialog.Title>Delete &apos;{itemName}&apos;</Dialog.Title>
             <Dialog.Description>
                 Are you sure you want to delete <b>{itemName}</b>? This action cannot be
                 undone.

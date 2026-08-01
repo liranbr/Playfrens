@@ -1,7 +1,10 @@
 import { EmblaCarousel } from "@/components/EmblaCarousel.jsx";
+import { usePageMeta } from "@/hooks/usePageMeta.js";
 import "./Home.css";
 
 export default function Home() {
+    usePageMeta({ path: "/" });
+
     return (
         <div id="home">
             <div className="sticky-header">
@@ -65,12 +68,11 @@ export default function Home() {
                         <div className="topic">
                             <h2>Plan</h2>
                             <p>
-                                Besides your current library, you can also add games that you don't
-                                have or aren't out yet, to plan ahead with friends
-                            </p>
-                            <br />
-                            <p>
-                                If you're looking forward to some release date, or when a friend
+                                Besides your current library, you can also add games that you don&apos;t
+                                have or aren&apos;t out yet, to plan ahead with friends
+                                <br />
+                                <br />
+                                If you&apos;re looking forward to some release date, or when a friend
                                 will have free time, you can add Reminders
                             </p>
                         </div>
@@ -84,8 +86,8 @@ export default function Home() {
                         <div className="topic">
                             <h2>Free and Open Source</h2>
                             <p>
-                                Playfrens is free to use. No paywalls, no ads, no data sold. The
-                                code is public on GitHub, under active development
+                                Playfrens is free to use. No paywalls, no ads, no data shared or
+                                sold. The code is public on GitHub, under active development
                             </p>
                         </div>
                     </div>

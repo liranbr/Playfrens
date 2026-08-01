@@ -7,7 +7,7 @@ import {
     globalSettingsStore,
     settingsStorageKey,
 } from "@/stores";
-import { HttpStatus, loadFromStorage } from "@/Utils.jsx";
+import { HttpStatus, loadFromStorage } from "@/Utils";
 
 export class UserStore {
     /**

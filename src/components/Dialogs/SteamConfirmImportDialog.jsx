@@ -37,19 +37,12 @@ const ChangesColumn = ({ data, title }) => {
         );
     };
 
-    const allSkipped = toSkip.length > 0 && toAdd.length == 0 && old.length == 0;
-
     return (
         <div className="steam-confirm-import-container">
             <div className="steam-confirm-import-header">
                 <h2>{title}</h2>
             </div>
             <div className="steam-confirm-import-scrollable">
-                {/* {allSkipped && (
-                    <div className="dialog-callout info" style={{ marginTop: "16px" }}>
-                        <p>No {title} to add or update.</p>
-                    </div>
-                )} */}
                 {
                     <fieldset>
                         {createList(toAdd, "add", "Adding")}
@@ -170,3 +163,4 @@ export const SteamConfirmImportDialog = ({
         </DialogBase>
     );
 };
+

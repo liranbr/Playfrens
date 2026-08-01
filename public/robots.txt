@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /app
+Allow: /
+
+Sitemap: https://playfrens.com/sitemap.xml

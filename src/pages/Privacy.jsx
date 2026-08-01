@@ -1,7 +1,15 @@
+import { usePageMeta } from "@/hooks/usePageMeta.js";
 import "./Privacy.css";
 import "./CardPage.css";
 
 export default function Privacy() {
+    usePageMeta({
+        title: "Privacy Policy",
+        description:
+            "Information regarding what data we collect, how it's used, and your rights.",
+        path: "/privacy",
+    });
+
     return (
         <div id="card-page">
             <div className="card-page-body">
@@ -74,7 +82,7 @@ function PrivacyPolicy() {
                     <a href="https://render.com/docs/certifications-compliance">
                         (Compliance Link)
                     </a>{" "}
-                    is the host of our backend server, and domain provider.
+                    is the host of our backend server.
                 </p>
                 <p>
                     Supabase <a href="https://supabase.com/legal/dpa">(Compliance Link)</a> is the

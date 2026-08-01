@@ -2,7 +2,7 @@ import { Button, InfoIcon } from "@/components";
 import { fetchSteamImportData, getLastSteamSync, processUsername } from "@/services/SteamImport.js";
 import { useDataStore } from "@/stores/DataStore.js";
 import { Dialogs, globalDialogStore } from "@/stores/DialogStore.js";
-import { HttpStatus, toastError, toastInfo } from "@/Utils.jsx";
+import { HttpStatus, toastError, toastInfo } from "@/Utils";
 import * as Avatar from "@radix-ui/react-avatar";
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";

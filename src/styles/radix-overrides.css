@@ -166,7 +166,7 @@
         flex-shrink: 0;
         margin: 0 calc(-1 * var(--dialog-pad-x));
         padding: var(--dialog-pad-y) var(--dialog-pad-x) 12px;
-        background-color: var(--pf-bg-900);
+        background: linear-gradient(var(--pf-bg-900) 80%, transparent 100%);
         border-radius: var(--dialog-radius) var(--dialog-radius) 0 0;
     }
 

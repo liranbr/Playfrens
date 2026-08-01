@@ -48,8 +48,7 @@ WORKDIR /app
 # Copy app + node_modules from backend-build
 COPY --from=backend-build /app /app
 
-# Copy env files
-COPY .env .env
+# Secrets come from the host's environment variables
 COPY .env.example .env.example
 COPY .env.public .env.public
 

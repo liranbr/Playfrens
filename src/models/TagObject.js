@@ -1,4 +1,4 @@
-import { compareAlphaIgnoreCase } from "@/Utils.jsx";
+import { compareAlphaIgnoreCase } from "@/Utils";
 import { makeObservable, observable } from "mobx";
 import { v4 as randomUUID } from "uuid";
 

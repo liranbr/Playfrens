@@ -42,7 +42,7 @@ import {
 } from "@/components";
 
 import "./Playfrens.css";
-import { toastError, toastSuccess } from "@/Utils.jsx";
+import { toastError, toastSuccess } from "@/Utils";
 
 function AppMenu() {
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -358,7 +358,7 @@ const Playfrens = observer(() => {
         const checkEvery = 5 * 60 * 1000; // Check connection every 5 minutes
         const intervalId = setInterval(() => userStore.getUser(), checkEvery);
         return () => clearInterval(intervalId);
-    }, []);
+    }, [userStore]);
 
     if (loading) return <div className="loading-page">Loading...</div>;
     // 'Protected Route' requires the user be logged in

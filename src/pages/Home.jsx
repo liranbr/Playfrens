@@ -68,11 +68,11 @@ export default function Home() {
                         <div className="topic">
                             <h2>Plan</h2>
                             <p>
-                                Besides your current library, you can also add games that you don't
-                                have or aren't out yet, to plan ahead with friends
+                                Besides your current library, you can also add games that you don&apos;t
+                                have or aren&apos;t out yet, to plan ahead with friends
                                 <br />
                                 <br />
-                                If you're looking forward to some release date, or when a friend
+                                If you&apos;re looking forward to some release date, or when a friend
                                 will have free time, you can add Reminders
                             </p>
                         </div>

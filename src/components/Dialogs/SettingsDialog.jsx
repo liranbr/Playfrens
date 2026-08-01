@@ -71,8 +71,8 @@ export const SettingsDialog = ({ open, closeDialog }) => {
                 <div className="setting">
                     <h3>Obscure Game Platform Actions</h3>
                     <p>
-                        In a Game Page, hide the 'Play' and 'Store Page' buttons unless cover art is
-                        hovered on
+                        In a Game Page, hide the &apos;Play&apos; and &apos;Store Page&apos; buttons
+                        unless cover art is hovered on
                     </p>
                     <RadioGroup.Root
                         defaultValue={settingsStore.hideGameStoreButtons}

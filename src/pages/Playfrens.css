@@ -131,6 +131,21 @@
             gap: 12px;
             overflow-y: auto;
             scrollbar-gutter: stable both-edges;
+
+            .no-reminders {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                color: var(--pf-fg-500);
+                text-align: center;
+                padding: 12px 0;
+
+                svg {
+                    font-size: 20px;
+                }
+            }
         }
     }
 }

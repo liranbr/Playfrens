@@ -4,11 +4,13 @@ import { Navigate } from "react-router-dom";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Avatar from "@radix-ui/react-avatar";
 import * as Popover from "@radix-ui/react-popover";
+import { BsChatHeartFill } from "react-icons/bs";
 import {
     MdChevronRight,
     MdClose,
     MdFilterAltOff,
     MdMenu,
+    MdOutlineCheckCircle,
     MdOutlineFileDownload,
     MdOutlineFileUpload,
     MdOutlineGamepad,
@@ -90,6 +92,7 @@ function AppMenu() {
                                 </DD.Item>
                             </DD.SubContent>
                         </DD.Sub>
+                        <DD.Separator />
                         <DD.Sub>
                             <DD.SubTrigger>
                                 Links
@@ -104,6 +107,11 @@ function AppMenu() {
                                 <LinkItem label="Homepage" url="/" />
                             </DD.SubContent>
                         </DD.Sub>
+                        <DD.Separator />
+                        <LinkItem
+                            label="Send feedback"
+                            url="mailto:playfrens@proton.me?subject=Feedback"
+                        />
                     </DD.Content>
                 </DD.Portal>
             </DD.Root>
@@ -313,9 +321,16 @@ const Notifications = observer(() => {
             </Popover.Trigger>
             <Popover.Content className="rx-popover notifications-drawer" align="end" sideOffset={5}>
                 <div className="reminders-list">
-                    {reminders.map((reminder) => (
-                        <ReminderCard key={reminder.id} reminder={reminder} outsideOfGamePage />
-                    ))}
+                    {reminders.length === 0 ? (
+                        <div className="no-reminders">
+                            <MdOutlineCheckCircle />
+                            You have no reminders.
+                        </div>
+                    ) : (
+                        reminders.map((reminder) => (
+                            <ReminderCard key={reminder.id} reminder={reminder} outsideOfGamePage />
+                        ))
+                    )}
                 </div>
             </Popover.Content>
         </Popover.Root>

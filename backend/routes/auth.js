@@ -1,10 +1,21 @@
 import { Router } from "express";
 import passport from "passport";
+import rateLimit from "express-rate-limit";
 import { Response } from "../response.js";
 import { supabase } from "../supabaseClient.js";
 
 const router = Router();
 const LOGIN_FAILED_ROUTE = "/login?failed=true";
+
+// Anti-spam against bots mostly, but might also hit users who fail to login (such as bad connection).
+// Only every 15 minutes though
+const oauthLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    limit: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: "Too many login attempts, please try again later." },
+});
 
 // Return function called after successful login
 async function loginCallback(req, res) {
@@ -114,21 +125,29 @@ router.get("/logout", logout);
 router.delete("/deleteAccount", deleteAccount);
 
 // Login routes
-router.get("/steam", passport.authenticate("steam", { failureRedirect: LOGIN_FAILED_ROUTE }));
+router.get(
+    "/steam",
+    oauthLimiter,
+    passport.authenticate("steam", { failureRedirect: LOGIN_FAILED_ROUTE }),
+);
 router.get(
     "/google",
+    oauthLimiter,
     passport.authenticate("google", {
         failureRedirect: LOGIN_FAILED_ROUTE,
-        scope: ["profile", "openid"],
+        scope: ["profile", "email", "openid"],
     }),
 );
-router.get("/discord", passport.authenticate("discord", { failureRedirect: LOGIN_FAILED_ROUTE }));
+router.get(
+    "/discord",
+    oauthLimiter,
+    passport.authenticate("discord", { failureRedirect: LOGIN_FAILED_ROUTE }),
+);
 
 // Strategy callbacks
 // Google and Discord - if renamed, update accordingly in the respective developer portal
-router.get("/steam/return", authCallback("steam"));
-router.get("/google/callback", authCallback("google"));
-router.get("/discord/callback", authCallback("discord"));
+router.get("/steam/return", oauthLimiter, authCallback("steam"));
+router.get("/google/callback", oauthLimiter, authCallback("google"));
+router.get("/discord/callback", oauthLimiter, authCallback("discord"));
 
 export default router;
-

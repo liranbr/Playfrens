@@ -141,15 +141,10 @@
     border-radius: var(--dialog-radius);
     box-shadow: 0 0 20px rgba(0, 0, 0, 1);
     position: fixed;
-    top: 50%;
-    left: 50%;
-    will-change: transform, opacity;
-    transform: translate(-50%, -50%);
+    inset: 0;
+    margin: auto;
+    will-change: opacity;
     z-index: 101;
-
-    *:not(input, textarea) {
-        user-select: none;
-    }
 
     &[data-state="open"] {
         animation: dialogShow var(--dialog-fade-duration);
@@ -171,7 +166,7 @@
         flex-shrink: 0;
         margin: 0 calc(-1 * var(--dialog-pad-x));
         padding: var(--dialog-pad-y) var(--dialog-pad-x) 12px;
-        background-color: var(--pf-bg-900);
+        background: linear-gradient(var(--pf-bg-900) 80%, transparent 100%);
         border-radius: var(--dialog-radius) var(--dialog-radius) 0 0;
     }
 
@@ -508,21 +503,21 @@
 @keyframes dialogShow {
     from {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(0.8);
+        transform: scale(0.8);
     }
     to {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
+        transform: scale(1);
     }
 }
 
 @keyframes dialogHide {
     from {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
+        transform: scale(1);
     }
     to {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(0.8);
+        transform: scale(0.8);
     }
 }

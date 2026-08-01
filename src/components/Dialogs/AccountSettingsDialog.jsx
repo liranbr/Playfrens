@@ -6,8 +6,7 @@ import { Button } from "@/components/index.js";
 import { globalDataStore, userStore } from "@/stores/index.js";
 import { storeTypes, tagTypes } from "@/models/index.js";
 import { useEffect, useState } from "react";
-import { toastError, toastSuccess } from "@/Utils.jsx";
-import { HttpStatus } from "../../Utils.jsx";
+import { toastError, toastSuccess, HttpStatus } from "@/Utils";
 
 export const AccountSettingsDialog = ({ open, closeDialog }) => {
     const { userInfo } = userStore;
@@ -59,7 +58,7 @@ export const AccountSettingsDialog = ({ open, closeDialog }) => {
 
 const DEBUGGING_SKIP_ACCOUNT_DELETION_WARNING = false;
 const DeleteAccountButton = () => {
-    const WARNING_DURATION_SECONDS = 30;
+    const WARNING_DURATION_SECONDS = 10;
     const [startedCountdown, setStartedCountdown] = useState(false);
     const [secondsRemaining, setSecondsRemaining] = useState(
         DEBUGGING_SKIP_ACCOUNT_DELETION_WARNING ? 1 : WARNING_DURATION_SECONDS,

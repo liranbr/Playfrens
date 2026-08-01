@@ -2,7 +2,7 @@ import { createContext, useContext } from "react";
 import { makeAutoObservable, reaction } from "mobx";
 import { TagObject, tagTypes } from "@/models";
 import { defaultFiltersStorageKey, globalDataStore, globalSettingsStore } from "@/stores";
-import { loadFromStorage, saveToStorage, toastSuccess } from "@/Utils.jsx";
+import { saveToStorage, toastSuccess } from "@/Utils";
 
 class FilterStore {
     search = "";

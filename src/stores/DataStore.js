@@ -30,7 +30,7 @@ import {
     toastInfo,
     toastSuccess,
     updateObject,
-} from "@/Utils.jsx";
+} from "@/Utils";
 import { SortingReaction } from "./SortingReaction.js";
 import { version } from "/package.json";
 
@@ -197,6 +197,7 @@ export class DataStore {
         return gameTagIDs;
     }
 
+    // eslint-disable-next-line no-unused-vars -- unused, kept for future use case.
     async populateGames(gameJsons, version) {
         const parseParties = (parties) => {
             return parties
@@ -689,7 +690,7 @@ export class DataStore {
 
     sortTagsByMethod(tagType, sortMethod, isDescending) {
         const entriesArray = [...this.allTags[tagType].entries()];
-        entriesArray.sort(([id1, tag1], [id2, tag2]) => sortMethod(tag1, tag2));
+        entriesArray.sort(([, tag1], [, tag2]) => sortMethod(tag1, tag2));
         if (isDescending) entriesArray.reverse();
 
         // Needs to be runInAction because used by reaction, which seems to lose binding otherwise
@@ -713,7 +714,7 @@ export class DataStore {
 
     sortGamesByMethod(sortMethod, isDescending) {
         const entriesArray = [...this.allGames.entries()];
-        entriesArray.sort(([id1, game1], [id2, game2]) => sortMethod(game1, game2));
+        entriesArray.sort(([, game1], [, game2]) => sortMethod(game1, game2));
         if (isDescending) entriesArray.reverse();
 
         // Needs to be runInAction because used by reaction, which seems to lose binding otherwise
@@ -776,17 +777,17 @@ function setTagSorting(tagType, sortSetting, sortDirection) {
         );
     } else if (sortSetting === "name") {
         sortingReactions[tagType] = new SortingReaction(
-            () => [[...dataStore.allTags[tagType]].map(([id, tag]) => tag.name)],
+            () => [[...dataStore.allTags[tagType]].map(([, tag]) => tag.name)],
             () => dataStore.sortTagsByMethod(tagType, compareTagNamesAZ, isDescending),
         );
     } else if (sortSetting === "countFiltered") {
         sortingReactions[tagType] = new SortingReaction(
-            () => [[...dataStore.allTags[tagType]].map(([id, tag]) => tag.filteredGamesCount)],
+            () => [[...dataStore.allTags[tagType]].map(([, tag]) => tag.filteredGamesCount)],
             () => dataStore.sortTagsByMethod(tagType, compareTagFilteredGamesCount, isDescending),
         );
     } else if (sortSetting === "countTotal") {
         sortingReactions[tagType] = new SortingReaction(
-            () => [[...dataStore.allTags[tagType]].map(([id, tag]) => tag.totalGamesCount)],
+            () => [[...dataStore.allTags[tagType]].map(([, tag]) => tag.totalGamesCount)],
             () => dataStore.sortTagsByMethod(tagType, compareTagTotalGamesCount, isDescending),
         );
     }
@@ -799,7 +800,7 @@ function setGameSorting(sortSetting, sortDirection) {
 
     if (sortSetting === "title") {
         sortingReactions.games = new SortingReaction(
-            () => [[...dataStore.allGames].map(([id, game]) => [game.title, game.sortingTitle])],
+            () => [[...dataStore.allGames].map(([, game]) => [game.title, game.sortingTitle])],
             () => {
                 dataStore.sortGamesByMethod(compareGameTitlesAZ, isDescending);
             },

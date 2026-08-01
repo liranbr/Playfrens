@@ -9,6 +9,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { ConsoleColors, logRoutes, resolveBaseURL, strToBool } from "./utils.js";
 import { configurePassport } from "./auth/passport.js";
+import { SupabaseSessionStore } from "./auth/SupabaseSessionStore.js";
 import generalRoutes from "./routes/general.js";
 import authRoutes from "./routes/auth.js";
 import steamRoutes from "./routes/steam.js";
@@ -32,7 +33,7 @@ app.use(express.urlencoded({ extended: true }));
 // Enable Cross-Origin Resource Sharing
 app.use(
     cors({
-        origin: resolveBaseURL("frontend"),
+        origin: resolveBaseURL(),
         credentials: true,
     }),
 );
@@ -40,6 +41,7 @@ app.use(
 // Sessions + Passport
 app.use(
     session({
+        store: new SupabaseSessionStore(),
         secret: env.SESSION_SECRET,
         resave: false,
         saveUninitialized: false,

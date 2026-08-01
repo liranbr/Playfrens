@@ -4,6 +4,7 @@ import { Navigate } from "react-router-dom";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Avatar from "@radix-ui/react-avatar";
 import * as Popover from "@radix-ui/react-popover";
+import { BsChatHeartFill } from "react-icons/bs";
 import {
     MdChevronRight,
     MdClose,
@@ -41,7 +42,7 @@ import {
 } from "@/components";
 
 import "./Playfrens.css";
-import { toastError, toastSuccess } from "@/Utils.jsx";
+import { toastError, toastSuccess } from "@/Utils";
 
 function AppMenu() {
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -91,6 +92,7 @@ function AppMenu() {
                                 </DD.Item>
                             </DD.SubContent>
                         </DD.Sub>
+                        <DD.Separator />
                         <DD.Sub>
                             <DD.SubTrigger>
                                 Links
@@ -105,6 +107,11 @@ function AppMenu() {
                                 <LinkItem label="Homepage" url="/" />
                             </DD.SubContent>
                         </DD.Sub>
+                        <DD.Separator />
+                        <LinkItem
+                            label="Send feedback"
+                            url="mailto:playfrens@proton.me?subject=Feedback"
+                        />
                     </DD.Content>
                 </DD.Portal>
             </DD.Root>
@@ -261,7 +268,7 @@ const AppUserAvatar = observer(() => {
         <DD.Root>
             <DD.Trigger asChild className="rx-avatar">
                 <Avatar.Root>
-                    <Avatar.Image src={userInfo?.avatar ?? undefined} />
+                    <Avatar.Image src={userInfo?.avatar ?? undefined} referrerPolicy="no-referrer" />
                     <Avatar.Fallback className="rx-avatarless" asChild>
                         <MdPerson />
                     </Avatar.Fallback>
@@ -347,11 +354,6 @@ function AppSidebar() {
 const Playfrens = observer(() => {
     const userStore = useUserStore();
     const { loading, userInfo } = userStore;
-    useEffect(() => {
-        const checkEvery = 5 * 60 * 1000; // Check connection every 5 minutes
-        const intervalId = setInterval(() => userStore.getUser(), checkEvery);
-        return () => clearInterval(intervalId);
-    }, []);
 
     if (loading) return <div className="loading-page">Loading...</div>;
     // 'Protected Route' requires the user be logged in

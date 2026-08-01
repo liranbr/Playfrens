@@ -35,21 +35,9 @@ export class ConsoleColors {
     }
 }
 
-export function getFrontendDomain() {
-    return `http${strToBool(env.USE_HTTPS) ? "s" : ""}://${env.DOMAIN}:5174`;
-}
-
-export function getBackendDomain() {
-    return `http${strToBool(env.USE_HTTPS) ? "s" : ""}://${env.DOMAIN}:${env.BACKEND_PORT}`;
-}
-
-// Returns environment url or the backend, whichever is defined.
-// 'target' may be "frontend" or "backend" — used as a fallback when BASE_URL is not set.
-export function resolveBaseURL(target = "backend") {
-    if (process.env.BASE_URL) return process.env.BASE_URL;
-    const t = target.toLowerCase();
-    if (t === "frontend") return getFrontendDomain();
-    return getBackendDomain();
+// The app's public URL, distinct from DOMAIN/BACKEND_PORT, which is just the bind address.
+export function resolveBaseURL() {
+    return env.BASE_URL;
 }
 
 export function strToBool(s) {
@@ -87,7 +75,7 @@ export function logRoutes(prefix, router, label) {
         for (const routeLayer of layer.route.stack) {
             const name = routeLayer.handle.name?.replace(/^bound\s*/, "") || "anonymous";
             console.log(
-                `  ${FgCyan}[${name}]${Reset} ${FgGreen}${routeLayer.method.toUpperCase()} ${FgRGB(255, 165, 0)}${resolveBaseURL("frontend")}${prefix}${routePath}${Reset}`,
+                `  ${FgCyan}[${name}]${Reset} ${FgGreen}${routeLayer.method.toUpperCase()} ${FgRGB(255, 165, 0)}${resolveBaseURL()}${prefix}${routePath}${Reset}`,
             );
         }
     }

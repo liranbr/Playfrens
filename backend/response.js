@@ -1,4 +1,9 @@
 export class Response {
+    // Stable codes clients can match on, instead of parsing error text message such "Not logged in."
+    static ErrorCode = Object.freeze({
+        NOT_AUTHENTICATED: "NOT_AUTHENTICATED",
+    });
+
     static HttpStatus = Object.freeze({
         // 2xx: Success
         OK: 200,
@@ -35,5 +40,15 @@ export class Response {
      */
     static sendMessage = (res, status, message) => {
         return res.status(status).send(message);
+    };
+
+    /**
+     * Standard 401 response for any `!req.isAuthenticated()` check.
+     * @param {import('express').Response} res - Express response
+     */
+    static sendUnauthenticated = (res) => {
+        return res
+            .status(Response.HttpStatus.UNAUTHORIZED)
+            .json({ error: "Not logged in", code: Response.ErrorCode.NOT_AUTHENTICATED });
     };
 }

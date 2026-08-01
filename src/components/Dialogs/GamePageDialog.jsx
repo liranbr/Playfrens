@@ -18,7 +18,6 @@ import {
     useSettingsStore,
 } from "@/stores";
 import { ReminderObject, tagTypes, tagTypeStrings } from "@/models";
-import { useValidatedImage } from "@/hooks/useValidatedImage.js";
 import { DialogBase } from "./DialogRoot.jsx";
 
 import "@/components/TagButtonGroup.css";
@@ -288,8 +287,6 @@ const AddReminderPopover = ({ game, party }) => {
 };
 
 const PartyTabs = ({ game, partyID, setPartyID, renamePartyRef }) => {
-    if (game.parties.length <= 1) return null;
-
     const filterStore = useFilterStore();
     const tabClassName = (party) => (filterStore.doesPartyPassFilters(party) ? "" : "filtered-out");
 
@@ -310,6 +307,8 @@ const PartyTabs = ({ game, partyID, setPartyID, renamePartyRef }) => {
     useEffect(() => {
         renameRef.current?.select();
     }, [renamingID]); // selects the name of the renamed party upon rename start
+
+    if (game.parties.length <= 1) return null;
 
     return (
         <ToggleGroup.Root

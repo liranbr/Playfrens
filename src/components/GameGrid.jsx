@@ -9,7 +9,7 @@ import {
     updateTagBothGameCounters,
     useDataStore,
 } from "@/stores";
-import { toastError } from "@/Utils.jsx";
+import { toastError } from "@/Utils";
 import { SlGameController } from "react-icons/sl";
 import { SimpleTooltip } from "@/components/common/SimpleTooltip.jsx";
 import { GameCoverDisplay } from "@/components/GameCoverDisplay.jsx";

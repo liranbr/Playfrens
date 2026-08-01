@@ -4,7 +4,6 @@ import { Navigate } from "react-router-dom";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Avatar from "@radix-ui/react-avatar";
 import * as Popover from "@radix-ui/react-popover";
-import { BsChatHeartFill } from "react-icons/bs";
 import {
     MdChevronRight,
     MdClose,

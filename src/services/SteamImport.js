@@ -1,6 +1,6 @@
 import { getSteamIDFromVanity, getSteamUserSummary } from "@/APIUtils.js";
 import { FriendTagObject } from "@/models/TagObject.js";
-import { loadFromStorage } from "@/Utils.jsx";
+import { loadFromStorage } from "@/Utils";
 
 // Kept in localStorage only (not the Supabase-backed board) since this is a
 // temporary, per-browser stand-in until "last imported Steam profile" gets a

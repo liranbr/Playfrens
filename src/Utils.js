@@ -251,7 +251,8 @@ export async function coverToThumb(coverURL) {
 }
 
 /**
- * Checks if an object's fields differ from provided values
+ * Checks if an object's fields differ from provided values. A key in partial that doesn't exist
+ * on obj is ignored - there's nothing to compare it to.
  *
  * @template {object} T
  * @param {T} obj - The object we are checking
@@ -262,14 +263,15 @@ export async function coverToThumb(coverURL) {
  * const obj = { icon: "a", type: "b" };
  * const p1 = { icon: "x" };
  * const p2 = { icon: "a" };
- * const p3 = { bad_key_icon: "a" };
- * shouldUPdateObject(obj, p1); // true
- * shouldUPdateObject(obj, p2); // false (matching values)
- * shouldUPdateObject(obj, p3); // false (nothing to compare)
+ * const p3 = { icon_small: "a" };
+ * shouldUpdateObject(obj, p1); // true
+ * shouldUpdateObject(obj, p2); // false (matching values)
+ * shouldUpdateObject(obj, p3); // false (nothing to compare)
  */
 export function shouldUpdateObject(obj, partial = {}) {
     return Object.entries(partial).some(([key, value]) => {
-        return obj[key] !== value;
+        if (!Object.hasOwn(obj, key)) return false;
+        return !deepEqual(obj[key], value);
     });
 }
 
@@ -285,9 +287,10 @@ export function updateObject(obj, partial = {}) {
     let updated = false;
 
     for (const key of /** @type {Array<keyof T>} */ (Object.keys(partial))) {
-        const value = partial[key];
+        if (!Object.hasOwn(obj, key)) continue;
 
-        if (obj[key] !== value) {
+        const value = partial[key];
+        if (!deepEqual(obj[key], value)) {
             obj[key] = value;
             updated = true;
         }

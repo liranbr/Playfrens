@@ -1,25 +1,29 @@
-# This is just a fallback just in case the Alpine Node stops working.
-
 # -------- Build Stage --------
-FROM node:20 AS build
+FROM node:20-alpine AS build
 WORKDIR /app
 
-# Copy package.json and lockfile first (cache-friendly install)
+# Install build tools (needed to compile some deps during npm install)
+RUN apk add --no-cache python3 make g++
+
+# Copy package.json and lockfile
 COPY package*.json ./
 
-# Install ALL deps (prod + dev) so we can build frontend
+# Install ALL deps (including dev, needed for building frontend)
 RUN npm install
 
-# Copy the rest of the project
+# Copy everything
 COPY . .
 
-# Build frontend -> outputs into /app/dist
+# Build frontend -> /app/dist
 RUN npm run build
 
 
 # -------- Backend Stage --------
-FROM node:20 AS backend-build
+FROM node:20-alpine AS backend-build
 WORKDIR /app
+
+# Install build tools for backend install
+RUN apk add --no-cache python3 make g++
 
 # Copy backend source (flattened into /app)
 COPY backend/ ./ 
@@ -30,15 +34,19 @@ COPY --from=build /app/dist ./public
 # Copy only package.json + lockfile
 COPY package*.json ./
 
-# Install ONLY production deps
+# Install ONLY production dependencies
 RUN npm install --omit=dev --ignore-scripts && npm cache clean --force
+
+# Remove build tools to slim down
+RUN apk del python3 make g++
 
 
 # -------- Final Runtime Stage --------
-FROM node:20-slim
+FROM node:20-alpine
 WORKDIR /app
+ENV NODE_ENV=production
 
-# Copy backend code + frontend build + node_modules from backend-build
+# Copy app + node_modules from backend-build
 COPY --from=backend-build /app /app
 
 # Secrets come from the host's environment variables

@@ -1,5 +1,6 @@
-import dotenv from "dotenv-safe";
+import dotenvSafe from "dotenv-safe";
+import dotenv from "dotenv";
 
-dotenv.config({ debug: true, path: ".env" });
+dotenvSafe.config({ debug: true, path: ".env" });
 dotenv.config({ debug: true, path: ".env.public" });
 

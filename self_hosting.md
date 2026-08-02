@@ -15,7 +15,7 @@
     ```
 2. Copy [`.env.example`](.env.example) to `.env` and fill in real values. Each section in the file explains where to get that key.
 3. `.env.public` already contains local defaults, you can adjust if needed but remember to restart the server to see its effects.
-4. If deploying (not just local dev), override `DOMAIN`, `BACKEND_PORT`, `USE_HTTPS`, and `BASE_URL` in your host's environment variables — `BASE_URL` in particular must be your real public URL with no port, e.g. `https://playfrens.com`.
+4. If deploying (not just local dev), override `DOMAIN`, `BACKEND_PORT`, and `BASE_URL` in your host's environment variables — `BASE_URL` in particular must be your real public URL with no port, e.g. `https://playfrens.com`. `SELF_SIGN_HTTPS` is dev-only and always ignored in production, since your host is expected to HTTPS itself.
 
 ## Running the Project
 
@@ -23,7 +23,7 @@
 - `npm run dev:vite` - frontend only.
 - `npm run dev:backend` - backend only.
 
-By default the app runs at `http://localhost:5174` (or `https://localhost:5174` if `USE_HTTPS=true`), with `/api` and `/auth` requests proxied to the Express backend on port 3000.
+By default the app runs at `http://localhost:5174` (or `https://localhost:5174` if `SELF_SIGN_HTTPS=true`), with `/api` and `/auth` requests proxied to the Express backend on port 3000.
 
 ## Building for Production
 

@@ -25,10 +25,10 @@ const isProduction = env.NODE_ENV === "production";
 
 function resolveUseHttps() {
     if (isProduction) return false;
-    if (env.USE_HTTPS === undefined) {
-        throw new Error("USE_HTTPS must be defined outside production");
+    if (env.SELF_SIGN_HTTPS === undefined) {
+        throw new Error("SELF_SIGN_HTTPS must be defined outside production");
     }
-    return strToBool(env.USE_HTTPS);
+    return strToBool(env.SELF_SIGN_HTTPS);
 }
 const useHttps = resolveUseHttps();
 

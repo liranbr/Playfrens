@@ -59,6 +59,49 @@ export function saveToStorage(key, value) {
     localStorage.setItem(key, JSON.stringify(value, null, 4));
 }
 
+/**
+ * Strips class or JSON-like object, and turns it into a generic object.
+ *
+ * @param {*} value
+ * @returns {*} a plain, detached clone containing just the data
+ *
+ * @example
+ * class Party {
+ *     tagIDs = { friend: new Set(["example"]) };
+ * }
+ * const party = new Party();
+ * console.log(party); // Party { tagIDs: [Getter/Setter] }
+ * toPlainObject(party); // { tagIDs: { friend: ["example"] } }
+ */
+export function toPlainObject(value) {
+    return JSON.parse(JSON.stringify(value));
+}
+
+/**
+ * Deep equal that doesn't care about object key order, unlike a JSON.stringify which does care.
+ *
+ * @param {*} a
+ * @param {*} b
+ * @returns {boolean} true if a and b are structurally equal
+ *
+ * @example
+ * deepEqual({ a: 1, b: 2 }, { b: 2, a: 1 }); // true (JSON.stringify would say false, different key order)
+ * deepEqual({ a: 1 }, { a: 2 }); // false
+ */
+export function deepEqual(a, b) {
+    if (a === b) return true;
+    if (typeof a !== "object" || typeof b !== "object" || a === null || b === null) return false;
+    if (Array.isArray(a) !== Array.isArray(b)) return false;
+    if (Array.isArray(a))
+        return a.length === b.length && a.every((item, i) => deepEqual(item, b[i]));
+    const aKeys = Object.keys(a);
+    const bKeys = Object.keys(b);
+    return (
+        aKeys.length === bKeys.length &&
+        aKeys.every((key) => Object.hasOwn(b, key) && deepEqual(a[key], b[key]))
+    );
+}
+
 export function deleteItemFromArray(arr, item) {
     const index = arr.indexOf(item);
     if (index > -1) arr.splice(index, 1);
@@ -208,7 +251,8 @@ export async function coverToThumb(coverURL) {
 }
 
 /**
- * Checks if an object's fields differ from provided values
+ * Checks if an object's fields differ from provided values. A key in partial that doesn't exist
+ * on obj is ignored - there's nothing to compare it to.
  *
  * @template {object} T
  * @param {T} obj - The object we are checking
@@ -219,14 +263,15 @@ export async function coverToThumb(coverURL) {
  * const obj = { icon: "a", type: "b" };
  * const p1 = { icon: "x" };
  * const p2 = { icon: "a" };
- * const p3 = { bad_key_icon: "a" };
- * shouldUPdateObject(obj, p1); // true
- * shouldUPdateObject(obj, p2); // false (matching values)
- * shouldUPdateObject(obj, p3); // false (nothing to compare)
+ * const p3 = { icon_small: "a" };
+ * shouldUpdateObject(obj, p1); // true
+ * shouldUpdateObject(obj, p2); // false (matching values)
+ * shouldUpdateObject(obj, p3); // false (nothing to compare)
  */
 export function shouldUpdateObject(obj, partial = {}) {
     return Object.entries(partial).some(([key, value]) => {
-        return obj[key] !== value;
+        if (!Object.hasOwn(obj, key)) return false;
+        return !deepEqual(obj[key], value);
     });
 }
 
@@ -242,9 +287,10 @@ export function updateObject(obj, partial = {}) {
     let updated = false;
 
     for (const key of /** @type {Array<keyof T>} */ (Object.keys(partial))) {
-        const value = partial[key];
+        if (!Object.hasOwn(obj, key)) continue;
 
-        if (obj[key] !== value) {
+        const value = partial[key];
+        if (!deepEqual(obj[key], value)) {
             obj[key] = value;
             updated = true;
         }

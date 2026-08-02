@@ -18,6 +18,7 @@ import { globalSettingsStore, settingsStorageKey, userStore } from "@/stores";
 import {
     coverToThumb,
     debounce,
+    deepEqual,
     deleteItemFromArray,
     ensureUniqueName,
     loadFromStorage,
@@ -28,6 +29,7 @@ import {
     toastError,
     toastInfo,
     toastSuccess,
+    toPlainObject,
     updateObject,
 } from "@/Utils";
 import { SortingReaction } from "./SortingReaction.js";
@@ -121,22 +123,69 @@ export class DataStore {
             toastError(error);
         }
 
-        // keep localStorage and the backend in sync, per key
+        // keep the backend in sync, per key
         const watchAndSync = (storageKey, item) => {
             reaction(
                 () => JSON.stringify(item),
+                () => this.#syncKeyToBackend(storageKey, item),
+            );
+        };
+        watchAndSync(storageKeys.reminders, this.allReminders);
+        watchAndSync(storageKeys.tagsCustomOrders, this.tagsCustomOrders);
+
+        const watchAndSyncCollection = (storageKey, map) => {
+            let lastSynced = [...map.entries()].map(([id, v]) => [id, toPlainObject(v)]);
+
+            reaction(
+                () => JSON.stringify(map), // rechecks below whenever anything in the map changes
                 () => {
-                    saveToStorage(storageKey, item);
-                    this.#syncKeyToBackend(storageKey, item);
+                    if (!this.#isHydrated) return;
+
+                    const current = [...map.entries()];
+                    const lastByID = new Map(lastSynced);
+
+                    // same amount of entries, and every current ID was already known -> nothing added/removed
+                    const sameIDs =
+                        current.length === lastSynced.length &&
+                        current.every(([id]) => lastByID.has(id));
+
+                    // which entries actually differ - only worth checking if membership is unchanged
+                    const changed = sameIDs
+                        ? current.filter(
+                              // postgres doesn't preserve key order, so a plain string compare would call every entry "changed"
+                              ([id, v]) => !deepEqual(toPlainObject(v), lastByID.get(id)),
+                          )
+                        : [];
+
+                    // re-order or only a non-persisted field changed (like a tag's game count), nothing to send
+                    if (sameIDs && changed.length === 0) return;
+
+                    if (sameIDs && changed.length === 1) {
+                        // exactly one entry changed, so patch just that array slot
+                        const [id, value] = changed[0];
+                        const snapshot = toPlainObject(value);
+                        const index = lastSynced.findIndex(([lastID]) => lastID === id);
+                        debounce(
+                            this.#syncTimers,
+                            `${storageKey}::${id}`, // own timer per entry, so editing two things doesn't cancel either update
+                            () => updateBoard([storageKey, index], [id, snapshot]).catch(() => {}),
+                            100,
+                        );
+                        lastSynced[index] = [id, snapshot]; // remember what we just sent
+                        return;
+                    }
+
+                    // an entry was added/removed, or several changed at once, then just resend everything
+                    const snapshot = current.map(([id, v]) => [id, toPlainObject(v)]);
+                    this.#syncKeyToBackend(storageKey, snapshot);
+                    lastSynced = snapshot;
                 },
             );
         };
-        watchAndSync(storageKeys[tT.friend], this.allTags[tT.friend]);
-        watchAndSync(storageKeys[tT.category], this.allTags[tT.category]);
-        watchAndSync(storageKeys[tT.status], this.allTags[tT.status]);
-        watchAndSync(storageKeys.games, this.allGames);
-        watchAndSync(storageKeys.reminders, this.allReminders);
-        watchAndSync(storageKeys.tagsCustomOrders, this.tagsCustomOrders);
+        watchAndSyncCollection(storageKeys[tT.friend], this.allTags[tT.friend]);
+        watchAndSyncCollection(storageKeys[tT.category], this.allTags[tT.category]);
+        watchAndSyncCollection(storageKeys[tT.status], this.allTags[tT.status]);
+        watchAndSyncCollection(storageKeys.games, this.allGames);
     }
 
     // Debounced partial update (update_board_path) instead of re-uploading the whole board.

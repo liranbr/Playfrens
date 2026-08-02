@@ -14,7 +14,8 @@ export default defineConfig(({ mode }) => {
         const value = s.toLowerCase();
         return value === "true" || value === "1" || value === "yes";
     };
-    const useHttps = parseBoolean(USE_HTTPS);
+
+    const useHttps = mode === "production" ? false : parseBoolean(USE_HTTPS);
 
     const target = `${useHttps ? "https" : "http"}://${DOMAIN}:3000`;
 

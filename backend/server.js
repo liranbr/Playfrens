@@ -21,7 +21,16 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const env = process.env;
-const isProd = env.NODE_ENV === "production";
+const isProduction = env.NODE_ENV === "production";
+
+function resolveUseHttps() {
+    if (isProduction) return false;
+    if (env.USE_HTTPS === undefined) {
+        throw new Error("USE_HTTPS must be defined outside production");
+    }
+    return strToBool(env.USE_HTTPS);
+}
+const useHttps = resolveUseHttps();
 
 // Init express
 const app = express();
@@ -46,9 +55,9 @@ app.use(
         resave: false,
         saveUninitialized: false,
         cookie: {
-            secure: isProd || strToBool(env.USE_HTTPS),
+            secure: "auto",
             httpOnly: true,
-            sameSite: isProd ? "none" : "lax",
+            sameSite: "lax",
             maxAge: 180 * 24 * 60 * 60 * 1000, // 180 days
         },
     }),
@@ -91,8 +100,7 @@ app.use((err, _req, res, _next) => {
     res.status(500).json({ error: err.message });
 });
 
-// Production should not release with HTTPS (which is provided by a provider when hosted), this is mostly for testing purposes.
-const makeHTTPS = (app) => {
+const createHttpsServer = (app) => {
     const pems = selfsigned.generate([{ name: "commonName", value: env.DOMAIN }], {
         days: 365,
         keySize: 2048,
@@ -100,11 +108,8 @@ const makeHTTPS = (app) => {
     return https.createServer({ key: pems.private, cert: pems.cert }, app);
 };
 
-// Set up the server to be ready and listening
-const isHTTPS = strToBool(env.USE_HTTPS);
-(isHTTPS ? makeHTTPS(app) : app).listen(env.BACKEND_PORT, env.DOMAIN, () => {
+(useHttps ? createHttpsServer(app) : app).listen(env.BACKEND_PORT, env.DOMAIN, () => {
     console.log(
         `${ConsoleColors.FgRGB(191, 255, 0)} Playfrens server running @ ${resolveBaseURL()}${ConsoleColors.Reset}`,
     );
 });
-

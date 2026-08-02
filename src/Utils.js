@@ -59,6 +59,49 @@ export function saveToStorage(key, value) {
     localStorage.setItem(key, JSON.stringify(value, null, 4));
 }
 
+/**
+ * Strips class or JSON-like object, and turns it into a generic object.
+ *
+ * @param {*} value
+ * @returns {*} a plain, detached clone containing just the data
+ *
+ * @example
+ * class Party {
+ *     tagIDs = { friend: new Set(["example"]) };
+ * }
+ * const party = new Party();
+ * console.log(party); // Party { tagIDs: [Getter/Setter] }
+ * toPlainObject(party); // { tagIDs: { friend: ["example"] } }
+ */
+export function toPlainObject(value) {
+    return JSON.parse(JSON.stringify(value));
+}
+
+/**
+ * Deep equal that doesn't care about object key order, unlike a JSON.stringify which does care.
+ *
+ * @param {*} a
+ * @param {*} b
+ * @returns {boolean} true if a and b are structurally equal
+ *
+ * @example
+ * deepEqual({ a: 1, b: 2 }, { b: 2, a: 1 }); // true (JSON.stringify would say false, different key order)
+ * deepEqual({ a: 1 }, { a: 2 }); // false
+ */
+export function deepEqual(a, b) {
+    if (a === b) return true;
+    if (typeof a !== "object" || typeof b !== "object" || a === null || b === null) return false;
+    if (Array.isArray(a) !== Array.isArray(b)) return false;
+    if (Array.isArray(a))
+        return a.length === b.length && a.every((item, i) => deepEqual(item, b[i]));
+    const aKeys = Object.keys(a);
+    const bKeys = Object.keys(b);
+    return (
+        aKeys.length === bKeys.length &&
+        aKeys.every((key) => Object.hasOwn(b, key) && deepEqual(a[key], b[key]))
+    );
+}
+
 export function deleteItemFromArray(arr, item) {
     const index = arr.indexOf(item);
     if (index > -1) arr.splice(index, 1);

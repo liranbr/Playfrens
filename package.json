@@ -26,6 +26,7 @@
         "@radix-ui/react-tooltip": "^1.2.8",
         "@radix-ui/react-visually-hidden": "^1.2.3",
         "@supabase/supabase-js": "^2.78.0",
+        "compression": "^1.8.1",
         "cors": "^2.8.5",
         "dotenv-safe": "^9.1.0",
         "embla-carousel-autoplay": "^8.6.0",

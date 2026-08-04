@@ -1,6 +1,7 @@
 import "./env.js"; // Load environment keys first before anything else!
 import express from "express";
 import cors from "cors";
+import compression from "compression";
 import session from "express-session";
 import passport from "passport";
 import https from "https";
@@ -36,6 +37,7 @@ const useHttps = resolveUseHttps();
 const app = express();
 app.set("trust proxy", 1);
 
+app.use(compression());
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true }));
 

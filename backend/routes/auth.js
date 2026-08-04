@@ -4,6 +4,7 @@ import rateLimit from "express-rate-limit";
 import { Response } from "../response.js";
 import { supabase } from "../supabaseClient.js";
 import { requireAuth } from "../auth/requireAuth.js";
+import { invalidateUserCache } from "../auth/passport.js";
 import { strToBool } from "../utils.js";
 
 const router = Router();
@@ -192,6 +193,7 @@ async function deleteAccount(req, res) {
     }
     // 204 is the expected response for deleting data
     if (responseStatus === 204) {
+        invalidateUserCache(req.user.id); // so other active sessions for this account stop working immediately
         req.session.destroy((err) => {
             if (err) return respondError(err);
             res.clearCookie("connect.sid");

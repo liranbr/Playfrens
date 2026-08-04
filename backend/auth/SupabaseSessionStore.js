@@ -3,6 +3,19 @@ import { supabase } from "../supabaseClient.js";
 
 const DEFAULT_PRUNE_INTERVAL = 15 * 60 * 1000; // 15 Minutes
 
+// Short cache for get(), since it runs on every request.
+// destroy() clears entries immediately so logout isn't delayed.
+const SESSION_CACHE_LIFETIME_MS = 30 * 1000; // 30 seconds
+const sessionCache = new Map(); // sid -> { sess, expiresAt }
+
+// Sweeps expired entries on every write instead of a timer, so lapsed sessions don't last forever.
+function pruneSessionCache() {
+    const now = Date.now();
+    for (const [sid, entry] of sessionCache) {
+        if (entry.expiresAt <= now) sessionCache.delete(sid);
+    }
+}
+
 /**
  * `express-session` Store backed by Supabase
  */
@@ -22,6 +35,9 @@ export class SupabaseSessionStore extends Store {
     }
 
     get(sid, callback) {
+        const cached = sessionCache.get(sid);
+        if (cached && cached.expiresAt > Date.now()) return callback(null, cached.sess);
+
         supabase
             .from("sessions")
             .select("sess, expires")
@@ -30,6 +46,11 @@ export class SupabaseSessionStore extends Store {
             .then(({ data, error }) => {
                 if (error) return callback(error);
                 if (!data || new Date(data.expires) <= new Date()) return callback(null, null);
+                pruneSessionCache();
+                sessionCache.set(sid, {
+                    sess: data.sess,
+                    expiresAt: Date.now() + SESSION_CACHE_LIFETIME_MS,
+                });
                 callback(null, data.sess);
             }, callback);
     }
@@ -46,6 +67,7 @@ export class SupabaseSessionStore extends Store {
     }
 
     destroy(sid, callback) {
+        sessionCache.delete(sid);
         supabase
             .from("sessions")
             .delete()
@@ -57,4 +79,3 @@ export class SupabaseSessionStore extends Store {
         this.set(sid, session, callback);
     }
 }
-

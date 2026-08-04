@@ -1,5 +1,6 @@
 export { SearchSelect } from "./common/SearchSelect.jsx";
 export { Button } from "./common/Button.jsx";
+export { Collapsible } from "./common/Collapsible.jsx";
 export { IconButton } from "./common/IconButton.jsx";
 export { CenterAndEdgesRow } from "./common/CenterAndEdgesRow.jsx";
 export { ScrollView } from "./common/ScrollView.jsx";

@@ -14,11 +14,13 @@ const IMPORT_GROUPS = [
     {
         key: "games",
         title: "Games",
+        itemNoun: "game",
         importChanges: (dataStore, result) => dataStore.importSteamGames(result),
     },
     {
         key: "friends",
         title: "Friends",
+        itemNoun: "friend",
         importChanges: (dataStore, result) => dataStore.importFriends(result),
     },
 ];
@@ -73,6 +75,7 @@ const ImportGroup = ({
     kind,
     data,
     title,
+    itemNoun,
     selection,
     onToggleItem,
     onSelectAll,
@@ -125,6 +128,7 @@ const ImportGroup = ({
         const allSelected = !!selected && selected.size === list.length;
         const noneSelected = !!selected && selected.size === 0;
         const sectionCollapsed = !!collapsedSections[sectionKey];
+        const countText = listKey ? `${selected.size}/${list.length}` : `${list.length}`;
 
         return (
             <Collapsible
@@ -132,7 +136,8 @@ const ImportGroup = ({
                 onToggleCollapsed={() => toggleSection(sectionKey)}
                 header={
                     <>
-                        {label} {list.length} item{list.length > 1 ? "s" : ""}:
+                        {label} {countText} {itemNoun}
+                        {list.length > 1 ? "s" : ""}:
                     </>
                 }
                 triggerClassName="steam-confirm-import-section-toggle"
@@ -311,13 +316,14 @@ export const SteamConfirmImportDialog = ({
             </VisuallyHidden>
             <SteamProfileHeader steamProfile={steamProfile} results={results} selection={selection} />
             <div className="steam-confirm-import-body">
-                {visibleGroups.map(({ key, title }, i) => (
+                {visibleGroups.map(({ key, title, itemNoun }, i) => (
                     <Fragment key={key}>
                         {i > 0 && <div className="separator" />}
                         <ImportGroup
                             kind={key}
                             data={results[key]}
                             title={title}
+                            itemNoun={itemNoun}
                             selection={selection[key]}
                             onToggleItem={(listKey, idx) => toggleItem(key, listKey, idx)}
                             onSelectAll={(listKey, length, checked) =>

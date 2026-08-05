@@ -34,24 +34,31 @@ export function Collapsible({
     contentClassName = "",
     children,
 }) {
+    const trigger = header !== undefined && (
+        <button
+            type="button"
+            className={
+                `collapsible-trigger ${triggerClassName}` +
+                (sticky ? " collapsible-trigger-sticky" : "")
+            }
+            onClick={onToggleCollapsed}
+        >
+            {icon}
+            {header}
+        </button>
+    );
+
     return (
         <>
-            {header !== undefined && (
-                <div className={`collapsible-header-row ${rowClassName}`}>
-                    <button
-                        type="button"
-                        className={
-                            `collapsible-trigger ${triggerClassName}` +
-                            (sticky ? " collapsible-trigger-sticky" : "")
-                        }
-                        onClick={onToggleCollapsed}
-                    >
-                        {icon}
-                        {header}
-                    </button>
-                    {actions}
-                </div>
-            )}
+            {trigger &&
+                (sticky ? (
+                    trigger
+                ) : (
+                    <div className={`collapsible-header-row ${rowClassName}`}>
+                        {trigger}
+                        {actions}
+                    </div>
+                ))}
             <div className={`collapsible ${collapsed ? "collapsed" : ""} ${contentClassName}`}>
                 {children}
             </div>

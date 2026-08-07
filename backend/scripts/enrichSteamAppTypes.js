@@ -1,5 +1,5 @@
-// Manual CLI runner for `steam_apps.type` classification: `npm run sync:steam-apptypes`.
-// Production scheduling goes through the Render Cron Job hitting POST /api/steam/catalog/enrichTypes.
+// CLI for `steam_apps.type` classification: `npm run sync:steam-apptypes`.
+// Should go through the Render Cron Job hitting POST "/api/steam/catalog/enrichTypes".
 // Optional args: a row cap (e.g. `-- 500`) and/or `--retry-unknown` to re-check AppType.UNKNOWN
 // rows instead of unclassified ones (e.g. `-- 500 --retry-unknown`).
 import "../env.js";

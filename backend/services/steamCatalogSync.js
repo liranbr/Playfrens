@@ -1,5 +1,5 @@
-import { HttpStatus } from "@/Utils.js";
 import "../env.js";
+import { Response } from "../response.js";
 import { supabase } from "../supabaseClient.js";
 import { sleep } from "../utils.js";
 
@@ -26,7 +26,7 @@ export const AppType = Object.freeze({
 async function fetchWithRetry(url) {
     for (let attempt = 0; attempt <= MAX_RATE_LIMIT_RETRIES; attempt++) {
         const response = await fetch(url);
-        if (response.status !== HttpStatus.TOO_MANY_REQUESTS) return response;
+        if (response.status !== Response.HttpStatus.TOO_MANY_REQUESTS) return response;
 
         const retryAfterSeconds = Number(response.headers.get("retry-after"));
         const waitMs = retryAfterSeconds > 0 ? retryAfterSeconds * 1000 : 2 ** attempt * 1000;

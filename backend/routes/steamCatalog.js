@@ -56,11 +56,7 @@ async function enrichTypes(req, res) {
     }
 }
 
-/**
- * Fuzzy-searches the cached Steam catalog by name (pg_trgm) instead of the unofficial
- * storesearch endpoint. `excludeDlc=true` drops classified DLC rows; unclassified rows
- * (`type is null`) still pass through regardless.
- */
+/** Fuzzy-searches the cached catalog by name. `excludeDlc=true` drops classified DLC rows. */
 async function searchCatalog(req, res) {
     const { term, excludeDlc } = req.query;
     const { OK, BAD_REQUEST, NOT_FOUND } = Response.HttpStatus;

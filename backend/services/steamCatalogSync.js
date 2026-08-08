@@ -22,6 +22,15 @@ export const AppType = Object.freeze({
     UNKNOWN: -1, // GetItems returned nothing for this appid.
 });
 
+// Unverified labels, see CONTENT_DESCRIPTOR.md for explanation.
+export const ContentDescriptor = Object.freeze({
+    SOME_NUDITY_OR_SEXUAL_CONTENT: 1, // has mild sexual content, e.g. BG3 and Skyrim, The Forest
+    FREQUENT_VIOLENCE_OR_GORE: 2, // has violence or gore as its theme, e.g. Fallout, Doom games, The Forest, Corpse Party
+    ADULT_ONLY_SEXUAL_CONTENT: 3, // the game's actual entire purpose is porn.
+    FREQUENT_NUDITY_OR_SEXUAL_CONTENT: 4, // it seems to be always matched with descriptor 3.
+    GENERAL_MATURE_CONTENT: 5, // pretty much on any game that is flagged 18+ regardless of nudity or not.
+});
+
 /** fetch() that retries on HTTP 429 with max retries. */
 async function fetchWithRetry(url) {
     for (let attempt = 0; attempt <= MAX_RATE_LIMIT_RETRIES; attempt++) {
@@ -118,7 +127,8 @@ export async function syncSteamAppList({ onPage, sinceUnixSeconds } = {}) {
 }
 
 /**
- * Fetches enough per-app data to classify `type` (see AppType above).
+ * Fetches per-app data to classify `type` (see AppType above) and `content_descriptorids`
+ * (Steam's own mature-content tags, e.g. `[1,2,5]` — descriptor 3 is what search filters on).
  * @param {number[]} appids
  */
 async function fetchItemTypes(appids) {
@@ -152,13 +162,21 @@ export async function countUnknownTypes() {
 }
 
 /**
- * Backfills `steam_apps.type` for rows the app-list sync left unclassified.
- * Does not reclassifiy rows that already defined, except null or {@link AppType.UNKNOWN}.
- * @param {{limit?: number, onBatch?: (progress: {batch: number, count: number, totalEnriched: number, unknownCount: number, totalUnknown: number}) => void, retryUnknown?: boolean}} [options]
+ * Backfills `steam_apps.type` and `content_descriptors` for rows the app-list sync left
+ * unclassified. Does not reclassify rows that already have a type, except null or
+ * {@link AppType.UNKNOWN}.
+ * @param {{limit?: number, onBatch?: (progress: {batch: number, count: number, totalEnriched: number, unknownCount: number, totalUnknown: number}) => void, retryUnknown?: boolean, backfillDescriptors?: boolean}} [options]
  *   `retryUnknown` rechecks only {@link AppType.UNKNOWN} rows.
+ *   `backfillDescriptors` targets already-classified rows missing `content_descriptors`
+ *   (added after `type` was — rows enriched before this won't have it yet).
  * @returns {Promise<{batches: number, totalEnriched: number, totalUnknown: number, tookMs: number}>}
  */
-export async function enrichAppTypes({ limit, onBatch, retryUnknown = false } = {}) {
+export async function enrichAppTypes({
+    limit,
+    onBatch,
+    retryUnknown = false,
+    backfillDescriptors = false,
+} = {}) {
     const startedAt = Date.now();
     let batch = 0;
     let totalEnriched = 0;
@@ -175,7 +193,16 @@ export async function enrichAppTypes({ limit, onBatch, retryUnknown = false } = 
             .select("appid, name")
             .gt("appid", lastAppId)
             .order("appid", { ascending: true });
-        query = retryUnknown ? query.eq("type", AppType.UNKNOWN) : query.is("type", null);
+        if (retryUnknown) {
+            query = query.eq("type", AppType.UNKNOWN);
+        } else if (backfillDescriptors) {
+            query = query
+                .not("type", "is", null)
+                .neq("type", AppType.UNKNOWN)
+                .is("content_descriptors", null);
+        } else {
+            query = query.is("type", null);
+        }
         const { data: rows, error: selectError } = await query.limit(pageSize);
         if (selectError) throw selectError;
         if (!rows.length) break;
@@ -184,11 +211,15 @@ export async function enrichAppTypes({ limit, onBatch, retryUnknown = false } = 
 
         const items = await fetchItemTypes(rows.map((row) => row.appid));
         const typeByAppId = new Map(items.map((item) => [item.appid, item.type]));
+        const descriptorsByAppId = new Map(
+            items.map((item) => [item.appid, item.content_descriptorids ?? []]),
+        );
 
         const updateRows = rows.map((row) => ({
             appid: row.appid,
             name: row.name,
             type: typeByAppId.get(row.appid) ?? AppType.UNKNOWN,
+            content_descriptors: descriptorsByAppId.get(row.appid) ?? [],
         }));
         const { error: updateError } = await supabase
             .from("steam_apps")
@@ -210,4 +241,3 @@ export async function enrichAppTypes({ limit, onBatch, retryUnknown = false } = 
 
     return { batches: batch, totalEnriched, totalUnknown, tookMs: Date.now() - startedAt };
 }
-

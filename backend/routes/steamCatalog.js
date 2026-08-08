@@ -47,6 +47,7 @@ async function enrichTypes(req, res) {
         const summary = await enrichAppTypes({
             limit,
             retryUnknown: req.body?.retryUnknown === true,
+            backfillDescriptors: req.body?.backfillDescriptors === true,
         });
         console.log("Type enrichment complete:", summary);
         Response.send(res, OK, summary);
@@ -56,9 +57,12 @@ async function enrichTypes(req, res) {
     }
 }
 
-/** Fuzzy-searches the cached catalog by name. `excludeDlc=true` drops classified DLC rows. */
+/**
+ * Fuzzy-searches the cached catalog by name. `excludeDlc=true` drops classified DLC rows.
+ * `includeMature=true` opts into showing adult-only content.
+ */
 async function searchCatalog(req, res) {
-    const { term, excludeDlc } = req.query;
+    const { term, excludeDlc, includeMature } = req.query;
     const { OK, BAD_REQUEST, NOT_FOUND } = Response.HttpStatus;
 
     if (!term || term.trim().length < 2)
@@ -72,6 +76,7 @@ async function searchCatalog(req, res) {
         search_term: term.trim(),
         result_limit: 25,
         exclude_dlc: excludeDlc === "true",
+        include_mature: includeMature === "true",
     });
     if (error) throw error;
     if (!data.length)

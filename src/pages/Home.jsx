@@ -68,19 +68,19 @@ export default function Home() {
                         <div className="topic">
                             <h2>Plan</h2>
                             <p>
-                                Besides your current library, you can also add games that you don&apos;t
-                                have or aren&apos;t out yet, to plan ahead with friends
+                                You can also add games you don&apos;t have yet, or that haven&apos;t
+                                released yet, to plan ahead with friends
                                 <br />
                                 <br />
-                                If you&apos;re looking forward to some release date, or when a friend
-                                will have free time, you can add Reminders
+                                If you&apos;re looking forward to some release date, or when a
+                                friend will have free time, you can add Reminders
                             </p>
                         </div>
                         <div className="topic">
-                            <h2>Import from Steam</h2>
+                            <h2>Steam Import</h2>
                             <p>
-                                Playfrens can import your Games and Friends from Steam, and keeps
-                                them synced
+                                Optionally import your Games and Friends from Steam, and keep them
+                                synced
                             </p>
                         </div>
                         <div className="topic">

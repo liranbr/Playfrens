@@ -1,6 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { Dialogs, globalDialogStore, useDataStore } from "@/stores";
+import { Dialogs, globalDialogStore, useDataStore, useSettingsStore } from "@/stores";
 import { Button, Spinner, SearchSelect, InfoIcon } from "@/components";
 import { DialogBase } from "./DialogRoot.jsx";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -17,6 +17,7 @@ const GameEntryContext = createContext(null);
 
 export function EditGameDialog({ open, closeDialog, game = null }) {
     const dataStore = useDataStore();
+    const settingsStore = useSettingsStore();
     const [title, setTitle] = useState(game?.title ?? "");
     const [coverImageURL, setCoverImageURL] = useState(game?.coverImageURL ?? "");
     const [coverThumbURL, setCoverThumbURL] = useState(game?.coverThumbURL ?? "");
@@ -89,7 +90,9 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
     };
 
     const searchTitle = async (query, setResults) =>
-        setResults(await searchTitleOnStore(query, storeType));
+        setResults(
+            await searchTitleOnStore(query, storeType, settingsStore.showMatureContent === "on"),
+        );
 
     return (
         <GameEntryContext

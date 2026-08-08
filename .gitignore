@@ -26,8 +26,7 @@ dist-ssr
 
 # My additions from here
 desktop.ini
-# Temporary for Linux/Win compatibility, will probably switch to pnpm later
-package-lock.json
+
 # Holds API keys
 .env
 # For certificates

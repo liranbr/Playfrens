@@ -302,7 +302,9 @@ export class DataStore {
      * @returns {Promise<boolean>} true if any cover was changed
      */
     async #refreshOfficialCovers(entries) {
+        // Disabled due to the HUGE performance issue.
         return false;
+        // eslint-disable-next-line no-unreachable
         const officialSteamGames = entries
             .map(([, game]) => game)
             .filter((game) => game.storeType === "steam" && game.coverIsOfficial && game.storeID);

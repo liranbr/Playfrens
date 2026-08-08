@@ -1,0 +1,50 @@
+.collapsible-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.collapsible-trigger {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border: none;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    padding: 0;
+}
+
+.collapsible-trigger-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.collapsible-chevron {
+    flex: 0 0 auto;
+    transition: transform 0.15s ease;
+
+    &.collapsed {
+        transform: rotate(-90deg);
+    }
+}
+
+.collapsible {
+    display: grid;
+    grid-template-rows: 1fr;
+    overflow: hidden;
+    min-height: 0;
+    transition: grid-template-rows 0.2s ease;
+
+    &.collapsed {
+        grid-template-rows: 0fr;
+    }
+
+    > * {
+        min-height: 0;
+    }
+}

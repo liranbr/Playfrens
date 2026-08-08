@@ -47,43 +47,113 @@
     .steam-confirm-import-body {
         flex: 1 1 0;
         display: flex;
-        flex-direction: row;
-        overflow: hidden;
+        flex-direction: column;
+        overflow-y: auto;
+        padding-right: calc(var(--scrollbar-width) + 6px);
 
-        .separator-vertical {
-            margin: 0 20px;
+        .separator {
+            margin: 12px 0;
         }
 
         .steam-confirm-import-container {
-            flex: 1;
             display: flex;
             flex-direction: column;
         }
 
         .steam-confirm-import-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+            border: none;
+            padding: 0;
             background-color: var(--pf-bg-900);
-            z-index: 1;
+            color: inherit;
+            font: inherit;
+            text-align: left;
+            cursor: pointer;
             box-shadow: -0px 5px 10px var(--pf-bg-900);
             h2 {
                 margin: 0;
+                padding: 8px 0;
+            }
+            .collapsible-chevron {
+                font-size: 24px;
             }
         }
 
         .steam-confirm-import-scrollable {
-            overflow-y: auto;
-            label {
+            .steam-confirm-import-section-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+                margin-top: 12px;
+            }
+            .steam-confirm-import-section-toggle {
+                display: flex;
+                align-items: center;
+                gap: 4px;
                 width: fit-content;
-                border-bottom: 1px solid white;
+                border: none;
+                background: none;
+                color: #fff;
+                font: inherit;
+                font-size: 14px;
+                font-weight: 500;
+                cursor: pointer;
+                padding: 0;
+            }
+            .steam-confirm-import-bulk-actions {
+                display: flex;
+                gap: 6px;
+                flex: 0 0 auto;
+
+                .btn.steam-confirm-import-bulk-btn {
+                    min-width: 0;
+                    min-height: 0;
+                    width: 44px;
+                    height: 18px;
+                    padding: 0;
+                    font-size: 12px;
+                    font-weight: 600;
+                    border-radius: 3px;
+                }
             }
             .steam-confirm-import-list {
                 display: flex;
                 flex-wrap: wrap;
+                margin-top: 8px;
                 margin-left: 12px;
                 .steam-confirm-import-item {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 4px;
                     margin: 2px;
                     padding: 2px 4px;
                     border-radius: 6px;
                     font-size: 12px;
+                    font-family: inherit;
+                    text-align: left;
+                    border: none;
+                    background: none;
+                    transition: opacity 0.1s ease-in-out;
+
+                    .steam-confirm-import-item-icon {
+                        flex: 0 0 auto;
+
+                        &.rx-avatar {
+                            width: 16px;
+                            height: 16px;
+                            border: none;
+                            border-radius: 3px;
+                            cursor: default;
+
+                            & svg.rx-avatarless {
+                                font-size: 10px;
+                            }
+                        }
+                    }
 
                     &.item-add {
                         border: 2px solid hsl(120, 50%, 40%);
@@ -99,6 +169,14 @@
                         border: 2px solid hsl(216, 65%, 40%);
                         background-color: hsla(216, 65%, 40%, 0.2);
                         color: hsl(216, 65%, 80%);
+                    }
+                    &.item-unchecked {
+                        opacity: 0.4;
+                        border-style: dashed;
+                        border-color: transparent;
+                    }
+                    &:focus-visible {
+                        outline: 2px solid var(--pf-btn-primary);
                     }
                 }
             }

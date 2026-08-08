@@ -8,7 +8,7 @@ export const EmblaCarousel = () => {
     // not using props for slides or options here, since only 1 carousel in the project, just writing it here
     const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
 
-    const homepage_slides = ["1.mp4", "2.mp4", "3.png", "4.png"];
+    const homepage_slides = ["1.mp4", "2.mp4", "3.png", "4.png", "5.png"];
     const delayDuration = 4000;
 
     const autoplayEnabledRef = useRef(true);

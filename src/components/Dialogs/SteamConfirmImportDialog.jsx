@@ -86,7 +86,7 @@ const ImportGroup = ({
     const { old } = toUpdate;
     const showIcons = kind === "friends";
 
-    const [collapsedSections, setCollapsedSections] = useState({});
+    const [collapsedSections, setCollapsedSections] = useState({ toSkip: true });
     const toggleSection = (sectionKey) =>
         setCollapsedSections((curr) => ({ ...curr, [sectionKey]: !curr[sectionKey] }));
 
@@ -314,7 +314,11 @@ export const SteamConfirmImportDialog = ({
             <VisuallyHidden>
                 <Dialog.Description>Confirm if these matches your results.</Dialog.Description>
             </VisuallyHidden>
-            <SteamProfileHeader steamProfile={steamProfile} results={results} selection={selection} />
+            <SteamProfileHeader
+                steamProfile={steamProfile}
+                results={results}
+                selection={selection}
+            />
             <div className="steam-confirm-import-body">
                 {visibleGroups.map(({ key, title, itemNoun }, i) => (
                     <Fragment key={key}>

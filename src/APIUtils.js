@@ -1,5 +1,5 @@
 import { enqueueRequest } from "@/services/RequestQueue.js";
-import { HttpStatus, toastError } from "@/Utils";
+import { HttpStatus, toastError, toastInfo } from "@/Utils";
 
 export async function searchTitleOnStore(title, storeType, includeMature = false) {
     if (!title || typeof title !== "string" || !title.trim()) return [];
@@ -18,6 +18,10 @@ export async function searchTitleOnStore(title, storeType, includeMature = false
             return;
     }
     const json = await fetchResponse.json();
+    if (fetchResponse.status === HttpStatus.NOT_FOUND) {
+        toastInfo(`No results found for "${title}"`);
+        return [];
+    }
     if (!fetchResponse.ok)
         return toastError("Game search request failed, please try again later", json);
     if (json.length === 0) return console.error(`No ${storeType} games were found using ${title}`);

@@ -5,7 +5,7 @@ const DEFAULT_PRUNE_INTERVAL = 15 * 60 * 1000; // 15 Minutes
 
 // Short cache for get(), since it runs on every request.
 // destroy() clears entries immediately so logout isn't delayed.
-const SESSION_CACHE_LIFETIME_MS = 30 * 1000; // 30 seconds
+const SESSION_CACHE_LIFETIME_SECS = 120; // 2 minutes
 const sessionCache = new Map(); // sid -> { sess, expiresAt }
 
 // Sweeps expired entries on every write instead of a timer, so lapsed sessions don't last forever.
@@ -49,7 +49,7 @@ export class SupabaseSessionStore extends Store {
                 pruneSessionCache();
                 sessionCache.set(sid, {
                     sess: data.sess,
-                    expiresAt: Date.now() + SESSION_CACHE_LIFETIME_MS,
+                    expiresAt: Date.now() + SESSION_CACHE_LIFETIME_SECS * 1000,
                 });
                 callback(null, data.sess);
             }, callback);

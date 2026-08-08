@@ -7,7 +7,7 @@ import { resolveBaseURL } from "../utils.js";
 import { supabase } from "../supabaseClient.js";
 
 // Short cache for deserializeUser, since it runs on every authenticated request.
-const USER_CACHE_LIFETIME_MS = 30 * 1000; // 30 seconds
+const USER_CACHE_LIFETIME_SECS = 120; // 2 minutes
 const userCache = new Map(); // userId -> { user, expiresAt }
 
 // Call after deleting a user's row, so other active sessions for the account stop working immediately.
@@ -152,7 +152,7 @@ export function configurePassport() {
         // No rows? Then account was deleted, treat as logged out instead of erroring.
         if (error) return done(error.code === "PGRST116" ? null : error, false);
         pruneUserCache();
-        userCache.set(id, { user, expiresAt: Date.now() + USER_CACHE_LIFETIME_MS });
+        userCache.set(id, { user, expiresAt: Date.now() + USER_CACHE_LIFETIME_SECS * 1000 });
         done(null, user);
     });
 

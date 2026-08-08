@@ -75,6 +75,10 @@
             box-shadow: -0px 5px 10px var(--pf-bg-900);
             h2 {
                 margin: 0;
+                padding: 8px 0;
+            }
+            .collapsible-chevron {
+                font-size: 24px;
             }
         }
 

@@ -11,7 +11,7 @@
         "build": "vite build",
         "lint": "eslint .",
         "preview": "vite preview",
-        "production": "cross-env NODE_ENV=production node backend/server.js"
+        "production": "cross-env NODE_ENV=production node --max-old-space-size=350 backend/server.js"
     },
     "dependencies": {
         "@radix-ui/react-avatar": "^1.1.10",

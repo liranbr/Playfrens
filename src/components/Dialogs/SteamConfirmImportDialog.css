@@ -143,6 +143,7 @@
                             height: 16px;
                             border: none;
                             border-radius: 3px;
+                            cursor: default;
 
                             & svg.rx-avatarless {
                                 font-size: 10px;

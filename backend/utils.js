@@ -51,6 +51,10 @@ export function includesAny(array, values) {
     return values.some((v) => array.includes(v));
 }
 
+export function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export async function isImageUrlValid(url) {
     try {
         const res = await fetch(url, { method: "HEAD" });

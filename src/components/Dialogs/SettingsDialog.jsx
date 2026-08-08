@@ -1,12 +1,13 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import * as RadioGroup from "@radix-ui/react-radio-group";
-import { Button } from "@/components";
+import { Button, InfoIcon } from "@/components";
 import { DialogBase } from "./DialogRoot.jsx";
 import {
     TagGameCounterOptions,
     TagHoverGameHighlightOptions,
     HideGameStoreButtonsOptions,
+    ShowMatureContentOptions,
     useFilterStore,
     useSettingsStore,
 } from "@/stores";
@@ -85,6 +86,29 @@ export const SettingsDialog = ({ open, closeDialog }) => {
                                 <label htmlFor={optKey} key={optKey}>
                                     <RadioGroup.Item value={option} id={optKey} />
                                     {HideGameStoreButtonsOptions[option]}
+                                </label>
+                            );
+                        })}
+                    </RadioGroup.Root>
+                </div>
+
+                <div className="setting">
+                    <h3>
+                        Show Explicit Content{" "}
+                        <InfoIcon message="Only affects games whose main content is explicit sexual material. Games with general mature themes, violence, or occasional nudity aren't hidden by this." />
+                    </h3>
+                    <p>Include explicit/adult-only games when searching for a game to add</p>
+                    <RadioGroup.Root
+                        defaultValue={settingsStore.showMatureContent}
+                        className="rx-radio-group"
+                        onValueChange={(option) => settingsStore.setShowMatureContent(option)}
+                    >
+                        {Object.keys(ShowMatureContentOptions).map((option) => {
+                            const optKey = `showMatureContent-${option}`;
+                            return (
+                                <label htmlFor={optKey} key={optKey}>
+                                    <RadioGroup.Item value={option} id={optKey} />
+                                    {ShowMatureContentOptions[option]}
                                 </label>
                             );
                         })}

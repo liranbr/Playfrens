@@ -36,6 +36,10 @@ export const HideGameStoreButtonsOptions = {
     on: "On",
     off: "Off",
 };
+export const ShowMatureContentOptions = {
+    on: "On",
+    off: "Off",
+};
 
 class SettingsStore {
     // Default values, overridden by settings loaded from storage
@@ -59,6 +63,7 @@ class SettingsStore {
     gameSortDirection = "asc";
     tagGameCounterDisplay = "countFiltered";
     hideGameStoreButtons = "off";
+    showMatureContent = "off";
 
     constructor() {
         makeAutoObservable(this);
@@ -96,6 +101,11 @@ class SettingsStore {
     setHideGameStoreButtons(option) {
         if (HideGameStoreButtonsOptions[option]) this.hideGameStoreButtons = option;
         else console.warn(`Invalid HideGameStoreButtons option: ${option}`);
+    }
+
+    setShowMatureContent(option) {
+        if (ShowMatureContentOptions[option]) this.showMatureContent = option;
+        else console.warn(`Invalid ShowMatureContent option: ${option}`);
     }
 }
 

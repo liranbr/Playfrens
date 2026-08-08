@@ -312,6 +312,7 @@ export const HttpStatus = Object.freeze({
     FORBIDDEN: 403,
     NOT_FOUND: 404,
     GONE: 410,
+    URI_TOO_LONG: 414,
     TOO_MANY_REQUESTS: 429,
 
     // 5xx: Server Errors

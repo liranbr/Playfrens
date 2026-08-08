@@ -1,13 +1,13 @@
 import { enqueueRequest } from "@/services/RequestQueue.js";
-import { HttpStatus, toastError } from "@/Utils";
+import { HttpStatus, toastError, toastInfo } from "@/Utils";
 
-export async function searchTitleOnStore(title, storeType, lang = "en", cc = "US") {
+export async function searchTitleOnStore(title, storeType, includeMature = false) {
     if (!title || typeof title !== "string" || !title.trim()) return [];
     let fetchResponse;
     switch (storeType) {
         case "steam":
             fetchResponse = await fetch(
-                `/api/steam/searchTitle?term=${title}&lang=${lang}&cc=${cc}`,
+                `/api/steam/catalog/search?term=${title}&excludeDlc=true&includeMature=${includeMature}`,
             );
             break;
         case "custom":
@@ -18,6 +18,10 @@ export async function searchTitleOnStore(title, storeType, lang = "en", cc = "US
             return;
     }
     const json = await fetchResponse.json();
+    if (fetchResponse.status === HttpStatus.NOT_FOUND) {
+        toastInfo(`No results found for "${title}"`);
+        return [];
+    }
     if (!fetchResponse.ok)
         return toastError("Game search request failed, please try again later", json);
     if (json.length === 0) return console.error(`No ${storeType} games were found using ${title}`);
@@ -25,12 +29,12 @@ export async function searchTitleOnStore(title, storeType, lang = "en", cc = "US
     let results = [];
     switch (storeType) {
         case "steam":
-            results = json?.items?.map((item) => ({
-                id: item.id,
+            results = json?.map((item) => ({
+                id: item.appid,
                 name: item.name,
                 title: item.name,
                 storeType: "steam",
-                storeID: item.id,
+                storeID: item.appid,
             }));
             break;
         case "custom":

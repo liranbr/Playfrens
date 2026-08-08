@@ -15,6 +15,7 @@ import generalRoutes from "./routes/general.js";
 import authRoutes from "./routes/auth.js";
 import steamRoutes from "./routes/steam.js";
 import steamgriddbRoutes from "./routes/steamgriddb.js";
+import steamCatalogRoutes from "./routes/steamCatalog.js";
 import boardRoutes from "./routes/board.js";
 
 // === Support for __dirname in ES modules ===
@@ -74,6 +75,7 @@ const mounts = [
     ["/auth", authRoutes, "auth.js"],
     ["/api/steam", steamRoutes, "steam.js"],
     ["/api/steamgriddb", steamgriddbRoutes, "steamgriddb.js"],
+    ["/api/steam/catalog", steamCatalogRoutes, "steamCatalog.js"],
     ["/api/board", boardRoutes, "board.js"],
 ];
 for (const [prefix, router, label] of mounts) {

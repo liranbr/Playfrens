@@ -89,10 +89,9 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
         closeDialog();
     };
 
+    const includeMatureInSearch = settingsStore.showMatureContent === "on";
     const searchTitle = async (query, setResults) =>
-        setResults(
-            await searchTitleOnStore(query, storeType, settingsStore.showMatureContent === "on"),
-        );
+        setResults(await searchTitleOnStore(query, storeType, includeMatureInSearch));
 
     return (
         <GameEntryContext

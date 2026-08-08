@@ -221,9 +221,9 @@ export async function enrichAppTypes({
             type: typeByAppId.get(row.appid) ?? AppType.UNKNOWN,
             content_descriptors: descriptorsByAppId.get(row.appid) ?? [],
         }));
-        const { error: updateError } = await supabase
-            .from("steam_apps")
-            .upsert(updateRows, { onConflict: "appid" });
+        const { error: updateError } = await supabase.rpc("upsert_steam_app_classification", {
+            rows: updateRows,
+        });
         if (updateError) throw updateError;
 
         const unknownCount = updateRows.filter((row) => row.type === AppType.UNKNOWN).length;

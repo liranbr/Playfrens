@@ -35,11 +35,11 @@ const initSelection = (result) => ({
 });
 
 // Pairs each item with its original index (selection state is keyed by that index) before
-// sorting shortest name first, so the paired index still points at the right entry anyways.
-const sortByNameLength = (list) =>
+// sorting A-Z by name, so the paired index still points at the right entry anyways.
+const sortByName = (list) =>
     list
         .map((item, i) => [item, i])
-        .sort(([a], [b]) => (a.title || a.name).length - (b.title || b.name).length);
+        .sort(([a], [b]) => (a.title || a.name).localeCompare(b.title || b.name));
 
 const FriendIcon = ({ iconURL }) => (
     <Avatar.Root className="steam-confirm-import-item-icon rx-avatar">
@@ -154,7 +154,7 @@ const ImportGroup = ({
                 }
             >
                 <div className="steam-confirm-import-list">
-                    {sortByNameLength(list).map(([d, i]) =>
+                    {sortByName(list).map(([d, i]) =>
                         appendItem(
                             d.title || d.name,
                             getIcon(d, i, type),

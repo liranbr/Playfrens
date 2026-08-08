@@ -6,6 +6,23 @@ import { Strategy as DiscordStrategy } from "passport-discord";
 import { resolveBaseURL } from "../utils.js";
 import { supabase } from "../supabaseClient.js";
 
+// Short cache for deserializeUser, since it runs on every authenticated request.
+const USER_CACHE_LIFETIME_SECS = 120; // 2 minutes
+const userCache = new Map(); // userId -> { user, expiresAt }
+
+// Call after deleting a user's row, so other active sessions for the account stop working immediately.
+export function invalidateUserCache(userId) {
+    userCache.delete(userId);
+}
+
+// Removes expired entries on every write instead of a timer, so lapsed users don't last forever.
+function pruneUserCache() {
+    const now = Date.now();
+    for (const [id, entry] of userCache) {
+        if (entry.expiresAt <= now) userCache.delete(id);
+    }
+}
+
 async function upsertUser(profile, provider) {
     const providerId = (() => {
         switch (provider) {
@@ -124,6 +141,9 @@ async function upsertUser(profile, provider) {
 export function configurePassport() {
     passport.serializeUser((user, done) => done(null, user.id));
     passport.deserializeUser(async (id, done) => {
+        const cached = userCache.get(id);
+        if (cached && cached.expiresAt > Date.now()) return done(null, cached.user);
+
         const { data: user, error } = await supabase
             .from("users")
             .select("*")
@@ -131,6 +151,8 @@ export function configurePassport() {
             .single();
         // No rows? Then account was deleted, treat as logged out instead of erroring.
         if (error) return done(error.code === "PGRST116" ? null : error, false);
+        pruneUserCache();
+        userCache.set(id, { user, expiresAt: Date.now() + USER_CACHE_LIFETIME_SECS * 1000 });
         done(null, user);
     });
 

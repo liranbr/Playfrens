@@ -302,6 +302,7 @@ export class DataStore {
      * @returns {Promise<boolean>} true if any cover was changed
      */
     async #refreshOfficialCovers(entries) {
+        return false;
         const officialSteamGames = entries
             .map(([, game]) => game)
             .filter((game) => game.storeType === "steam" && game.coverIsOfficial && game.storeID);

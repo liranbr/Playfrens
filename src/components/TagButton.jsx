@@ -10,7 +10,8 @@ import {
     useDataStore,
     useSettingsStore,
 } from "@/stores";
-import { IconButton } from "@/components";
+import { IconButton, FriendAvatar } from "@/components";
+import { tagTypes } from "@/models";
 import "./TagButton.css";
 
 export const SidebarTagButton = observer(({ tag }) => {
@@ -101,7 +102,10 @@ export const SidebarTagButton = observer(({ tag }) => {
                 onDragStart={() => filterStore.setDraggedTag(tag)} // instead of e.dataTransfer, has more functionality
                 onDragEnd={() => filterStore.setDraggedTag(null)}
             >
-                <span className="tag-name">{tag.name}</span>
+                <span className="tag-name-wrapper">
+                    {tag.type === tagTypes.friend && <FriendAvatar iconURL={tag.iconURL} />}
+                    <span className="tag-name">{tag.name}</span>
+                </span>
                 <label>{gameCounter !== 0 ? gameCounter : ""}</label>
                 <RxDragHandleHorizontal className="hover-drag-indicator" />
             </span>

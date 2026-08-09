@@ -3,12 +3,14 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { DialogBase } from "./DialogRoot.jsx";
 import { TagObject, tagTypeStrings, FriendTagObject } from "@/models";
 import { Dialogs, globalDialogStore, useDataStore } from "@/stores";
-import { Button, InfoIcon } from "@/components";
+import { Button, FriendAvatar, InfoIcon } from "@/components";
 import { useState } from "react";
+import "./EditTagDialog.css";
 
 // Both Edits existing tags, and Adds new ones - depending on whether a TagObject is provided, otherwise based on the newTagType
 export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagOfType = null }) {
     const [advancedView, setAdvancedView] = useState(false);
+    const [iconURLPreview, setIconURLPreview] = useState(editingTag?.iconURL ?? "");
     const isEdit = editingTag instanceof TagObject;
     const mode = isEdit ? "Edit" : "Add";
     const tagType = isEdit ? editingTag.type : addingTagOfType;
@@ -84,12 +86,16 @@ export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagO
                             autoFocus
                         />
                         <label>Icon URL</label>
-                        <input
-                            id="tagIconURLInput"
-                            onKeyDown={saveOnEnter}
-                            defaultValue={editingTag?.iconURL}
-                            autoFocus
-                        />
+                        <div className="icon-url-row">
+                            <input
+                                id="tagIconURLInput"
+                                onKeyDown={saveOnEnter}
+                                defaultValue={editingTag?.iconURL}
+                                onChange={(e) => setIconURLPreview(e.target.value)}
+                                autoFocus
+                            />
+                            <FriendAvatar iconURL={iconURLPreview} className="icon-url-preview" />
+                        </div>
                     </>
                 )}
             </fieldset>

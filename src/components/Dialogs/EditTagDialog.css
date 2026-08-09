@@ -1,0 +1,33 @@
+.icon-url-row {
+    display: flex;
+    align-items: stretch;
+    border: var(--pf-border-700);
+    border-radius: 6px;
+    overflow: hidden;
+
+    &:has(input:focus) {
+        border-color: var(--pf-border-color-primary);
+    }
+
+    input {
+        flex: 1 1 auto;
+        min-width: 0;
+        border: none;
+        border-radius: 0;
+    }
+
+    .icon-url-preview.rx-avatar {
+        width: 36px;
+        height: auto;
+        flex: 0 0 auto;
+        border: none;
+        border-left: 1px solid var(--pf-border-700);
+        border-radius: 0;
+        margin-right: 0;
+
+        & svg.rx-avatarless {
+            font-size: 20px;
+        }
+    }
+}
+

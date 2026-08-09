@@ -8,7 +8,14 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { MdAdd, MdClose, MdDeleteOutline, MdEdit, MdMoreVert, MdRemove } from "react-icons/md";
 import { CgRename } from "react-icons/cg";
 
-import { Button, CenterAndEdgesRow, IconButton, ReminderCard, SimpleTooltip } from "@/components";
+import {
+    Button,
+    CenterAndEdgesRow,
+    FriendAvatar,
+    IconButton,
+    ReminderCard,
+    SimpleTooltip,
+} from "@/components";
 import {
     Dialogs,
     globalDialogStore,
@@ -103,7 +110,10 @@ const GPTagButton = observer(({ party, tag }) => {
             }}
         >
             <span role="button" className="tag-button" draggable="true">
-                <span className="tag-name">{tag.name}</span>
+                <span className="tag-name-wrapper">
+                    {tag.type === tagTypes.friend && <FriendAvatar iconURL={tag.iconURL} />}
+                    <span className="tag-name">{tag.name}</span>
+                </span>
             </span>
 
             <DD.Root open={dropdownOpen} onOpenChange={setDropdownOpen}>

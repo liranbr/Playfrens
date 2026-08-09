@@ -18,9 +18,14 @@
         font-size: 18px;
         text-align: left;
         cursor: pointer;
-        transition: none;
-        .tag-name {
+        transition: padding-left 0.3s ease;
+        .tag-name-wrapper {
+            display: flex;
+            align-items: center;
+            min-width: 0;
             max-width: 85%; /* reserve some space for the menu button */
+        }
+        .tag-name {
             overflow: hidden;
             text-overflow: ellipsis;
             text-wrap: nowrap;
@@ -59,31 +64,38 @@
         position: absolute;
         top: 50%;
         left: 12px;
-        transform: translate(-50%, -50%);
+        transform: translate(calc(-50% - 10px), -50%) scaleX(0.3);
         width: 24px;
         height: 24px;
         cursor: grab;
         border-radius: 50%;
         opacity: 0;
+        transition:
+            opacity 0.3s ease,
+            transform 0.3s ease;
     }
     &:hover {
         .tag-button {
             background-color: var(--pf-btn-primary);
             padding-left: 24px;
-            transition: padding-left 0.3s ease 2s;
+            transition: padding-left 0.3s ease 0.7s;
         }
         label {
             opacity: 0;
         }
         .hover-drag-indicator {
             opacity: 1;
-            transition: opacity 0.3s ease 2s;
+            transform: translate(-50%, -50%) scaleX(1);
+            transition:
+                opacity 0.3s ease 0.7s,
+                transform 0.3s ease 0.7s;
         }
     }
     &.being-dragged {
         filter: brightness(0.5);
         .hover-drag-indicator {
             opacity: 1;
+            transform: translate(-50%, -50%) scaleX(1);
             transition: none;
         }
         .tag-button {

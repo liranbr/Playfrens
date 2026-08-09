@@ -1,5 +1,5 @@
 import { useDebouncedCallback } from "@/Utils";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./SearchSelect.css";
 
 /**
@@ -38,6 +38,18 @@ export function SearchSelect({
         setInitialized(true);
     }
 
+    // Keep the highlighted button in view
+    useEffect(() => {
+        if (highlighted < 0) return;
+        const item = resultsRef.current?.children[highlighted];
+        if (!item) return;
+        // "nearest" for first and last option only partially visible when scrolled away from edge
+        if (highlighted === 0) item.scrollIntoView({ behavior: "smooth", block: "end" });
+        else if (highlighted === results.length - 1)
+            item.scrollIntoView({ behavior: "smooth", block: "start" });
+        else item.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }, [highlighted, results.length]);
+
     const handleInputChange = (e) => {
         const newQuery = e.target.value;
         setShowDropdown(true);
@@ -75,7 +87,7 @@ export function SearchSelect({
     const handleMouseDown = (e) => {
         setShowDropdown(
             (inputRef.current && inputRef.current.contains(e.target)) ||
-                (resultsRef.current && resultsRef.current.contains(e.target)),
+            (resultsRef.current && resultsRef.current.contains(e.target)),
         );
     };
 
@@ -103,6 +115,7 @@ export function SearchSelect({
                     className="rx-select-content"
                     style={{ position: "absolute", width: "100%", maxWidth: "none" }}
                     ref={resultsRef}
+                    onMouseDown={(e) => e.preventDefault()} // stops the input from blurring (and closing this) when grabbing the scrollbar
                 >
                     {results.map((option, idx) => (
                         <li

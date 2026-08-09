@@ -8,6 +8,7 @@ export { Spinner } from "./common/Spinner.jsx";
 export { SimpleTooltip } from "./common/SimpleTooltip.jsx";
 export { InfoIcon } from "./common/InfoIcon.jsx";
 export { ArrowToFeature } from "./common/ArrowToFeature.jsx";
+export { FriendAvatar } from "./common/FriendAvatar.jsx";
 export { GamesGrid } from "./GameGrid.jsx";
 export { SidebarTagButton } from "./TagButton.jsx";
 export { SidebarTagButtonGroup } from "./TagButtonGroup.jsx";

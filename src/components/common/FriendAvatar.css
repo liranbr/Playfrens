@@ -1,0 +1,12 @@
+.friend-avatar.rx-avatar {
+    width: 28px;
+    height: 28px;
+    flex: 0 0 auto;
+    border: none;
+    border-radius: 4px;
+    margin-right: 8px;
+
+    & svg.rx-avatarless {
+        font-size: 18px;
+    }
+}

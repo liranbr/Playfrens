@@ -82,7 +82,7 @@ export class DataStore {
     #syncTimers = {};
 
     constructor() {
-        makeAutoObservable(this, { sortedReminders: computed });
+        makeAutoObservable(this, { sortedReminders: computed, anyFriendHasIcon: computed });
 
         // when any game is added/removed, update the totalGamesCounter in every tag
         reaction(
@@ -346,6 +346,10 @@ export class DataStore {
     /** @returns {ReminderObject[]} */
     get sortedReminders() {
         return this.allReminders.toSorted((a, b) => a.date - b.date);
+    }
+
+    get anyFriendHasIcon() {
+        return [...this.allTags[tagTypes.friend].values()].some((friend) => friend.iconURL);
     }
 
     /** @param {ReminderObject} reminder */

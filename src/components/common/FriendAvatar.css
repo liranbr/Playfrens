@@ -10,3 +10,7 @@
         font-size: 18px;
     }
 }
+
+.friend-avatar.friend-avatar-invisible {
+    visibility: hidden;
+}

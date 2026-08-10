@@ -94,7 +94,11 @@ export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagO
                                 onChange={(e) => setIconURLPreview(e.target.value)}
                                 autoFocus
                             />
-                            <FriendAvatar iconURL={iconURLPreview} className="icon-url-preview" />
+                            <FriendAvatar
+                                iconURL={iconURLPreview}
+                                className="icon-url-preview"
+                                ignoreDisplaySetting
+                            />
                         </div>
                     </>
                 )}

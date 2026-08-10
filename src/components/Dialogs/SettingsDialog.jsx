@@ -8,6 +8,7 @@ import {
     TagHoverGameHighlightOptions,
     HideGameStoreButtonsOptions,
     ShowMatureContentOptions,
+    FriendIconDisplayOptions,
     useFilterStore,
     useSettingsStore,
 } from "@/stores";
@@ -109,6 +110,26 @@ export const SettingsDialog = ({ open, closeDialog }) => {
                                 <label htmlFor={optKey} key={optKey}>
                                     <RadioGroup.Item value={option} id={optKey} />
                                     {ShowMatureContentOptions[option]}
+                                </label>
+                            );
+                        })}
+                    </RadioGroup.Root>
+                </div>
+
+                <div className="setting">
+                    <h3>Friend Icons</h3>
+                    <p>Show friend avatars in the Friends sidebar and a game&apos;s tag list</p>
+                    <RadioGroup.Root
+                        defaultValue={settingsStore.friendIconDisplay}
+                        className="rx-radio-group"
+                        onValueChange={(option) => settingsStore.setFriendIconDisplay(option)}
+                    >
+                        {Object.keys(FriendIconDisplayOptions).map((option) => {
+                            const optKey = `friendIconDisplay-${option}`;
+                            return (
+                                <label htmlFor={optKey} key={optKey}>
+                                    <RadioGroup.Item value={option} id={optKey} />
+                                    {FriendIconDisplayOptions[option]}
                                 </label>
                             );
                         })}

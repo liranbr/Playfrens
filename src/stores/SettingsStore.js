@@ -40,6 +40,11 @@ export const ShowMatureContentOptions = {
     on: "On",
     off: "Off",
 };
+export const FriendIconDisplayOptions = {
+    hide: "Hide",
+    hideMissing: "Hide Missing",
+    showAll: "Show All",
+};
 
 class SettingsStore {
     // Default values, overridden by settings loaded from storage
@@ -64,6 +69,7 @@ class SettingsStore {
     tagGameCounterDisplay = "countFiltered";
     hideGameStoreButtons = "off";
     showMatureContent = "off";
+    friendIconDisplay = "hideMissing";
 
     constructor() {
         makeAutoObservable(this);
@@ -106,6 +112,11 @@ class SettingsStore {
     setShowMatureContent(option) {
         if (ShowMatureContentOptions[option]) this.showMatureContent = option;
         else console.warn(`Invalid ShowMatureContent option: ${option}`);
+    }
+
+    setFriendIconDisplay(option) {
+        if (FriendIconDisplayOptions[option]) this.friendIconDisplay = option;
+        else console.warn(`Invalid FriendIconDisplay option: ${option}`);
     }
 }
 

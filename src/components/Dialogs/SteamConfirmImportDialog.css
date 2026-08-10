@@ -10,6 +10,37 @@
         flex: 0 1 fit-content;
     }
 
+    .wishlist-star-icon {
+        flex: 0 0 auto;
+        font-size: 12px;
+        color: hsl(48, 100%, 55%);
+    }
+    .singleplayer-icon {
+        flex: 0 0 auto;
+        font-size: 12px;
+        color: hsl(210, 15%, 65%);
+    }
+    .unreleased-icon {
+        flex: 0 0 auto;
+        font-size: 12px;
+        color: hsl(200, 70%, 65%);
+    }
+
+    .steam-confirm-import-badges-legend {
+        display: flex;
+        flex-direction: column;
+        margin: 6px 0;
+        font-size: 12px;
+        color: hsl(0, 0%, 70%);
+
+        p {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 0;
+        }
+    }
+
     .steam-confirm-import-profile {
         display: flex;
         align-items: center;

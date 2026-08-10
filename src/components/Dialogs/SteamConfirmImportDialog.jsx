@@ -2,6 +2,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import * as Avatar from "@radix-ui/react-avatar";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { MdPerson } from "react-icons/md";
+import { FaClock, FaStar, FaUser } from "react-icons/fa";
 import { Fragment, useState } from "react";
 import { DialogBase } from "./DialogRoot";
 import "./SteamConfirmImportDialog.css";
@@ -34,6 +35,27 @@ const initSelection = (result) => ({
     toUpdate: allIndexes(result.toUpdate?.old?.length ?? 0),
 });
 
+// Badges that helps in denoting games during confirm import.
+const GAME_BADGES = [
+    {
+        key: "wishlisted",
+        Icon: FaStar,
+        className: "wishlist-star-icon",
+        legend: "Wishlisted.",
+    },
+    {
+        key: "singleplayer",
+        Icon: FaUser,
+        className: "singleplayer-icon",
+        legend: "Singleplayer.",
+    },
+    {
+        key: "unreleased",
+        Icon: FaClock,
+        className: "unreleased-icon",
+        legend: "Not yet released.",
+    },
+];
 // Pairs each item with its original index (selection state is keyed by that index) before
 // sorting A-Z by name, so the paired index still points at the right entry anyways.
 const sortByName = (list) =>
@@ -71,6 +93,23 @@ const BulkActions = ({ allDisabled, clearDisabled, onAll, onClear }) => (
     </span>
 );
 
+const GameBadgesLegend = ({ gamesResult }) => {
+    const { toAdd, toUpdate, toSkip } = gamesResult;
+    const allGames = [...toAdd, ...toUpdate.old, ...toSkip];
+    const activeBadges = GAME_BADGES.filter(({ key }) => allGames.some((g) => g[key]));
+    if (activeBadges.length === 0) return null;
+
+    return (
+        <div className="steam-confirm-import-badges-legend">
+            {activeBadges.map(({ key, Icon, className, legend }) => (
+                <p key={key}>
+                    <Icon className={className} /> - {legend}
+                </p>
+            ))}
+        </div>
+    );
+};
+
 const ImportGroup = ({
     kind,
     data,
@@ -90,11 +129,18 @@ const ImportGroup = ({
     const toggleSection = (sectionKey) =>
         setCollapsedSections((curr) => ({ ...curr, [sectionKey]: !curr[sectionKey] }));
 
-    const appendItem = (name, iconURL, indx, type, checked, onToggle) => {
+    const appendItem = (item, name, iconURL, indx, type, checked, onToggle) => {
+        const icon = showIcons ? (
+            <FriendIcon iconURL={iconURL} />
+        ) : (
+            GAME_BADGES.map(
+                ({ key, Icon, className }) => item[key] && <Icon className={className} key={key} />,
+            )
+        );
         if (!onToggle) {
             return (
                 <div className={`steam-confirm-import-item item-${type}`} key={`${name}-${indx}`}>
-                    {showIcons && <FriendIcon iconURL={iconURL} />}
+                    {icon}
                     {name}
                 </div>
             );
@@ -109,7 +155,7 @@ const ImportGroup = ({
                 aria-pressed={checked}
                 onClick={() => onToggle(indx)}
             >
-                {showIcons && <FriendIcon iconURL={iconURL} />}
+                {icon}
                 {name}
             </button>
         );
@@ -156,6 +202,7 @@ const ImportGroup = ({
                 <div className="steam-confirm-import-list">
                     {sortByName(list).map(([d, i]) =>
                         appendItem(
+                            d,
                             d.title || d.name,
                             getIcon(d, i, type),
                             i,
@@ -179,6 +226,7 @@ const ImportGroup = ({
                 triggerClassName="steam-confirm-import-header"
             >
                 <div className="steam-confirm-import-scrollable">
+                    {kind === "games" && <GameBadgesLegend gamesResult={data} />}
                     <fieldset>
                         {createList(toAdd, "add", "Adding", "toAdd", "toAdd")}
                         {createList(old, "update", "Updating", "toUpdate", "toUpdate")}

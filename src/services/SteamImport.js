@@ -114,6 +114,10 @@ export async function fetchSteamImportData(
         if (!res.ok) throw Error("Error occurred while fetching game details");
         const items = await res.json();
 
+        // getItems doesn't tag results with which group they came from (see comment above),
+        // so wishlist is figured out here instead, against the wishlist IDs already fetched.
+        const wishlistIDs = new Set((groupedIDs.wishlist ?? []).map(String));
+
         games = items.map((item) => ({
             title: item.name,
             coverImageURL: buildSteamAssetURL(
@@ -125,6 +129,9 @@ export async function fetchSteamImportData(
             sortingTitle: "",
             storeType: "steam",
             storeID: item.id,
+            wishlisted: wishlistIDs.has(String(item.id)),
+            singleplayer: !item.categories?.supported_player_categoryids?.includes(1),
+            unreleased: item.is_coming_soon === true,
         }));
     }
 

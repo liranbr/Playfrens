@@ -9,6 +9,9 @@
     --ui-card-width: 275px;
     --ui-card-border-radius: 20px;
     --game-card-width: 210px; /* for the game cards in the grid */
+    --game-grid-gap: 20px;
+    --game-grid-row-gap: 30px;
+    --game-grid-container-padding: 30px;
     --game-card-border-radius: 4px;
     --icon-size: 30px; /* for icon buttons like ⋮ or + */
     --dialog-fade-duration: 250ms;

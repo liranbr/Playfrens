@@ -1,0 +1,25 @@
+.setting {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: 4px;
+
+    h3 {
+        font-size: 16px;
+        line-height: 1;
+        font-weight: 500;
+        color: #f2f2f2;
+    }
+    p {
+        font-size: 14px;
+        color: var(--pf-fg-400);
+    }
+    .setting-default {
+        font-size: 12px;
+        font-style: italic;
+        color: var(--pf-fg-700);
+    }
+    & > *:not(h3) {
+        margin-left: 8px;
+    }
+}

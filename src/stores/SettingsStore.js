@@ -6,8 +6,8 @@ import { tagTypes } from "@/models";
 export const settingsStorageKey = "settings";
 
 export const TagHoverGameHighlightOptions = {
-    highlight: "Highlight",
     darken: "Darken the rest",
+    highlight: "Highlight",
     none: "None",
 };
 export const TagFilterLogicOptions = {
@@ -33,22 +33,37 @@ export const TagGameCounterOptions = {
     none: "None",
 };
 export const HideGameStoreButtonsOptions = {
-    on: "On",
     off: "Off",
+    on: "On",
 };
 export const ShowMatureContentOptions = {
-    on: "On",
     off: "Off",
+    on: "On",
 };
 export const FriendIconDisplayOptions = {
-    hide: "Hide",
     hideMissing: "Hide Missing",
+    hide: "Hide All",
     showAll: "Show All",
+};
+export const GamesGridDensityOptions = {
+    simple: "Simple",
+    compact: "Compact",
+};
+export const GamesGridCardWidthRange = { min: 140, max: 320, step: 10 };
+
+export const SettingsDefaults = {
+    tagHoverGameHighlight: "darken",
+    tagGameCounterDisplay: "countFiltered",
+    friendIconDisplay: "hideMissing",
+    gamesGridDensity: "simple",
+    gamesGridCardWidth: 210,
+    hideGameStoreButtons: "off",
+    showMatureContent: "off",
 };
 
 class SettingsStore {
     // Default values, overridden by settings loaded from storage
-    tagHoverGameHighlight = "darken";
+    tagHoverGameHighlight = SettingsDefaults.tagHoverGameHighlight;
     tagFilterLogic = {
         [tagTypes.friend]: "AND",
         [tagTypes.category]: "OR",
@@ -66,10 +81,12 @@ class SettingsStore {
     };
     gameSortMethod = "title";
     gameSortDirection = "asc";
-    tagGameCounterDisplay = "countFiltered";
-    hideGameStoreButtons = "off";
-    showMatureContent = "off";
-    friendIconDisplay = "hideMissing";
+    tagGameCounterDisplay = SettingsDefaults.tagGameCounterDisplay;
+    hideGameStoreButtons = SettingsDefaults.hideGameStoreButtons;
+    showMatureContent = SettingsDefaults.showMatureContent;
+    friendIconDisplay = SettingsDefaults.friendIconDisplay;
+    gamesGridDensity = SettingsDefaults.gamesGridDensity; // spacing between game cards
+    gamesGridCardWidth = SettingsDefaults.gamesGridCardWidth; // in px
 
     constructor() {
         makeAutoObservable(this);
@@ -117,6 +134,16 @@ class SettingsStore {
     setFriendIconDisplay(option) {
         if (FriendIconDisplayOptions[option]) this.friendIconDisplay = option;
         else console.warn(`Invalid FriendIconDisplay option: ${option}`);
+    }
+
+    setGamesGridDensity(option) {
+        if (GamesGridDensityOptions[option]) this.gamesGridDensity = option;
+        else console.warn(`Invalid GamesGridDensity option: ${option}`);
+    }
+
+    setGamesGridCardWidth(width) {
+        const { min, max } = GamesGridCardWidthRange;
+        this.gamesGridCardWidth = Math.min(max, Math.max(min, Number(width)));
     }
 }
 

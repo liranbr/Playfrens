@@ -11,6 +11,7 @@ export { ArrowToFeature } from "./common/ArrowToFeature.jsx";
 export { FriendAvatar } from "./common/FriendAvatar.jsx";
 export { Setting } from "./common/Setting.jsx";
 export { Slider } from "./common/Slider.jsx";
+export { RadioSetting } from "./common/RadioSetting.jsx";
 export { GamesGrid } from "./GameGrid.jsx";
 export { SidebarTagButton } from "./TagButton.jsx";
 export { SidebarTagButtonGroup } from "./TagButtonGroup.jsx";

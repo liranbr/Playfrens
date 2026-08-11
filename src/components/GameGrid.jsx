@@ -107,6 +107,7 @@ function EmptyGridPlaceholder() {
 
 export const GamesGrid = observer(() => {
     const { filteredGames } = useFilterStore();
+    const { gamesGridCardWidth, gamesGridDensity } = useSettingsStore();
 
     // useEffect to update the grid justification if there aren't enough items to fill the row
     const gridRef = useRef(null);
@@ -123,11 +124,18 @@ export const GamesGrid = observer(() => {
 
         updateGridJustification();
         window.addEventListener("resize", updateGridJustification);
-    }, [filteredGames]);
+        return () => window.removeEventListener("resize", updateGridJustification);
+        // card size/density change how games wrap into rows, so it needs rechecking too
+    }, [filteredGames, gamesGridCardWidth, gamesGridDensity]);
 
+    const densityClass = gamesGridDensity === "compact" ? " density-compact" : "";
     return (
-        <div className="games-grid-container">
-            <div className="games-grid" ref={gridRef}>
+        <div className={"games-grid-container" + densityClass}>
+            <div
+                className="games-grid"
+                ref={gridRef}
+                style={{ "--game-card-width": `${gamesGridCardWidth}px` }}
+            >
                 {filteredGames.map((game, index) => (
                     <GameCard game={game} key={index + " " + game.id} />
                 ))}

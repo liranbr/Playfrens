@@ -7,6 +7,7 @@ export { ScrollView } from "./common/ScrollView.jsx";
 export { Spinner } from "./common/Spinner.jsx";
 export { SimpleTooltip } from "./common/SimpleTooltip.jsx";
 export { InfoIcon } from "./common/InfoIcon.jsx";
+export { LabelBadge } from "./common/LabelBadge.jsx";
 export { ArrowToFeature } from "./common/ArrowToFeature.jsx";
 export { FriendAvatar } from "./common/FriendAvatar.jsx";
 export { Setting } from "./common/Setting.jsx";

@@ -57,7 +57,7 @@ export const SettingsDefaults = {
     friendIconDisplay: "hideMissing",
     gamesGridDensity: "simple",
     gamesGridCardWidth: 210,
-    hideGameStoreButtons: "off",
+    hideGameStoreButtons: "on",
     showMatureContent: "off",
 };
 

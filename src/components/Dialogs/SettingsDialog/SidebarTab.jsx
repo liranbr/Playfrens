@@ -16,7 +16,12 @@ export const SidebarTab = observer(() => {
             <Setting
                 title="Tag Hover Highlight"
                 description="Highlight games when hovering on a sidebar tag"
-                defaultValue={TagHoverGameHighlightOptions[SettingsDefaults.tagHoverGameHighlight]}
+                isDefault={
+                    settingsStore.tagHoverGameHighlight === SettingsDefaults.tagHoverGameHighlight
+                }
+                onReset={() =>
+                    settingsStore.setTagHoverGameHighlight(SettingsDefaults.tagHoverGameHighlight)
+                }
             >
                 <RadioSetting
                     name="tagHoverGameHighlight"
@@ -29,7 +34,12 @@ export const SidebarTab = observer(() => {
             <Setting
                 title="Game Count Badge"
                 description="Show a Game Counter next to each Tag in the Sidebar"
-                defaultValue={TagGameCounterOptions[SettingsDefaults.tagGameCounterDisplay]}
+                isDefault={
+                    settingsStore.tagGameCounterDisplay === SettingsDefaults.tagGameCounterDisplay
+                }
+                onReset={() =>
+                    settingsStore.setTagGameCounterDisplay(SettingsDefaults.tagGameCounterDisplay)
+                }
             >
                 <RadioSetting
                     name="tagGameCounter"
@@ -42,7 +52,10 @@ export const SidebarTab = observer(() => {
             <Setting
                 title="Friend Icons"
                 description="Show friend avatars in the Friends sidebar and a game's tag list"
-                defaultValue={FriendIconDisplayOptions[SettingsDefaults.friendIconDisplay]}
+                isDefault={settingsStore.friendIconDisplay === SettingsDefaults.friendIconDisplay}
+                onReset={() =>
+                    settingsStore.setFriendIconDisplay(SettingsDefaults.friendIconDisplay)
+                }
             >
                 <RadioSetting
                     name="friendIconDisplay"

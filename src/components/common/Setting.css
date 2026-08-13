@@ -10,14 +10,24 @@
         font-weight: 500;
         color: #f2f2f2;
     }
+    .setting-reset {
+        --icon-size: 26px;
+        display: inline-flex;
+        vertical-align: middle;
+        margin-left: 6px;
+        font-size: 20px;
+
+        svg {
+            transform: scaleX(-1);
+        }
+
+        &.setting-reset-hidden {
+            visibility: hidden; /* so it doesn't nudge */
+        }
+    }
     p {
         font-size: 14px;
         color: var(--pf-fg-400);
-    }
-    .setting-default {
-        font-size: 12px;
-        font-style: italic;
-        color: var(--pf-fg-700);
     }
     & > *:not(h3) {
         margin-left: 8px;

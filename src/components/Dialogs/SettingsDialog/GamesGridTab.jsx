@@ -16,7 +16,10 @@ export const GamesGridTab = observer(() => {
             <Setting
                 title="Game Card Size"
                 description="Width of game cards in the grid, more or fewer fit per row automatically"
-                defaultValue={`${SettingsDefaults.gamesGridCardWidth}px`}
+                isDefault={settingsStore.gamesGridCardWidth === SettingsDefaults.gamesGridCardWidth}
+                onReset={() =>
+                    settingsStore.setGamesGridCardWidth(SettingsDefaults.gamesGridCardWidth)
+                }
             >
                 <Slider
                     min={GamesGridCardWidthRange.min}
@@ -31,7 +34,8 @@ export const GamesGridTab = observer(() => {
             <Setting
                 title="Grid Spacing"
                 description="Padding and gaps between cards in the games grid"
-                defaultValue={GamesGridDensityOptions[SettingsDefaults.gamesGridDensity]}
+                isDefault={settingsStore.gamesGridDensity === SettingsDefaults.gamesGridDensity}
+                onReset={() => settingsStore.setGamesGridDensity(SettingsDefaults.gamesGridDensity)}
             >
                 <RadioSetting
                     name="gamesGridDensity"
@@ -44,7 +48,12 @@ export const GamesGridTab = observer(() => {
             <Setting
                 title="Obscure Game Platform Actions"
                 description="In a Game Page, hide the 'Play' and 'Store Page' buttons unless cover art is hovered on"
-                defaultValue={HideGameStoreButtonsOptions[SettingsDefaults.hideGameStoreButtons]}
+                isDefault={
+                    settingsStore.hideGameStoreButtons === SettingsDefaults.hideGameStoreButtons
+                }
+                onReset={() =>
+                    settingsStore.setHideGameStoreButtons(SettingsDefaults.hideGameStoreButtons)
+                }
             >
                 <RadioSetting
                     name="hideGameStoreButtons"

@@ -19,7 +19,10 @@ export const FiltersTab = observer(() => {
                     <InfoIcon message="Only affects games whose main content is explicit sexual material. Games with general mature themes, violence, or occasional nudity aren't hidden by this." />
                 }
                 description="Include explicit/adult-only games when searching for a game to add"
-                defaultValue={ShowMatureContentOptions[SettingsDefaults.showMatureContent]}
+                isDefault={settingsStore.showMatureContent === SettingsDefaults.showMatureContent}
+                onReset={() =>
+                    settingsStore.setShowMatureContent(SettingsDefaults.showMatureContent)
+                }
             >
                 <RadioSetting
                     name="showMatureContent"

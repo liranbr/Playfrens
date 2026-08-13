@@ -201,32 +201,6 @@ input[type="checkbox"] {
         list-style-position: inside;
     }
 
-    &.info {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        border-top-left-radius: 0;
-        border-bottom-left-radius: 0;
-        border: none;
-        width: fit-content;
-        border-left: 4px solid hsl(var(--hsl-base-btn-primary) 60%);
-        gap: 8px;
-        padding: 12px;
-
-        p {
-            color: var(--pf-fg-500);
-        }
-
-        .info-icon {
-            margin: 0;
-            height: 24px;
-            width: 24px;
-            font-size: 16px;
-            font-family: system-ui;
-            color: var(--pf-fg-link);
-            border: 2px solid var(--pf-fg-link);
-        }
-    }
     .link-like {
         font-weight: 500;
     }

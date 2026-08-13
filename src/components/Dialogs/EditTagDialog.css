@@ -1,3 +1,38 @@
+.steam-import-hint {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    padding: 10px 14px;
+    background: var(--pf-bg-700);
+    border: var(--pf-border-700);
+    border-radius: 12px;
+
+    .steam-import-hint-icon {
+        flex: 0 0 auto;
+        font-size: 26px;
+        color: inherit;
+    }
+
+    p {
+        flex: 1 1 auto;
+        margin: 0;
+        color: var(--pf-fg-500);
+        font-size: 13px;
+        line-height: 1.4;
+    }
+
+    .btn {
+        flex: 0 0 auto;
+    }
+
+    .steam-import-hint-dismiss {
+        --icon-size: 24px;
+        flex: 0 0 auto;
+        font-size: 16px;
+    }
+}
+
 .icon-url-row {
     display: flex;
     align-items: stretch;
@@ -30,4 +65,3 @@
         }
     }
 }
-

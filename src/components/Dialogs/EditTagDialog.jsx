@@ -3,17 +3,27 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { DialogBase } from "./DialogRoot.jsx";
 import { TagObject, tagTypeStrings, FriendTagObject } from "@/models";
 import { Dialogs, globalDialogStore, useDataStore } from "@/stores";
-import { Button, FriendAvatar, InfoIcon } from "@/components";
+import { Button, FriendAvatar, IconButton, InfoIcon, LabelBadge } from "@/components";
 import { useState } from "react";
+import { BiLogoSteam } from "react-icons/bi";
+import { MdClose } from "react-icons/md";
+import { loadFromStorage, saveToStorage } from "@/Utils";
 import "./EditTagDialog.css";
+
+// Dismiss the Steam import hint on the client side only.
+const STEAM_FRIEND_HINT_DISMISSED_KEY = "friend-steam-hint-dismissed";
 
 // Both Edits existing tags, and Adds new ones - depending on whether a TagObject is provided, otherwise based on the newTagType
 export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagOfType = null }) {
     const [advancedView, setAdvancedView] = useState(false);
     const [iconURLPreview, setIconURLPreview] = useState(editingTag?.iconURL ?? "");
+    const [hintDismissed, setHintDismissed] = useState(() =>
+        loadFromStorage(STEAM_FRIEND_HINT_DISMISSED_KEY, false),
+    );
     const isEdit = editingTag instanceof TagObject;
     const mode = isEdit ? "Edit" : "Add";
     const tagType = isEdit ? editingTag.type : addingTagOfType;
+    const isFriend = tagType === "friend";
     const title = mode + " " + tagTypeStrings[tagType].single;
     const description = isEdit
         ? "Editing " + editingTag.name
@@ -63,10 +73,29 @@ export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagO
                 <Dialog.Description>{description}</Dialog.Description>
             </VisuallyHidden>
 
+            {isFriend && !isEdit && !hintDismissed && (
+                <div className="steam-import-hint">
+                    <BiLogoSteam className="steam-import-hint-icon" />
+                    <p>Have Steam friends? Import your whole list at once.</p>
+                    <Button variant="secondary" onClick={handleGoToImport}>
+                        Steam Import
+                    </Button>
+                    <IconButton
+                        className="steam-import-hint-dismiss"
+                        icon={<MdClose />}
+                        aria-label="Dismiss"
+                        onClick={() => {
+                            saveToStorage(STEAM_FRIEND_HINT_DISMISSED_KEY, true);
+                            setHintDismissed(true);
+                        }}
+                    />
+                </div>
+            )}
+
             <fieldset>
                 <label>
                     Name
-                    {tagType === "friend" && (
+                    {isFriend && (
                         <InfoIcon message="Just a name. It doesn't connect to any account." />
                     )}
                 </label>
@@ -76,16 +105,12 @@ export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagO
                     defaultValue={editingTag?.name}
                     autoFocus
                 />
-                {tagType === "friend" && (advancedView || editingTag?.steamID) && (
+                {isFriend && (advancedView || editingTag?.steamID || editingTag?.iconURL) && (
                     <>
-                        <label>Steam ID</label>
-                        <input
-                            id="tagSteamIDInput"
-                            onKeyDown={saveOnEnter}
-                            defaultValue={editingTag?.steamID}
-                            autoFocus
-                        />
-                        <label>Icon URL</label>
+                        <label>
+                            Icon URL
+                            <LabelBadge />
+                        </label>
                         <div className="icon-url-row">
                             <input
                                 id="tagIconURLInput"
@@ -100,23 +125,21 @@ export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagO
                                 ignoreDisplaySetting
                             />
                         </div>
+                        <label>
+                            Steam ID
+                            <LabelBadge />
+                        </label>
+                        <input
+                            id="tagSteamIDInput"
+                            onKeyDown={saveOnEnter}
+                            defaultValue={editingTag?.steamID}
+                        />
                     </>
                 )}
             </fieldset>
 
-            {tagType === "friend" && (
-                <div className="dialog-callout info" style={{ marginTop: "16px" }}>
-                    <p>
-                        You can import Steam friends{" "}
-                        <button className="link-like" onClick={handleGoToImport}>
-                            here
-                        </button>
-                    </p>
-                </div>
-            )}
-
             <div className="rx-dialog-footer">
-                {tagType === "friend" && !editingTag?.steamID && (
+                {isFriend && !editingTag?.steamID && !editingTag?.iconURL && (
                     <div className="footer-left">
                         <Button variant="ghost" onClick={() => setAdvancedView(!advancedView)}>
                             {advancedView ? "Simple" : "Advanced"}

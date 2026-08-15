@@ -11,6 +11,7 @@
         "build": "vite build",
         "sync:steam-applist": "node backend/scripts/syncSteamAppList.js",
         "sync:steam-apptypes": "node backend/scripts/enrichSteamAppTypes.js",
+        "db:dump": "bash scripts/dump-db.sh",
         "lint": "eslint .",
         "preview": "vite preview",
         "production": "cross-env NODE_ENV=production node --max-old-space-size=350 backend/server.js"

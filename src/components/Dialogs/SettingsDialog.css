@@ -9,17 +9,20 @@
 
     .settings-tabs {
         gap: 8px;
+        border-bottom: var(--pf-border-300);
 
         button {
             width: fit-content;
             height: fit-content;
+            background: none;
             padding: 6px 12px;
             border-radius: 8px 8px 0 0;
             border-bottom: none;
+            outline: 1px solid var(--pf-bg-900);
             font-size: 13px;
 
             &[data-state="off"] {
-                background: none;
+                outline: none;
                 color: var(--pf-fg-700);
             }
         }

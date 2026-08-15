@@ -153,9 +153,3 @@ const settingsStore = new SettingsStore(); // After creation, settings are popul
 const SettingsStoreContext = createContext(settingsStore);
 export const useSettingsStore = () => useContext(SettingsStoreContext);
 export const globalSettingsStore = settingsStore;
-
-// whenever settings are changed, auto-save
-reaction(
-    () => JSON.stringify(settingsStore),
-    () => saveToStorage(settingsStorageKey, settingsStore),
-);

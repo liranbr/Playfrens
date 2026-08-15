@@ -209,6 +209,7 @@ export class DataStore {
         reaction(
             () => JSON.stringify(globalSettingsStore),
             () => this.syncBoardKeyToBackend(storageKeys.settings, globalSettingsStore),
+            { delay: 2000 },
         );
     }
 

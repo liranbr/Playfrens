@@ -5,7 +5,7 @@ import "./Slider.css";
  * A themed range input with a live value readout next to it.
  *
  * The displayed value/thumb track every drag tick, but the `onChange` only fires once the interaction
- * actually ends, a range input's onChange fires continuously while dragging, and callers typically 
+ * actually ends, a range input's onChange fires continuously while dragging, and callers typically
  * persist/sync on change, so firing on every tick would otherwise spam that.
  *
  * @param {{
@@ -23,8 +23,7 @@ export function Slider({ value, min, max, step = 1, onChange, formatValue = (v) 
     // Stay in sync if `value` changes for a reason other than our own commit below like loaded from storage
     useEffect(() => setLiveValue(value), [value]);
 
-    const commit = () => onChange(liveValue);
-
+    const commit = (e) => onChange(e.target.value);
     return (
         <div className="slider-row">
             <input
@@ -34,10 +33,10 @@ export function Slider({ value, min, max, step = 1, onChange, formatValue = (v) 
                 max={max}
                 step={step}
                 value={liveValue}
-                onChange={(e) => setLiveValue(Number(e.target.value))}
+                onChange={commit}
                 onPointerUp={commit}
-                onKeyUp={commit}
                 onBlur={commit}
+                onKeyUp={commit}
             />
             <span className="slider-value">{formatValue(liveValue)}</span>
         </div>

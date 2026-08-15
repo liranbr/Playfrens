@@ -31,8 +31,9 @@ const GameCard = observer(({ game }) => {
         else classes.push("doesnt-have-dragged-tag");
     }
     if (hoverTagSetting !== "none" && hoveredTag) {
-        if (hoverTagSetting === "highlight" && game.hasTag(hoveredTag)) classes.push("highlight");
-        else if (hoverTagSetting === "darken" && !game.hasTag(hoveredTag)) classes.push("darken");
+        const qualifies = filterStore.doesGameQualifyForTag(game, hoveredTag);
+        if (hoverTagSetting === "highlight" && qualifies) classes.push("highlight");
+        else if (hoverTagSetting === "darken" && !qualifies) classes.push("darken");
     }
     if (draggedOver) classes.push("dragged-over");
 

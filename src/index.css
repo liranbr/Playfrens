@@ -8,7 +8,7 @@
     --app-header-element-height: 36px;
     --ui-card-width: 275px;
     --ui-card-border-radius: 20px;
-    --game-card-width: 210px; /* for the game cards in the grid */
+    --game-card-width: 210px; /* a default value, overridden by a setting, for game cards in the grid.*/
     --game-grid-gap: 20px;
     --game-grid-row-gap: 30px;
     --game-grid-container-padding: 30px;

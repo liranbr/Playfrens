@@ -16,6 +16,7 @@
         vertical-align: middle;
         margin-left: 6px;
         font-size: 20px;
+        transition: none;
 
         svg {
             transform: scaleX(-1);

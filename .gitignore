@@ -33,3 +33,6 @@ desktop.ini
 *.pem
 # For dev:backend testing
 backend/public
+# DB dumps (scripts/dump-db.sh) - can contain real user data, never commit these
+backups/
+*.sql

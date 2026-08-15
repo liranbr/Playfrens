@@ -1,31 +1,42 @@
 .settings-dialog {
     gap: 8px; /* between Title, Body, and Footer */
+    /* sized to match the Add Game dialog, so switching tabs doesn't resize the dialog; body scrolls instead */
+    width: 650px;
+    max-width: 85vw;
+    height: 825px;
+    max-height: 85vh;
+    overflow: hidden; /* overrides .rx-dialog's own scrolling; only .settings-dialog-body scrolls */
+
+    .settings-tabs {
+        gap: 8px;
+        border-bottom: var(--pf-border-300);
+
+        button {
+            width: fit-content;
+            height: fit-content;
+            background: none;
+            padding: 6px 12px;
+            border-radius: 8px 8px 0 0;
+            border-bottom: none;
+            outline: 1px solid var(--pf-bg-900);
+            font-size: 13px;
+
+            &[data-state="off"] {
+                outline: none;
+                color: var(--pf-fg-700);
+            }
+        }
+    }
 
     .settings-dialog-body {
         display: flex;
         flex-direction: column;
         gap: 36px;
-    }
-
-    .setting {
-        display: flex;
-        flex-direction: column;
-        align-items: start;
-        gap: 4px;
-
-        h3 {
-            font-size: 16px;
-            line-height: 1;
-            font-weight: 500;
-            color: #f2f2f2;
-        }
-        p {
-            font-size: 14px;
-            color: var(--pf-fg-400);
-        }
-        & > *:not(h3) {
-            margin-left: 8px;
-        }
+        flex: 1;
+        min-height: 0; /* flex child won't shrink below its content height */
+        overflow-y: auto;
+        scrollbar-gutter: stable;
+        padding-right: 4px; /* reserved space for the scrollbar-gutter */
     }
 
     .default-filters-buttons {

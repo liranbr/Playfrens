@@ -1,22 +1,24 @@
+import { useState } from "react";
+import { observer } from "mobx-react-lite";
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import * as RadioGroup from "@radix-ui/react-radio-group";
-import { Button, InfoIcon } from "@/components";
+import * as ToggleGroup from "@radix-ui/react-toggle-group";
+import { Button } from "@/components";
 import { DialogBase } from "./DialogRoot.jsx";
-import {
-    TagGameCounterOptions,
-    TagHoverGameHighlightOptions,
-    HideGameStoreButtonsOptions,
-    ShowMatureContentOptions,
-    FriendIconDisplayOptions,
-    useFilterStore,
-    useSettingsStore,
-} from "@/stores";
+import { SidebarTab } from "./SettingsDialog/SidebarTab.jsx";
+import { GamesGridTab } from "./SettingsDialog/GamesGridTab.jsx";
+import { FiltersTab } from "./SettingsDialog/FiltersTab.jsx";
 import "./SettingsDialog.css";
 
-export const SettingsDialog = ({ open, closeDialog }) => {
-    const settingsStore = useSettingsStore();
-    const filterStore = useFilterStore();
+const SettingsTabs = {
+    sidebar: { label: "Sidebar", Component: SidebarTab },
+    grid: { label: "Games Grid", Component: GamesGridTab },
+    filters: { label: "Filters", Component: FiltersTab },
+};
+
+export const SettingsDialog = observer(({ open, closeDialog }) => {
+    const [activeTab, setActiveTab] = useState(Object.keys(SettingsTabs)[0]);
+    const ActiveTabComponent = SettingsTabs[activeTab].Component;
 
     return (
         <DialogBase
@@ -29,131 +31,21 @@ export const SettingsDialog = ({ open, closeDialog }) => {
                 <Dialog.Description>Configure application settings</Dialog.Description>
             </VisuallyHidden>
 
+            <ToggleGroup.Root
+                type="single"
+                className="rx-toggle-group settings-tabs"
+                value={activeTab}
+                onValueChange={(tab) => tab && setActiveTab(tab)} // to avoid empty values
+            >
+                {Object.keys(SettingsTabs).map((tab) => (
+                    <ToggleGroup.Item value={tab} key={tab}>
+                        {SettingsTabs[tab].label}
+                    </ToggleGroup.Item>
+                ))}
+            </ToggleGroup.Root>
+
             <div className="settings-dialog-body">
-                <div className="setting">
-                    <h3>Tag Hover Highlight</h3>
-                    <p>Highlight games when hovering on a sidebar tag</p>
-                    <RadioGroup.Root
-                        defaultValue={settingsStore.tagHoverGameHighlight}
-                        className="rx-radio-group"
-                        onValueChange={(option) => settingsStore.setTagHoverGameHighlight(option)}
-                    >
-                        {Object.keys(TagHoverGameHighlightOptions).map((option) => {
-                            const optKey = `tagHoverGameHighlight-${option}`;
-                            return (
-                                <label htmlFor={optKey} key={optKey}>
-                                    <RadioGroup.Item value={option} id={optKey} />
-                                    {TagHoverGameHighlightOptions[option]}
-                                </label>
-                            );
-                        })}
-                    </RadioGroup.Root>
-                </div>
-
-                <div className="setting">
-                    <h3>Game Count Badge</h3>
-                    <p>Show a Game Counter next to each Tag in the Sidebar</p>
-                    <RadioGroup.Root
-                        defaultValue={settingsStore.tagGameCounterDisplay}
-                        className="rx-radio-group"
-                        onValueChange={(option) => settingsStore.setTagGameCounterDisplay(option)}
-                    >
-                        {Object.keys(TagGameCounterOptions).map((option) => {
-                            const optKey = `tagGameCounter-${option}`;
-                            return (
-                                <label htmlFor={optKey} key={optKey}>
-                                    <RadioGroup.Item value={option} id={optKey} />
-                                    {TagGameCounterOptions[option]}
-                                </label>
-                            );
-                        })}
-                    </RadioGroup.Root>
-                </div>
-
-                <div className="setting">
-                    <h3>Obscure Game Platform Actions</h3>
-                    <p>
-                        In a Game Page, hide the &apos;Play&apos; and &apos;Store Page&apos; buttons
-                        unless cover art is hovered on
-                    </p>
-                    <RadioGroup.Root
-                        defaultValue={settingsStore.hideGameStoreButtons}
-                        className="rx-radio-group"
-                        onValueChange={(option) => settingsStore.setHideGameStoreButtons(option)}
-                    >
-                        {Object.keys(HideGameStoreButtonsOptions).map((option) => {
-                            const optKey = `hideGameStoreButtons-${option}`;
-                            return (
-                                <label htmlFor={optKey} key={optKey}>
-                                    <RadioGroup.Item value={option} id={optKey} />
-                                    {HideGameStoreButtonsOptions[option]}
-                                </label>
-                            );
-                        })}
-                    </RadioGroup.Root>
-                </div>
-
-                <div className="setting">
-                    <h3>
-                        Show Explicit Content{" "}
-                        <InfoIcon message="Only affects games whose main content is explicit sexual material. Games with general mature themes, violence, or occasional nudity aren't hidden by this." />
-                    </h3>
-                    <p>Include explicit/adult-only games when searching for a game to add</p>
-                    <RadioGroup.Root
-                        defaultValue={settingsStore.showMatureContent}
-                        className="rx-radio-group"
-                        onValueChange={(option) => settingsStore.setShowMatureContent(option)}
-                    >
-                        {Object.keys(ShowMatureContentOptions).map((option) => {
-                            const optKey = `showMatureContent-${option}`;
-                            return (
-                                <label htmlFor={optKey} key={optKey}>
-                                    <RadioGroup.Item value={option} id={optKey} />
-                                    {ShowMatureContentOptions[option]}
-                                </label>
-                            );
-                        })}
-                    </RadioGroup.Root>
-                </div>
-
-                <div className="setting">
-                    <h3>Friend Icons</h3>
-                    <p>Show friend avatars in the Friends sidebar and a game&apos;s tag list</p>
-                    <RadioGroup.Root
-                        defaultValue={settingsStore.friendIconDisplay}
-                        className="rx-radio-group"
-                        onValueChange={(option) => settingsStore.setFriendIconDisplay(option)}
-                    >
-                        {Object.keys(FriendIconDisplayOptions).map((option) => {
-                            const optKey = `friendIconDisplay-${option}`;
-                            return (
-                                <label htmlFor={optKey} key={optKey}>
-                                    <RadioGroup.Item value={option} id={optKey} />
-                                    {FriendIconDisplayOptions[option]}
-                                </label>
-                            );
-                        })}
-                    </RadioGroup.Root>
-                </div>
-
-                <div className="setting">
-                    <h3>Default Filter State</h3>
-                    <p>Set current filters as the default state to show on load</p>
-                    <div className="default-filters-buttons">
-                        <Button
-                            variant="secondary"
-                            onClick={() => filterStore.saveDefaultFilters()}
-                        >
-                            Set as Default
-                        </Button>
-                        <Button
-                            variant="secondary"
-                            onClick={() => filterStore.resetDefaultFilters()}
-                        >
-                            Reset
-                        </Button>
-                    </div>
-                </div>
+                <ActiveTabComponent />
             </div>
 
             <div className="rx-dialog-footer">
@@ -163,4 +55,4 @@ export const SettingsDialog = ({ open, closeDialog }) => {
             </div>
         </DialogBase>
     );
-};
+});

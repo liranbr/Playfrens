@@ -2,16 +2,23 @@
     width: 100%;
     overflow-y: auto;
     scrollbar-gutter: stable both-edges;
-    padding: 30px calc(30px - var(--scrollbar-width));
+    padding: var(--game-grid-container-padding)
+        calc(var(--game-grid-container-padding) - var(--scrollbar-width));
+
+    &.density-compact {
+        --game-grid-gap: 10px;
+        --game-grid-row-gap: 14px;
+        --game-grid-container-padding: 16px;
+    }
 }
 .games-grid {
     width: 100%;
     display: grid;
     grid-auto-flow: row;
     justify-content: space-between;
-    column-gap: 20px;
+    column-gap: var(--game-grid-gap);
     /* column-gap is the minimum, actual gap determined by space-between */
-    row-gap: 30px;
+    row-gap: var(--game-grid-row-gap);
     grid-template-columns: repeat(auto-fit, var(--game-card-width));
 }
 

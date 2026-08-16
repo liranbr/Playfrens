@@ -183,6 +183,7 @@ export function configurePassport() {
                 clientID: process.env.GOOGLE_CLIENT_ID,
                 clientSecret: process.env.GOOGLE_CLIENT_SECRET,
                 callbackURL: `${URL}/auth/google/callback`,
+                state: true,
             },
             async (accessToken, refreshToken, profile, done) => {
                 try {
@@ -202,6 +203,7 @@ export function configurePassport() {
                 clientSecret: process.env.DISCORD_CLIENT_SECRET,
                 callbackURL: `${URL}/auth/discord/callback`,
                 scope: ["identify", "email"],
+                state: true,
             },
             async (accessToken, refreshToken, profile, done) => {
                 try {

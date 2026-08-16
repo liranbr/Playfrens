@@ -189,27 +189,26 @@ export class DataStore {
     }
 
     // Debounced partial update (update_board_path) instead of re-uploading the whole board.
-    #syncKeyToBackend(storageKey, item) {
+    #syncKeyToBackend(storageKey, item, delay = 100) {
         if (!this.#isHydrated) return;
         debounce(
             this.#syncTimers,
             storageKey,
             () => updateBoard([storageKey], item).catch(() => {}),
-            100,
+            delay,
         );
     }
 
     // For stores that own board data outside DataStore (Settings, saved Default Filters) to sync their own key.
-    syncBoardKeyToBackend(storageKey, item) {
-        this.#syncKeyToBackend(storageKey, item);
+    syncBoardKeyToBackend(storageKey, item, delay = 100) {
+        this.#syncKeyToBackend(storageKey, item, delay);
     }
 
     // Call only after SettingsStore's initial populate, otherwise this echoes the just-loaded settings right back.
     watchSettingsForBackendSync() {
         reaction(
             () => JSON.stringify(globalSettingsStore),
-            () => this.syncBoardKeyToBackend(storageKeys.settings, globalSettingsStore),
-            { delay: 1000 },
+            () => this.syncBoardKeyToBackend(storageKeys.settings, globalSettingsStore, 1000),
         );
     }
 

@@ -33,8 +33,8 @@ export const TagGameCounterOptions = {
     none: "None",
 };
 export const HideGameStoreButtonsOptions = {
-    off: "Off",
     on: "On",
+    off: "Off",
 };
 export const ShowMatureContentOptions = {
     off: "Off",

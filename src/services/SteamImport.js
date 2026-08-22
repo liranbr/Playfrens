@@ -42,6 +42,8 @@ export async function processUsername(username) {
     return json.id;
 }
 
+const ADULT_ONLY_SEXUAL_CONTENT_DESCRIPTOR = 3;
+
 function buildSteamAssetURL(item, filename) {
     if (!filename) return null;
     const base = item.assets?.asset_url_format
@@ -132,6 +134,8 @@ export async function fetchSteamImportData(
             wishlisted: wishlistIDs.has(String(item.id)),
             singleplayer: !item.categories?.supported_player_categoryids?.includes(1),
             unreleased: item.is_coming_soon === true,
+            isAdult:
+                item.content_descriptorids?.includes(ADULT_ONLY_SEXUAL_CONTENT_DESCRIPTOR) ?? false,
         }));
     }
 

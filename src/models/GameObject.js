@@ -23,6 +23,7 @@ export const storeTypes = Object.freeze({
  * @property {string} storeType - Store that the game is from, options in storeTypes, like 'steam', 'gog'. Can be none.
  * @property {string} storeID - ID of the Game on its store.
  * @property {string} sgdbID - ID of the Game on SteamGridDB. Usually derived from storeType+ID, but can be independent.
+ * @property {boolean} isAdult - Whether the game is flagged as explicit/adult-only content. This is hidden from the games grid unless the "Show Explicit Content" setting is on.
  * @property {Party[]} parties - the Parties/Groups/Playthroughs in a game, each containing TagIDs, Note, Reminders etc.
  */
 export class GameObject {
@@ -34,6 +35,7 @@ export class GameObject {
     storeType = "custom";
     storeID = "";
     sgdbID = "";
+    isAdult = false;
     parties = [new Party({ name: "Group 1" })];
     id; // UUID
 
@@ -46,6 +48,7 @@ export class GameObject {
         storeType,
         storeID,
         sgdbID,
+        isAdult,
         parties,
         id,
     }) {
@@ -57,6 +60,7 @@ export class GameObject {
         this.storeType = storeType ? storeType : this.storeType; // so that if empty, makes it the default "custom"
         this.storeID = storeID ?? this.storeID;
         this.sgdbID = sgdbID ?? this.sgdbID;
+        this.isAdult = isAdult ?? this.isAdult;
         this.parties = parties ?? this.parties;
         this.id = id ?? randomUUID();
         makeAutoObservable(this);

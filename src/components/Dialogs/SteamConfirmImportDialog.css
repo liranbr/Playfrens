@@ -25,6 +25,11 @@
         font-size: 12px;
         color: hsl(200, 70%, 65%);
     }
+    .explicit-icon {
+        flex: 0 0 auto;
+        font-size: 12px;
+        color: var(--pf-btn-danger);
+    }
 
     .steam-confirm-import-badges-legend {
         display: flex;

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { MdAddCircleOutline } from "react-icons/md";
+import { MdAddCircleOutline, MdExplicit } from "react-icons/md";
 import {
     useFilterStore,
     useSettingsStore,
@@ -77,6 +77,11 @@ const GameCard = observer(({ game }) => {
             >
                 <GameCoverDisplay src={game.coverThumbURL} />
                 <p className="game-card-title-overlay">{game.title}</p>
+                {game.isAdult && (
+                    <SimpleTooltip message="Explicit content" delayDuration={0}>
+                        <MdExplicit className="explicit-content-badge" />
+                    </SimpleTooltip>
+                )}
                 {partiesBadge && (
                     <SimpleTooltip message="Groups that pass filters" delayDuration={0}>
                         <p className="filtered-parties-badge">{partiesBadge}</p>

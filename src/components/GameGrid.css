@@ -72,6 +72,19 @@
         text-rendering: optimizeLegibility;
     }
 
+    .explicit-content-badge {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        font-size: 22px;
+        color: #fff;
+        background-color: var(--pf-btn-danger-hover);
+        border-radius: 12px;
+        padding: 2px;
+        border: 1px solid var(--pf-btn-danger);
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
+    }
+
     .game-card-title-overlay {
         position: absolute;
         top: 0;

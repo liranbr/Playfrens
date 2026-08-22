@@ -1,7 +1,7 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import * as Avatar from "@radix-ui/react-avatar";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { MdPerson } from "react-icons/md";
+import { MdExplicit, MdPerson } from "react-icons/md";
 import { FaClock, FaStar, FaUser } from "react-icons/fa";
 import { Fragment, useState } from "react";
 import { DialogBase } from "./DialogRoot";
@@ -54,6 +54,12 @@ const GAME_BADGES = [
         Icon: FaClock,
         className: "unreleased-icon",
         legend: "Not yet released.",
+    },
+    {
+        key: "isAdult",
+        Icon: MdExplicit,
+        className: "explicit-icon",
+        legend: "Explicit content, hidden from the games grid unless allowed in board settings.",
     },
 ];
 // Pairs each item with its original index (selection state is keyed by that index) before

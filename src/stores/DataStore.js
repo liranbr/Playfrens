@@ -675,6 +675,8 @@ export class DataStore {
     preImportSteamGames(remoteGames) {
         const list = this.#preImportList();
         const currentGameList = [...this.allGames.values()];
+        const allowExplicitContent = globalSettingsStore.showMatureContent === "on";
+        list.hiddenByContentSettings = 0;
         for (const remoteGame of remoteGames) {
             // Only import if its not from Steam and mismatched ID.
             /** @type {GameObject} */
@@ -686,8 +688,14 @@ export class DataStore {
                 );
             });
 
-            if (!gameExists) list.toAdd.push(remoteGame);
-            else list.toSkip.push(remoteGame);
+            if (gameExists) {
+                list.toSkip.push(remoteGame);
+            } else if (remoteGame.isAdult && !allowExplicitContent) {
+                // Board settings disallow adding explicit content entirely, hidden and disintegrated into ashes.
+                list.hiddenByContentSettings++;
+            } else {
+                list.toAdd.push(remoteGame);
+            }
         }
 
         return list;
@@ -710,6 +718,7 @@ export class DataStore {
                 storeType,
                 storeID,
                 sgdbID,
+                isAdult,
             } = element;
 
             const uniqueTitle = ensureUniqueName(
@@ -726,6 +735,7 @@ export class DataStore {
                 storeType,
                 storeID,
                 sgdbID,
+                isAdult,
             });
 
             this.allGames.set(newGame.id, newGame);

@@ -8,7 +8,8 @@ import { DialogBase } from "./DialogRoot";
 import "./SteamConfirmImportDialog.css";
 import { Button } from "../common/Button";
 import { Collapsible } from "../common/Collapsible.jsx";
-import { globalDialogStore, useDataStore } from "@/stores";
+import { InfoIcon } from "../common/InfoIcon.jsx";
+import { globalDialogStore, globalSettingsStore, useDataStore } from "@/stores";
 import { saveLastSteamSync } from "@/services/SteamImport.js";
 
 const IMPORT_GROUPS = [
@@ -59,9 +60,12 @@ const GAME_BADGES = [
         key: "isAdult",
         Icon: MdExplicit,
         className: "explicit-icon",
-        legend: "Explicit content, hidden from the games grid unless allowed in board settings.",
+        legend: "Explicit content.",
     },
 ];
+// Don't show the Explicit icon at all if we are filtering.
+const visibleGameBadges = (allowExplicitContent) =>
+    allowExplicitContent ? GAME_BADGES : GAME_BADGES.filter(({ key }) => key !== "isAdult");
 // Pairs each item with its original index (selection state is keyed by that index) before
 // sorting A-Z by name, so the paired index still points at the right entry anyways.
 const sortByName = (list) =>
@@ -99,10 +103,10 @@ const BulkActions = ({ allDisabled, clearDisabled, onAll, onClear }) => (
     </span>
 );
 
-const GameBadgesLegend = ({ gamesResult }) => {
+const GameBadgesLegend = ({ gamesResult, gameBadges }) => {
     const { toAdd, toUpdate, toSkip } = gamesResult;
     const allGames = [...toAdd, ...toUpdate.old, ...toSkip];
-    const activeBadges = GAME_BADGES.filter(({ key }) => allGames.some((g) => g[key]));
+    const activeBadges = gameBadges.filter(({ key }) => allGames.some((g) => g[key]));
     if (activeBadges.length === 0) return null;
 
     return (
@@ -126,6 +130,7 @@ const ImportGroup = ({
     onSelectAll,
     collapsed,
     onToggleCollapsed,
+    gameBadges,
 }) => {
     const { toAdd, toUpdate, toSkip } = data;
     const { old } = toUpdate;
@@ -139,7 +144,7 @@ const ImportGroup = ({
         const icon = showIcons ? (
             <FriendIcon iconURL={iconURL} />
         ) : (
-            GAME_BADGES.map(
+            gameBadges.map(
                 ({ key, Icon, className }) => item[key] && <Icon className={className} key={key} />,
             )
         );
@@ -232,7 +237,21 @@ const ImportGroup = ({
                 triggerClassName="steam-confirm-import-header"
             >
                 <div className="steam-confirm-import-scrollable">
-                    {kind === "games" && <GameBadgesLegend gamesResult={data} />}
+                    {kind === "games" && data.hiddenByContentSettings > 0 && (
+                        <p className="steam-confirm-import-hidden-notice">
+                            {data.hiddenByContentSettings}{" "}
+                            {data.hiddenByContentSettings === 1 ? "game was" : "games were"} hidden
+                            due to board settings.{" "}
+                            <InfoIcon
+                                message={
+                                    'Explicit games are excluded from imports by default. Enable "Show Explicit Content" in Settings to include them.'
+                                }
+                            />
+                        </p>
+                    )}
+                    {kind === "games" && (
+                        <GameBadgesLegend gamesResult={data} gameBadges={gameBadges} />
+                    )}
                     <fieldset>
                         {createList(toAdd, "add", "Adding", "toAdd", "toAdd")}
                         {createList(old, "update", "Updating", "toUpdate", "toUpdate")}
@@ -297,6 +316,7 @@ export const SteamConfirmImportDialog = ({
     const dataStore = useDataStore();
     const results = { games: gamesResult, friends: friendsResult };
     const visibleGroups = IMPORT_GROUPS.filter(({ key }) => hasResult(results[key]));
+    const gameBadges = visibleGameBadges(globalSettingsStore.showMatureContent === "on");
 
     const [selection, setSelection] = useState(() => ({
         games: initSelection(gamesResult),
@@ -389,6 +409,7 @@ export const SteamConfirmImportDialog = ({
                             }
                             collapsed={collapsedGroups[key]}
                             onToggleCollapsed={() => toggleGroupCollapsed(key)}
+                            gameBadges={gameBadges}
                         />
                     </Fragment>
                 ))}

@@ -2,6 +2,7 @@ export class Response {
     // Stable codes clients can match on, instead of parsing error text message such "Not logged in."
     static ErrorCode = Object.freeze({
         NOT_AUTHENTICATED: "NOT_AUTHENTICATED",
+        FEATURE_DISABLED: "FEATURE_DISABLED",
     });
 
     static HttpStatus = Object.freeze({

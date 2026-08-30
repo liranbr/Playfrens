@@ -180,16 +180,24 @@ async function deleteAccount(req, res) {
     if (!req.isAuthenticated())
         return Response.send(res, NO_CONTENT, { message: "Requester is not logged in." });
 
-    const { status: responseStatus, error: deletionError } = await supabase
-        .from("users")
-        .delete()
-        .eq("id", req.user.id);
-
     const respondError = (error) => {
         Response.send(res, INTERNAL_SERVER_ERROR, {
             message: "Error deleting account: " + error,
         });
     };
+
+    // delete from our auth.users table too
+    if (req.user.provider === "email") {
+        const { error: authDeleteError } = await supabase.auth.admin.deleteUser(
+            req.user.provider_id,
+        );
+        if (authDeleteError) return respondError(authDeleteError.message);
+    }
+
+    const { status: responseStatus, error: deletionError } = await supabase
+        .from("users")
+        .delete()
+        .eq("id", req.user.id);
 
     if (deletionError) {
         return respondError(deletionError.message);
@@ -228,6 +236,23 @@ function establishEmailSession(req, res, supabaseUser) {
                 });
             }),
     );
+}
+
+// Check if we have this email in our records.
+async function emailExists(req, res) {
+    const { BAD_REQUEST, OK, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+    const { email } = req.body;
+    if (!email) return Response.send(res, BAD_REQUEST, { error: "Email is required." });
+
+    const { data, error } = await supabase
+        .from("users")
+        .select("id")
+        .eq("provider", "email")
+        .ilike("email", email)
+        .limit(1);
+    if (error) return Response.send(res, INTERNAL_SERVER_ERROR, { error: error.message });
+
+    Response.send(res, OK, { exists: data.length > 0 });
 }
 
 async function emailSignup(req, res) {
@@ -273,8 +298,17 @@ async function emailLogin(req, res) {
     }
 }
 
+// Unless we want this feature, it's disabled for now.
+const MAGIC_LINK_ENABLED = false;
 async function emailMagicLink(req, res) {
-    const { BAD_REQUEST, OK, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+    const { BAD_REQUEST, OK, SERVICE_UNAVAILABLE, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+    if (!MAGIC_LINK_ENABLED) {
+        return Response.send(res, SERVICE_UNAVAILABLE, {
+            error: "Magic link sign-in is not available right now.",
+            code: Response.ErrorCode.FEATURE_DISABLED,
+        });
+    }
+
     const { email } = req.body;
     if (!email) return Response.send(res, BAD_REQUEST, { error: "Email is required." });
 
@@ -331,6 +365,7 @@ router.get(
 );
 
 // Email login (password + magic link), built on Supabase Auth
+router.post("/email/exists", emailExists);
 router.post("/email/signup", emailSignup);
 router.post("/email/login", emailLogin);
 router.post("/email/magic-link", emailMagicLink);

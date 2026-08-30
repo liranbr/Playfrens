@@ -121,6 +121,10 @@ export class UserStore {
         }
     }
 
+    async checkEmailExists(email) {
+        return this.postAuth("exists", { email });
+    }
+
     async signupWithEmail(email, password) {
         const result = await this.postAuth("signup", { email, password });
         if (result.ok && !result.confirmationRequired) {

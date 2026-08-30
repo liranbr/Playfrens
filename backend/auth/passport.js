@@ -60,6 +60,8 @@ export async function upsertUser(profile, provider) {
                 return profile.emails?.length ? profile.emails[0].value : null;
             case "discord":
                 return profile.email ?? null;
+            case "email":
+                return profile.email;
             default:
                 // For Steam, has no email.
                 return null;
@@ -101,7 +103,6 @@ export async function upsertUser(profile, provider) {
                 display_name,
                 email,
                 avatar_url,
-                email: profile.email,
                 last_login: new Date(),
             })
             .eq("id", userId);
@@ -114,7 +115,6 @@ export async function upsertUser(profile, provider) {
                 display_name,
                 email,
                 avatar_url,
-                email: profile.email,
                 provider,
                 provider_id: providerId,
                 last_login: new Date(),

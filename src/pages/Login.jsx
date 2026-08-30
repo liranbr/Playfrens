@@ -10,7 +10,7 @@ import "./CardPage.css";
 import { loadFromStorage, toastError, toastInfo } from "@/Utils";
 
 const PROVIDERS = [
-    { id: "steam", label: "Steam", icon: <BiLogoSteam />, color: "#171a21" },
+    { id: "steam", label: "Steam", icon: <BiLogoSteam />, color: "#171a26" },
     { id: "google", label: "Google", icon: <BiLogoGoogle />, color: "#c62828" },
     { id: "discord", label: "Discord", icon: <BiLogoDiscordAlt />, color: "#5865f2" },
 ];
@@ -208,4 +208,3 @@ const Login = observer(() => {
 });
 
 export default Login;
-

@@ -1,24 +1,30 @@
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
-import { BiLogoDiscordAlt, BiLogoGoogle, BiLogoSteam } from "react-icons/bi";
+import { BiArrowBack, BiLogoDiscordAlt, BiLogoGoogle, BiLogoSteam } from "react-icons/bi";
 import { useUserStore } from "@/stores";
 import { Button } from "@/components";
 import { usePageMeta } from "@/hooks/usePageMeta.js";
 import "./Login.css";
 import "./CardPage.css";
-import { loadFromStorage, toastError, toastInfo, toastSuccess } from "@/Utils";
+import { loadFromStorage, toastError, toastInfo } from "@/Utils";
+
+const PROVIDERS = [
+    { id: "steam", label: "Steam", icon: <BiLogoSteam />, color: "#171a21" },
+    { id: "google", label: "Google", icon: <BiLogoGoogle />, color: "#c62828" },
+    { id: "discord", label: "Discord", icon: <BiLogoDiscordAlt />, color: "#5865f2" },
+];
 
 const Login = observer(() => {
     const userStore = useUserStore();
     const { loading, userInfo } = userStore;
     const lastAuth = loadFromStorage("last-auth-used", "");
 
-    const [mode, setMode] = useState("login"); // "login" | "signup" | "magic"
+    const [mode, setMode] = useState("login"); // "login" | "signup"
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [submitting, setSubmitting] = useState(false);
-    const [magicLinkSent, setMagicLinkSent] = useState(false);
+    const [emailConfirmed, setEmailConfirmed] = useState(false);
 
     usePageMeta({
         title: "Sign in",
@@ -32,25 +38,44 @@ const Login = observer(() => {
 
     if (window.location.search.includes("failed=true")) toastError("Login failed.");
 
-    function switchMode(nextMode) {
-        setMode(nextMode);
-        setMagicLinkSent(false);
+    function startSignUp() {
+        setMode("signup");
+        setEmailConfirmed(true);
+    }
+
+    function handleBack() {
+        setMode("login");
+        setEmailConfirmed(false);
+        setPassword("");
+    }
+
+    function toggleMode() {
+        setMode(mode === "signup" ? "login" : "signup");
     }
 
     async function handleEmailSubmit(e) {
         e.preventDefault();
         if (submitting) return;
+
+        if (!emailConfirmed) {
+            setSubmitting(true);
+            try {
+                const result = await userStore.checkEmailExists(email);
+                if (!result.ok) {
+                    toastError(result.error);
+                    return;
+                }
+                setMode(result.exists ? "login" : "signup");
+                setEmailConfirmed(true);
+            } finally {
+                setSubmitting(false);
+            }
+            return;
+        }
+
         setSubmitting(true);
         try {
-            if (mode === "magic") {
-                const result = await userStore.sendMagicLink(email);
-                if (result.ok) {
-                    setMagicLinkSent(true);
-                    toastSuccess("Magic link sent! Check your email.");
-                } else {
-                    toastError(result.error);
-                }
-            } else if (mode === "signup") {
+            if (mode === "signup") {
                 const result = await userStore.signupWithEmail(email, password);
                 if (!result.ok) {
                     toastError(result.error);
@@ -70,111 +95,104 @@ const Login = observer(() => {
         <div id="card-page">
             <div className="card-page-body">
                 <div className="card-page-header">
-                    <h1>Sign in</h1>
+                    <h1>{mode === "signup" ? "Create Account" : "Sign in"}</h1>
                     <span>to use Playfrens</span>
                 </div>
-                <div className="auth-buttons">
-                    <Button
-                        variant="secondary"
-                        className={lastAuth === "steam" ? "last-auth" : ""}
-                        onClick={() => userStore.login("steam")}
-                    >
-                        <BiLogoSteam />
-                        Continue with Steam
+                <form className="email-auth-form" onSubmit={handleEmailSubmit}>
+                    <fieldset>
+                        <div className="field-label-row">
+                            <label htmlFor="email">Email</label>
+                            {lastAuth === "email" && !emailConfirmed && mode !== "signup" && (
+                                <span className="last-used-badge">Last used</span>
+                            )}
+                        </div>
+                        <input
+                            id="email"
+                            type="email"
+                            required
+                            autoComplete="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                        />
+                        {emailConfirmed && (
+                            <>
+                                <label htmlFor="password">Password</label>
+                                <input
+                                    id="password"
+                                    type="password"
+                                    required
+                                    autoComplete={
+                                        mode === "signup" ? "new-password" : "current-password"
+                                    }
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
+                            </>
+                        )}
+                    </fieldset>
+                    <Button type="submit" disabled={submitting}>
+                        {!emailConfirmed
+                            ? "Continue"
+                            : mode === "signup"
+                              ? "Create account"
+                              : "Sign in"}
                     </Button>
-                    <Button
-                        variant="secondary"
-                        className={lastAuth === "google" ? "last-auth" : ""}
-                        onClick={() => userStore.login("google")}
-                    >
-                        <BiLogoGoogle />
-                        Continue with Google
-                    </Button>
-                    <Button
-                        variant="secondary"
-                        className={lastAuth === "discord" ? "last-auth" : ""}
-                        onClick={() => userStore.login("discord")}
-                    >
-                        <BiLogoDiscordAlt />
-                        Continue with Discord
-                    </Button>
-                </div>
+                </form>
 
-                <div className="login-divider">
-                    <span>or</span>
-                </div>
-
-                {mode === "magic" && magicLinkSent ? (
-                    <div className="magic-link-sent">
-                        <p>
-                            Check <strong>{email}</strong> for your sign-in link.
-                        </p>
+                {emailConfirmed ? (
+                    <>
                         <button
                             type="button"
-                            className="link-like"
-                            onClick={() => setMagicLinkSent(false)}
+                            className="link-like back-button"
+                            onClick={handleBack}
                         >
-                            Use a different email
+                            <BiArrowBack />
+                            Back
                         </button>
-                    </div>
-                ) : (
-                    <form className="email-auth-form" onSubmit={handleEmailSubmit}>
-                        <fieldset>
-                            <label htmlFor="email">Email</label>
-                            <input
-                                id="email"
-                                type="email"
-                                required
-                                autoComplete="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                            />
-                            {mode !== "magic" && (
-                                <>
-                                    <label htmlFor="password">Password</label>
-                                    <input
-                                        id="password"
-                                        type="password"
-                                        required
-                                        autoComplete={
-                                            mode === "signup" ? "new-password" : "current-password"
-                                        }
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                    />
-                                </>
-                            )}
-                        </fieldset>
-                        <Button type="submit" className="btn" disabled={submitting}>
-                            {mode === "magic"
-                                ? "Send magic link"
-                                : mode === "signup"
-                                  ? "Create account"
-                                  : "Sign in"}
-                        </Button>
+
                         <div className="email-auth-toggles">
-                            {mode !== "magic" && (
-                                <button
-                                    type="button"
-                                    className="link-like"
-                                    onClick={() => switchMode(mode === "signup" ? "login" : "signup")}
-                                >
-                                    {mode === "signup"
-                                        ? "Already have an account? Sign in"
-                                        : "Need an account? Sign up"}
+                            <button type="button" className="link-like" onClick={toggleMode}>
+                                {mode === "signup" ? "Sign in" : "Create account"}
+                            </button>
+                            {mode !== "signup" && (
+                                // TODO: "forgot password" doesn't do anything yet
+                                <button type="button" className="link-like">
+                                    Forgot password?
                                 </button>
                             )}
-                            <button
-                                type="button"
-                                className="link-like"
-                                onClick={() => switchMode(mode === "magic" ? "login" : "magic")}
-                            >
-                                {mode === "magic"
-                                    ? "Use a password instead"
-                                    : "Email me a sign-in link instead"}
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        <div className="login-divider">
+                            <span>Or continue with</span>
+                        </div>
+
+                        <div className="auth-buttons">
+                            {PROVIDERS.map(({ id, label, icon, color }) => (
+                                <Button
+                                    key={id}
+                                    variant="secondary"
+                                    className={lastAuth === id ? "last-auth" : ""}
+                                    style={{ "--pf-btn": color, "--pf-btn-hover": color }}
+                                    onClick={() => userStore.login(id)}
+                                >
+                                    {icon}
+                                    {label}
+                                </Button>
+                            ))}
+                        </div>
+
+                        <div className="email-auth-toggles">
+                            <button type="button" className="link-like" onClick={startSignUp}>
+                                Create account
+                            </button>
+                            {/* TODO: no "forgot password" work yet */}
+                            <button type="button" className="link-like">
+                                Forgot password?
                             </button>
                         </div>
-                    </form>
+                    </>
                 )}
 
                 <div className="login-footer">
@@ -190,3 +208,4 @@ const Login = observer(() => {
 });
 
 export default Login;
+

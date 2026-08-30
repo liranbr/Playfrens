@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { useUserStore } from "@/stores";
-import { toastError } from "@/Utils.jsx";
+import { toastError } from "@/Utils";
 
 // Supabase redirects here with tokens in the URL fragment; parse client-side and hand off to the backend.
 const EmailCallback = observer(() => {

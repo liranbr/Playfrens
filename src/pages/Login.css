@@ -46,24 +46,28 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
+    padding: auto;
+
+    .btn {
+        justify-content: center;
+        filter: saturate(0.8);
+
+        &:hover {
+            filter: saturate(0.85) brightness(1.1);
+        }
+
+        &:active {
+            filter: saturate(0.85) brightness(0.9);
+        }
+    }
 }
 
-.login-divider {
-    width: 256px;
+.back-button {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin: 20px 0;
-    color: var(--pf-fg-500);
+    gap: 6px;
+    margin-top: 20px;
     font-size: 14px;
-
-    &::before,
-    &::after {
-        content: "";
-        flex: 1;
-        height: 1px;
-        background: var(--pf-border-700);
-    }
 }
 
 .email-auth-form {
@@ -76,6 +80,48 @@
         margin-top: 20px;
         justify-content: center;
     }
+
+    .field-label-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        /* Move the label's own top/bottom margin up here, so it and the badge
+           share the same (zero-margin) box and actually line up with align-items. */
+        margin-top: 20px;
+        margin-bottom: 8px;
+
+        label {
+            margin: 0;
+        }
+    }
+
+    .last-used-badge {
+        background-color: var(--pf-btn-primary-hover);
+        padding: 2px 4px;
+        border-radius: 8px;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+}
+
+.login-divider {
+    width: 256px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 32px;
+    margin-bottom: 12px;
+    color: var(--pf-fg-500);
+    font-size: 14px;
+
+    &::before,
+    &::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--pf-border-700);
+    }
 }
 
 .email-auth-toggles {
@@ -87,26 +133,13 @@
     font-size: 14px;
 }
 
-.magic-link-sent {
-    width: 256px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    text-align: center;
-    font-size: 14px;
-
-    p {
-        margin: 0;
-    }
-}
-
 .login-footer {
     width: 100%;
     display: flex;
     gap: 24px;
     align-items: end;
     justify-content: left;
+    margin-top: 24px;
     a {
         color: var(--pf-fg-500);
         cursor: pointer;

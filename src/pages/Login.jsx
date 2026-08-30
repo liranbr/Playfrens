@@ -10,7 +10,7 @@ import "./CardPage.css";
 import { loadFromStorage, toastError, toastInfo } from "@/Utils";
 
 const PROVIDERS = [
-    { id: "steam", label: "Steam", icon: <BiLogoSteam />, color: "#171a26" },
+    { id: "steam", label: "Steam", icon: <BiLogoSteam />, color: "#171a21" },
     { id: "google", label: "Google", icon: <BiLogoGoogle />, color: "#c62828" },
     { id: "discord", label: "Discord", icon: <BiLogoDiscordAlt />, color: "#5865f2" },
 ];
@@ -174,7 +174,7 @@ const Login = observer(() => {
                                     key={id}
                                     variant="secondary"
                                     className={lastAuth === id ? "last-auth" : ""}
-                                    style={{ "--pf-btn": color, "--pf-btn-hover": color }}
+                                    style={{ "--pf-btn-hover": color }}
                                     onClick={() => userStore.login(id)}
                                 >
                                     {icon}

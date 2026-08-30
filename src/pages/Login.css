@@ -51,6 +51,7 @@
     .btn {
         justify-content: center;
         filter: saturate(0.8);
+        border: 2px solid rgba(255, 255, 255, 0.1);
 
         &:hover {
             filter: saturate(0.85) brightness(1.1);

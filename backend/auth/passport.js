@@ -45,7 +45,7 @@ function pruneUserCache() {
     }
 }
 
-export async function upsertUser(profile, provider) {
+export async function upsertUser(profile, provider, { createHomeBoard = true } = {}) {
     const providerId = (() => {
         switch (provider) {
             case "steam":
@@ -147,9 +147,8 @@ export async function upsertUser(profile, provider) {
 
         userId = newUser.id;
 
-        // Create empty board
-        const { error: boardError } = await supabase.from("boards").insert({ owner_id: userId });
-        if (boardError) console.error("Error creating board:", boardError);
+        // Skipped for member-only accounts, since they're made for one specific board, not their own.
+        if (createHomeBoard) await insertBoardWithShortId(userId);
     }
 
     const { data: user, error: userError } = await supabase
@@ -160,6 +159,47 @@ export async function upsertUser(profile, provider) {
     if (userError) throw userError;
 
     return user;
+}
+
+// Deletes every member account tied to this board (home_board_id) and kicks their live connection.
+// Important when a board is deleted or the owner deleted their account.
+export async function removeOrphanedBoardMembers(boardId, reason) {
+    const { data: members } = await supabase.from("users").select("*").eq("home_board_id", boardId);
+    for (const member of members ?? []) {
+        try {
+            await deleteUserAccountRow(member);
+            closeUserSockets(member.id, reason);
+        } catch (err) {
+            console.error(`Error deleting orphaned member account ${member.id}:`, err);
+        }
+    }
+}
+
+export async function deleteUserAccountRow(user) {
+    // Boards owned by this user cascade-delete once their row is removed below, so clean up
+    // member accounts first or those logins would outlive the boards they were made for.
+    const { data: ownedBoards } = await supabase
+        .from("boards")
+        .select("id")
+        .eq("owner_id", user.id);
+    for (const board of ownedBoards ?? []) {
+        await removeOrphanedBoardMembers(board.id, "The board this login was for was deleted.");
+    }
+
+    if (user.provider === "email") {
+        const { error: authDeleteError } = await supabase.auth.admin.deleteUser(user.provider_id);
+        if (authDeleteError) throw authDeleteError;
+    }
+
+    const { error: deletionError } = await supabase.from("users").delete().eq("id", user.id);
+    if (deletionError) throw deletionError;
+
+    const { error: cleanupError } = await supabase.rpc("remove_user_from_all_boards", {
+        _user_id: user.id,
+    });
+    if (cleanupError) console.error("Error cleaning up board memberships:", cleanupError);
+
+    invalidateUserCache(user.id);
 }
 
 // Wires up session (de)serialization and the OAuth strategies. Call once at startup.
@@ -241,4 +281,3 @@ export function configurePassport() {
         ),
     );
 }
-

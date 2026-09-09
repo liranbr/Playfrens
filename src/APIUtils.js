@@ -112,9 +112,28 @@ export async function getOfficialCoverImageURLs(storeType, storeIDs) {
     return json;
 }
 
-export async function getBoard() {
+// Lists boards the current user can access (their own + any they've joined as a member).
+export async function listBoards() {
     try {
-        const response = await fetch("/api/board", {
+        const response = await fetch("/api/boards", { credentials: "include" });
+        // Not logged in is a normal state (e.g. stale session), not an error, so don't toast for
+        // it. UserStore already guards against this; this is just a backstop for other callers.
+        if (response.status === HttpStatus.UNAUTHORIZED) return [];
+        if (!response.ok) {
+            toastError("Error loading boards, please try again later", await response.json());
+            return [];
+        }
+        const { boards } = await response.json();
+        return boards;
+    } catch (err) {
+        toastError("Error loading boards, please try again later", err);
+        return [];
+    }
+}
+
+export async function getBoard(boardId) {
+    try {
+        const response = await fetch(`/api/boards/${boardId}`, {
             method: "GET",
             credentials: "include",
         });
@@ -139,29 +158,84 @@ export async function getBoard() {
 }
 
 // Replaces the entire Board
-export function saveBoard(data) {
+export function saveBoard(boardId, data) {
     return enqueueRequest(async () => {
         const json = JSON.stringify({ data });
-        const response = await fetch("/api/board/save", {
+        const response = await fetch(`/api/boards/${boardId}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
             body: json,
         });
         if (!response.ok) throw new Error(`Failed to save board (status ${response.status})`);
+        return await response.json(); // { message, lastUpdated }
     });
 }
 
-// Updates parts of the Board
-export function updateBoard(path, value) {
+// Updates part of the Board
+export function updateBoard(boardId, path, value, getExpectedLastUpdated) {
     return enqueueRequest(async () => {
-        const json = JSON.stringify({ path: path, value: value });
-        const response = await fetch("/api/board/update", {
+        const expectedLastUpdated =
+            typeof getExpectedLastUpdated === "function"
+                ? getExpectedLastUpdated()
+                : getExpectedLastUpdated;
+        const body = { path, value };
+        if (expectedLastUpdated) body.expectedLastUpdated = expectedLastUpdated;
+
+        const response = await fetch(`/api/boards/${boardId}/update`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
-            body: json,
+            body: JSON.stringify(body),
         });
+        const json = await response.json().catch(() => ({}));
+
+        if (response.status === HttpStatus.CONFLICT) {
+            const error = new Error(json.error || "Board changed since your last sync.");
+            error.staleWrite = true;
+            throw error;
+        }
         if (!response.ok) throw new Error(`Failed to update board (status ${response.status})`);
+        return json; // { message, lastUpdated }
     });
+}
+
+export async function deleteBoard(boardId) {
+    const response = await fetch(`/api/boards/${boardId}`, {
+        method: "DELETE",
+        credentials: "include",
+    });
+    if (!response.ok) throw new Error(`Failed to delete board (status ${response.status})`);
+}
+
+export async function listBoardMembers(boardId) {
+    const response = await fetch(`/api/boards/${boardId}/members`, { credentials: "include" });
+    if (!response.ok) throw new Error(`Failed to load members (status ${response.status})`);
+    const { members } = await response.json();
+    return members;
+}
+
+/** Returns { member, password }, where the password is shown only once here. */
+export async function createBoardMember(boardId, username, password) {
+    const response = await fetch(`/api/boards/${boardId}/members`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ username, password }),
+    });
+    const json = await response.json().catch(() => ({}));
+    if (!response.ok)
+        throw new Error(json.error || `Failed to create member (status ${response.status})`);
+    return json;
+}
+
+export async function removeBoardMember(boardId, userId) {
+    const response = await fetch(`/api/boards/${boardId}/members/${userId}`, {
+        method: "DELETE",
+        credentials: "include",
+    });
+    if (!response.ok) {
+        const json = await response.json().catch(() => ({}));
+        throw new Error(json.error || `Failed to remove member (status ${response.status})`);
+    }
 }

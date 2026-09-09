@@ -3,9 +3,8 @@ import passport from "passport";
 import rateLimit from "express-rate-limit";
 import { Response } from "../response.js";
 import { requireAuth } from "../auth/requireAuth.js";
-import { invalidateUserCache } from "../auth/passport.js";
+import { deleteUserAccountRow, upsertUser } from "../auth/passport.js";
 import { supabase, supabaseAuth } from "../supabaseClient.js";
-import { upsertUser } from "../auth/passport.js";
 import { resolveBaseURL, strToBool } from "../utils.js";
 
 const router = Router();
@@ -106,12 +105,21 @@ async function getAvatar(req, res) {
     }
 }
 
+// Stashes ?board=<shortId> in the session so it survives the OAuth round-trip; read by loginCallback below.
+function stashBoardRedirect(req, res, next) {
+    if (req.query.board) req.session.pendingBoardRedirect = req.query.board;
+    else delete req.session.pendingBoardRedirect;
+    next();
+}
+
 // Return function called after successful login
 async function loginCallback(req, res) {
     console.log(
         `Hello, ${req.user?.display_name || req.user?.username || "unknown user"} from ${req.user?.provider}! 👋`,
     );
-    res.redirect("/app");
+    const board = req.session.pendingBoardRedirect;
+    delete req.session.pendingBoardRedirect;
+    res.redirect(board ? `/app/${board}` : "/app");
 }
 
 function authCallback(provider) {
@@ -180,37 +188,24 @@ async function deleteAccount(req, res) {
     if (!req.isAuthenticated())
         return Response.send(res, NO_CONTENT, { message: "Requester is not logged in." });
 
-    const respondError = (error) => {
-        Response.send(res, INTERNAL_SERVER_ERROR, {
-            message: "Error deleting account: " + error,
+    try {
+        // Also strips this user from members_id on any boards they'd joined but don't own.
+        await deleteUserAccountRow(req.user);
+    } catch (err) {
+        return Response.send(res, INTERNAL_SERVER_ERROR, {
+            message: "Error deleting account: " + err.message,
         });
-    };
-
-    // delete from our auth.users table too
-    if (req.user.provider === "email") {
-        const { error: authDeleteError } = await supabase.auth.admin.deleteUser(
-            req.user.provider_id,
-        );
-        if (authDeleteError) return respondError(authDeleteError.message);
     }
 
-    const { status: responseStatus, error: deletionError } = await supabase
-        .from("users")
-        .delete()
-        .eq("id", req.user.id);
-
-    if (deletionError) {
-        return respondError(deletionError.message);
-    }
-    // 204 is the expected response for deleting data
-    if (responseStatus === 204) {
-        invalidateUserCache(req.user.id); // so other active sessions for this account stop working immediately
-        req.session.destroy((err) => {
-            if (err) return respondError(err);
-            res.clearCookie("connect.sid");
-            return Response.send(res, OK, { message: "Account Deleted" });
-        });
-    } else return respondError(responseStatus);
+    req.session.destroy((err) => {
+        if (err) {
+            return Response.send(res, INTERNAL_SERVER_ERROR, {
+                message: "Error deleting account: " + err,
+            });
+        }
+        res.clearCookie("connect.sid");
+        return Response.send(res, OK, { message: "Account Deleted" });
+    });
 }
 
 function emailProfileFrom(supabaseUser) {
@@ -219,6 +214,31 @@ function emailProfileFrom(supabaseUser) {
         email: supabaseUser.email,
         displayName: supabaseUser.email.split("@")[0],
     };
+}
+
+function establishMemberSession(req, res, supabaseUser) {
+    const { OK, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+    // users.id is its own generated key, not the Supabase Auth id (that's provider_id).
+    return supabase
+        .from("users")
+        .update({ last_login: new Date() })
+        .eq("provider", "email")
+        .eq("provider_id", supabaseUser.id)
+        .select()
+        .single()
+        .then(({ data: user, error }) => {
+            if (error) throw error;
+            return new Promise((resolve) => {
+                req.logIn(user, (err) => {
+                    if (err) {
+                        Response.send(res, INTERNAL_SERVER_ERROR, { error: err.message });
+                    } else {
+                        Response.send(res, OK, { user });
+                    }
+                    resolve();
+                });
+            });
+        });
 }
 
 function establishEmailSession(req, res, supabaseUser) {
@@ -321,6 +341,57 @@ async function emailMagicLink(req, res) {
     Response.send(res, OK, { message: "Magic link sent, check your email." });
 }
 
+// Accepts either a bare short id "asdfghjk" or a full pasted board link
+function extractBoardShortId(input) {
+    if (!input || typeof input !== "string") return null;
+    const trimmed = input.trim();
+    const match = trimmed.match(/\/app\/([a-zA-Z0-9]+)/);
+    return match ? match[1] : trimmed || null;
+}
+
+// Login for board-member accounts
+async function memberLogin(req, res) {
+    const { BAD_REQUEST, UNAUTHORIZED, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+    const { username, password, board } = req.body;
+    const boardShortId = extractBoardShortId(board);
+    if (!username || !password || !boardShortId) {
+        return Response.send(res, BAD_REQUEST, {
+            error: "Username, password, and the board link are required.",
+        });
+    }
+
+    const { data: boardRow, error: boardError } = await supabase
+        .from("boards")
+        .select("id")
+        .eq("short_id", boardShortId)
+        .maybeSingle();
+
+    const invalidCredentials = () =>
+        Response.send(res, UNAUTHORIZED, { error: "Invalid username, password, or board link." });
+    if (boardError || !boardRow) return invalidCredentials();
+
+    const { data: memberUser, error: lookupError } = await supabase
+        .from("users")
+        .select("email")
+        .eq("provider", "email")
+        .eq("member_username", username)
+        .eq("home_board_id", boardRow.id)
+        .maybeSingle();
+    if (lookupError || !memberUser) return invalidCredentials();
+
+    const { data, error } = await supabaseAuth.auth.signInWithPassword({
+        email: memberUser.email,
+        password,
+    });
+    if (error) return invalidCredentials();
+
+    try {
+        await establishMemberSession(req, res, data.user);
+    } catch (err) {
+        Response.send(res, INTERNAL_SERVER_ERROR, { error: err.message });
+    }
+}
+
 // access_token comes from the URL fragment, which never reaches the server directly.
 async function emailSession(req, res) {
     const { BAD_REQUEST, UNAUTHORIZED, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
@@ -348,11 +419,13 @@ router.delete("/deleteAccount", deleteAccount);
 router.get(
     "/steam",
     oauthLimiter,
+    stashBoardRedirect,
     passport.authenticate("steam", { failureRedirect: LOGIN_FAILED_ROUTE }),
 );
 router.get(
     "/google",
     oauthLimiter,
+    stashBoardRedirect,
     passport.authenticate("google", {
         failureRedirect: LOGIN_FAILED_ROUTE,
         scope: ["profile", "email", "openid"],
@@ -361,6 +434,7 @@ router.get(
 router.get(
     "/discord",
     oauthLimiter,
+    stashBoardRedirect,
     passport.authenticate("discord", { failureRedirect: LOGIN_FAILED_ROUTE }),
 );
 
@@ -371,6 +445,8 @@ router.post("/email/login", emailLogin);
 router.post("/email/magic-link", emailMagicLink);
 router.post("/email/session", emailSession);
 
+router.post("/member/login", memberLogin);
+
 // Strategy callbacks
 // Google and Discord - if renamed, update accordingly in the respective developer portal
 router.get("/steam/return", oauthLimiter, authCallback("steam"));
@@ -378,4 +454,3 @@ router.get("/google/callback", oauthLimiter, authCallback("google"));
 router.get("/discord/callback", oauthLimiter, authCallback("discord"));
 
 export default router;
-

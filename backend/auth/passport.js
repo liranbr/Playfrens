@@ -3,8 +3,30 @@ import passport from "passport";
 import SteamStrategy from "passport-steam";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { Strategy as DiscordStrategy } from "passport-discord";
+import { v4 as uuidv4 } from "uuid";
 import { resolveBaseURL } from "../utils.js";
 import { supabase } from "../supabaseClient.js";
+import { closeUserSockets } from "../ws/boardSocket.js";
+
+const SHORT_ID_ATTEMPTS = 5;
+function generateShortId() {
+    return uuidv4().replace(/-/g, "").slice(0, 8);
+}
+
+// Inserts a new board with a fresh short_id, retrying a few times in case of a match,
+// since short_id has a UNIQUE constraint, very unlikely 🤞
+async function insertBoardWithShortId(ownerId) {
+    let lastError;
+    for (let attempt = 1; attempt <= SHORT_ID_ATTEMPTS; attempt++) {
+        const { error } = await supabase
+            .from("boards")
+            .insert({ owner_id: ownerId, short_id: generateShortId() });
+        if (!error) return;
+        lastError = error;
+        if (error.code !== "23505") break; // not a unique-violation, retrying won't help
+    }
+    console.error("Error creating board:", lastError);
+}
 
 // Short cache for deserializeUser, since it runs on every authenticated request.
 const USER_CACHE_LIFETIME_SECS = 120; // 2 minutes

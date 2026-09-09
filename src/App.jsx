@@ -70,7 +70,7 @@ export default function App() {
                 <Suspense fallback={null}>
                     <Routes>
                         <Route index element={<Home />} />
-                        <Route path="/app" element={<Playfrens />} />
+                        <Route path="/app/:shortId?" element={<Playfrens />} />
                         <Route path="/login" element={<Login />} />
                         <Route path="/login/callback" element={<EmailCallback />} />
                         <Route path="/contact" element={<Contact />} />

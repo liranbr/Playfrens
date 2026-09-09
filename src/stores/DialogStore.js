@@ -1,5 +1,6 @@
 import { AboutDialog } from "@/components/Dialogs/AboutDialog.jsx";
 import { AccountSettingsDialog } from "@/components/Dialogs/AccountSettingsDialog.jsx";
+import { BoardMembersDialog } from "@/components/Dialogs/BoardMembersDialog.jsx";
 import { ChoosePartyToAddTagDialog } from "@/components/Dialogs/ChoosePartyToAddTagDialog.jsx";
 import { DeleteWarningDialog } from "@/components/Dialogs/DeleteWarningDialog.jsx";
 import { EditGameDialog } from "@/components/Dialogs/EditGameDialog.jsx";
@@ -17,6 +18,7 @@ import { action, makeAutoObservable } from "mobx";
 export const Dialogs = {
     ChoosePartyToAddTag: ChoosePartyToAddTagDialog,
     AccountSettings: AccountSettingsDialog,
+    BoardMembers: BoardMembersDialog,
     GenericWarning: GenericWarningDialog,
     DeleteWarning: DeleteWarningDialog,
     SteamImport: SteamImportDialog,

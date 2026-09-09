@@ -2,6 +2,7 @@ export * from "./UserStore.js";
 export * from "./SettingsStore.js";
 export * from "./DataStore.js";
 export * from "./FilterStore.js";
+export * from "./BoardStore.js";
 export * from "./DialogStore.js";
 
 // File order is important

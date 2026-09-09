@@ -19,12 +19,22 @@ const Login = observer(() => {
     const userStore = useUserStore();
     const { loading, userInfo } = userStore;
     const lastAuth = loadFromStorage("last-auth-used", "");
+    // Present when arriving via a shared board link; carried through every login path so you
+    // land back on that board afterward.
 
     const [mode, setMode] = useState("login"); // "login" | "signup"
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const [emailConfirmed, setEmailConfirmed] = useState(false);
+
+    // Board-member accounts log in with a username/password.
+    const targetBoard = new URLSearchParams(window.location.search).get("board");
+    const [memberMode, setMemberMode] = useState(!!targetBoard);
+    const [memberUsername, setMemberUsername] = useState("");
+    const [memberPassword, setMemberPassword] = useState("");
+    const [memberBoardInput, setMemberBoardInput] = useState("");
+    const [memberSubmitting, setMemberSubmitting] = useState(false);
 
     usePageMeta({
         title: "Sign in",
@@ -34,7 +44,7 @@ const Login = observer(() => {
     });
 
     if (loading) return <div className="loading-page">Loading...</div>;
-    if (userInfo) return <Navigate to="/app" replace />;
+    if (userInfo) return <Navigate to={targetBoard ? `/app/${targetBoard}` : "/app"} replace />;
 
     if (window.location.search.includes("failed=true")) toastError("Login failed.");
 
@@ -91,6 +101,88 @@ const Login = observer(() => {
         }
     }
 
+    async function handleMemberSubmit(e) {
+        e.preventDefault();
+        if (memberSubmitting) return;
+        setMemberSubmitting(true);
+        try {
+            const board = targetBoard || memberBoardInput;
+            const result = await userStore.loginAsMember(memberUsername, memberPassword, board);
+            if (!result.ok) toastError(result.error);
+        } finally {
+            setMemberSubmitting(false);
+        }
+    }
+
+    if (memberMode) {
+        return (
+            <div id="card-page">
+                <div className="card-page-body">
+                    <div className="card-page-header">
+                        <h1>{targetBoard ? "Sign in to access this board" : "Sign in with a board login"}</h1>
+                        <span>using a login someone created for you</span>
+                    </div>
+                    <form className="email-auth-form" onSubmit={handleMemberSubmit}>
+                        <fieldset>
+                            {/* Ask only if not known from the link that pasted, else input it manually */}
+                            {!targetBoard && (
+                                <>
+                                    <label htmlFor="member-board">
+                                        Board link or code
+                                        <br />
+                                        <small>Ask whoever gave you this login for it.</small>
+                                    </label>
+                                    <input
+                                        id="member-board"
+                                        required
+                                        placeholder="e.g. dsaghj or the full link"
+                                        value={memberBoardInput}
+                                        onChange={(e) => setMemberBoardInput(e.target.value)}
+                                    />
+                                </>
+                            )}
+                            <label htmlFor="member-username">Username</label>
+                            <input
+                                id="member-username"
+                                required
+                                autoComplete="username"
+                                value={memberUsername}
+                                onChange={(e) => setMemberUsername(e.target.value)}
+                            />
+                            <label htmlFor="member-password">Password</label>
+                            <input
+                                id="member-password"
+                                type="password"
+                                required
+                                autoComplete="current-password"
+                                value={memberPassword}
+                                onChange={(e) => setMemberPassword(e.target.value)}
+                            />
+                        </fieldset>
+                        <Button type="submit" disabled={memberSubmitting}>
+                            Sign in
+                        </Button>
+                    </form>
+                    <button
+                        type="button"
+                        className="link-like back-button"
+                        onClick={() => setMemberMode(false)}
+                    >
+                        <BiArrowBack />
+                        Back
+                    </button>
+                    <div className="login-footer">
+                        <a href="/privacy">Privacy Policy</a>
+                    </div>
+                </div>
+                <a href="/" className="app-brand">
+                    <img src="/Playfrens_Logo.png" alt="Playfrens Logo" />
+                    Playfrens
+                </a>
+            </div>
+        );
+    }
+
     return (
         <div id="card-page">
             <div className="card-page-body">
@@ -134,8 +226,8 @@ const Login = observer(() => {
                         {!emailConfirmed
                             ? "Continue"
                             : mode === "signup"
-                              ? "Create account"
-                              : "Sign in"}
+                                ? "Create account"
+                                : "Sign in"}
                     </Button>
                 </form>
 
@@ -175,7 +267,7 @@ const Login = observer(() => {
                                     variant="secondary"
                                     className={lastAuth === id ? "last-auth" : ""}
                                     style={{ "--pf-btn-hover": color }}
-                                    onClick={() => userStore.login(id)}
+                                    onClick={() => userStore.login(id, targetBoard)}
                                 >
                                     {icon}
                                     {label}
@@ -190,6 +282,16 @@ const Login = observer(() => {
                             {/* TODO: no "forgot password" work yet */}
                             <button type="button" className="link-like">
                                 Forgot password?
+                            </button>
+                        </div>
+
+                        <div className="email-auth-toggles">
+                            <button
+                                type="button"
+                                className="link-like"
+                                onClick={() => setMemberMode(true)}
+                            >
+                                Sign in with a board login instead?
                             </button>
                         </div>
                     </>

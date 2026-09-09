@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Avatar from "@radix-ui/react-avatar";
 import * as Popover from "@radix-ui/react-popover";
@@ -25,6 +25,7 @@ import {
     globalDataStore,
     globalDialogStore,
     restoreFromFile,
+    useBoardStore,
     useDataStore,
     useFilterStore,
     useUserStore,
@@ -126,6 +127,50 @@ function AppMenu() {
     );
 }
 
+// Shown as a dropdown only when you have more than one accessible board.
+const BoardSwitcher = observer(() => {
+    const boardStore = useBoardStore();
+    const navigate = useNavigate();
+
+    if (boardStore.boards.length <= 1) {
+        return (
+            <div className="app-brand">
+                <img src="/Playfrens_Logo.png" alt="Playfrens Logo" />
+                Playfrens
+            </div>
+        );
+    }
+
+    const DD = DropdownMenu;
+    return (
+        <DD.Root>
+            <DD.Trigger asChild>
+                <button className="app-brand board-switcher-trigger">
+                    <img src="/Playfrens_Logo.png" alt="Playfrens Logo" />
+                    {boardStore.activeBoard?.name ?? "Playfrens"}
+                </button>
+            </DD.Trigger>
+            <DD.Portal>
+                <DD.Content
+                    className="rx-dropdown-menu"
+                    align={"start"}
+                    side={"bottom"}
+                    sideOffset={5}
+                >
+                    {boardStore.boards.map((board) => (
+                        <DD.Item
+                            key={board.id}
+                            onClick={() => navigate(`/app/${board.shortId ?? board.id}`)}
+                        >
+                            {board.name}
+                        </DD.Item>
+                    ))}
+                </DD.Content>
+            </DD.Portal>
+        </DD.Root>
+    );
+});
+
 const AppHeader = observer(() => {
     const filterStore = useFilterStore();
     const search = filterStore.search;
@@ -135,10 +180,7 @@ const AppHeader = observer(() => {
         <CenterAndEdgesRow className="app-header">
             <div>
                 <AppMenu />
-                <div className="app-brand">
-                    <img src="/Playfrens_Logo.png" alt="Playfrens Logo" />
-                    Playfrens
-                </div>
+                <BoardSwitcher />
             </div>
 
             <CenterAndEdgesRow className="app-header-center">
@@ -283,6 +325,9 @@ const AppUserAvatar = observer(() => {
                     <DD.Item onClick={() => globalDialogStore.open(Dialogs.SteamImport)}>
                         Import from Steam
                     </DD.Item>
+                    <DD.Item onClick={() => globalDialogStore.open(Dialogs.BoardMembers)}>
+                        Board Members
+                    </DD.Item>
                     <DD.Item onClick={() => globalDialogStore.open(Dialogs.AccountSettings)}>
                         Account Settings
                     </DD.Item>
@@ -353,10 +398,22 @@ function AppSidebar() {
 const Playfrens = observer(() => {
     const userStore = useUserStore();
     const { loading, userInfo } = userStore;
+    const boardStore = useBoardStore();
+    const { shortId } = useParams();
+
+    // switch if it names a different board you
+    useEffect(() => {
+        if (!shortId || boardStore.loading) return;
+        const board = boardStore.boards.find((b) => b.shortId === shortId || b.id === shortId);
+        if (!board || board.id === boardStore.activeBoardId) return;
+        boardStore.switchBoard(board.id);
+    }, [shortId, boardStore, boardStore.loading, boardStore.boards, boardStore.activeBoardId]);
 
     if (loading) return <div className="loading-page">Loading...</div>;
-    // 'Protected Route' requires the user be logged in
-    if (userInfo === undefined) return <Navigate to="/login" replace />;
+    // Requires login, and carries the board id along so signing in lands back on it.
+    if (userInfo === undefined) {
+        return <Navigate to={shortId ? `/login?board=${shortId}` : "/login"} replace />;
+    }
 
     return (
         <>

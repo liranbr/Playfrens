@@ -1,6 +1,6 @@
 import { action, computed, makeAutoObservable, ObservableMap, reaction, runInAction } from "mobx";
 import { createContext, useContext } from "react";
-import { getOfficialCoverImageURLs, saveBoard, updateBoard } from "@/APIUtils.js";
+import { getBoard, getOfficialCoverImageURLs, saveBoard, updateBoard } from "@/APIUtils.js";
 import {
     compareGameTitlesAZ,
     compareTagFilteredGamesCount,
@@ -13,7 +13,7 @@ import {
     TagObject,
     tagTypes,
 } from "@/models";
-import { Party } from "@/models/GameObject.js";
+import { deserializePartyTagIDs, Party } from "@/models/GameObject.js";
 import { globalSettingsStore, settingsStorageKey, userStore } from "@/stores";
 import {
     coverToThumb,
@@ -49,6 +49,12 @@ const storageKeys = {
     visited: "visited",
     tagsCustomOrders: "tagsCustomOrders",
 };
+// Reverse lookup, since remote WS updates only carry the storageKey string.
+const storageKeyToTagType = {
+    [storageKeys[tT.friend]]: tT.friend,
+    [storageKeys[tT.category]]: tT.category,
+    [storageKeys[tT.status]]: tT.status,
+};
 
 // #============#
 // ‖ DATA STORE ‖
@@ -80,6 +86,17 @@ export class DataStore {
     #isHydrated = false;
     // Per-key debounce timers, so rapid successive edits collapse into one backend request.
     #syncTimers = {};
+    // Which board is currently loaded, set by populate() and read by every outgoing sync call.
+    activeBoardId = null;
+    // Last known `boards.last_updated` for the active board; used as the stale-write guard when
+    // resending a whole collection array (see watchAndSyncCollection).
+    #boardLastUpdated = null;
+    // True while applying a change from the WebSocket, so reactions below don't sync it right back out.
+    #applyingRemote = false;
+    // storageKey -> last-synced [id, plainObject][] snapshot for the ObservableMap collections,
+    // kept up to date by both outgoing syncs and incoming remote updates, so a remote update
+    // never looks like a local diff on the next edit.
+    #lastSyncedByKey = {};
 
     constructor() {
         makeAutoObservable(this, { sortedReminders: computed, anyFriendHasIcon: computed });
@@ -92,18 +109,21 @@ export class DataStore {
         );
     }
 
-    async populate() {
+    async populate(boardId) {
+        this.activeBoardId = boardId;
         try {
-            const response = await fetch("/api/board");
+            const response = await fetch(`/api/boards/${boardId}`);
             const json = await response.json();
             if (!response.ok) throw new Error(json.error);
             const board = json.board.board;
+            this.#boardLastUpdated = json.board.last_updated;
 
             // Set to default via Empty Board for now.
             if (Object.keys(board).length === 0) {
                 const data = defaultTagsSample();
                 this.populateTagsFromTagNames(data);
-                await saveBoard(ExportDataStoreToJSON());
+                const saved = await saveBoard(this.activeBoardId, ExportDataStoreToJSON());
+                if (saved?.lastUpdated) this.#boardLastUpdated = saved.lastUpdated;
             } else {
                 // Load from backend data
                 this.populateTags({
@@ -123,24 +143,34 @@ export class DataStore {
             toastError(error);
         }
 
+        // Seed the "last synced" snapshots now that hydration is done, so the first reaction
+        // tick diffs against real data.
+        const snapshotOf = (map) => [...map.entries()].map(([id, v]) => [id, toPlainObject(v)]);
+        this.#lastSyncedByKey[storageKeys[tT.friend]] = snapshotOf(this.allTags[tT.friend]);
+        this.#lastSyncedByKey[storageKeys[tT.category]] = snapshotOf(this.allTags[tT.category]);
+        this.#lastSyncedByKey[storageKeys[tT.status]] = snapshotOf(this.allTags[tT.status]);
+        this.#lastSyncedByKey[storageKeys.games] = snapshotOf(this.allGames);
+
         // keep the backend in sync, per key
         const watchAndSync = (storageKey, item) => {
             reaction(
                 () => JSON.stringify(item),
-                () => this.#syncKeyToBackend(storageKey, item),
+                () => {
+                    if (this.#applyingRemote) return; // a remote update caused this change, don't echo it back
+                    this.#syncKeyToBackend(storageKey, item);
+                },
             );
         };
         watchAndSync(storageKeys.reminders, this.allReminders);
         watchAndSync(storageKeys.tagsCustomOrders, this.tagsCustomOrders);
 
         const watchAndSyncCollection = (storageKey, map) => {
-            let lastSynced = [...map.entries()].map(([id, v]) => [id, toPlainObject(v)]);
-
             reaction(
                 () => JSON.stringify(map), // rechecks below whenever anything in the map changes
                 () => {
-                    if (!this.#isHydrated) return;
+                    if (!this.#isHydrated || this.#applyingRemote) return;
 
+                    const lastSynced = this.#lastSyncedByKey[storageKey];
                     const current = [...map.entries()];
                     const lastByID = new Map(lastSynced);
 
@@ -160,25 +190,26 @@ export class DataStore {
                     // re-order or only a non-persisted field changed (like a tag's game count), nothing to send
                     if (sameIDs && changed.length === 0) return;
 
-                    if (sameIDs && changed.length === 1) {
-                        // exactly one entry changed, so patch just that array slot
-                        const [id, value] = changed[0];
-                        const snapshot = toPlainObject(value);
-                        const index = lastSynced.findIndex(([lastID]) => lastID === id);
-                        debounce(
-                            this.#syncTimers,
-                            `${storageKey}::${id}`, // own timer per entry, so editing two things doesn't cancel either update
-                            () => updateBoard([storageKey, index], [id, snapshot]).catch(() => {}),
-                            100,
-                        );
-                        lastSynced[index] = [id, snapshot]; // remember what we just sent
-                        return;
-                    }
-
                     // an entry was added/removed, or several changed at once, then just resend everything
                     const snapshot = current.map(([id, v]) => [id, toPlainObject(v)]);
-                    this.#syncKeyToBackend(storageKey, snapshot);
-                    lastSynced = snapshot;
+                    debounce(
+                        this.#syncTimers,
+                        storageKey,
+                        () =>
+                            this.#pushBoardUpdate([storageKey], snapshot, {
+                                getExpectedLastUpdated: () => this.#boardLastUpdated,
+                                onStaleWrite: () => {
+                                    toastError(
+                                        "Someone else on this board made a change at the same " +
+                                            "time, so this change didn't apply and was synced " +
+                                            "back to the latest instead.",
+                                    );
+                                    this.#recoverFromStaleWrite(storageKey);
+                                },
+                            }),
+                        100,
+                    );
+                    this.#lastSyncedByKey[storageKey] = snapshot;
                 },
             );
         };
@@ -194,9 +225,30 @@ export class DataStore {
         debounce(
             this.#syncTimers,
             storageKey,
-            () => updateBoard([storageKey], item).catch(() => {}),
+            () => this.#pushBoardUpdate([storageKey], item),
             delay,
         );
+    }
+
+    async #pushBoardUpdate(path, value, { getExpectedLastUpdated, onStaleWrite } = {}) {
+        try {
+            const result = await updateBoard(
+                this.activeBoardId,
+                path,
+                value,
+                getExpectedLastUpdated,
+            );
+            if (result?.lastUpdated) this.#boardLastUpdated = result.lastUpdated;
+        } catch (err) {
+            if (err?.staleWrite) onStaleWrite?.();
+        }
+    }
+
+    // So it can self correct on stale write if there was a desync
+    async #recoverFromStaleWrite(storageKey) {
+        const fresh = await getBoard(this.activeBoardId);
+        if (!fresh) return;
+        this.applyRemoteUpdate([storageKey], fresh.board[storageKey], fresh.last_updated);
     }
 
     // For stores that own board data outside DataStore (Settings, saved Default Filters) to sync their own key.
@@ -208,14 +260,101 @@ export class DataStore {
     watchSettingsForBackendSync() {
         reaction(
             () => JSON.stringify(globalSettingsStore),
-            () => this.syncBoardKeyToBackend(storageKeys.settings, globalSettingsStore, 1000),
+            () => {
+                if (this.#applyingRemote) return;
+                this.syncBoardKeyToBackend(storageKeys.settings, globalSettingsStore, 1000);
+            },
         );
+    }
+
+    // #===========#
+    // ‖ LIVE SYNC ‖
+    // #===========#
+
+    /**
+     * Runs `fn` with outgoing sync reactions suppressed, so applying an incoming WebSocket
+     * change doesn't immediately sync it right back.
+     */
+    withRemoteApplyGuard(fn) {
+        this.#applyingRemote = true;
+        try {
+            runInAction(fn);
+        } catch (err) {
+            console.error("Error applying a remote board update:", err);
+            toastError(
+                "Something went wrong applying a live update. Refresh if things seem stuck.",
+            );
+        } finally {
+            this.#applyingRemote = false;
+        }
+    }
+
+    /** Applies a `{type: "board-update", path, value}` message received over the WebSocket. */
+    applyRemoteUpdate(path, value, lastUpdated) {
+        this.withRemoteApplyGuard(() => {
+            this.#applyPathValue(path, value);
+            if (lastUpdated) this.#boardLastUpdated = lastUpdated;
+        });
+    }
+
+    /**
+     * Applies a fresh [id, json] snapshot into ObservableMap
+     * This is so a dialog holding a reference to one specific object sees the update live.
+     */
+    #patchCollection(map, entries, construct) {
+        const incomingIds = new Set();
+        for (const [id, json] of entries) {
+            incomingIds.add(id);
+            const existing = map.get(id);
+            if (existing) existing.patchFromJSON(json);
+            else map.set(id, construct(json));
+        }
+        for (const id of [...map.keys()]) {
+            if (!incomingIds.has(id)) map.delete(id);
+        }
+    }
+
+    #applyPathValue(path, value) {
+        const [storageKey] = path;
+
+        const tagType = storageKeyToTagType[storageKey];
+        if (tagType !== undefined) {
+            const Ctor = tagType === tT.friend ? FriendTagObject : TagObject;
+            const entries = (value ?? []).filter(Boolean);
+            this.#patchCollection(this.allTags[tagType], entries, (json) => new Ctor(json));
+            this.#lastSyncedByKey[storageKey] = entries;
+            return;
+        }
+
+        if (storageKey === storageKeys.games) {
+            const entries = (value ?? []).filter(([id, gameJson]) => id && gameJson?.id);
+            this.#patchCollection(this.allGames, entries, (json) => this.#gameFromJson(json));
+            this.#lastSyncedByKey[storageKey] = entries;
+            return;
+        }
+
+        if (storageKey === storageKeys.reminders) return this.populateReminders(value);
+        if (storageKey === storageKeys.tagsCustomOrders)
+            return this.populateTagsCustomOrders(value);
+
+        console.warn(`applyRemoteUpdate: unhandled storageKey "${storageKey}"`);
+    }
+
+    notifyRemoteBoardReplaced(lastUpdated) {
+        if (lastUpdated) this.#boardLastUpdated = lastUpdated;
+        toastInfo("This board's data was replaced (e.g. a backup restore). Refreshing...");
+        window.location.reload();
+    }
+
+    notifyBoardDeleted() {
+        toastError("This board was deleted.");
     }
 
     // Used when loading some predefined set, like the starting defaults
     populateTagsFromTagNames(tagCollection) {
         for (const tagType in tagCollection) {
-            this.allTags[tagType] = new ObservableMap(
+            // .replace() mutates instead of swapping, otherwise will break a lot of things
+            this.allTags[tagType].replace(
                 tagCollection[tagType]
                     .filter(Boolean) // skip potential nulls, undefined, "" etc.
                     .map((tagName) => new TagObject({ type: tagType, name: tagName }))
@@ -227,7 +366,7 @@ export class DataStore {
     /** @param {{[key: string]: any[]}} tagCollection - object holding, per tagType, an array of [id, serialized TagObject] entries */
     populateTags(tagCollection) {
         for (const tagType in tagCollection) {
-            this.allTags[tagType] = new ObservableMap(
+            this.allTags[tagType].replace(
                 tagCollection[tagType]
                     .filter(Boolean)
                     .map(([id, tagJson]) => [
@@ -238,32 +377,24 @@ export class DataStore {
         }
     }
 
-    deserializeGameTagIDs(gameTagIDs) {
-        for (const tagType in gameTagIDs) {
-            gameTagIDs[tagType] = new Set(gameTagIDs[tagType]); // sets are serialized as arrays
-        }
-        return gameTagIDs;
+    #parseParties(parties) {
+        return (parties ?? [])
+            .filter((party) => {
+                if (!party || !party.id || !party.name) {
+                    console.warn(`Skipping invalid party, id: ${party?.id}`);
+                    return false;
+                }
+                return true;
+            })
+            .map((party) => new Party({ ...party, tagIDs: deserializePartyTagIDs(party.tagIDs) }));
+    }
+
+    #gameFromJson(gameJson) {
+        return new GameObject({ ...gameJson, parties: this.#parseParties(gameJson.parties) });
     }
 
     // eslint-disable-next-line no-unused-vars -- unused, kept for future use case.
     async populateGames(gameJsons, version) {
-        const parseParties = (parties) => {
-            return parties
-                .filter((party) => {
-                    if (!party || !party.id || !party.name) {
-                        console.warn(`Skipping invalid party, id: ${party?.id}`);
-                        return false;
-                    }
-                    return true;
-                })
-                .map((party) => {
-                    return new Party({
-                        ...party,
-                        tagIDs: this.deserializeGameTagIDs(party.tagIDs),
-                    });
-                });
-        };
-
         let changed = false;
         const entries = await Promise.all(
             gameJsons
@@ -279,20 +410,23 @@ export class DataStore {
                         gameJson.coverThumbURL = await coverToThumb(gameJson.coverImageURL);
                         changed = true;
                     }
-                    const game = new GameObject({
-                        ...gameJson,
-                        parties: parseParties(gameJson.parties),
-                    });
-
-                    return [id, game];
+                    return [id, this.#gameFromJson(gameJson)];
                 }),
         );
 
         changed = (await this.#refreshOfficialCovers(entries)) || changed;
 
         runInAction(() => {
-            this.allGames = new ObservableMap(entries);
-            if (changed) saveBoard(ExportDataStoreToJSON()).catch(() => {});
+            this.allGames.replace(entries); // mutate in place, don't reassign the Map
+            if (changed) {
+                // Runs on nearly every load if a game was missing a cached thumbnail, so keep
+                // #boardLastUpdated in sync or the next edit gets wrongly flagged as stale.
+                saveBoard(this.activeBoardId, ExportDataStoreToJSON())
+                    .then((saved) => {
+                        if (saved?.lastUpdated) this.#boardLastUpdated = saved.lastUpdated;
+                    })
+                    .catch(() => {});
+            }
         });
     }
 
@@ -987,7 +1121,7 @@ export function restoreFromFile(file) {
         saveToStorage(storageKeys.settings, data[storageKeys.settings]);
         saveToStorage(storageKeys.defaultFilters, data[storageKeys.defaultFilters]);
 
-        saveBoard(ExportDataStoreToJSON())
+        saveBoard(dataStore.activeBoardId, ExportDataStoreToJSON())
             .then(() => {
                 window.location.reload();
             })

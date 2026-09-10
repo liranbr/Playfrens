@@ -4,7 +4,7 @@ import * as Popover from "@radix-ui/react-popover";
 import { MdClose, MdDeleteOutline, MdEdit, MdMoreVert } from "react-icons/md";
 import { useRef, useState } from "react";
 import { Dialogs, globalDialogStore, useDataStore } from "@/stores";
-import { Button, IconButton } from "@/components";
+import { Button, IconButton, Input } from "@/components";
 // eslint-disable-next-line no-unused-vars -- for reference
 import { ReminderObject } from "@/models";
 import "./ReminderCard.css";
@@ -130,10 +130,9 @@ const ReminderEditor = observer(({ reminder, editorOpen, setEditorOpen, containe
                         onChange={handleDateChange}
                         autoFocus
                     />
-                    <textarea
+                    <Input
+                        textarea
                         className="reminder-textarea"
-                        rows={4}
-                        spellCheck={false}
                         value={message}
                         placeholder="Message"
                         onChange={(e) => setMessage(e.target.value)}

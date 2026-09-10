@@ -13,6 +13,7 @@ import {
     CenterAndEdgesRow,
     FriendAvatar,
     IconButton,
+    Input,
     ReminderCard,
     SimpleTooltip,
 } from "@/components";
@@ -278,10 +279,9 @@ const AddReminderPopover = ({ game, party }) => {
                         onChange={handleDateChange}
                         autoFocus
                     />
-                    <textarea
+                    <Input
+                        textarea
                         className="reminder-textarea"
-                        rows={4}
-                        spellCheck={false}
                         value={message}
                         placeholder="Message"
                         onChange={(e) => setMessage(e.target.value)}
@@ -466,12 +466,13 @@ export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID
                                 <h4>NOTE</h4>
                                 <div />
                             </CenterAndEdgesRow>
-                            <textarea
+                            <Input
+                                textarea
                                 className="game-note"
                                 rows={5}
-                                spellCheck={false}
                                 value={party.note}
-                                onChange={(e) => party.setNote(e.target.value)}
+                                onCommit={(value) => party.setNote(value)}
+                                active={open}
                                 maxLength={2000}
                             />
                         </div>

@@ -440,12 +440,12 @@ router.get(
 
 // Email login (password + magic link), built on Supabase Auth
 router.post("/email/exists", emailExists);
-router.post("/email/signup", emailSignup);
-router.post("/email/login", emailLogin);
-router.post("/email/magic-link", emailMagicLink);
+router.post("/email/signup", oauthLimiter, emailSignup);
+router.post("/email/login", oauthLimiter, emailLogin);
+router.post("/email/magic-link", oauthLimiter, emailMagicLink);
 router.post("/email/session", emailSession);
 
-router.post("/member/login", memberLogin);
+router.post("/member/login", oauthLimiter, memberLogin);
 
 // Strategy callbacks
 // Google and Discord - if renamed, update accordingly in the respective developer portal

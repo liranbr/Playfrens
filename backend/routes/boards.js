@@ -40,7 +40,7 @@ async function listBoards(req, res) {
     return Response.send(res, OK, { boards: list });
 }
 
-const MAX_OWNED_BOARDS = 3;
+const MAX_OWNED_BOARDS = 10;
 
 async function createBoard(req, res) {
     const { OK, BAD_REQUEST, INTERNAL_SERVER_ERROR } = Response.HttpStatus;

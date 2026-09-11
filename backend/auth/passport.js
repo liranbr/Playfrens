@@ -100,6 +100,7 @@ export async function upsertUser(profile, provider, { createHomeBoard = true } =
                 return profile.photos?.length ? profile.photos.at(-1).value : null;
             case "google": {
                 const avatar = profile.photos?.length ? profile.photos.at(-1).value : null;
+                if (!avatar) return null; // no profile photo set
                 // Give the maximum size of most google avatars, 512x512.
                 return avatar.replace(/=s\d+-c$/, "=s512-c");
             }

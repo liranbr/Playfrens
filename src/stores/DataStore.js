@@ -3,7 +3,15 @@ import { createContext, useContext } from "react";
 import { getBoard, saveBoard, updateBoard } from "@/APIUtils.js";
 import { FriendTagObject, TagObject } from "@/models";
 import { globalSettingsStore } from "@/stores";
-import { debounce, deepEqual, saveToStorage, toastError, toastInfo, toPlainObject } from "@/Utils";
+import {
+    debounce,
+    deepEqual,
+    deleteItemFromArray,
+    saveToStorage,
+    toastError,
+    toastInfo,
+    toPlainObject,
+} from "@/Utils";
 import { setupAutoSorting } from "./DataStore/autoSorting.js";
 import {
     backupToFile as backupToFileImpl,
@@ -38,7 +46,6 @@ import {
     importFriends,
     isDraggedTagDropzoneNotOnSelf,
     moveTagCustomPosition,
-    oldEditTag,
     populateTags,
     populateTagsCustomOrders,
     populateTagsFromTagNames,
@@ -222,7 +229,17 @@ export class DataStore {
         debounce(
             this.#syncTimers,
             storageKey,
-            () => this.#pushBoardUpdate([storageKey], item),
+            () =>
+                this.#pushBoardUpdate([storageKey], item, {
+                    getExpectedLastUpdated: () => this.#boardLastUpdated,
+                    onStaleWrite: () => {
+                        toastError(
+                            "Someone else on this board made a change at the same time, so " +
+                                "this change didn't apply and was synced back to the latest instead.",
+                        );
+                        this.#recoverFromStaleWrite(storageKey);
+                    },
+                }),
             delay,
         );
     }
@@ -331,9 +348,8 @@ export class DataStore {
                 this.allTags[tagType],
                 entries,
                 (json) => new Ctor(json),
-                // A tag removed remotely (someone else deleted it) needs pruning from every game's
-                // parties too, same as the local deleteTag() path does - otherwise a party keeps a
-                // dangling tag ID that no longer resolves to anything, crashing GamePage on open.
+                // Prune from every game's parties too, like the local deleteTag() path,
+                // or a dangling tag ID crashes GamePage on open.
                 (removedTag) => this.allGames.forEach((game) => game.silentRemoveTag(removedTag)),
             );
             this.#lastSyncedByKey[storageKey] = entries;
@@ -342,7 +358,20 @@ export class DataStore {
 
         if (storageKey === storageKeys.games) {
             const entries = (value ?? []).filter(([id, gameJson]) => id && gameJson?.id);
-            this.#patchCollection(this.allGames, entries, (json) => gameFromJson(json));
+            this.#patchCollection(
+                this.allGames,
+                entries,
+                (json) => gameFromJson(json),
+                // Prune its reminders too, like the local deleteGame() path,
+                // or a dangling reminder crashes ReminderCard.
+                (removedGame) => {
+                    for (const reminder of [...this.allReminders]) {
+                        if (reminder.gameID === removedGame.id) {
+                            deleteItemFromArray(this.allReminders, reminder);
+                        }
+                    }
+                },
+            );
             this.#lastSyncedByKey[storageKey] = entries;
             return;
         }
@@ -391,10 +420,6 @@ export class DataStore {
 
     deleteTag(tag) {
         return deleteTag(this, tag);
-    }
-
-    oldEditTag(tag, data) {
-        return oldEditTag(this, tag, data);
     }
 
     editTag(tag, data = {}) {

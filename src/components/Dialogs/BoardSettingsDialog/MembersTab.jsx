@@ -1,26 +1,23 @@
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
-import * as Dialog from "@radix-ui/react-dialog";
 import * as Avatar from "@radix-ui/react-avatar";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { MdContentCopy, MdPerson, MdPersonRemove } from "react-icons/md";
-import { DialogBase } from "./DialogRoot.jsx";
-import { Button } from "@/components/index.js";
-import { globalBoardStore } from "@/stores/index.js";
+import { Button } from "@/components";
+import { globalBoardStore } from "@/stores";
 import { createBoardMember, listBoardMembers, removeBoardMember } from "@/APIUtils.js";
 import { toastError, toastSuccess } from "@/Utils";
-import "./BoardMembersDialog.css";
 
 // Lists this board's members and, if you're the owner, lets you create or remove logins.
 // For now only works for none-accounts.
-export const BoardMembersDialog = observer(({ open, closeDialog }) => {
+export const MembersTab = observer(() => {
     const boardId = globalBoardStore.activeBoardId;
     const activeBoard = globalBoardStore.activeBoard;
     const isOwner = activeBoard?.role === "owner";
     const boardLink = `${window.location.origin}/app/${activeBoard?.shortId ?? boardId}`;
 
-    const [members, setMembers] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const cached = globalBoardStore.getCachedMembers(boardId);
+    const [members, setMembers] = useState(cached ?? []);
+    const [loading, setLoading] = useState(cached === null);
     const [creating, setCreating] = useState(false);
     const [newUsername, setNewUsername] = useState("");
     const [newPassword, setNewPassword] = useState("");
@@ -29,7 +26,11 @@ export const BoardMembersDialog = observer(({ open, closeDialog }) => {
     async function refresh() {
         setLoading(true);
         try {
-            setMembers(await listBoardMembers(boardId));
+            const fetched = await listBoardMembers(boardId);
+            // Owner first, everyone else keeps the order the backend returned them in.
+            fetched.sort((a, b) => (a.role === "owner" ? -1 : b.role === "owner" ? 1 : 0));
+            setMembers(fetched);
+            globalBoardStore.setCachedMembers(boardId, fetched);
         } catch (err) {
             toastError(err.message);
         } finally {
@@ -38,9 +39,12 @@ export const BoardMembersDialog = observer(({ open, closeDialog }) => {
     }
 
     useEffect(() => {
-        if (open) refresh();
-        // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-run when the dialog opens
-    }, [open]);
+        // Already have this board's members cached (e.g. reopening the dialog, or switching back
+        // to this tab) - skip the loading flash and the redundant request.
+        if (globalBoardStore.getCachedMembers(boardId)) return;
+        refresh();
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-run when the board changes
+    }, [boardId]);
 
     async function handleCreate() {
         if (creating || !newUsername.trim() || newPassword.length < 8) return;
@@ -77,22 +81,7 @@ export const BoardMembersDialog = observer(({ open, closeDialog }) => {
     }
 
     return (
-        <DialogBase
-            open={open}
-            onOpenChange={closeDialog}
-            contentProps={{
-                className: "rx-dialog board-members-dialog",
-                onOpenAutoFocus: (e) => {
-                    e.preventDefault(); // Focuses the dialog content instead of the first interactable element
-                    e.target.focus();
-                },
-            }}
-        >
-            <Dialog.Title>Board Members</Dialog.Title>
-            <VisuallyHidden>
-                <Dialog.Description>Manage who can access and edit this board</Dialog.Description>
-            </VisuallyHidden>
-
+        <>
             <div className="dialog-callout">
                 <label>Board link</label>
                 <div className="board-members-copy-row">
@@ -158,6 +147,9 @@ export const BoardMembersDialog = observer(({ open, closeDialog }) => {
                             autoComplete="new-password"
                         />
                     </fieldset>
+                    <Button variant="primary" disabled={creating} onClick={handleCreate}>
+                        Create login
+                    </Button>
 
                     {createdCredentials && (
                         <div className="dialog-callout">
@@ -184,18 +176,7 @@ export const BoardMembersDialog = observer(({ open, closeDialog }) => {
                     )}
                 </>
             )}
-
-            <div className="rx-dialog-footer">
-                <Button variant="secondary" onClick={closeDialog}>
-                    Close
-                </Button>
-                {isOwner && (
-                    <Button variant="primary" disabled={creating} onClick={handleCreate}>
-                        Create login
-                    </Button>
-                )}
-            </div>
-        </DialogBase>
+        </>
     );
 });
 

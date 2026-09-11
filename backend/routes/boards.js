@@ -4,7 +4,12 @@ import { Response } from "../response.js";
 import { supabase } from "../supabaseClient.js";
 import { requireAuth } from "../auth/requireAuth.js";
 import { requireBoardAccess } from "../auth/requireBoardAccess.js";
-import { deleteUserAccountRow, removeOrphanedBoardMembers, upsertUser } from "../auth/passport.js";
+import {
+    deleteUserAccountRow,
+    insertBoardWithShortId,
+    removeOrphanedBoardMembers,
+    upsertUser,
+} from "../auth/passport.js";
 import {
     broadcastToBoard,
     closeUserSockets,
@@ -33,6 +38,38 @@ async function listBoards(req, res) {
             (b.owner_id === userId ? "My Board" : `${b.owner?.display_name ?? "Unknown"}'s Board`),
     }));
     return Response.send(res, OK, { boards: list });
+}
+
+const MAX_OWNED_BOARDS = 3;
+
+async function createBoard(req, res) {
+    const { OK, BAD_REQUEST, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+    const { name } = req.body;
+
+    const { count, error: countError } = await supabase
+        .from("boards")
+        .select("id", { count: "exact", head: true })
+        .eq("owner_id", req.user.id);
+    if (countError) return Response.send(res, INTERNAL_SERVER_ERROR, { error: countError.message });
+    if (count >= MAX_OWNED_BOARDS) {
+        return Response.send(res, BAD_REQUEST, {
+            error: `You can only own up to ${MAX_OWNED_BOARDS} boards.`,
+        });
+    }
+
+    const board = await insertBoardWithShortId(req.user.id, name?.trim() || null);
+    if (!board) {
+        return Response.send(res, INTERNAL_SERVER_ERROR, { error: "Failed to create board." });
+    }
+
+    return Response.send(res, OK, {
+        board: {
+            id: board.id,
+            shortId: board.short_id,
+            name: board.name || "My Board",
+            role: "owner",
+        },
+    });
 }
 
 /** GET /:boardId (access is already resolved and the row already loaded by requireBoardAccess). */
@@ -65,6 +102,24 @@ async function saveBoard(req, res) {
         message: "Board updated successfully",
         lastUpdated: updated.last_updated,
     });
+}
+
+async function renameBoard(req, res) {
+    const { OK, BAD_REQUEST, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+    const { name } = req.body;
+    if (!name || typeof name !== "string" || !name.trim()) {
+        return Response.send(res, BAD_REQUEST, { error: "A board name is required." });
+    }
+
+    const trimmed = name.trim();
+    const { error } = await supabase
+        .from("boards")
+        .update({ name: trimmed })
+        .eq("id", req.board.id);
+    if (error) return Response.send(res, INTERNAL_SERVER_ERROR, { error: error.message });
+
+    broadcastToBoard(req.board.id, { type: "board-renamed", name: trimmed });
+    return Response.send(res, OK, { name: trimmed });
 }
 
 /**
@@ -269,8 +324,10 @@ const router = Router();
 router.use(requireAuth);
 
 router.get("/", listBoards);
+router.post("/", createBoard);
 router.get("/:boardId", requireBoardAccess, getBoard);
 router.post("/:boardId", requireBoardAccess, saveBoard);
+router.post("/:boardId/rename", requireBoardAccess, renameBoard);
 router.post("/:boardId/update", requireBoardAccess, updateBoard);
 router.delete("/:boardId", requireBoardAccess, deleteBoard);
 router.get("/:boardId/members", requireBoardAccess, listMembers);
@@ -278,4 +335,3 @@ router.post("/:boardId/members", requireBoardAccess, createMember);
 router.delete("/:boardId/members/:userId", requireBoardAccess, removeMember);
 
 export default router;
-

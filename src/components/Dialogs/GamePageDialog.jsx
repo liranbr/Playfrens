@@ -149,7 +149,10 @@ const GPTagButtonGroup = observer(({ party, tagType }) => {
             const order = [...dataStore.allTags[tagType].keys()];
             return order.indexOf(id1) - order.indexOf(id2);
         })
-        .map((id) => dataStore.getTagByID(id, tagType));
+        .map((id) => dataStore.getTagByID(id, tagType))
+        // A party can end up with a tag ID that no longer resolves to a real tag,
+        // drop it instead of crashing on tag.id below.
+        .filter(Boolean);
     return (
         <div className="tag-button-group">
             <CenterAndEdgesRow className="ui-card-header">

@@ -15,17 +15,21 @@ function generateShortId() {
 
 // Inserts a new board with a fresh short_id, retrying a few times in case of a match,
 // since short_id has a UNIQUE constraint, very unlikely 🤞
-async function insertBoardWithShortId(ownerId) {
+// Returns the created { id, short_id, name } row, or null if every attempt failed.
+export async function insertBoardWithShortId(ownerId, name = null) {
     let lastError;
     for (let attempt = 1; attempt <= SHORT_ID_ATTEMPTS; attempt++) {
-        const { error } = await supabase
+        const { data, error } = await supabase
             .from("boards")
-            .insert({ owner_id: ownerId, short_id: generateShortId() });
-        if (!error) return;
+            .insert({ owner_id: ownerId, short_id: generateShortId(), name })
+            .select("id, short_id, name")
+            .single();
+        if (!error) return data;
         lastError = error;
         if (error.code !== "23505") break; // not a unique-violation, retrying won't help
     }
     console.error("Error creating board:", lastError);
+    return null;
 }
 
 // Short cache for deserializeUser, since it runs on every authenticated request.

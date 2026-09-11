@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Avatar from "@radix-ui/react-avatar";
 import * as Popover from "@radix-ui/react-popover";
@@ -8,6 +8,7 @@ import {
     MdChevronRight,
     MdClose,
     MdFilterAltOff,
+    MdKeyboardArrowDown,
     MdMenu,
     MdOutlineCheckCircle,
     MdOutlineFileDownload,
@@ -66,8 +67,8 @@ function AppMenu() {
                         sideOffset={5}
                     >
                         <DD.Sub>
-                            <DD.Item onClick={() => globalDialogStore.open(Dialogs.Settings)}>
-                                Settings
+                            <DD.Item onClick={() => globalDialogStore.open(Dialogs.BoardSettings)}>
+                                Board Settings
                             </DD.Item>
                             <DD.SubTrigger>
                                 Backup
@@ -127,47 +128,61 @@ function AppMenu() {
     );
 }
 
-// Shown as a dropdown only when you have more than one accessible board.
+// The Playfrens brand stays put always; the board name/switcher next to it only shows up when
+// there's more than one accessible board, or you can still create one.
 const BoardSwitcher = observer(() => {
     const boardStore = useBoardStore();
-    const navigate = useNavigate();
+    const canSwitchOrCreate = boardStore.boards.length > 1 || boardStore.canCreateBoard;
+    const DD = DropdownMenu;
 
-    if (boardStore.boards.length <= 1) {
-        return (
+    return (
+        <div className="app-brand-row">
             <div className="app-brand">
                 <img src="/Playfrens_Logo.png" alt="Playfrens Logo" />
                 Playfrens
             </div>
-        );
-    }
 
-    const DD = DropdownMenu;
-    return (
-        <DD.Root>
-            <DD.Trigger asChild>
-                <button className="app-brand board-switcher-trigger">
-                    <img src="/Playfrens_Logo.png" alt="Playfrens Logo" />
-                    {boardStore.activeBoard?.name ?? "Playfrens"}
-                </button>
-            </DD.Trigger>
-            <DD.Portal>
-                <DD.Content
-                    className="rx-dropdown-menu"
-                    align={"start"}
-                    side={"bottom"}
-                    sideOffset={5}
-                >
-                    {boardStore.boards.map((board) => (
-                        <DD.Item
-                            key={board.id}
-                            onClick={() => navigate(`/app/${board.shortId ?? board.id}`)}
-                        >
-                            {board.name}
-                        </DD.Item>
-                    ))}
-                </DD.Content>
-            </DD.Portal>
-        </DD.Root>
+            {canSwitchOrCreate && (
+                <>
+                    <span className="app-brand-separator">|</span>
+                    <DD.Root>
+                        <DD.Trigger asChild>
+                            <button className="board-switcher-trigger">
+                                {boardStore.activeBoard?.name ?? "Board"}
+                                <MdKeyboardArrowDown />
+                            </button>
+                        </DD.Trigger>
+                        <DD.Portal>
+                            <DD.Content
+                                className="rx-dropdown-menu"
+                                align={"start"}
+                                side={"bottom"}
+                                sideOffset={5}
+                            >
+                                {boardStore.boards.map((board) => (
+                                    <DD.Item
+                                        key={board.id}
+                                        onClick={() => boardStore.switchBoard(board.id)}
+                                    >
+                                        {board.name}
+                                    </DD.Item>
+                                ))}
+                                {boardStore.canCreateBoard && (
+                                    <>
+                                        <DD.Separator />
+                                        <DD.Item
+                                            onClick={() => globalDialogStore.open(Dialogs.CreateBoard)}
+                                        >
+                                            Create board
+                                        </DD.Item>
+                                    </>
+                                )}
+                            </DD.Content>
+                        </DD.Portal>
+                    </DD.Root>
+                </>
+            )}
+        </div>
     );
 });
 
@@ -324,9 +339,6 @@ const AppUserAvatar = observer(() => {
                 >
                     <DD.Item onClick={() => globalDialogStore.open(Dialogs.SteamImport)}>
                         Import from Steam
-                    </DD.Item>
-                    <DD.Item onClick={() => globalDialogStore.open(Dialogs.BoardMembers)}>
-                        Board Members
                     </DD.Item>
                     <DD.Item onClick={() => globalDialogStore.open(Dialogs.AccountSettings)}>
                         Account Settings

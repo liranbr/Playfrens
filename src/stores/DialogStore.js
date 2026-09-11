@@ -1,13 +1,13 @@
 import { AboutDialog } from "@/components/Dialogs/AboutDialog.jsx";
 import { AccountSettingsDialog } from "@/components/Dialogs/AccountSettingsDialog.jsx";
-import { BoardMembersDialog } from "@/components/Dialogs/BoardMembersDialog.jsx";
+import { BoardSettingsDialog } from "@/components/Dialogs/BoardSettingsDialog.jsx";
 import { ChoosePartyToAddTagDialog } from "@/components/Dialogs/ChoosePartyToAddTagDialog.jsx";
+import { CreateBoardDialog } from "@/components/Dialogs/CreateBoardDialog.jsx";
 import { DeleteWarningDialog } from "@/components/Dialogs/DeleteWarningDialog.jsx";
 import { EditGameDialog } from "@/components/Dialogs/EditGameDialog.jsx";
 import { EditTagDialog } from "@/components/Dialogs/EditTagDialog.jsx";
 import { GamePageDialog } from "@/components/Dialogs/GamePageDialog.jsx";
 import { GenericWarningDialog } from "@/components/Dialogs/GenericWarningDialog.jsx";
-import { SettingsDialog } from "@/components/Dialogs/SettingsDialog.jsx";
 import { SteamConfirmImportDialog } from "@/components/Dialogs/SteamConfirmImportDialog.jsx";
 import { SteamImportDialog } from "@/components/Dialogs/SteamImportDialog.jsx";
 import { SyncErrorDialog } from "@/components/Dialogs/SyncErrorDialog.jsx";
@@ -18,14 +18,14 @@ import { action, makeAutoObservable } from "mobx";
 export const Dialogs = {
     ChoosePartyToAddTag: ChoosePartyToAddTagDialog,
     AccountSettings: AccountSettingsDialog,
-    BoardMembers: BoardMembersDialog,
+    BoardSettings: BoardSettingsDialog,
+    CreateBoard: CreateBoardDialog,
     GenericWarning: GenericWarningDialog,
     DeleteWarning: DeleteWarningDialog,
     SteamImport: SteamImportDialog,
     SteamImportConfirm: SteamConfirmImportDialog,
     EditGame: EditGameDialog,
     GamePage: GamePageDialog,
-    Settings: SettingsDialog,
     EditTag: EditTagDialog,
     About: AboutDialog,
     SyncError: SyncErrorDialog,

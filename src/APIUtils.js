@@ -131,6 +131,20 @@ export async function listBoards() {
     }
 }
 
+/** Creates an additional owned board (capped server-side). Returns { id, shortId, name, role }. */
+export async function createBoard(name) {
+    const response = await fetch("/api/boards", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ name }),
+    });
+    const json = await response.json().catch(() => ({}));
+    if (!response.ok)
+        throw new Error(json.error || `Failed to create board (status ${response.status})`);
+    return json.board;
+}
+
 export async function getBoard(boardId) {
     try {
         const response = await fetch(`/api/boards/${boardId}`, {
@@ -198,6 +212,19 @@ export function updateBoard(boardId, path, value, getExpectedLastUpdated) {
         if (!response.ok) throw new Error(`Failed to update board (status ${response.status})`);
         return json; // { message, lastUpdated }
     });
+}
+
+export async function renameBoard(boardId, name) {
+    const response = await fetch(`/api/boards/${boardId}/rename`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ name }),
+    });
+    const json = await response.json().catch(() => ({}));
+    if (!response.ok)
+        throw new Error(json.error || `Failed to rename board (status ${response.status})`);
+    return json.name;
 }
 
 export async function deleteBoard(boardId) {

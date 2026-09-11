@@ -5,8 +5,37 @@
     position: fixed;
     border-bottom: var(--pf-border-500);
     z-index: 2;
-    .app-brand {
+    .app-brand-row {
         margin-left: 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+}
+
+.app-brand-separator {
+    color: var(--pf-fg-700);
+    font-size: 20px;
+    user-select: none;
+}
+
+.board-switcher-trigger {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--pf-fg-300);
+    background-color: #55555500;
+    border: none;
+    border-radius: 8px;
+    padding: 4px 8px;
+    transition: 0.1s ease;
+
+    &:hover,
+    &[data-state="open"] {
+        color: #fff;
+        background-color: #55555555;
     }
 }
 

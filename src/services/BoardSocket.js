@@ -1,4 +1,9 @@
-import { globalDataStore, globalFilterStore, globalSettingsStore } from "@/stores";
+import {
+    globalBoardStore,
+    globalDataStore,
+    globalFilterStore,
+    globalSettingsStore,
+} from "@/stores";
 import { toastError } from "@/Utils";
 
 let socket = null;
@@ -43,7 +48,7 @@ function handleMessage(event) {
             globalDataStore.notifyBoardDeleted();
             break;
         case "members-changed":
-            // to-do, probably
+            globalBoardStore.invalidateMembersCache(currentBoardId);
             break;
         case "removed-from-board":
             // Only act if we're still looking at that board. Ignore if already navigated away.
@@ -109,4 +114,3 @@ export function closeBoardSocket() {
     socket = null;
     currentBoardId = null;
 }
-

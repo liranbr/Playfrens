@@ -1,0 +1,128 @@
+.rx-dialog.board-settings-dialog {
+    gap: 8px; /* between Title, Body, and Footer */
+    /* sized to match the Add Game dialog, so switching tabs doesn't resize the dialog; body scrolls instead */
+    width: 650px;
+    max-width: 85vw;
+    height: 825px;
+    max-height: 85vh;
+    overflow: hidden; /* overrides .rx-dialog's own scrolling; only .board-settings-dialog-body scrolls */
+
+    .board-settings-tabs {
+        gap: 8px;
+        border-bottom: var(--pf-border-300);
+
+        button {
+            width: fit-content;
+            height: fit-content;
+            background: none;
+            padding: 6px 12px;
+            border-radius: 8px 8px 0 0;
+            border-bottom: none;
+            outline: 1px solid var(--pf-bg-900);
+            font-size: 13px;
+
+            &[data-state="off"] {
+                outline: none;
+                color: var(--pf-fg-700);
+            }
+        }
+    }
+
+    .board-settings-dialog-body {
+        display: flex;
+        flex-direction: column;
+        gap: 36px;
+        flex: 1;
+        min-height: 0; /* flex child won't shrink below its content height */
+        overflow-y: auto;
+        scrollbar-gutter: stable;
+        padding-right: 4px; /* reserved space for the scrollbar-gutter */
+    }
+
+    .default-filters-buttons {
+        display: flex;
+        gap: 12px;
+
+        button {
+            min-height: 28px;
+            height: 28px;
+            font-size: 14px;
+        }
+    }
+
+    .dialog-callout label {
+        font-weight: bold;
+        font-size: 14px;
+    }
+    .dialog-callout small {
+        opacity: 0.7;
+    }
+}
+
+.board-info {
+    dt {
+        font-weight: bold;
+        font-size: 14px;
+    }
+    dd {
+        margin-left: 14px;
+    }
+}
+
+.board-name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    input {
+        flex: 1;
+        min-width: 0;
+    }
+}
+
+.board-members-copy-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    input,
+    code {
+        background: var(--pf-bg-200);
+        border-radius: 4px;
+        padding: 4px 8px;
+        flex: 1;
+        min-width: 0;
+    }
+    code {
+        flex: none;
+    }
+}
+
+.board-members-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.board-member-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .rx-avatar {
+        width: 40px;
+        height: 40px;
+        flex-shrink: 0;
+    }
+}
+
+.board-member-details {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+
+    small {
+        opacity: 0.7;
+    }
+}

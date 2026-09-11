@@ -132,6 +132,7 @@ function AppMenu() {
 // there's more than one accessible board, or you can still create one.
 const BoardSwitcher = observer(() => {
     const boardStore = useBoardStore();
+    const isOwner = boardStore.activeBoard?.role == "owner";
     const canSwitchOrCreate = boardStore.boards.length > 1 || boardStore.canCreateBoard;
     const DD = DropdownMenu;
 
@@ -147,10 +148,19 @@ const BoardSwitcher = observer(() => {
                     <div className="app-brand-separator" />
                     <DD.Root>
                         <DD.Trigger asChild>
-                            <button className="board-switcher-trigger">
-                                {boardStore.activeBoard?.name ?? "Board"}
-                                <MdKeyboardArrowDown />
-                            </button>
+                            {
+                                <>
+                                    {isOwner &&
+                                        <button className="board-switcher-trigger">
+                                            {boardStore.activeBoard?.name ?? "Board"}
+                                            <MdKeyboardArrowDown />
+                                        </button>}
+                                    {!isOwner &&
+                                        <span className="board-switcher-trigger">
+                                            {boardStore.activeBoard?.name ?? "Board"}
+                                        </span>}
+                                </>
+                            }
                         </DD.Trigger>
                         <DD.Portal>
                             <DD.Content
@@ -337,9 +347,12 @@ const AppUserAvatar = observer(() => {
                     side={"bottom"}
                     sideOffset={5}
                 >
-                    <DD.Item onClick={() => globalDialogStore.open(Dialogs.SteamImport)}>
-                        Import from Steam
-                    </DD.Item>
+                    {/* Member logins have no real Steam account of their own to import from. */}
+                    {!userInfo.isMember && (
+                        <DD.Item onClick={() => globalDialogStore.open(Dialogs.SteamImport)}>
+                            Import from Steam
+                        </DD.Item>
+                    )}
                     <DD.Item onClick={() => globalDialogStore.open(Dialogs.AccountSettings)}>
                         Account Settings
                     </DD.Item>

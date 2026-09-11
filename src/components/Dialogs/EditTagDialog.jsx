@@ -2,7 +2,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { DialogBase } from "./DialogRoot.jsx";
 import { TagObject, tagTypeStrings, FriendTagObject } from "@/models";
-import { Dialogs, globalDialogStore, useDataStore } from "@/stores";
+import { Dialogs, globalDialogStore, useDataStore, useUserStore } from "@/stores";
 import { Button, FriendAvatar, IconButton, InfoIcon, LabelBadge } from "@/components";
 import { useState } from "react";
 import { BiLogoSteam } from "react-icons/bi";
@@ -29,6 +29,7 @@ export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagO
         ? "Editing " + editingTag.name
         : "Adding a new " + tagTypeStrings[tagType].single;
     const dataStore = useDataStore();
+    const { userInfo } = useUserStore();
 
     const handleSave = () => {
         const newTagName = document.getElementById("tagNameInput").value;
@@ -73,7 +74,7 @@ export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagO
                 <Dialog.Description>{description}</Dialog.Description>
             </VisuallyHidden>
 
-            {isFriend && !isEdit && !hintDismissed && (
+            {isFriend && !isEdit && !hintDismissed && !userInfo.isMember && (
                 <div className="steam-import-hint">
                     <BiLogoSteam className="steam-import-hint-icon" />
                     <p>Have Steam friends? You can import them in one go here:</p>
@@ -134,7 +135,7 @@ export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagO
                             onKeyDown={saveOnEnter}
                             defaultValue={editingTag?.steamID}
                         />
-                        {hintDismissed && (
+                        {hintDismissed && !userInfo.isMember && (
                             <>
                                 <label>Import Steam Friends List</label>
                                 <Button variant="secondary" onClick={handleGoToImport}>

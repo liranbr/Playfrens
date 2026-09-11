@@ -377,9 +377,17 @@ export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID
     const renamePartyRef = useRef(null);
 
     const dataStore = useDataStore();
-    const partyReminders = dataStore.sortedReminders.filter(
-        (reminder) => reminder.gameID === game.id && reminder.partyID === party.id,
-    );
+    const partyReminders = party
+        ? dataStore.sortedReminders.filter(
+            (reminder) => reminder.gameID === game.id && reminder.partyID === party.id,
+        )
+        : [];
+
+    // Party (or game) may get deleted remotely while open, close instead of crashing.
+    useEffect(() => {
+        if (!party) closeDialog();
+    }, [party, closeDialog]);
+    if (!party) return null;
 
     return (
         <DialogBase

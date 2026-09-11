@@ -129,10 +129,12 @@ function AppMenu() {
 }
 
 // The Playfrens brand stays put always; the board name/switcher next to it only shows up when
-// there's more than one accessible board, or you can still create one.
+// there's more than one accessible board, or you can still create one. Member logins are
+// permanently tied to their one home board (nothing to switch to or create), so they only ever
+// get the plain name, never the interactive dropdown.
 const BoardSwitcher = observer(() => {
     const boardStore = useBoardStore();
-    const isOwner = boardStore.activeBoard?.role == "owner";
+    const { userInfo } = useUserStore();
     const canSwitchOrCreate = boardStore.boards.length > 1 || boardStore.canCreateBoard;
     const DD = DropdownMenu;
 
@@ -143,24 +145,24 @@ const BoardSwitcher = observer(() => {
                 Playfrens
             </div>
 
-            {canSwitchOrCreate && (
+            {userInfo.isMember && (
+                <>
+                    <div className="app-brand-separator" />
+                    <span className="board-switcher-trigger">
+                        {boardStore.activeBoard?.name ?? "Board"}
+                    </span>
+                </>
+            )}
+
+            {!userInfo.isMember && canSwitchOrCreate && (
                 <>
                     <div className="app-brand-separator" />
                     <DD.Root>
                         <DD.Trigger asChild>
-                            {
-                                <>
-                                    {isOwner &&
-                                        <button className="board-switcher-trigger">
-                                            {boardStore.activeBoard?.name ?? "Board"}
-                                            <MdKeyboardArrowDown />
-                                        </button>}
-                                    {!isOwner &&
-                                        <span className="board-switcher-trigger">
-                                            {boardStore.activeBoard?.name ?? "Board"}
-                                        </span>}
-                                </>
-                            }
+                            <button className="board-switcher-trigger">
+                                {boardStore.activeBoard?.name ?? "Board"}
+                                <MdKeyboardArrowDown />
+                            </button>
                         </DD.Trigger>
                         <DD.Portal>
                             <DD.Content

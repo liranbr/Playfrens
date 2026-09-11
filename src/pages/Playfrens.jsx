@@ -144,7 +144,7 @@ const BoardSwitcher = observer(() => {
 
             {canSwitchOrCreate && (
                 <>
-                    <span className="app-brand-separator">|</span>
+                    <div className="app-brand-separator" />
                     <DD.Root>
                         <DD.Trigger asChild>
                             <button className="board-switcher-trigger">

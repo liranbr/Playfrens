@@ -14,9 +14,9 @@
 }
 
 .app-brand-separator {
-    color: var(--pf-fg-700);
-    font-size: 20px;
-    user-select: none;
+    width: 1px;
+    height: 22px;
+    background-color: var(--pf-fg-700);
 }
 
 .board-switcher-trigger {

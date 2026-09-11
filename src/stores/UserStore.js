@@ -6,7 +6,7 @@ import { HttpStatus } from "@/Utils";
 export class UserStore {
     /**
      * Only public profile details
-     * @type {{ provider: string, id: string, displayName: string, avatar: string, createdAt: Date }}
+     * @type {{ provider: string, id: string, displayName: string, avatar: string, createdAt: Date, isMember: boolean }}
      */
     userInfo = undefined;
     loading = true;
@@ -74,6 +74,7 @@ export class UserStore {
                     // URL directly. `u` just busts the browser cache on account switches.
                     avatar: user?.avatar_url ? `/auth/avatar?u=${user.id}` : null,
                     createdAt: new Date(user?.created_at),
+                    isMember: !!user?.member_username,
                 };
             });
         } catch (error) {

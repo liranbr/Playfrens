@@ -25,6 +25,10 @@ export const storageKeyToTagType = {
     [storageKeys[tT.status]]: tT.status,
 };
 
+export function preImportList() {
+    return { toAdd: [], toUpdate: { old: [], latest: [] }, toSkip: [] };
+}
+
 export function defaultTagsSample() {
     return {
         [tT.friend]: [],

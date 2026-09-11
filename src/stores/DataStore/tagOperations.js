@@ -11,11 +11,7 @@ import {
     toastSuccess,
     updateObject,
 } from "@/Utils";
-import { tT } from "./constants.js";
-
-function preImportList() {
-    return { toAdd: [], toUpdate: { old: [], latest: [] }, toSkip: [] };
-}
+import { preImportList, tT } from "./constants.js";
 
 // Used when loading some predefined set, like the starting defaults
 export function populateTagsFromTagNames(store, tagCollection) {
@@ -125,28 +121,6 @@ export function deleteTag(store, tag) {
     store.allTags[tag.type].delete(tag.id);
     deleteItemFromArray(store.tagsCustomOrders[tag.type], tag.id);
     return toastSuccess(`Deleted ${tag.name} from ${tag.typeStrings.plural} list`);
-}
-
-export function oldEditTag(store, tag, { newName }) {
-    if (tag.name === newName) return true; // nothing to do here, until adding more fields to edit
-    // Editing needs to be in the DataStore rather than the object itself, to prevent duplicate names
-    if (!(tag instanceof TagObject)) return toastError("Invalid tag object: " + tag);
-    const fullList = store.allTags[tag.type];
-    const storedTag = fullList.get(tag.id);
-    if (!storedTag)
-        return toastError(`${tag.name} does not exist in ${tag.typeStrings.plural} list`);
-
-    if (!newName || typeof newName !== "string" || !newName.trim())
-        return toastError(`Cannot save a ${tag.typeStrings.single} without a name`);
-
-    newName = ensureUniqueName(
-        [...fullList.values()].map((t) => t.name),
-        newName,
-    );
-
-    const oldName = tag.name;
-    storedTag.name = newName;
-    return toastSuccess(`Updated ${oldName} to ${newName} in ${tag.typeStrings.plural} list`);
 }
 
 export function editTag(store, tag, data = {}) {

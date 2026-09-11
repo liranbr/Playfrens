@@ -1,5 +1,5 @@
 import { runInAction } from "mobx";
-import { saveBoard, getOfficialCoverImageURLs } from "@/APIUtils.js";
+import { getOfficialCoverImageURLs, updateBoard } from "@/APIUtils.js";
 import { GameObject, storeTypes } from "@/models";
 import { deserializePartyTagIDs, Party } from "@/models/GameObject.js";
 import { globalSettingsStore } from "@/stores";
@@ -10,12 +10,9 @@ import {
     toastError,
     toastInfo,
     toastSuccess,
+    toPlainObject,
 } from "@/Utils";
-import { ExportDataStoreToJSON } from "./backupRestore.js";
-
-function preImportList() {
-    return { toAdd: [], toUpdate: { old: [], latest: [] }, toSkip: [] };
-}
+import { preImportList, storageKeys } from "./constants.js";
 
 function parseParties(parties) {
     return (parties ?? [])
@@ -90,11 +87,10 @@ export async function populateGames(store, gameJsons, version) {
     runInAction(() => {
         store.allGames.replace(entries); // mutate in place, don't reassign the Map
         if (changed) {
-            // Runs on nearly every load if a game was missing a cached thumbnail, so keep
-            // #boardLastUpdated in sync or the next edit gets wrongly flagged as stale.
-            saveBoard(store.activeBoardId, ExportDataStoreToJSON(store))
-                .then((saved) => {
-                    if (saved?.lastUpdated) store.setBoardLastUpdated(saved.lastUpdated);
+            const snapshot = entries.map(([id, game]) => [id, toPlainObject(game)]);
+            updateBoard(store.activeBoardId, [storageKeys.games], snapshot)
+                .then((result) => {
+                    if (result?.lastUpdated) store.setBoardLastUpdated(result.lastUpdated);
                 })
                 .catch(() => {});
         }

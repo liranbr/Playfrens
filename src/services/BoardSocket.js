@@ -32,10 +32,13 @@ function handleMessage(event) {
                 globalDataStore.withRemoteApplyGuard(() =>
                     globalSettingsStore.populate(message.value),
                 );
+                // Keep in sync or the next edit gets wrongly flagged as a stale write.
+                if (message.lastUpdated) globalDataStore.setBoardLastUpdated(message.lastUpdated);
             } else if (storageKey === "defaultFilters") {
                 globalDataStore.withRemoteApplyGuard(() =>
                     globalFilterStore.populate(message.value),
                 );
+                if (message.lastUpdated) globalDataStore.setBoardLastUpdated(message.lastUpdated);
             } else {
                 globalDataStore.applyRemoteUpdate(message.path, message.value, message.lastUpdated);
             }

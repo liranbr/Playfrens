@@ -14,8 +14,7 @@ import { loadFromStorage, saveToStorage } from "@/Utils";
 
 const LAST_BOARD_STORAGE_KEY = "last-active-board-id";
 
-// Tracks which boards the user can access and which one is active, orchestrating loading it:
-// reset the request queue, (re)hydrate DataStore/Settings/FilterStore, subscribe for live updates.
+// Tracks which boards the user can access and which one is active.
 export class BoardStore {
     boards = []; // [{ id, name, role: "owner" | "member" }]
     activeBoardId = null;
@@ -28,8 +27,6 @@ export class BoardStore {
     get activeBoard() {
         return this.boards.find((b) => b.id === this.activeBoardId) ?? null;
     }
-
-    /** Loads the accessible boards list and resolves + loads which one becomes active. Call once after login. */
     async populate() {
         const boards = await listBoards();
         const lastUsedId = loadFromStorage(LAST_BOARD_STORAGE_KEY, null);
@@ -48,7 +45,6 @@ export class BoardStore {
         if (resolvedId) await this.#loadActiveBoard();
     }
 
-    /** Switches to a different accessible board, fully tearing down and re-hydrating DataStore. */
     async switchBoard(boardId) {
         if (boardId === this.activeBoardId) return;
         runInAction(() => {
@@ -57,7 +53,6 @@ export class BoardStore {
         await this.#loadActiveBoard();
     }
 
-    /** Re-fetches the boards list (e.g. after creating/joining one) without switching away. */
     async refreshBoardsList() {
         const boards = await listBoards();
         runInAction(() => {
@@ -66,7 +61,6 @@ export class BoardStore {
     }
 
     async #loadActiveBoard() {
-        // A stale failure on the previous board shouldn't silently block writes on this one.
         resetRequestQueue();
         saveToStorage(LAST_BOARD_STORAGE_KEY, this.activeBoardId);
 

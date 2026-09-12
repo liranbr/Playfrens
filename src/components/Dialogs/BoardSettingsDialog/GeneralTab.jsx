@@ -4,10 +4,9 @@ import { Button } from "@/components";
 import { globalBoardStore } from "@/stores";
 import { toastError, toastSuccess } from "@/Utils";
 
-// Rename + delete. Both are flat permissions - matches the backend, any member can do either,
-// not just the owner (deleting your own home board included).
 export const GeneralTab = observer(({ closeDialog }) => {
     const board = globalBoardStore.activeBoard;
+    const isOwner = globalBoardStore.isOwner;
     const [name, setName] = useState(board?.name ?? "");
     const [saving, setSaving] = useState(false);
 
@@ -40,21 +39,34 @@ export const GeneralTab = observer(({ closeDialog }) => {
         <>
             <dl className="board-info">
                 <dt>Your role</dt>
-                <dd>{board?.role === "owner" ? "Owner" : "Member"}</dd>
+                <dd>{isOwner ? "Owner" : "Member"}</dd>
+                {!isOwner && (
+                    <>
+                        <dt>Board name</dt>
+                        <dd>{board?.name}</dd>
+                    </>
+                )}
             </dl>
+            {isOwner && (
+                <>
+                    <fieldset>
+                        <label>Board name</label>
+                        <div className="board-name-row">
+                            <input
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                onKeyDown={saveOnEnter}
+                            />
+                            <Button variant="primary" disabled={!canSave} onClick={handleSave}>
+                                Save
+                            </Button>
+                        </div>
+                    </fieldset>
 
-            <fieldset>
-                <label>Board name</label>
-                <div className="board-name-row">
-                    <input value={name} onChange={(e) => setName(e.target.value)} onKeyDown={saveOnEnter} />
-                    <Button variant="primary" disabled={!canSave} onClick={handleSave}>
-                        Save
-                    </Button>
-                </div>
-            </fieldset>
-
-            <div className="separator" />
-            <DeleteBoardButton board={board} closeDialog={closeDialog} />
+                    <div className="separator" />
+                    <DeleteBoardButton board={board} closeDialog={closeDialog} />
+                </>
+            )}
         </>
     );
 });

@@ -37,6 +37,14 @@
         overflow-y: auto;
         scrollbar-gutter: stable;
         padding-right: 4px; /* reserved space for the scrollbar-gutter */
+
+        .board-settings-tab {
+            display: contents;
+
+            &.read-only > * {
+                opacity: 0.6;
+            }
+        }
     }
 
     .default-filters-buttons {
@@ -126,3 +134,4 @@
         opacity: 0.7;
     }
 }
+

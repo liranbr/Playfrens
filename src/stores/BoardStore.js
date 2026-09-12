@@ -45,6 +45,10 @@ export class BoardStore {
         return this.ownedBoardsCount < MAX_OWNED_BOARDS;
     }
 
+    get isOwner() {
+        return this.activeBoard?.role === "owner";
+    }
+
     async populate() {
         const boards = await listBoards();
         const lastUsedId = loadFromStorage(LAST_BOARD_STORAGE_KEY, null);

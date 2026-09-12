@@ -128,7 +128,7 @@ function AppMenu() {
     );
 }
 
-/** 
+/**
  * Allows users to switch and create boards.
  * Members cannot create one so this will be overriden with showcasing the name of the board.
 */

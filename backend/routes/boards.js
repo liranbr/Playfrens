@@ -122,16 +122,22 @@ async function renameBoard(req, res) {
     return Response.send(res, OK, { name: trimmed });
 }
 
+// Only owners can change these, no one else!
+const OWNER_ONLY_BOARD_KEYS = ["settings", "defaultFilters"];
+
 /**
  * Updates a board JSONB key via RPC. `expectedLastUpdated`, when sent, rejects the write with 409
  * if the board changed since the client last saw it, instead of silently overwriting someone
  * else's change.
  */
 async function updateBoard(req, res) {
-    const { OK, BAD_REQUEST, CONFLICT } = Response.HttpStatus;
+    const { OK, BAD_REQUEST, FORBIDDEN, CONFLICT } = Response.HttpStatus;
     const { path, value, expectedLastUpdated } = req.body;
     if (!Array.isArray(path) || value === undefined) {
         return Response.send(res, BAD_REQUEST, { error: "Invalid partial update payload" });
+    }
+    if (OWNER_ONLY_BOARD_KEYS.includes(path[0]) && req.user.id !== req.board.owner_id) {
+        return Response.send(res, FORBIDDEN, { error: "Only the board owner can change this." });
     }
 
     // Returns the new last_updated on success, or null if expectedLastUpdated didn't match.

@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { observer } from "mobx-react-lite";
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import { Button } from "@/components";
+import { globalBoardStore } from "@/stores";
 import { DialogBase } from "./DialogRoot.jsx";
 import { GeneralTab } from "./BoardSettingsDialog/GeneralTab.jsx";
 import { MembersTab } from "./BoardSettingsDialog/MembersTab.jsx";
@@ -14,14 +16,17 @@ import "./BoardSettingsDialog.css";
 const BoardSettingsTabs = {
     general: { label: "General", Component: GeneralTab },
     members: { label: "Members", Component: MembersTab },
-    sidebar: { label: "Sidebar", Component: SidebarTab },
-    grid: { label: "Games Grid", Component: GamesGridTab },
-    filters: { label: "Filters", Component: FiltersTab },
+    sidebar: { label: "Sidebar", Component: SidebarTab, ownerOnly: true },
+    grid: { label: "Games Grid", Component: GamesGridTab, ownerOnly: true },
+    filters: { label: "Filters", Component: FiltersTab, ownerOnly: true },
 };
 
-export const BoardSettingsDialog = ({ open, closeDialog }) => {
+export const BoardSettingsDialog = observer(({ open, closeDialog }) => {
+    const isOwner = globalBoardStore.isOwner;
     const [activeTab, setActiveTab] = useState(Object.keys(BoardSettingsTabs)[0]);
-    const ActiveTabComponent = BoardSettingsTabs[activeTab].Component;
+    const activeTabInfo = BoardSettingsTabs[activeTab];
+    const ActiveTabComponent = activeTabInfo.Component;
+    const readOnly = !isOwner && activeTabInfo.ownerOnly;
 
     return (
         <DialogBase
@@ -56,7 +61,10 @@ export const BoardSettingsDialog = ({ open, closeDialog }) => {
             </ToggleGroup.Root>
 
             <div className="board-settings-dialog-body">
-                <ActiveTabComponent closeDialog={closeDialog} />
+                {readOnly && <p className="dialog-callout">Only the owner can change these settings.</p>}
+                <div className={`board-settings-tab${readOnly ? " read-only" : ""}`} inert={readOnly}>
+                    <ActiveTabComponent closeDialog={closeDialog} />
+                </div>
             </div>
 
             <div className="rx-dialog-footer">
@@ -66,4 +74,4 @@ export const BoardSettingsDialog = ({ open, closeDialog }) => {
             </div>
         </DialogBase>
     );
-};
+});

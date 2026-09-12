@@ -12,7 +12,7 @@ import { toastError, toastSuccess } from "@/Utils";
 export const MembersTab = observer(() => {
     const boardId = globalBoardStore.activeBoardId;
     const activeBoard = globalBoardStore.activeBoard;
-    const isOwner = activeBoard?.role === "owner";
+    const isOwner = globalBoardStore.isOwner;
     const boardLink = `${window.location.origin}/app/${activeBoard?.shortId ?? boardId}`;
 
     const cached = globalBoardStore.getCachedMembers(boardId);
@@ -39,8 +39,7 @@ export const MembersTab = observer(() => {
     }
 
     useEffect(() => {
-        // Already have this board's members cached (e.g. reopening the dialog, or switching back
-        // to this tab) - skip the loading flash and the redundant request.
+        // Use the cache instead when switching tabs, so we don't spam the service.
         if (globalBoardStore.getCachedMembers(boardId)) return;
         refresh();
         // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-run when the board changes
@@ -180,8 +179,7 @@ export const MembersTab = observer(() => {
     );
 });
 
-// Same countdown-confirm pattern as AccountSettingsDialog's delete button, since removing a member
-// can outright delete their account, so it deserves the same "are you sure" guard.
+// Gave it the same behavior as deleting accounts so it won't be accidental.
 const REMOVE_WARNING_DURATION_SECONDS = 10;
 const RemoveMemberButton = ({ boardId, member, onRemoved }) => {
     const [startedCountdown, setStartedCountdown] = useState(false);

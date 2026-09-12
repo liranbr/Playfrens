@@ -137,7 +137,7 @@ const BoardSwitcher = observer(() => {
     const { userInfo } = useUserStore();
     const DD = DropdownMenu;
 
-    if (userInfo.isMember) {
+    if (userInfo.isGuest) {
         return (
             <>
                 <div className="app-brand-separator" />
@@ -350,7 +350,7 @@ const AppUserAvatar = observer(() => {
                     side={"bottom"}
                     sideOffset={5}
                 >
-                    {!userInfo.isMember && (
+                    {!userInfo.isGuest && (
                         <DD.Item onClick={() => globalDialogStore.open(Dialogs.SteamImport)}>
                             Import from Steam
                         </DD.Item>

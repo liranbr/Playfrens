@@ -112,7 +112,7 @@ export async function getOfficialCoverImageURLs(storeType, storeIDs) {
     return json;
 }
 
-// Lists boards the current user can access (their own + any they've joined as a member).
+// Lists boards the current user can access (their own + any they've joined as a guest).
 export async function listBoards() {
     try {
         const response = await fetch("/api/boards", { credentials: "include" });
@@ -235,16 +235,16 @@ export async function deleteBoard(boardId) {
     if (!response.ok) throw new Error(`Failed to delete board (status ${response.status})`);
 }
 
-export async function listBoardMembers(boardId) {
-    const response = await fetch(`/api/boards/${boardId}/members`, { credentials: "include" });
-    if (!response.ok) throw new Error(`Failed to load members (status ${response.status})`);
-    const { members } = await response.json();
-    return members;
+export async function listBoardGuests(boardId) {
+    const response = await fetch(`/api/boards/${boardId}/guests`, { credentials: "include" });
+    if (!response.ok) throw new Error(`Failed to load guests (status ${response.status})`);
+    const { guests } = await response.json();
+    return guests;
 }
 
-/** Returns { member, password }, where the password is shown only once here. */
-export async function createBoardMember(boardId, username, password) {
-    const response = await fetch(`/api/boards/${boardId}/members`, {
+/** Returns { guest, password }, where the password is shown only once here. */
+export async function createBoardGuest(boardId, username, password) {
+    const response = await fetch(`/api/boards/${boardId}/guests`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -252,17 +252,17 @@ export async function createBoardMember(boardId, username, password) {
     });
     const json = await response.json().catch(() => ({}));
     if (!response.ok)
-        throw new Error(json.error || `Failed to create member (status ${response.status})`);
+        throw new Error(json.error || `Failed to create guest (status ${response.status})`);
     return json;
 }
 
-export async function removeBoardMember(boardId, userId) {
-    const response = await fetch(`/api/boards/${boardId}/members/${userId}`, {
+export async function removeBoardGuest(boardId, userId) {
+    const response = await fetch(`/api/boards/${boardId}/guests/${userId}`, {
         method: "DELETE",
         credentials: "include",
     });
     if (!response.ok) {
         const json = await response.json().catch(() => ({}));
-        throw new Error(json.error || `Failed to remove member (status ${response.status})`);
+        throw new Error(json.error || `Failed to remove guest (status ${response.status})`);
     }
 }

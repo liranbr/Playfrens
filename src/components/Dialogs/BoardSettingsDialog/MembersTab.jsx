@@ -4,10 +4,10 @@ import * as Avatar from "@radix-ui/react-avatar";
 import { MdContentCopy, MdPerson, MdPersonRemove } from "react-icons/md";
 import { Button } from "@/components";
 import { globalBoardStore } from "@/stores";
-import { createBoardMember, listBoardMembers, removeBoardMember } from "@/APIUtils.js";
+import { createBoardGuest, listBoardGuests, removeBoardGuest } from "@/APIUtils.js";
 import { toastError, toastSuccess } from "@/Utils";
 
-// Lists this board's members and, if you're the owner, lets you create or remove logins.
+// Lists this board's guests and, if you're the owner, lets you create or remove logins.
 // For now only works for none-accounts.
 export const MembersTab = observer(() => {
     const boardId = globalBoardStore.activeBoardId;
@@ -15,8 +15,8 @@ export const MembersTab = observer(() => {
     const isOwner = globalBoardStore.isOwner;
     const boardLink = `${window.location.origin}/app/${activeBoard?.shortId ?? boardId}`;
 
-    const cached = globalBoardStore.getCachedMembers(boardId);
-    const [members, setMembers] = useState(cached ?? []);
+    const cached = globalBoardStore.getCachedGuests(boardId);
+    const [guests, setGuests] = useState(cached ?? []);
     const [loading, setLoading] = useState(cached === null);
     const [creating, setCreating] = useState(false);
     const [newUsername, setNewUsername] = useState("");
@@ -26,11 +26,11 @@ export const MembersTab = observer(() => {
     async function refresh() {
         setLoading(true);
         try {
-            const fetched = await listBoardMembers(boardId);
+            const fetched = await listBoardGuests(boardId);
             // Owner first, everyone else keeps the order the backend returned them in.
             fetched.sort((a, b) => (a.role === "owner" ? -1 : b.role === "owner" ? 1 : 0));
-            setMembers(fetched);
-            globalBoardStore.setCachedMembers(boardId, fetched);
+            setGuests(fetched);
+            globalBoardStore.setCachedGuests(boardId, fetched);
         } catch (err) {
             toastError(err.message);
         } finally {
@@ -40,7 +40,7 @@ export const MembersTab = observer(() => {
 
     useEffect(() => {
         // Use the cache instead when switching tabs, so we don't spam the service.
-        if (globalBoardStore.getCachedMembers(boardId)) return;
+        if (globalBoardStore.getCachedGuests(boardId)) return;
         refresh();
         // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-run when the board changes
     }, [boardId]);
@@ -49,13 +49,13 @@ export const MembersTab = observer(() => {
         if (creating || !newUsername.trim() || newPassword.length < 8) return;
         setCreating(true);
         try {
-            const result = await createBoardMember(boardId, newUsername.trim(), newPassword);
-            setCreatedCredentials({ username: result.member.username, password: result.password });
+            const result = await createBoardGuest(boardId, newUsername.trim(), newPassword);
+            setCreatedCredentials({ username: result.guest.username, password: result.password });
             setNewUsername("");
             setNewPassword("");
             await refresh();
             await globalBoardStore.refreshBoardsList();
-            toastSuccess(`Created a login for ${result.member.displayName}`);
+            toastSuccess(`Created a login for ${result.guest.displayName}`);
         } catch (err) {
             toastError(err.message);
         } finally {
@@ -99,11 +99,11 @@ export const MembersTab = observer(() => {
                 <p>Loading members...</p>
             ) : (
                 <div className="board-members-list">
-                    {members.map((member) => (
-                        <div className="board-member-row" key={member.id}>
+                    {guests.map((guest) => (
+                        <div className="board-member-row" key={guest.id}>
                             <Avatar.Root className="rx-avatar">
                                 <Avatar.Image
-                                    src={member.avatarURL ?? undefined}
+                                    src={guest.avatarURL ?? undefined}
                                     referrerPolicy="no-referrer"
                                 />
                                 <Avatar.Fallback className="rx-avatarless" asChild>
@@ -111,13 +111,13 @@ export const MembersTab = observer(() => {
                                 </Avatar.Fallback>
                             </Avatar.Root>
                             <div className="board-member-details">
-                                <span>{member.displayName}</span>
-                                {member.role === "owner" && <small>Owner</small>}
+                                <span>{guest.displayName}</span>
+                                <small>{guest.role === "owner" ? "Owner" : "Guest"}</small>
                             </div>
-                            {member.role !== "owner" && isOwner && (
-                                <RemoveMemberButton
+                            {guest.role !== "owner" && isOwner && (
+                                <RemoveGuestButton
                                     boardId={boardId}
-                                    member={member}
+                                    guest={guest}
                                     onRemoved={refresh}
                                 />
                             )}
@@ -129,26 +129,34 @@ export const MembersTab = observer(() => {
             {isOwner && (
                 <>
                     <div className="separator" />
-                    <fieldset>
-                        <label>New member&apos;s username</label>
-                        <input
-                            value={newUsername}
-                            onChange={(e) => setNewUsername(e.target.value)}
-                            onKeyDown={saveOnEnter}
-                            autoFocus
-                        />
-                        <label>Password</label>
-                        <input
-                            type="password"
-                            value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
-                            onKeyDown={saveOnEnter}
-                            autoComplete="new-password"
-                        />
-                    </fieldset>
-                    <Button variant="primary" disabled={creating} onClick={handleCreate}>
-                        Create login
-                    </Button>
+                    <div className="new-guest-section">
+                        <div className="dialog-callout">
+                            <label>Create new guest</label>
+                            <small>
+                                A guest login allows people without an account participate onto this board.
+                            </small>
+                        </div>
+                        <fieldset>
+                            <label>New guest&apos;s username</label>
+                            <input
+                                value={newUsername}
+                                onChange={(e) => setNewUsername(e.target.value)}
+                                onKeyDown={saveOnEnter}
+                                autoFocus
+                            />
+                            <label>Password</label>
+                            <input
+                                type="password"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                onKeyDown={saveOnEnter}
+                                autoComplete="new-password"
+                            />
+                        </fieldset>
+                        <Button variant="primary" disabled={creating} onClick={handleCreate}>
+                            Create login
+                        </Button>
+                    </div>
 
                     {createdCredentials && (
                         <div className="dialog-callout">
@@ -181,7 +189,7 @@ export const MembersTab = observer(() => {
 
 // Gave it the same behavior as deleting accounts so it won't be accidental.
 const REMOVE_WARNING_DURATION_SECONDS = 10;
-const RemoveMemberButton = ({ boardId, member, onRemoved }) => {
+const RemoveGuestButton = ({ boardId, guest, onRemoved }) => {
     const [startedCountdown, setStartedCountdown] = useState(false);
     const [secondsRemaining, setSecondsRemaining] = useState(REMOVE_WARNING_DURATION_SECONDS);
     const [countdownCleared, setCountdownCleared] = useState(false);
@@ -202,8 +210,8 @@ const RemoveMemberButton = ({ boardId, member, onRemoved }) => {
 
     async function handleRemove() {
         try {
-            await removeBoardMember(boardId, member.id);
-            toastSuccess(`Removed ${member.displayName}`);
+            await removeBoardGuest(boardId, guest.id);
+            toastSuccess(`Removed ${guest.displayName}`);
             await onRemoved();
         } catch (err) {
             toastError(err.message);

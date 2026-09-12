@@ -39,7 +39,7 @@ export const GeneralTab = observer(({ closeDialog }) => {
         <>
             <dl className="board-info">
                 <dt>Your role</dt>
-                <dd>{isOwner ? "Owner" : "Member"}</dd>
+                <dd>{isOwner ? "Owner" : "Guest"}</dd>
                 {!isOwner && (
                     <>
                         <dt>Board name</dt>

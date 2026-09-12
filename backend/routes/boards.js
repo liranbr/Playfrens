@@ -7,7 +7,7 @@ import { requireBoardAccess } from "../auth/requireBoardAccess.js";
 import {
     deleteUserAccountRow,
     insertBoardWithShortId,
-    removeOrphanedBoardMembers,
+    removeOrphanedBoardGuests,
     upsertUser,
 } from "../auth/passport.js";
 import {
@@ -32,7 +32,7 @@ async function listBoards(req, res) {
     const list = boards.map((b) => ({
         id: b.id,
         shortId: b.short_id, // used to build the /app/<shortId> URL instead of the raw UUID
-        role: b.owner_id === userId ? "owner" : "member",
+        role: b.owner_id === userId ? "owner" : "guest",
         name:
             b.name ||
             (b.owner_id === userId ? "My Board" : `${b.owner?.display_name ?? "Unknown"}'s Board`),
@@ -171,8 +171,8 @@ async function updateBoard(req, res) {
 async function deleteBoard(req, res) {
     const { OK, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
 
-    // Clean up member accounts made specifically for this board before it disappears.
-    await removeOrphanedBoardMembers(req.board.id, "This board was deleted.");
+    // Clean up guest accounts made specifically for this board before it disappears.
+    await removeOrphanedBoardGuests(req.board.id, "This board was deleted.");
 
     const { error } = await supabase.from("boards").delete().eq("id", req.board.id);
     if (error) return Response.send(res, INTERNAL_SERVER_ERROR, { error: error.message });
@@ -181,34 +181,34 @@ async function deleteBoard(req, res) {
     return Response.send(res, OK, { message: "Board deleted" });
 }
 
-/** GET /:boardId/members (owner + every member's public profile fields). */
-async function listMembers(req, res) {
+/** GET /:boardId/guests (owner + every guest's public profile fields). */
+async function listGuests(req, res) {
     const { OK, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
-    const memberIds = [req.board.owner_id, ...(req.board.members_id ?? [])];
+    const guestIds = [req.board.owner_id, ...(req.board.members_id ?? [])];
 
     const { data: users, error } = await supabase
         .from("users")
         .select("id, display_name, avatar_url, member_username")
-        .in("id", memberIds);
+        .in("id", guestIds);
     if (error) return Response.send(res, INTERNAL_SERVER_ERROR, { error: error.message });
 
-    const members = users.map((u) => ({
+    const guests = users.map((u) => ({
         id: u.id,
         displayName: u.display_name,
         avatarURL: u.avatar_url,
-        username: u.member_username, // set only for member-created accounts
-        role: u.id === req.board.owner_id ? "owner" : "member",
+        username: u.member_username, // set only for guest-created accounts
+        role: u.id === req.board.owner_id ? "owner" : "guest",
     }));
-    return Response.send(res, OK, { members });
+    return Response.send(res, OK, { guests });
 }
 
 /**
- * Creates a "board member" login for this board.
+ * Creates a "board guest" login for this board.
  */
-async function createMember(req, res) {
+async function createGuest(req, res) {
     const { OK, BAD_REQUEST, FORBIDDEN, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
     if (req.user.id !== req.board.owner_id) {
-        return Response.send(res, FORBIDDEN, { error: "Only the board owner can add members." });
+        return Response.send(res, FORBIDDEN, { error: "Only the board owner can add guests." });
     }
 
     const { username, password } = req.body;
@@ -234,7 +234,7 @@ async function createMember(req, res) {
         });
     }
 
-    const localEmail = `${uuidv4()}@members.playfrens.local`;
+    const localEmail = `${uuidv4()}@guests.playfrens.local`;
     const { data: created, error: createError } = await supabase.auth.admin.createUser({
         email: localEmail,
         password,
@@ -262,28 +262,28 @@ async function createMember(req, res) {
         return Response.send(res, INTERNAL_SERVER_ERROR, { error: err.message });
     }
 
-    const { error: memberError } = await supabase.rpc("add_board_member", {
+    const { error: guestError } = await supabase.rpc("add_board_member", {
         _board_id: req.board.id,
         _user_id: user.id,
     });
-    if (memberError) {
-        return Response.send(res, INTERNAL_SERVER_ERROR, { error: memberError.message });
+    if (guestError) {
+        return Response.send(res, INTERNAL_SERVER_ERROR, { error: guestError.message });
     }
 
-    broadcastToBoard(req.board.id, { type: "members-changed" });
+    broadcastToBoard(req.board.id, { type: "guests-changed" });
     return Response.send(res, OK, {
-        member: { id: user.id, displayName: username, username },
+        guest: { id: user.id, displayName: username, username },
         password, // shown once here for the inviter to copy/share out-of-band, never stored by us
     });
 }
 
 /**
- * Removes a member from this board
+ * Removes a guest from this board
  */
-async function removeMember(req, res) {
+async function removeGuest(req, res) {
     const { OK, BAD_REQUEST, FORBIDDEN, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
     if (req.user.id !== req.board.owner_id) {
-        return Response.send(res, FORBIDDEN, { error: "Only the board owner can remove members." });
+        return Response.send(res, FORBIDDEN, { error: "Only the board owner can remove guests." });
     }
 
     const { userId } = req.params;
@@ -297,7 +297,7 @@ async function removeMember(req, res) {
         .eq("id", userId)
         .single();
     if (fetchError || !targetUser) {
-        return Response.send(res, BAD_REQUEST, { error: "That member doesn't exist." });
+        return Response.send(res, BAD_REQUEST, { error: "That guest doesn't exist." });
     }
 
     const accountFullyDeleted = targetUser.home_board_id === req.board.id;
@@ -322,8 +322,8 @@ async function removeMember(req, res) {
         forceDisconnectUserFromBoard(userId, req.board.id, "You were removed from this board.");
     }
 
-    broadcastToBoard(req.board.id, { type: "members-changed" });
-    return Response.send(res, OK, { message: "Member removed" });
+    broadcastToBoard(req.board.id, { type: "guests-changed" });
+    return Response.send(res, OK, { message: "Guest removed" });
 }
 
 const router = Router();
@@ -336,8 +336,8 @@ router.post("/:boardId", requireBoardAccess, saveBoard);
 router.post("/:boardId/rename", requireBoardAccess, renameBoard);
 router.post("/:boardId/update", requireBoardAccess, updateBoard);
 router.delete("/:boardId", requireBoardAccess, deleteBoard);
-router.get("/:boardId/members", requireBoardAccess, listMembers);
-router.post("/:boardId/members", requireBoardAccess, createMember);
-router.delete("/:boardId/members/:userId", requireBoardAccess, removeMember);
+router.get("/:boardId/guests", requireBoardAccess, listGuests);
+router.post("/:boardId/guests", requireBoardAccess, createGuest);
+router.delete("/:boardId/guests/:userId", requireBoardAccess, removeGuest);
 
 export default router;

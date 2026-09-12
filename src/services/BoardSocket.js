@@ -50,8 +50,8 @@ function handleMessage(event) {
         case "board-deleted":
             globalDataStore.notifyBoardDeleted();
             break;
-        case "members-changed":
-            globalBoardStore.invalidateMembersCache(currentBoardId);
+        case "guests-changed":
+            globalBoardStore.invalidateGuestsCache(currentBoardId);
             break;
         case "removed-from-board":
             // Only act if we're still looking at that board. Ignore if already navigated away.

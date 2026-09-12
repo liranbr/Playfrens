@@ -74,7 +74,7 @@ export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagO
                 <Dialog.Description>{description}</Dialog.Description>
             </VisuallyHidden>
 
-            {isFriend && !isEdit && !hintDismissed && !userInfo.isMember && (
+            {isFriend && !isEdit && !hintDismissed && !userInfo.isGuest && (
                 <div className="steam-import-hint">
                     <BiLogoSteam className="steam-import-hint-icon" />
                     <p>Have Steam friends? You can import them in one go here:</p>
@@ -135,7 +135,7 @@ export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagO
                             onKeyDown={saveOnEnter}
                             defaultValue={editingTag?.steamID}
                         />
-                        {hintDismissed && !userInfo.isMember && (
+                        {hintDismissed && !userInfo.isGuest && (
                             <>
                                 <label>Import Steam Friends List</label>
                                 <Button variant="secondary" onClick={handleGoToImport}>

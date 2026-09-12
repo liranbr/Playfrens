@@ -24,9 +24,9 @@ export async function requireBoardAccess(req, res, next) {
         return Response.send(res, INTERNAL_SERVER_ERROR, { error: error.message });
     }
 
-    const isMember =
+    const hasAccess =
         board.owner_id === req.user.id || (board.members_id ?? []).includes(req.user.id);
-    if (!isMember)
+    if (!hasAccess)
         return Response.send(res, FORBIDDEN, { error: "You do not have access to this board" });
 
     req.board = board;

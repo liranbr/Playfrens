@@ -24,10 +24,10 @@ const MAX_OWNED_BOARDS = 10;
 
 // Tracks which boards the user can access and which one is active.
 export class BoardStore {
-    boards = []; // [{ id, name, role: "owner" | "member" }]
+    boards = []; // [{ id, name, role: "owner" | "guest" }]
     activeBoardId = null;
     loading = true;
-    #membersCache = new Map();
+    #guestsCache = new Map();
 
     constructor() {
         makeAutoObservable(this);
@@ -73,16 +73,16 @@ export class BoardStore {
         window.location.assign("/app");
     }
 
-    getCachedMembers(boardId) {
-        return this.#membersCache.get(boardId) ?? null;
+    getCachedGuests(boardId) {
+        return this.#guestsCache.get(boardId) ?? null;
     }
 
-    setCachedMembers(boardId, members) {
-        this.#membersCache.set(boardId, members);
+    setCachedGuests(boardId, guests) {
+        this.#guestsCache.set(boardId, guests);
     }
 
-    invalidateMembersCache(boardId) {
-        this.#membersCache.delete(boardId);
+    invalidateGuestsCache(boardId) {
+        this.#guestsCache.delete(boardId);
     }
 
     async refreshBoardsList() {

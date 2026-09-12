@@ -160,7 +160,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                                     onSelect={handleGameSelected}
                                 />
                             </div>
-                            {!advancedView && !userInfo.isMember && (
+                            {!advancedView && !userInfo.isGuest && (
                                 <div className="steam-import-informer">
                                     <p>Would you like to import your Steam games library?</p>
                                     <Button variant="secondary" onClick={handleGoToImport}>

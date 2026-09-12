@@ -130,7 +130,7 @@ async function insertNewUser(provider, providerId, fields, createHomeBoard) {
         .single();
     if (error) throw error;
 
-    // Skipped for member-only accounts, since they're made for one specific board, not their own.
+    // Skipped for guest-only accounts, since they're made for one specific board, not their own.
     if (createHomeBoard) await insertBoardWithShortId(newUser.id);
 
     return newUser.id;
@@ -166,29 +166,29 @@ export async function upsertUser(profile, provider, { createHomeBoard = true } =
     return user;
 }
 
-// Deletes every member account tied to this board (home_board_id) and kicks their live connection.
+// Deletes every guest account tied to this board (home_board_id) and kicks their live connection.
 // Important when a board is deleted or the owner deleted their account.
-export async function removeOrphanedBoardMembers(boardId, reason) {
-    const { data: members } = await supabase.from("users").select("*").eq("home_board_id", boardId);
-    for (const member of members ?? []) {
+export async function removeOrphanedBoardGuests(boardId, reason) {
+    const { data: guests } = await supabase.from("users").select("*").eq("home_board_id", boardId);
+    for (const guest of guests ?? []) {
         try {
-            await deleteUserAccountRow(member);
-            closeUserSockets(member.id, reason);
+            await deleteUserAccountRow(guest);
+            closeUserSockets(guest.id, reason);
         } catch (err) {
-            console.error(`Error deleting orphaned member account ${member.id}:`, err);
+            console.error(`Error deleting orphaned guest account ${guest.id}:`, err);
         }
     }
 }
 
 export async function deleteUserAccountRow(user) {
     // Boards owned by this user cascade-delete once their row is removed below, so clean up
-    // member accounts first or those logins would outlive the boards they were made for.
+    // guest accounts first or those logins would outlive the boards they were made for.
     const { data: ownedBoards } = await supabase
         .from("boards")
         .select("id")
         .eq("owner_id", user.id);
     for (const board of ownedBoards ?? []) {
-        await removeOrphanedBoardMembers(board.id, "The board this login was for was deleted.");
+        await removeOrphanedBoardGuests(board.id, "The board this login was for was deleted.");
     }
 
     if (user.provider === "email") {

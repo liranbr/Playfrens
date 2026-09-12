@@ -28,13 +28,13 @@ const Login = observer(() => {
     const [submitting, setSubmitting] = useState(false);
     const [emailConfirmed, setEmailConfirmed] = useState(false);
 
-    // Board-member accounts log in with a username/password.
+    // Board-guest accounts log in with a username/password.
     const targetBoard = new URLSearchParams(window.location.search).get("board");
-    const [memberMode, setMemberMode] = useState(!!targetBoard);
-    const [memberUsername, setMemberUsername] = useState("");
-    const [memberPassword, setMemberPassword] = useState("");
-    const [memberBoardInput, setMemberBoardInput] = useState("");
-    const [memberSubmitting, setMemberSubmitting] = useState(false);
+    const [guestMode, setGuestMode] = useState(!!targetBoard);
+    const [guestUsername, setGuestUsername] = useState("");
+    const [guestPassword, setGuestPassword] = useState("");
+    const [guestBoardInput, setGuestBoardInput] = useState("");
+    const [guestSubmitting, setGuestSubmitting] = useState(false);
 
     usePageMeta({
         title: "Sign in",
@@ -101,20 +101,20 @@ const Login = observer(() => {
         }
     }
 
-    async function handleMemberSubmit(e) {
+    async function handleGuestSubmit(e) {
         e.preventDefault();
-        if (memberSubmitting) return;
-        setMemberSubmitting(true);
+        if (guestSubmitting) return;
+        setGuestSubmitting(true);
         try {
-            const board = targetBoard || memberBoardInput;
-            const result = await userStore.loginAsMember(memberUsername, memberPassword, board);
+            const board = targetBoard || guestBoardInput;
+            const result = await userStore.loginAsGuest(guestUsername, guestPassword, board);
             if (!result.ok) toastError(result.error);
         } finally {
-            setMemberSubmitting(false);
+            setGuestSubmitting(false);
         }
     }
 
-    if (memberMode) {
+    if (guestMode) {
         return (
             <div id="card-page">
                 <div className="card-page-body">
@@ -122,51 +122,51 @@ const Login = observer(() => {
                         <h1>{targetBoard ? "Sign in to access this board" : "Sign in with a board login"}</h1>
                         <span>using a login someone created for you</span>
                     </div>
-                    <form className="email-auth-form" onSubmit={handleMemberSubmit}>
+                    <form className="email-auth-form" onSubmit={handleGuestSubmit}>
                         <fieldset>
                             {/* Ask only if not known from the link that pasted, else input it manually */}
                             {!targetBoard && (
                                 <>
-                                    <label htmlFor="member-board">
+                                    <label htmlFor="guest-board">
                                         Board link or code
                                         <br />
                                         <small>Ask whoever gave you this login for it.</small>
                                     </label>
                                     <input
-                                        id="member-board"
+                                        id="guest-board"
                                         required
                                         placeholder="e.g. dsaghj or the full link"
-                                        value={memberBoardInput}
-                                        onChange={(e) => setMemberBoardInput(e.target.value)}
+                                        value={guestBoardInput}
+                                        onChange={(e) => setGuestBoardInput(e.target.value)}
                                     />
                                 </>
                             )}
-                            <label htmlFor="member-username">Username</label>
+                            <label htmlFor="guest-username">Username</label>
                             <input
-                                id="member-username"
+                                id="guest-username"
                                 required
                                 autoComplete="username"
-                                value={memberUsername}
-                                onChange={(e) => setMemberUsername(e.target.value)}
+                                value={guestUsername}
+                                onChange={(e) => setGuestUsername(e.target.value)}
                             />
-                            <label htmlFor="member-password">Password</label>
+                            <label htmlFor="guest-password">Password</label>
                             <input
-                                id="member-password"
+                                id="guest-password"
                                 type="password"
                                 required
                                 autoComplete="current-password"
-                                value={memberPassword}
-                                onChange={(e) => setMemberPassword(e.target.value)}
+                                value={guestPassword}
+                                onChange={(e) => setGuestPassword(e.target.value)}
                             />
                         </fieldset>
-                        <Button type="submit" disabled={memberSubmitting}>
+                        <Button type="submit" disabled={guestSubmitting}>
                             Sign in
                         </Button>
                     </form>
                     <button
                         type="button"
                         className="link-like back-button"
-                        onClick={() => setMemberMode(false)}
+                        onClick={() => setGuestMode(false)}
                     >
                         <BiArrowBack />
                         Back
@@ -289,7 +289,7 @@ const Login = observer(() => {
                             <button
                                 type="button"
                                 className="link-like"
-                                onClick={() => setMemberMode(true)}
+                                onClick={() => setGuestMode(true)}
                             >
                                 Sign in with a board login instead?
                             </button>

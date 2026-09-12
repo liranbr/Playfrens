@@ -33,7 +33,7 @@ function untrackUserSocket(userId, ws) {
     if (sockets.size === 0) socketsByUser.delete(userId);
 }
 
-/** Kicks a removed member off a board immediately, notifying the client why. */
+/** Kicks a removed guest off a board immediately, notifying the client why. */
 export function forceDisconnectUserFromBoard(userId, boardId, reason) {
     for (const ws of socketsByUser.get(userId) ?? []) {
         if (ws.boardId !== boardId) continue;

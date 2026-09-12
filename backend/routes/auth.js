@@ -216,7 +216,7 @@ function emailProfileFrom(supabaseUser) {
     };
 }
 
-function establishMemberSession(req, res, supabaseUser) {
+function establishGuestSession(req, res, supabaseUser) {
     const { OK, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
     // users.id is its own generated key, not the Supabase Auth id (that's provider_id).
     return supabase
@@ -349,8 +349,8 @@ function extractBoardShortId(input) {
     return match ? match[1] : trimmed || null;
 }
 
-// Login for board-member accounts
-async function memberLogin(req, res) {
+// Login for board-guest accounts
+async function guestLogin(req, res) {
     const { BAD_REQUEST, UNAUTHORIZED, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
     const { username, password, board } = req.body;
     const boardShortId = extractBoardShortId(board);
@@ -370,23 +370,23 @@ async function memberLogin(req, res) {
         Response.send(res, UNAUTHORIZED, { error: "Invalid username, password, or board link." });
     if (boardError || !boardRow) return invalidCredentials();
 
-    const { data: memberUser, error: lookupError } = await supabase
+    const { data: guestUser, error: lookupError } = await supabase
         .from("users")
         .select("email")
         .eq("provider", "email")
         .eq("member_username", username)
         .eq("home_board_id", boardRow.id)
         .maybeSingle();
-    if (lookupError || !memberUser) return invalidCredentials();
+    if (lookupError || !guestUser) return invalidCredentials();
 
     const { data, error } = await supabaseAuth.auth.signInWithPassword({
-        email: memberUser.email,
+        email: guestUser.email,
         password,
     });
     if (error) return invalidCredentials();
 
     try {
-        await establishMemberSession(req, res, data.user);
+        await establishGuestSession(req, res, data.user);
     } catch (err) {
         Response.send(res, INTERNAL_SERVER_ERROR, { error: err.message });
     }
@@ -445,7 +445,7 @@ router.post("/email/login", oauthLimiter, emailLogin);
 router.post("/email/magic-link", oauthLimiter, emailMagicLink);
 router.post("/email/session", emailSession);
 
-router.post("/member/login", oauthLimiter, memberLogin);
+router.post("/guest/login", oauthLimiter, guestLogin);
 
 // Strategy callbacks
 // Google and Discord - if renamed, update accordingly in the respective developer portal

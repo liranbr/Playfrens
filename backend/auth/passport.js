@@ -49,20 +49,96 @@ function pruneUserCache() {
     }
 }
 
-export async function upsertUser(profile, provider, { createHomeBoard = true } = {}) {
-    const providerId = (() => {
-        switch (provider) {
-            case "steam":
-                return profile.identifier;
-            case "google":
-            case "discord":
-            case "email":
-                return profile.id;
-        }
-        return undefined;
-    })();
+function getProviderId(profile, provider) {
+    switch (provider) {
+        case "steam":
+            return profile.identifier;
+        case "google":
+        case "discord":
+        case "email":
+            return profile.id;
+        default:
+            return undefined;
+    }
+}
 
-    // Check if user exists by provider
+function getDisplayName(profile, provider) {
+    switch (provider) {
+        // passport-discord has no "displayName" field, Discord calls this "global_name", but will fallback to username if it was never set.
+        case "discord":
+            return profile.global_name || profile.username;
+        default:
+            return profile.displayName;
+    }
+}
+
+function getEmail(profile, provider) {
+    switch (provider) {
+        case "google":
+            return profile.emails?.length ? profile.emails[0].value : null;
+        case "discord":
+            return profile.email ?? null;
+        case "email":
+            return profile.email;
+        default:
+            // For Steam, has no email.
+            return null;
+    }
+}
+
+function getAvatarUrl(profile, provider, providerId) {
+    switch (provider) {
+        case "steam":
+            return profile.photos?.length ? profile.photos.at(-1).value : null;
+        case "google": {
+            const avatar = profile.photos?.length ? profile.photos.at(-1).value : null;
+            if (!avatar) return null; // no profile photo set
+            // Give the maximum size of most google avatars, 512x512.
+            return avatar.replace(/=s\d+-c$/, "=s512-c");
+        }
+        case "discord": {
+            const avatar = profile.avatar;
+            if (!avatar) {
+                // Avatarless users uses 0 - 5 variations of avatars via discriminator value
+                return `https://cdn.discordapp.com/embed/avatars/${profile.discriminator % 6}.png`;
+            }
+            // For animated avatars
+            const ext = avatar.startsWith("a_") ? "gif" : "png";
+            return `https://cdn.discordapp.com/avatars/${providerId}/${avatar}.${ext}?size=512`;
+        }
+        default:
+            return null;
+    }
+}
+
+// Updates an existing user row with new profile data, returns its id.
+async function updateExistingUser(existingUser, fields) {
+    const { error } = await supabase
+        .from("users")
+        .update({ ...fields, last_login: new Date() })
+        .eq("id", existingUser.id);
+    if (error) throw error;
+    return existingUser.id;
+}
+
+// Inserts a new user row, optionally with a home board, returns its id.
+async function insertNewUser(provider, providerId, fields, createHomeBoard) {
+    const { data: newUser, error } = await supabase
+        .from("users")
+        .insert({ ...fields, provider, provider_id: providerId, last_login: new Date() })
+        .select()
+        .single();
+    if (error) throw error;
+
+    // Skipped for member-only accounts, since they're made for one specific board, not their own.
+    if (createHomeBoard) await insertBoardWithShortId(newUser.id);
+
+    return newUser.id;
+}
+
+export async function upsertUser(profile, provider, { createHomeBoard = true } = {}) {
+    const providerId = getProviderId(profile, provider);
+
     const { data: existingUser } = await supabase
         .from("users")
         .select("*")
@@ -70,91 +146,15 @@ export async function upsertUser(profile, provider, { createHomeBoard = true } =
         .eq("provider_id", providerId)
         .single();
 
-    const display_name = (() => {
-        switch (provider) {
-            // passport-discord has no "displayName" field, Discord calls this "global_name", but will fallback to username if it was never set.
-            case "discord":
-                return profile.global_name || profile.username;
-            default:
-                return profile.displayName;
-        }
-    })();
+    const fields = {
+        display_name: getDisplayName(profile, provider),
+        email: getEmail(profile, provider),
+        avatar_url: getAvatarUrl(profile, provider, providerId),
+    };
 
-    const email = (() => {
-        switch (provider) {
-            case "google":
-                return profile.emails?.length ? profile.emails[0].value : null;
-            case "discord":
-                return profile.email ?? null;
-            case "email":
-                return profile.email;
-            default:
-                // For Steam, has no email.
-                return null;
-        }
-    })();
-
-    const avatar_url = (() => {
-        switch (provider) {
-            case "steam":
-                return profile.photos?.length ? profile.photos.at(-1).value : null;
-            case "google": {
-                const avatar = profile.photos?.length ? profile.photos.at(-1).value : null;
-                if (!avatar) return null; // no profile photo set
-                // Give the maximum size of most google avatars, 512x512.
-                return avatar.replace(/=s\d+-c$/, "=s512-c");
-            }
-            case "discord": {
-                const avatar = profile.avatar;
-                if (!avatar) {
-                    // Avatarless users uses 0 - 5 variations of avatars via discriminator value
-                    return `https://cdn.discordapp.com/embed/avatars/${profile.discriminator % 6}.png`;
-                }
-                // For animated avatars
-                const ext = avatar.startsWith("a_") ? "gif" : "png";
-                return `https://cdn.discordapp.com/avatars/${providerId}/${avatar}.${ext}?size=512`;
-            }
-            default:
-                return null;
-        }
-    })();
-
-    let userId;
-
-    if (existingUser) {
-        userId = existingUser.id;
-        // Update user
-        const { error: updateError } = await supabase
-            .from("users")
-            .update({
-                display_name,
-                email,
-                avatar_url,
-                last_login: new Date(),
-            })
-            .eq("id", userId);
-        if (updateError) throw updateError;
-    } else {
-        // Insert new user
-        const { data: newUser, error: insertError } = await supabase
-            .from("users")
-            .insert({
-                display_name,
-                email,
-                avatar_url,
-                provider,
-                provider_id: providerId,
-                last_login: new Date(),
-            })
-            .select()
-            .single();
-        if (insertError) throw insertError;
-
-        userId = newUser.id;
-
-        // Skipped for member-only accounts, since they're made for one specific board, not their own.
-        if (createHomeBoard) await insertBoardWithShortId(userId);
-    }
+    const userId = existingUser
+        ? await updateExistingUser(existingUser, fields)
+        : await insertNewUser(provider, providerId, fields, createHomeBoard);
 
     const { data: user, error: userError } = await supabase
         .from("users")

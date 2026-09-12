@@ -192,3 +192,8 @@
 .app-header-center {
     gap: 16px;
 }
+
+.app-header-left {
+    display: flex;
+    align-items: center;
+}

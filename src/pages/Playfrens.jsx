@@ -131,7 +131,7 @@ function AppMenu() {
 /**
  * Allows users to switch and create boards.
  * Members cannot create one so this will be overriden with showcasing the name of the board.
-*/
+ */
 const BoardSwitcher = observer(() => {
     const boardStore = useBoardStore();
     const { userInfo } = useUserStore();
@@ -159,16 +159,26 @@ const BoardSwitcher = observer(() => {
                     </button>
                 </DD.Trigger>
                 <DD.Portal>
-                    <DD.Content className="rx-dropdown-menu" align={"start"} side={"bottom"} sideOffset={5}>
+                    <DD.Content
+                        className="rx-dropdown-menu"
+                        align={"start"}
+                        side={"bottom"}
+                        sideOffset={5}
+                    >
                         {boardStore.boards.map((board) => (
-                            <DD.Item key={board.id} onClick={() => boardStore.switchBoard(board.id)}>
+                            <DD.Item
+                                key={board.id}
+                                onClick={() => boardStore.switchBoard(board.id)}
+                            >
                                 {board.name}
                             </DD.Item>
                         ))}
                         {boardStore.canCreateBoard && (
                             <>
                                 <DD.Separator />
-                                <DD.Item onClick={() => globalDialogStore.open(Dialogs.CreateBoard)}>
+                                <DD.Item
+                                    onClick={() => globalDialogStore.open(Dialogs.CreateBoard)}
+                                >
                                     Create board
                                 </DD.Item>
                             </>
@@ -187,7 +197,7 @@ const AppHeader = observer(() => {
 
     return (
         <CenterAndEdgesRow className="app-header">
-            <div>
+            <div className="app-header-left">
                 <AppMenu />
                 <div className="app-brand-row">
                     <div className="app-brand">
@@ -324,7 +334,10 @@ const AppUserAvatar = observer(() => {
         <DD.Root>
             <DD.Trigger asChild className="rx-avatar">
                 <Avatar.Root>
-                    <Avatar.Image src={userInfo?.avatar ?? undefined} referrerPolicy="no-referrer" />
+                    <Avatar.Image
+                        src={userInfo?.avatar ?? undefined}
+                        referrerPolicy="no-referrer"
+                    />
                     <Avatar.Fallback className="rx-avatarless" asChild>
                         <MdPerson />
                     </Avatar.Fallback>

@@ -130,8 +130,8 @@ function AppMenu() {
 
 /**
  * Allows users to switch and create boards.
- * Members cannot create one so this will be overriden with showcasing the name of the board.
- */
+ * Guests cannot create one so this will be overriden with showcasing the name of the board.
+*/
 const BoardSwitcher = observer(() => {
     const boardStore = useBoardStore();
     const { userInfo } = useUserStore();
@@ -142,7 +142,9 @@ const BoardSwitcher = observer(() => {
             <>
                 <div className="app-brand-separator" />
                 <span className="board-switcher-trigger board-name-static">
-                    {boardStore.activeBoard?.name ?? "Board"}
+                    <span className="board-switcher-trigger-label">
+                        {boardStore.activeBoard?.name ?? "Board"}
+                    </span>
                 </span>
             </>
         );
@@ -153,10 +155,12 @@ const BoardSwitcher = observer(() => {
             <div className="app-brand-separator" />
             <DD.Root>
                 <DD.Trigger asChild>
-                    <button className="board-switcher-trigger">
-                        {boardStore.activeBoard?.name ?? "Board"}
+                    <span className="board-switcher-trigger">
+                        <span className="board-switcher-trigger-label">
+                            {boardStore.activeBoard?.name ?? "Board"}
+                        </span>
                         <MdKeyboardArrowDown />
-                    </button>
+                    </span>
                 </DD.Trigger>
                 <DD.Portal>
                     <DD.Content

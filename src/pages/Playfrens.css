@@ -26,6 +26,7 @@
     font-size: 16px;
     font-weight: bold;
     color: var(--pf-fg-300);
+    max-width: 256px;
     background-color: #55555500;
     border: none;
     border-radius: 8px;
@@ -47,6 +48,14 @@
             background-color: #55555500;
         }
     }
+}
+
+.board-switcher-trigger-label {
+    min-width: 0;
+    overflow: hidden;
+    text-align: left;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .app-sidebar-container {

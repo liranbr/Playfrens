@@ -128,73 +128,55 @@ function AppMenu() {
     );
 }
 
-// The Playfrens brand stays put always; the board name/switcher next to it only shows up when
-// there's more than one accessible board, or you can still create one. Member logins are
-// permanently tied to their one home board (nothing to switch to or create), so they only ever
-// get the plain name, never the interactive dropdown.
+/** 
+ * Allows users to switch and create boards.
+ * Members cannot create one so this will be overriden with showcasing the name of the board.
+*/
 const BoardSwitcher = observer(() => {
     const boardStore = useBoardStore();
     const { userInfo } = useUserStore();
-    const canSwitchOrCreate = boardStore.boards.length > 1 || boardStore.canCreateBoard;
     const DD = DropdownMenu;
 
+    if (userInfo.isMember) {
+        return (
+            <>
+                <div className="app-brand-separator" />
+                <span className="board-switcher-trigger board-name-static">
+                    {boardStore.activeBoard?.name ?? "Board"}
+                </span>
+            </>
+        );
+    }
+
     return (
-        <div className="app-brand-row">
-            <div className="app-brand">
-                <img src="/Playfrens_Logo.png" alt="Playfrens Logo" />
-                Playfrens
-            </div>
-
-            {userInfo.isMember && (
-                <>
-                    <div className="app-brand-separator" />
-                    <span className="board-switcher-trigger">
+        <>
+            <div className="app-brand-separator" />
+            <DD.Root>
+                <DD.Trigger asChild>
+                    <button className="board-switcher-trigger">
                         {boardStore.activeBoard?.name ?? "Board"}
-                    </span>
-                </>
-            )}
-
-            {!userInfo.isMember && canSwitchOrCreate && (
-                <>
-                    <div className="app-brand-separator" />
-                    <DD.Root>
-                        <DD.Trigger asChild>
-                            <button className="board-switcher-trigger">
-                                {boardStore.activeBoard?.name ?? "Board"}
-                                <MdKeyboardArrowDown />
-                            </button>
-                        </DD.Trigger>
-                        <DD.Portal>
-                            <DD.Content
-                                className="rx-dropdown-menu"
-                                align={"start"}
-                                side={"bottom"}
-                                sideOffset={5}
-                            >
-                                {boardStore.boards.map((board) => (
-                                    <DD.Item
-                                        key={board.id}
-                                        onClick={() => boardStore.switchBoard(board.id)}
-                                    >
-                                        {board.name}
-                                    </DD.Item>
-                                ))}
-                                {boardStore.canCreateBoard && (
-                                    <>
-                                        <DD.Separator />
-                                        <DD.Item
-                                            onClick={() => globalDialogStore.open(Dialogs.CreateBoard)}
-                                        >
-                                            Create board
-                                        </DD.Item>
-                                    </>
-                                )}
-                            </DD.Content>
-                        </DD.Portal>
-                    </DD.Root>
-                </>
-            )}
-        </div>
+                        <MdKeyboardArrowDown />
+                    </button>
+                </DD.Trigger>
+                <DD.Portal>
+                    <DD.Content className="rx-dropdown-menu" align={"start"} side={"bottom"} sideOffset={5}>
+                        {boardStore.boards.map((board) => (
+                            <DD.Item key={board.id} onClick={() => boardStore.switchBoard(board.id)}>
+                                {board.name}
+                            </DD.Item>
+                        ))}
+                        {boardStore.canCreateBoard && (
+                            <>
+                                <DD.Separator />
+                                <DD.Item onClick={() => globalDialogStore.open(Dialogs.CreateBoard)}>
+                                    Create board
+                                </DD.Item>
+                            </>
+                        )}
+                    </DD.Content>
+                </DD.Portal>
+            </DD.Root>
+        </>
     );
 });
 
@@ -207,7 +189,13 @@ const AppHeader = observer(() => {
         <CenterAndEdgesRow className="app-header">
             <div>
                 <AppMenu />
-                <BoardSwitcher />
+                <div className="app-brand-row">
+                    <div className="app-brand">
+                        <img src="/Playfrens_Logo.png" alt="Playfrens Logo" />
+                        Playfrens
+                    </div>
+                    <BoardSwitcher />
+                </div>
             </div>
 
             <CenterAndEdgesRow className="app-header-center">
@@ -349,7 +337,6 @@ const AppUserAvatar = observer(() => {
                     side={"bottom"}
                     sideOffset={5}
                 >
-                    {/* Member logins have no real Steam account of their own to import from. */}
                     {!userInfo.isMember && (
                         <DD.Item onClick={() => globalDialogStore.open(Dialogs.SteamImport)}>
                             Import from Steam

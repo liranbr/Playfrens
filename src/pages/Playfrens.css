@@ -37,6 +37,16 @@
         color: #fff;
         background-color: #55555555;
     }
+
+    &.board-name-static {
+        cursor: default;
+        user-select: none;
+
+        &:hover {
+            color: var(--pf-fg-300);
+            background-color: #55555500;
+        }
+    }
 }
 
 .app-sidebar-container {

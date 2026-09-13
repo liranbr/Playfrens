@@ -51,8 +51,11 @@ export class BoardStore {
 
     async populate() {
         const boards = await listBoards();
+        const requestedId = this.getRequestedBoardIdFromURL();
         const lastUsedId = loadFromStorage(LAST_BOARD_STORAGE_KEY, null);
         const resolvedId =
+            (requestedId &&
+                boards.find((b) => b.shortId === requestedId || b.id === requestedId)?.id) ??
             (lastUsedId && boards.find((b) => b.id === lastUsedId)?.id) ??
             boards.find((b) => b.role === "owner")?.id ??
             boards[0]?.id ??
@@ -126,6 +129,11 @@ export class BoardStore {
         globalDataStore.watchSettingsForBackendSync();
 
         subscribeToBoard(this.activeBoardId);
+    }
+
+    getRequestedBoardIdFromURL() {
+        const match = window.location.pathname.match(/^\/(?:app|board)\/([^/]+)/);
+        return match ? decodeURIComponent(match[1]) : null;
     }
 }
 

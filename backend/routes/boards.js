@@ -16,8 +16,7 @@ import {
     forceDisconnectUserFromBoard,
 } from "../ws/boardSocket.js";
 
-// Lists boards the caller can access: their own plus any they've joined. `role` is for display
-// only, since permissions are flat once you have access at all.
+// Lists boards the caller can access, their own plus any they've joined.
 async function listBoards(req, res) {
     const { OK, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
     const userId = req.user.id;

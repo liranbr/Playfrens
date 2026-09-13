@@ -71,6 +71,8 @@ export default function App() {
                     <Routes>
                         <Route index element={<Home />} />
                         <Route path="/app/:shortId?" element={<Playfrens />} />
+                        <Route path="/board/:shortId" element={<Playfrens />} />
+                        <Route path="/board/:shortId/:guestName" element={<Playfrens />} />
                         <Route path="/login" element={<Login />} />
                         <Route path="/login/callback" element={<EmailCallback />} />
                         <Route path="/contact" element={<Contact />} />

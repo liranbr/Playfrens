@@ -29,9 +29,11 @@ const Login = observer(() => {
     const [emailConfirmed, setEmailConfirmed] = useState(false);
 
     // Board-guest accounts log in with a username/password.
-    const targetBoard = new URLSearchParams(window.location.search).get("board");
+    const params = new URLSearchParams(window.location.search);
+    const targetBoard = params.get("board");
+    const targetGuestName = params.get("guest");
     const [guestMode, setGuestMode] = useState(!!targetBoard);
-    const [guestUsername, setGuestUsername] = useState("");
+    const [guestUsername, setGuestUsername] = useState(targetGuestName ?? "");
     const [guestPassword, setGuestPassword] = useState("");
     const [guestBoardInput, setGuestBoardInput] = useState("");
     const [guestSubmitting, setGuestSubmitting] = useState(false);

@@ -430,7 +430,7 @@ const Playfrens = observer(() => {
     const userStore = useUserStore();
     const { loading, userInfo } = userStore;
     const boardStore = useBoardStore();
-    const { shortId } = useParams();
+    const { shortId, guestName } = useParams();
 
     // switch if it names a different board you
     useEffect(() => {
@@ -443,7 +443,9 @@ const Playfrens = observer(() => {
     if (loading) return <div className="loading-page">Loading...</div>;
     // Requires login, and carries the board id along so signing in lands back on it.
     if (userInfo === undefined) {
-        return <Navigate to={shortId ? `/login?board=${shortId}` : "/login"} replace />;
+        if (!shortId) return <Navigate to="/login" replace />;
+        const guestQuery = guestName ? `&guest=${encodeURIComponent(guestName)}` : "";
+        return <Navigate to={`/login?board=${shortId}${guestQuery}`} replace />;
     }
 
     return (

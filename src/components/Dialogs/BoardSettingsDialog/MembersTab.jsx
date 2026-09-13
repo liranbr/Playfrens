@@ -13,7 +13,7 @@ export const MembersTab = observer(() => {
     const boardId = globalBoardStore.activeBoardId;
     const activeBoard = globalBoardStore.activeBoard;
     const isOwner = globalBoardStore.isOwner;
-    const boardLink = `${window.location.origin}/app/${activeBoard?.shortId ?? boardId}`;
+    const boardLink = `${window.location.origin}/board/${activeBoard?.shortId ?? boardId}`;
 
     const cached = globalBoardStore.getCachedGuests(boardId);
     const [guests, setGuests] = useState(cached ?? []);
@@ -171,7 +171,7 @@ export const MembersTab = observer(() => {
                                     variant="secondary"
                                     onClick={() =>
                                         copyToClipboard(
-                                            `Board link: ${boardLink}\nUsername: ${createdCredentials.username}\nPassword: ${createdCredentials.password}`,
+                                            `Board link: ${boardLink}/${encodeURIComponent(createdCredentials.username)}\nUsername: ${createdCredentials.username}\nPassword: ${createdCredentials.password}`,
                                             "Copied!",
                                         )
                                     }

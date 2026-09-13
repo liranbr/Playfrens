@@ -16,7 +16,7 @@ function generateShortId() {
 // Inserts a new board with a fresh short_id, retrying a few times in case of a match,
 // since short_id has a UNIQUE constraint, very unlikely 🤞
 // Returns the created { id, short_id, name } row, or null if every attempt failed.
-export async function insertBoardWithShortId(ownerId, name = null) {
+export async function insertBoard(ownerId, name = null) {
     let lastError;
     for (let attempt = 1; attempt <= SHORT_ID_ATTEMPTS; attempt++) {
         const { data, error } = await supabase
@@ -131,7 +131,7 @@ async function insertNewUser(provider, providerId, fields, createHomeBoard) {
     if (error) throw error;
 
     // Skipped for guest-only accounts, since they're made for one specific board, not their own.
-    if (createHomeBoard) await insertBoardWithShortId(newUser.id);
+    if (createHomeBoard) await insertBoard(newUser.id);
 
     return newUser.id;
 }

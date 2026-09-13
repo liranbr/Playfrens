@@ -6,7 +6,7 @@ import { requireAuth } from "../auth/requireAuth.js";
 import { requireBoardAccess } from "../auth/requireBoardAccess.js";
 import {
     deleteUserAccountRow,
-    insertBoardWithShortId,
+    insertBoard,
     removeOrphanedBoardGuests,
     upsertUser,
 } from "../auth/passport.js";
@@ -56,7 +56,7 @@ async function createBoard(req, res) {
         });
     }
 
-    const board = await insertBoardWithShortId(req.user.id, name?.trim() || null);
+    const board = await insertBoard(req.user.id, name?.trim() || null);
     if (!board) {
         return Response.send(res, INTERNAL_SERVER_ERROR, { error: "Failed to create board." });
     }

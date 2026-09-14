@@ -3,7 +3,12 @@ import passport from "passport";
 import rateLimit from "express-rate-limit";
 import { Response } from "../response.js";
 import { requireAuth } from "../auth/requireAuth.js";
-import { deleteUserAccountRow, upsertUser } from "../auth/passport.js";
+import {
+    deleteGuestRow,
+    deleteUserAccountRow,
+    findAccountById,
+    upsertUser,
+} from "../auth/passport.js";
 import { supabase, supabaseAuth } from "../supabaseClient.js";
 import { resolveBaseURL, strToBool } from "../utils.js";
 
@@ -158,14 +163,13 @@ async function getRequestIdentity(req, res) {
     const { OK, NO_CONTENT, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
 
     if (req.isAuthenticated()) {
-        const { data: dbUser, error } = await supabase
-            .from("users")
-            .select("*")
-            .eq("id", req.user.id)
-            .single();
-
-        if (error) return Response.send(res, INTERNAL_SERVER_ERROR, { error: error.message });
-        Response.send(res, OK, { user: dbUser });
+        let account;
+        try {
+            account = await findAccountById(req.user.id);
+        } catch (error) {
+            return Response.send(res, INTERNAL_SERVER_ERROR, { error: error.message });
+        }
+        Response.send(res, OK, { user: account });
     } else {
         Response.send(res, NO_CONTENT, { message: "Requester is not logged in." });
     }
@@ -189,8 +193,9 @@ async function deleteAccount(req, res) {
         return Response.send(res, NO_CONTENT, { message: "Requester is not logged in." });
 
     try {
-        // Also strips this user from members_id on any boards they'd joined but don't own.
-        await deleteUserAccountRow(req.user);
+        // Also strips this account from members_id on every board it belonged to.
+        if (req.user.member_username) await deleteGuestRow(req.user);
+        else await deleteUserAccountRow(req.user);
     } catch (err) {
         return Response.send(res, INTERNAL_SERVER_ERROR, {
             message: "Error deleting account: " + err.message,
@@ -216,24 +221,23 @@ function emailProfileFrom(supabaseUser) {
     };
 }
 
-function establishGuestSession(req, res, supabaseUser) {
+function establishGuestSession(req, res, guest) {
     const { OK, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
-    // users.id is its own generated key, not the Supabase Auth id (that's provider_id).
+    // guest.id is its own generated key, not the Supabase Auth id (that's auth_user_id).
     return supabase
-        .from("users")
+        .from("guests")
         .update({ last_login: new Date() })
-        .eq("provider", "email")
-        .eq("provider_id", supabaseUser.id)
+        .eq("id", guest.id)
         .select()
         .single()
-        .then(({ data: user, error }) => {
+        .then(({ data: updatedGuest, error }) => {
             if (error) throw error;
             return new Promise((resolve) => {
-                req.logIn(user, (err) => {
+                req.logIn(updatedGuest, (err) => {
                     if (err) {
                         Response.send(res, INTERNAL_SERVER_ERROR, { error: err.message });
                     } else {
-                        Response.send(res, OK, { user });
+                        Response.send(res, OK, { user: updatedGuest });
                     }
                     resolve();
                 });
@@ -370,23 +374,29 @@ async function guestLogin(req, res) {
         Response.send(res, UNAUTHORIZED, { error: "Invalid username, password, or board link." });
     if (boardError || !boardRow) return invalidCredentials();
 
-    const { data: guestUser, error: lookupError } = await supabase
-        .from("users")
-        .select("email")
-        .eq("provider", "email")
+    const { data: guest, error: lookupError } = await supabase
+        .from("guests")
+        .select("*")
         .eq("member_username", username)
         .eq("home_board_id", boardRow.id)
         .maybeSingle();
-    if (lookupError || !guestUser) return invalidCredentials();
+    if (lookupError || !guest) return invalidCredentials();
 
-    const { data, error } = await supabaseAuth.auth.signInWithPassword({
-        email: guestUser.email,
+    // Guests have no email of their own, only their Supabase Auth user does, fetched here since
+    // signInWithPassword needs it and we don't store it on our side.
+    const { data: authUser, error: authLookupError } = await supabase.auth.admin.getUserById(
+        guest.auth_user_id,
+    );
+    if (authLookupError || !authUser?.user) return invalidCredentials();
+
+    const { error } = await supabaseAuth.auth.signInWithPassword({
+        email: authUser.user.email,
         password,
     });
     if (error) return invalidCredentials();
 
     try {
-        await establishGuestSession(req, res, data.user);
+        await establishGuestSession(req, res, guest);
     } catch (err) {
         Response.send(res, INTERNAL_SERVER_ERROR, { error: err.message });
     }

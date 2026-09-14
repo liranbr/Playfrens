@@ -5,16 +5,12 @@ import { supabase } from "../supabaseClient.js";
 import { requireAuth } from "../auth/requireAuth.js";
 import { requireBoardAccess } from "../auth/requireBoardAccess.js";
 import {
-    deleteUserAccountRow,
+    deleteGuestRow,
     insertBoard,
+    insertGuest,
     removeOrphanedBoardGuests,
-    upsertUser,
 } from "../auth/passport.js";
-import {
-    broadcastToBoard,
-    closeUserSockets,
-    forceDisconnectUserFromBoard,
-} from "../ws/boardSocket.js";
+import { broadcastToBoard, closeUserSockets } from "../ws/boardSocket.js";
 
 // Lists boards the caller can access, their own plus any they've joined.
 async function listBoards(req, res) {
@@ -183,21 +179,40 @@ async function deleteBoard(req, res) {
 /** GET /:boardId/guests (owner + every guest's public profile fields). */
 async function listGuests(req, res) {
     const { OK, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
-    const guestIds = [req.board.owner_id, ...(req.board.members_id ?? [])];
 
-    const { data: users, error } = await supabase
+    const { data: owner, error: ownerError } = await supabase
         .from("users")
-        .select("id, display_name, avatar_url, member_username")
-        .in("id", guestIds);
-    if (error) return Response.send(res, INTERNAL_SERVER_ERROR, { error: error.message });
+        .select("id, display_name, avatar_url")
+        .eq("id", req.board.owner_id)
+        .single();
+    if (ownerError) return Response.send(res, INTERNAL_SERVER_ERROR, { error: ownerError.message });
 
-    const guests = users.map((u) => ({
-        id: u.id,
-        displayName: u.display_name,
-        avatarURL: u.avatar_url,
-        username: u.member_username, // set only for guest-created accounts
-        role: u.id === req.board.owner_id ? "owner" : "guest",
-    }));
+    const memberIds = req.board.members_id ?? [];
+    const { data: guestRows, error: guestsError } = memberIds.length
+        ? await supabase
+              .from("guests")
+              .select("id, display_name, member_username")
+              .in("id", memberIds)
+        : { data: [], error: null };
+    if (guestsError)
+        return Response.send(res, INTERNAL_SERVER_ERROR, { error: guestsError.message });
+
+    const guests = [
+        {
+            id: owner.id,
+            displayName: owner.display_name,
+            avatarURL: owner.avatar_url,
+            username: null,
+            role: "owner",
+        },
+        ...guestRows.map((g) => ({
+            id: g.id,
+            displayName: g.display_name,
+            avatarURL: null,
+            username: g.member_username,
+            role: "guest",
+        })),
+    ];
     return Response.send(res, OK, { guests });
 }
 
@@ -222,7 +237,7 @@ async function createGuest(req, res) {
 
     // Usernames only need to be unique to the board.
     const { data: existing } = await supabase
-        .from("users")
+        .from("guests")
         .select("id")
         .eq("member_username", username)
         .eq("home_board_id", req.board.id)
@@ -233,6 +248,7 @@ async function createGuest(req, res) {
         });
     }
 
+    // Supabase Auth needs a valid email, regardless, let's throw a random value for it.
     const localEmail = `${uuidv4()}@guests.playfrens.local`;
     const { data: created, error: createError } = await supabase.auth.admin.createUser({
         email: localEmail,
@@ -243,27 +259,17 @@ async function createGuest(req, res) {
         return Response.send(res, INTERNAL_SERVER_ERROR, { error: createError.message });
     }
 
-    let user;
+    let guest;
     try {
-        user = await upsertUser(
-            { id: created.user.id, email: localEmail, displayName: username },
-            "email",
-            { createHomeBoard: false },
-        );
-        const { error: updateError } = await supabase
-            .from("users")
-            .update({ member_username: username, home_board_id: req.board.id })
-            .eq("id", user.id);
-        if (updateError) throw updateError;
+        guest = await insertGuest(req.board.id, username, created.user.id);
     } catch (err) {
         await supabase.auth.admin.deleteUser(created.user.id).catch(() => {});
-        if (user?.id) await supabase.from("users").delete().eq("id", user.id);
         return Response.send(res, INTERNAL_SERVER_ERROR, { error: err.message });
     }
 
     const { error: guestError } = await supabase.rpc("add_board_member", {
         _board_id: req.board.id,
-        _user_id: user.id,
+        _user_id: guest.id,
     });
     if (guestError) {
         return Response.send(res, INTERNAL_SERVER_ERROR, { error: guestError.message });
@@ -271,7 +277,7 @@ async function createGuest(req, res) {
 
     broadcastToBoard(req.board.id, { type: "guests-changed" });
     return Response.send(res, OK, {
-        guest: { id: user.id, displayName: username, username },
+        guest: { id: guest.id, displayName: username, username },
         password, // shown once here for the inviter to copy/share out-of-band, never stored by us
     });
 }
@@ -286,40 +292,24 @@ async function removeGuest(req, res) {
     }
 
     const { userId } = req.params;
-    if (userId === req.board.owner_id) {
-        return Response.send(res, BAD_REQUEST, { error: "The board's owner can't be removed." });
-    }
-
-    const { data: targetUser, error: fetchError } = await supabase
-        .from("users")
+    const { data: guest, error: fetchError } = await supabase
+        .from("guests")
         .select("*")
         .eq("id", userId)
+        .eq("home_board_id", req.board.id)
         .single();
-    if (fetchError || !targetUser) {
+    if (fetchError || !guest) {
         return Response.send(res, BAD_REQUEST, { error: "That guest doesn't exist." });
     }
 
-    const accountFullyDeleted = targetUser.home_board_id === req.board.id;
     try {
-        if (accountFullyDeleted) {
-            await deleteUserAccountRow(targetUser); // also strips them from every board's members_id
-        } else {
-            const { error } = await supabase.rpc("remove_board_member", {
-                _board_id: req.board.id,
-                _user_id: userId,
-            });
-            if (error) throw error;
-        }
+        await deleteGuestRow(guest); // also strips them from every board's members_id
     } catch (err) {
         return Response.send(res, INTERNAL_SERVER_ERROR, { error: err.message });
     }
 
     // Kick their live connection immediately instead of waiting for their next request to fail.
-    if (accountFullyDeleted) {
-        closeUserSockets(userId, "This account was removed.");
-    } else {
-        forceDisconnectUserFromBoard(userId, req.board.id, "You were removed from this board.");
-    }
+    closeUserSockets(guest.id, "This account was removed.");
 
     broadcastToBoard(req.board.id, { type: "guests-changed" });
     return Response.send(res, OK, { message: "Guest removed" });

@@ -121,8 +121,8 @@ async function updateExistingUser(existingUser, fields) {
     return existingUser.id;
 }
 
-// Inserts a new user row, optionally with a home board, returns its id.
-async function insertNewUser(provider, providerId, fields, createHomeBoard) {
+// Inserts a new user row with its own home board, returns its id.
+async function insertNewUser(provider, providerId, fields) {
     const { data: newUser, error } = await supabase
         .from("users")
         .insert({ ...fields, provider, provider_id: providerId, last_login: new Date() })
@@ -130,13 +130,11 @@ async function insertNewUser(provider, providerId, fields, createHomeBoard) {
         .single();
     if (error) throw error;
 
-    // Skipped for guest-only accounts, since they're made for one specific board, not their own.
-    if (createHomeBoard) await insertBoard(newUser.id);
-
+    await insertBoard(newUser.id);
     return newUser.id;
 }
 
-export async function upsertUser(profile, provider, { createHomeBoard = true } = {}) {
+export async function upsertUser(profile, provider) {
     const providerId = getProviderId(profile, provider);
 
     const { data: existingUser } = await supabase
@@ -154,7 +152,7 @@ export async function upsertUser(profile, provider, { createHomeBoard = true } =
 
     const userId = existingUser
         ? await updateExistingUser(existingUser, fields)
-        : await insertNewUser(provider, providerId, fields, createHomeBoard);
+        : await insertNewUser(provider, providerId, fields);
 
     const { data: user, error: userError } = await supabase
         .from("users")
@@ -166,13 +164,45 @@ export async function upsertUser(profile, provider, { createHomeBoard = true } =
     return user;
 }
 
-// Deletes every guest account tied to this board (home_board_id) and kicks their live connection.
+// Creates a guest login for a board.
+export async function insertGuest(boardId, username, authUserId) {
+    const { data: guest, error } = await supabase
+        .from("guests")
+        .insert({
+            display_name: username,
+            member_username: username,
+            home_board_id: boardId,
+            auth_user_id: authUserId,
+        })
+        .select()
+        .single();
+    if (error) throw error;
+    return guest;
+}
+
+// Deletes a guest's row, its Supabase Auth user, and strips it from the board's members_id.
+export async function deleteGuestRow(guest) {
+    const { error: authDeleteError } = await supabase.auth.admin.deleteUser(guest.auth_user_id);
+    if (authDeleteError) throw authDeleteError;
+
+    const { error: deletionError } = await supabase.from("guests").delete().eq("id", guest.id);
+    if (deletionError) throw deletionError;
+
+    const { error: cleanupError } = await supabase.rpc("remove_user_from_all_boards", {
+        _user_id: guest.id,
+    });
+    if (cleanupError) console.error("Error cleaning up board memberships:", cleanupError);
+
+    invalidateUserCache(guest.id);
+}
+
+// Deletes every guest login tied to this board and kicks their live connection.
 // Important when a board is deleted or the owner deleted their account.
 export async function removeOrphanedBoardGuests(boardId, reason) {
-    const { data: guests } = await supabase.from("users").select("*").eq("home_board_id", boardId);
+    const { data: guests } = await supabase.from("guests").select("*").eq("home_board_id", boardId);
     for (const guest of guests ?? []) {
         try {
-            await deleteUserAccountRow(guest);
+            await deleteGuestRow(guest);
             closeUserSockets(guest.id, reason);
         } catch (err) {
             console.error(`Error deleting orphaned guest account ${guest.id}:`, err);
@@ -182,7 +212,7 @@ export async function removeOrphanedBoardGuests(boardId, reason) {
 
 export async function deleteUserAccountRow(user) {
     // Boards owned by this user cascade-delete once their row is removed below, so clean up
-    // guest accounts first or those logins would outlive the boards they were made for.
+    // guest logins first or those would outlive the boards they were made for.
     const { data: ownedBoards } = await supabase
         .from("boards")
         .select("id")
@@ -207,6 +237,22 @@ export async function deleteUserAccountRow(user) {
     invalidateUserCache(user.id);
 }
 
+// Looks up an account by id across both tables, since a session id may belong to either.
+// Returns the row, guests come back shaped like a partial user.
+export async function findAccountById(id) {
+    const { data: user, error } = await supabase.from("users").select("*").eq("id", id).single();
+    if (user) return user;
+    if (error && error.code !== "PGRST116") throw error;
+
+    const { data: guest, error: guestError } = await supabase
+        .from("guests")
+        .select("*")
+        .eq("id", id)
+        .single();
+    if (guestError) throw guestError;
+    return guest;
+}
+
 // Wires up session (de)serialization and the OAuth strategies. Call once at startup.
 export function configurePassport() {
     passport.serializeUser((user, done) => done(null, user.id));
@@ -214,13 +260,13 @@ export function configurePassport() {
         const cached = userCache.get(id);
         if (cached && cached.expiresAt > Date.now()) return done(null, cached.user);
 
-        const { data: user, error } = await supabase
-            .from("users")
-            .select("*")
-            .eq("id", id)
-            .single();
-        // No rows? Then account was deleted, treat as logged out instead of erroring.
-        if (error) return done(error.code === "PGRST116" ? null : error, false);
+        let user;
+        try {
+            user = await findAccountById(id);
+        } catch (error) {
+            // No rows in either table? Then account was deleted, treat as logged out instead of erroring.
+            return done(error.code === "PGRST116" ? null : error, false);
+        }
         pruneUserCache();
         userCache.set(id, { user, expiresAt: Date.now() + USER_CACHE_LIFETIME_SECS * 1000 });
         done(null, user);

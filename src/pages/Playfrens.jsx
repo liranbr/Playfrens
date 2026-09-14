@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { Navigate } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Avatar from "@radix-ui/react-avatar";
 import * as Popover from "@radix-ui/react-popover";
@@ -8,6 +8,7 @@ import {
     MdChevronRight,
     MdClose,
     MdFilterAltOff,
+    MdKeyboardArrowDown,
     MdMenu,
     MdOutlineCheckCircle,
     MdOutlineFileDownload,
@@ -25,6 +26,7 @@ import {
     globalDataStore,
     globalDialogStore,
     restoreFromFile,
+    useBoardStore,
     useDataStore,
     useFilterStore,
     useUserStore,
@@ -65,8 +67,8 @@ function AppMenu() {
                         sideOffset={5}
                     >
                         <DD.Sub>
-                            <DD.Item onClick={() => globalDialogStore.open(Dialogs.Settings)}>
-                                Settings
+                            <DD.Item onClick={() => globalDialogStore.open(Dialogs.BoardSettings)}>
+                                Board Settings
                             </DD.Item>
                             <DD.SubTrigger>
                                 Backup
@@ -126,6 +128,72 @@ function AppMenu() {
     );
 }
 
+/**
+ * Allows users to switch and create boards.
+ * Guests cannot create one so this will be overriden with showcasing the name of the board.
+*/
+const BoardSwitcher = observer(() => {
+    const boardStore = useBoardStore();
+    const { userInfo } = useUserStore();
+    const DD = DropdownMenu;
+
+    if (userInfo.isGuest) {
+        return (
+            <>
+                <div className="app-brand-separator" />
+                <span className="board-switcher-trigger board-name-static">
+                    <span className="board-switcher-trigger-label">
+                        {boardStore.activeBoard?.name ?? "Board"}
+                    </span>
+                </span>
+            </>
+        );
+    }
+
+    return (
+        <>
+            <div className="app-brand-separator" />
+            <DD.Root>
+                <DD.Trigger asChild>
+                    <span className="board-switcher-trigger">
+                        <span className="board-switcher-trigger-label">
+                            {boardStore.activeBoard?.name ?? "Board"}
+                        </span>
+                        <MdKeyboardArrowDown />
+                    </span>
+                </DD.Trigger>
+                <DD.Portal>
+                    <DD.Content
+                        className="rx-dropdown-menu"
+                        align={"start"}
+                        side={"bottom"}
+                        sideOffset={5}
+                    >
+                        {boardStore.boards.map((board) => (
+                            <DD.Item
+                                key={board.id}
+                                onClick={() => boardStore.switchBoard(board.id)}
+                            >
+                                {board.name}
+                            </DD.Item>
+                        ))}
+                        {boardStore.canCreateBoard && (
+                            <>
+                                <DD.Separator />
+                                <DD.Item
+                                    onClick={() => globalDialogStore.open(Dialogs.CreateBoard)}
+                                >
+                                    Create board
+                                </DD.Item>
+                            </>
+                        )}
+                    </DD.Content>
+                </DD.Portal>
+            </DD.Root>
+        </>
+    );
+});
+
 const AppHeader = observer(() => {
     const filterStore = useFilterStore();
     const search = filterStore.search;
@@ -133,11 +201,14 @@ const AppHeader = observer(() => {
 
     return (
         <CenterAndEdgesRow className="app-header">
-            <div>
+            <div className="app-header-left">
                 <AppMenu />
-                <div className="app-brand">
-                    <img src="/Playfrens_Logo.png" alt="Playfrens Logo" />
-                    Playfrens
+                <div className="app-brand-row">
+                    <div className="app-brand">
+                        <img src="/Playfrens_Logo.png" alt="Playfrens Logo" />
+                        Playfrens
+                    </div>
+                    <BoardSwitcher />
                 </div>
             </div>
 
@@ -267,7 +338,10 @@ const AppUserAvatar = observer(() => {
         <DD.Root>
             <DD.Trigger asChild className="rx-avatar">
                 <Avatar.Root>
-                    <Avatar.Image src={userInfo?.avatar ?? undefined} referrerPolicy="no-referrer" />
+                    <Avatar.Image
+                        src={userInfo?.avatar ?? undefined}
+                        referrerPolicy="no-referrer"
+                    />
                     <Avatar.Fallback className="rx-avatarless" asChild>
                         <MdPerson />
                     </Avatar.Fallback>
@@ -280,9 +354,11 @@ const AppUserAvatar = observer(() => {
                     side={"bottom"}
                     sideOffset={5}
                 >
-                    <DD.Item onClick={() => globalDialogStore.open(Dialogs.SteamImport)}>
-                        Import from Steam
-                    </DD.Item>
+                    {!userInfo.isGuest && (
+                        <DD.Item onClick={() => globalDialogStore.open(Dialogs.SteamImport)}>
+                            Import from Steam
+                        </DD.Item>
+                    )}
                     <DD.Item onClick={() => globalDialogStore.open(Dialogs.AccountSettings)}>
                         Account Settings
                     </DD.Item>
@@ -353,10 +429,24 @@ function AppSidebar() {
 const Playfrens = observer(() => {
     const userStore = useUserStore();
     const { loading, userInfo } = userStore;
+    const boardStore = useBoardStore();
+    const { shortId, guestName } = useParams();
+
+    // switch if it names a different board you
+    useEffect(() => {
+        if (!shortId || boardStore.loading) return;
+        const board = boardStore.boards.find((b) => b.shortId === shortId || b.id === shortId);
+        if (!board || board.id === boardStore.activeBoardId) return;
+        boardStore.switchBoard(board.id);
+    }, [shortId, boardStore, boardStore.loading, boardStore.boards, boardStore.activeBoardId]);
 
     if (loading) return <div className="loading-page">Loading...</div>;
-    // 'Protected Route' requires the user be logged in
-    if (userInfo === undefined) return <Navigate to="/login" replace />;
+    // Requires login, and carries the board id along so signing in lands back on it.
+    if (userInfo === undefined) {
+        if (!shortId) return <Navigate to="/login" replace />;
+        const guestQuery = guestName ? `&guest=${encodeURIComponent(guestName)}` : "";
+        return <Navigate to={`/login?board=${shortId}${guestQuery}`} replace />;
+    }
 
     return (
         <>

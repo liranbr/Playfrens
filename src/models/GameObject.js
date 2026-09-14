@@ -74,6 +74,47 @@ export class GameObject {
         return "";
     }
 
+    // Applies a fresh JSON snapshot onto this instance in place
+    // Should also sync with dialogs
+    patchFromJSON(json) {
+        this.title = json.title;
+        this.coverImageURL = json.coverImageURL ?? this.coverImageURL;
+        this.coverThumbURL = json.coverThumbURL ?? this.coverThumbURL;
+        this.coverIsOfficial = json.coverIsOfficial ?? this.coverIsOfficial;
+        this.sortingTitle = json.sortingTitle ?? this.sortingTitle;
+        this.storeType = json.storeType ? json.storeType : this.storeType;
+        this.storeID = json.storeID ?? this.storeID;
+        this.sgdbID = json.sgdbID ?? this.sgdbID;
+        this.isAdult = json.isAdult ?? this.isAdult;
+        this.#patchParties(json.parties ?? []);
+    }
+
+    // Same as above but for groups.
+    #patchParties(partyJsons) {
+        const incomingIds = new Set();
+        for (const partyJson of partyJsons) {
+            if (!partyJson?.id || !partyJson?.name) {
+                console.warn(`Skipping invalid party, id: ${partyJson?.id}`);
+                continue;
+            }
+            incomingIds.add(partyJson.id);
+            const existing = this.parties.find((party) => party.id === partyJson.id);
+            if (existing) existing.patchFromJSON(partyJson);
+            else {
+                this.parties.push(
+                    new Party({
+                        ...partyJson,
+                        tagIDs: deserializePartyTagIDs(partyJson.tagIDs),
+                        parent: this,
+                    }),
+                );
+            }
+        }
+        for (let i = this.parties.length - 1; i >= 0; i--) {
+            if (!incomingIds.has(this.parties[i].id)) this.parties.splice(i, 1);
+        }
+    }
+
     createParty(name = "") {
         if (!name) name = `Group ${this.parties.length + 1}`;
         this.parties.push(new Party({ parent: this, name: name }));
@@ -106,6 +147,20 @@ export function compareGameTitlesAZ(a, b) {
     const titleA = a.sortingTitle || a.title;
     const titleB = b.sortingTitle || b.title;
     return compareAlphaIgnoreCase(titleA, titleB);
+}
+
+// Converts a Party's serialized tagIDs (plain arrays) back into the live shape (a Set per tag
+// type). Shared by DataStore's hydration and GameObject's patchFromJSON.
+export function deserializePartyTagIDs(tagIDs) {
+    const result = {
+        [tagTypes.friend]: new Set(),
+        [tagTypes.category]: new Set(),
+        [tagTypes.status]: new Set(),
+    };
+    for (const tagType in tagIDs) {
+        if (tagType in result) result[tagType] = new Set(tagIDs[tagType]);
+    }
+    return result;
 }
 
 /**
@@ -142,6 +197,13 @@ export class Party {
         this.note = note ?? this.note;
         this.id = id ?? randomUUID();
         makeAutoObservable(this, { parent: false });
+    }
+
+    /** Applies a fresh JSON snapshot onto THIS instance in place (see GameObject.patchFromJSON). */
+    patchFromJSON(json) {
+        this.name = json.name;
+        this.note = json.note ?? "";
+        this.tagIDs = deserializePartyTagIDs(json.tagIDs);
     }
 
     addTag(tag) {

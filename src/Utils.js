@@ -311,6 +311,7 @@ export const HttpStatus = Object.freeze({
     UNAUTHORIZED: 401,
     FORBIDDEN: 403,
     NOT_FOUND: 404,
+    CONFLICT: 409,
     GONE: 410,
     URI_TOO_LONG: 414,
     TOO_MANY_REQUESTS: 429,

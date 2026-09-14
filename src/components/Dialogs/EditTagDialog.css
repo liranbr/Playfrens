@@ -59,6 +59,7 @@
         border-left: 1px solid var(--pf-border-700);
         border-radius: 0;
         margin-right: 0;
+        cursor: default;
 
         & svg.rx-avatarless {
             font-size: 20px;

@@ -74,6 +74,14 @@ export class TagObject {
         return tagTypeStrings[this.type];
     }
 
+    /**
+     * Applies a fresh JSON snapshot onto THIS instance instead of constructing a new TagObject,
+     * so anything holding a direct reference sees the update.
+     */
+    patchFromJSON(json) {
+        this.name = json.name;
+    }
+
     equals(other) {
         return (
             other instanceof TagObject &&
@@ -118,6 +126,12 @@ export class FriendTagObject extends TagObject {
             steamID: this.steamID,
             iconURL: this.iconURL,
         };
+    }
+
+    patchFromJSON(json) {
+        super.patchFromJSON(json);
+        this.steamID = json.steamID;
+        this.iconURL = json.iconURL;
     }
 
     toString() {

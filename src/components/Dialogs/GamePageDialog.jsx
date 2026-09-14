@@ -13,6 +13,7 @@ import {
     CenterAndEdgesRow,
     FriendAvatar,
     IconButton,
+    Input,
     ReminderCard,
     SimpleTooltip,
 } from "@/components";
@@ -148,7 +149,10 @@ const GPTagButtonGroup = observer(({ party, tagType }) => {
             const order = [...dataStore.allTags[tagType].keys()];
             return order.indexOf(id1) - order.indexOf(id2);
         })
-        .map((id) => dataStore.getTagByID(id, tagType));
+        .map((id) => dataStore.getTagByID(id, tagType))
+        // A party can end up with a tag ID that no longer resolves to a real tag,
+        // drop it instead of crashing on tag.id below.
+        .filter(Boolean);
     return (
         <div className="tag-button-group">
             <CenterAndEdgesRow className="ui-card-header">
@@ -278,10 +282,9 @@ const AddReminderPopover = ({ game, party }) => {
                         onChange={handleDateChange}
                         autoFocus
                     />
-                    <textarea
+                    <Input
+                        textarea
                         className="reminder-textarea"
-                        rows={4}
-                        spellCheck={false}
                         value={message}
                         placeholder="Message"
                         onChange={(e) => setMessage(e.target.value)}
@@ -374,9 +377,17 @@ export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID
     const renamePartyRef = useRef(null);
 
     const dataStore = useDataStore();
-    const partyReminders = dataStore.sortedReminders.filter(
-        (reminder) => reminder.gameID === game.id && reminder.partyID === party.id,
-    );
+    const partyReminders = party
+        ? dataStore.sortedReminders.filter(
+            (reminder) => reminder.gameID === game.id && reminder.partyID === party.id,
+        )
+        : [];
+
+    // Party (or game) may get deleted remotely while open, close instead of crashing.
+    useEffect(() => {
+        if (!party) closeDialog();
+    }, [party, closeDialog]);
+    if (!party) return null;
 
     return (
         <DialogBase
@@ -466,12 +477,13 @@ export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID
                                 <h4>NOTE</h4>
                                 <div />
                             </CenterAndEdgesRow>
-                            <textarea
+                            <Input
+                                textarea
                                 className="game-note"
                                 rows={5}
-                                spellCheck={false}
                                 value={party.note}
-                                onChange={(e) => party.setNote(e.target.value)}
+                                onCommit={(value) => party.setNote(value)}
+                                active={open}
                                 maxLength={2000}
                             />
                         </div>

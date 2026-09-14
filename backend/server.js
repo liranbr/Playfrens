@@ -4,6 +4,7 @@ import cors from "cors";
 import compression from "compression";
 import session from "express-session";
 import passport from "passport";
+import http from "http";
 import https from "https";
 import selfsigned from "selfsigned";
 import path from "path";
@@ -11,12 +12,13 @@ import { fileURLToPath } from "url";
 import { ConsoleColors, logRoutes, resolveBaseURL, strToBool } from "./utils.js";
 import { configurePassport } from "./auth/passport.js";
 import { SupabaseSessionStore } from "./auth/SupabaseSessionStore.js";
+import { attachBoardSocketServer } from "./ws/boardSocket.js";
 import generalRoutes from "./routes/general.js";
 import authRoutes from "./routes/auth.js";
 import steamRoutes from "./routes/steam.js";
 import steamgriddbRoutes from "./routes/steamgriddb.js";
 import steamCatalogRoutes from "./routes/steamCatalog.js";
-import boardRoutes from "./routes/board.js";
+import boardsRoutes from "./routes/boards.js";
 
 // === Support for __dirname in ES modules ===
 const __filename = fileURLToPath(import.meta.url);
@@ -51,20 +53,19 @@ app.use(
 );
 
 // Sessions + Passport
-app.use(
-    session({
-        store: new SupabaseSessionStore(),
-        secret: env.SESSION_SECRET,
-        resave: false,
-        saveUninitialized: false,
-        cookie: {
-            secure: "auto",
-            httpOnly: true,
-            sameSite: "lax",
-            maxAge: 180 * 24 * 60 * 60 * 1000, // 180 days
-        },
-    }),
-);
+const sessionMiddleware = session({
+    store: new SupabaseSessionStore(),
+    secret: env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: "auto",
+        httpOnly: true,
+        sameSite: "lax",
+        maxAge: 180 * 24 * 60 * 60 * 1000, // 180 days
+    },
+});
+app.use(sessionMiddleware);
 app.use(passport.initialize());
 app.use(passport.session());
 configurePassport();
@@ -76,7 +77,7 @@ const mounts = [
     ["/api/steam", steamRoutes, "steam.js"],
     ["/api/steamgriddb", steamgriddbRoutes, "steamgriddb.js"],
     ["/api/steam/catalog", steamCatalogRoutes, "steamCatalog.js"],
-    ["/api/board", boardRoutes, "board.js"],
+    ["/api/boards", boardsRoutes, "boards.js"],
 ];
 for (const [prefix, router, label] of mounts) {
     app.use(prefix, router);
@@ -112,7 +113,10 @@ const createHttpsServer = (app) => {
     return https.createServer({ key: pems.private, cert: pems.cert }, app);
 };
 
-(useHttps ? createHttpsServer(app) : app).listen(env.BACKEND_PORT, env.DOMAIN, () => {
+const httpServer = useHttps ? createHttpsServer(app) : http.createServer(app);
+attachBoardSocketServer(httpServer, { sessionMiddleware, passport });
+
+httpServer.listen(env.BACKEND_PORT, env.DOMAIN, () => {
     console.log(
         `${ConsoleColors.FgRGB(191, 255, 0)} Playfrens server running @ ${resolveBaseURL()}${ConsoleColors.Reset}`,
     );

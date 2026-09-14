@@ -1,6 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { Dialogs, globalDialogStore, useDataStore, useSettingsStore } from "@/stores";
+import { Dialogs, globalDialogStore, useDataStore, useSettingsStore, useUserStore } from "@/stores";
 import { Button, Spinner, SearchSelect, InfoIcon, LabelBadge } from "@/components";
 import { DialogBase } from "./DialogRoot.jsx";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -18,6 +18,7 @@ const GameEntryContext = createContext(null);
 export function EditGameDialog({ open, closeDialog, game = null }) {
     const dataStore = useDataStore();
     const settingsStore = useSettingsStore();
+    const { userInfo } = useUserStore();
     const [title, setTitle] = useState(game?.title ?? "");
     const [coverImageURL, setCoverImageURL] = useState(game?.coverImageURL ?? "");
     const [coverThumbURL, setCoverThumbURL] = useState(game?.coverThumbURL ?? "");
@@ -159,7 +160,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                                     onSelect={handleGameSelected}
                                 />
                             </div>
-                            {!advancedView && (
+                            {!advancedView && !userInfo.isGuest && (
                                 <div className="steam-import-informer">
                                     <p>Would you like to import your Steam games library?</p>
                                     <Button variant="secondary" onClick={handleGoToImport}>

@@ -43,6 +43,13 @@ export default defineConfig(({ mode }) => {
                     secure: false,
                     cookieDomainRewrite: DOMAIN,
                 },
+                "/ws": {
+                    target: target,
+                    ws: true,
+                    changeOrigin: true,
+                    secure: false,
+                    cookieDomainRewrite: DOMAIN,
+                },
             },
         },
         resolve: {

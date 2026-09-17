@@ -29,8 +29,10 @@ export function SearchSelect({
     const [highlighted, setHighlighted] = useState(-1);
     const [results, setResults] = useState([]);
     const [initialized, setInitialized] = useState(false);
+    const shouldShowDropdown = results.length > 0 && showDropdown;
+    const [dropdownMounted, setDropdownMounted] = useState(shouldShowDropdown);
+    if (shouldShowDropdown && !dropdownMounted) setDropdownMounted(true); // mount immediately if it should show items
 
-    const inputRef = useRef(null);
     const resultsRef = useRef(null);
     const debouncedQuery = useDebouncedCallback(onQuery, delay);
     if (!initialized) {
@@ -84,21 +86,14 @@ export function SearchSelect({
         debouncedQuery(option.name, setResults);
     };
 
-    const handleMouseDown = (e) => {
-        setShowDropdown(
-            (inputRef.current && inputRef.current.contains(e.target)) ||
-            (resultsRef.current && resultsRef.current.contains(e.target)),
-        );
-    };
-
     return (
-        <div style={{ position: "relative" }} onMouseDown={handleMouseDown}>
+        <div style={{ position: "relative" }}>
             <input
-                ref={inputRef}
                 {...inputRest}
                 value={query}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
+                onMouseDown={() => setShowDropdown(true)}
                 onFocus={(e) => {
                     setShowDropdown(true);
                     inputRest?.onFocus?.(e);
@@ -110,25 +105,29 @@ export function SearchSelect({
                 style={{ width: "100%", ...inputRest.style }}
                 type="text"
             />
-            {results.length > 0 && showDropdown && (
+            {dropdownMounted && (
                 <ul
-                    className="rx-select-content"
+                    className={`rx-select-content search-select-dropdown ${shouldShowDropdown ? "" : "closing"}`}
                     style={{ position: "absolute", width: "100%", maxWidth: "none" }}
                     ref={resultsRef}
-                    onMouseDown={(e) => e.preventDefault()} // stops the input from blurring (and closing this) when grabbing the scrollbar
+                    onMouseDown={(e) => e.preventDefault()}
+                    onAnimationEnd={() => {
+                        if (!shouldShowDropdown) setDropdownMounted(false);
+                    }}
                 >
                     {results.map((option, idx) => (
                         <li
                             tabIndex={idx}
                             className={"list-item" + (highlighted === idx ? " highlighted" : "")}
                             key={option.name + "-id-" + option.id}
-                            onMouseDown={() => handleOptionClick(option)}
+                            onClick={() => handleOptionClick(option)}
                         >
                             {option.name}
                         </li>
                     ))}
                 </ul>
-            )}
-        </div>
+            )
+            }
+        </div >
     );
 }

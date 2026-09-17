@@ -1,3 +1,11 @@
+.search-select-dropdown {
+    animation: fadeIn var(--dialog-fade-duration);
+
+    &.closing {
+        animation: fadeOut var(--dialog-fade-duration) forwards;
+    }
+}
+
 .list-item {
     width: 100%;
     padding: 8px 12px;

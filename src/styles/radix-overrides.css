@@ -13,6 +13,14 @@
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
     z-index: 103;
 
+    &[data-state="open"] {
+        animation: fadeIn var(--dialog-fade-duration);
+    }
+
+    &[data-state="closed"] {
+        animation: fadeOut var(--dialog-fade-duration);
+    }
+
     div[role="menuitem"] {
         display: flex;
         align-items: center;
@@ -205,6 +213,14 @@
     gap: 4px;
     --select-width: 250px;
 
+    &[data-state="open"] {
+        animation: fadeIn var(--dialog-fade-duration);
+    }
+
+    &[data-state="closed"] {
+        animation: fadeOut var(--dialog-fade-duration);
+    }
+
     .popover-close {
         position: absolute;
         right: 12px;
@@ -368,6 +384,14 @@
     padding: 4px;
     z-index: 102;
 
+    &[data-state="open"] {
+        animation: fadeIn var(--dialog-fade-duration);
+    }
+
+    &[data-state="closed"] {
+        animation: fadeOut var(--dialog-fade-duration);
+    }
+
     div[role="option"] {
         display: flex;
         align-items: center;
@@ -451,8 +475,16 @@
     cursor: default;
     max-width: 400px;
     width: fit-content;
-    animation: fadeIn 250ms ease-in;
     z-index: 105;
+
+    &[data-state="delayed-open"],
+    &[data-state="instant-open"] {
+        animation: fadeIn 250ms ease-in;
+    }
+
+    &[data-state="closed"] {
+        animation: fadeOut 250ms ease-in;
+    }
 }
 
 .rx-switch {

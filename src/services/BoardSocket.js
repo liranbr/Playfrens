@@ -47,6 +47,9 @@ function handleMessage(event) {
         case "board-replace":
             globalDataStore.notifyRemoteBoardReplaced(message.lastUpdated);
             break;
+        case "board-renamed":
+            globalBoardStore.refreshBoardsList();
+            break;
         case "board-deleted":
             globalDataStore.notifyBoardDeleted();
             break;

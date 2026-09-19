@@ -4,9 +4,16 @@ import "./AccountSettingsDialog.css";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/index.js";
 import { globalDataStore, userStore } from "@/stores/index.js";
-import { storeTypes, tagTypes } from "@/models/index.js";
+import { tagTypes } from "@/models/index.js";
 import { useEffect, useState } from "react";
 import { toastError, toastSuccess, HttpStatus } from "@/Utils";
+
+const PROVIDER_LABELS = {
+    steam: "Steam",
+    google: "Google",
+    discord: "Discord",
+    email: "Email",
+};
 
 export const AccountSettingsDialog = ({ open, closeDialog }) => {
     const { userInfo } = userStore;
@@ -31,7 +38,7 @@ export const AccountSettingsDialog = ({ open, closeDialog }) => {
                 <dt>Display Name</dt>
                 <dd>{userInfo?.displayName}</dd>
                 <dt>Sign-in Method</dt>
-                <dd>{storeTypes[userInfo?.provider]}</dd>
+                <dd>{userInfo?.isGuest ? "Guest" : PROVIDER_LABELS[userInfo?.provider]}</dd>
             </dl>
             <dl className="account-stats">
                 <dt>Data</dt>
@@ -45,7 +52,7 @@ export const AccountSettingsDialog = ({ open, closeDialog }) => {
                 </dd>
             </dl>
 
-            <DeleteAccountButton />
+            {!userInfo.isGuest && <DeleteAccountButton />}
 
             <div className="rx-dialog-footer">
                 <Button variant="secondary" onClick={closeDialog}>

@@ -3,7 +3,7 @@ import { observer } from "mobx-react-lite";
 import * as Avatar from "@radix-ui/react-avatar";
 import { MdContentCopy, MdPerson, MdPersonRemove } from "react-icons/md";
 import { Button } from "@/components";
-import { globalBoardStore } from "@/stores";
+import { globalBoardStore, userStore } from "@/stores";
 import { createBoardGuest, listBoardGuests, removeBoardGuest } from "@/APIUtils.js";
 import { toastError, toastSuccess } from "@/Utils";
 
@@ -111,7 +111,10 @@ export const MembersTab = observer(() => {
                                 </Avatar.Fallback>
                             </Avatar.Root>
                             <div className="board-member-details">
-                                <span>{guest.displayName}</span>
+                                <span>
+                                    {guest.displayName}
+                                    {guest.id === userStore.userInfo?.id && " (You)"}
+                                </span>
                                 <small>{guest.role === "owner" ? "Owner" : "Guest"}</small>
                             </div>
                             {guest.role !== "owner" && isOwner && (

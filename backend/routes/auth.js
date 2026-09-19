@@ -3,12 +3,7 @@ import passport from "passport";
 import rateLimit from "express-rate-limit";
 import { Response } from "../response.js";
 import { requireAuth } from "../auth/requireAuth.js";
-import {
-    deleteGuestRow,
-    deleteUserAccountRow,
-    findAccountById,
-    upsertUser,
-} from "../auth/passport.js";
+import { deleteUserAccountRow, findAccountById, upsertUser } from "../auth/passport.js";
 import { supabase, supabaseAuth } from "../supabaseClient.js";
 import { resolveBaseURL, strToBool } from "../utils.js";
 
@@ -188,14 +183,18 @@ async function logout(req, res, next) {
 }
 
 async function deleteAccount(req, res) {
-    const { OK, NO_CONTENT, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+    const { OK, NO_CONTENT, FORBIDDEN, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
     if (!req.isAuthenticated())
         return Response.send(res, NO_CONTENT, { message: "Requester is not logged in." });
 
+    if (req.user.member_username) {
+        return Response.send(res, FORBIDDEN, {
+            error: "Guests cannot delete themselves.",
+        });
+    }
+
     try {
-        // Also strips this account from members_id on every board it belonged to.
-        if (req.user.member_username) await deleteGuestRow(req.user);
-        else await deleteUserAccountRow(req.user);
+        await deleteUserAccountRow(req.user);
     } catch (err) {
         return Response.send(res, INTERNAL_SERVER_ERROR, {
             message: "Error deleting account: " + err.message,

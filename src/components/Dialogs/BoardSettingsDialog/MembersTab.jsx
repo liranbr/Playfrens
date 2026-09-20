@@ -134,13 +134,13 @@ export const MembersTab = observer(() => {
                     <div className="separator" />
                     <div className="new-guest-section">
                         <div className="dialog-callout">
-                            <label>Create new guest</label>
+                            <label>Create New Guest</label>
                             <small>
                                 A guest login allows people without an account participate onto this board.
                             </small>
                         </div>
                         <fieldset>
-                            <label>New guest&apos;s username</label>
+                            <label>New Guest&apos;s Username</label>
                             <input
                                 value={newUsername}
                                 onChange={(e) => setNewUsername(e.target.value)}

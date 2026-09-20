@@ -37,20 +37,16 @@ export const GeneralTab = observer(({ closeDialog }) => {
 
     return (
         <>
-            <dl className="board-info">
-                <dt>Your role</dt>
-                <dd>{isOwner ? "Owner" : "Guest"}</dd>
-                {!isOwner && (
-                    <>
-                        <dt>Board name</dt>
-                        <dd>{board?.name}</dd>
-                    </>
-                )}
-            </dl>
+            {!isOwner && (
+                <dl className="board-info">
+                    <dt>Board name</dt>
+                    <dd>{board?.name}</dd>
+                </dl>
+            )}
             {isOwner && (
                 <>
                     <fieldset>
-                        <label>Board name</label>
+                        <label className="board-name-label">Board Name</label>
                         <div className="board-name-row">
                             <input
                                 value={name}

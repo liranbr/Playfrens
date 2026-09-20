@@ -65,12 +65,16 @@
     .dialog-callout small {
         opacity: 0.7;
     }
+
+    .board-name-label {
+        font-size: 16px;
+    }
 }
 
 .board-info {
     dt {
         font-weight: bold;
-        font-size: 14px;
+        font-size: 16px;
     }
     dd {
         margin-left: 14px;

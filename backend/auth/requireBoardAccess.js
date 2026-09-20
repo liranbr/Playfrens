@@ -24,12 +24,27 @@ export async function requireBoardAccess(req, res, next) {
         return Response.send(res, INTERNAL_SERVER_ERROR, { error: error.message });
     }
 
-    const hasAccess =
-        board.owner_id === req.user.id || (board.members_id ?? []).includes(req.user.id);
+    const isOwner = board.owner_id === req.user.id;
+    const hasAccess = isOwner || (board.members_id ?? []).includes(req.user.id);
     if (!hasAccess)
         return Response.send(res, FORBIDDEN, { error: "You do not have access to this board" });
 
     req.board = board;
+    req.isBoardOwner = isOwner;
     next();
 }
 
+/**
+ * Verify the permission level required for this request, for now, only Owner level.
+ * Don't use this middleware on routes anyone is allowed to use.
+ */
+export const permissionLevel = {
+    Owner(req, res, next) {
+        if (!req.isBoardOwner) {
+            return Response.send(res, Response.HttpStatus.FORBIDDEN, {
+                error: "Only the board owner can do this.",
+            });
+        }
+        next();
+    },
+};

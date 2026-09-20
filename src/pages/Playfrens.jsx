@@ -45,7 +45,8 @@ import {
 import "./Playfrens.css";
 import { toastError, toastSuccess } from "@/Utils";
 
-function AppMenu() {
+const AppMenu = observer(() => {
+    const boardStore = useBoardStore();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const DD = DropdownMenu;
     const LinkItem = ({ label, url }) => (
@@ -75,19 +76,21 @@ function AppMenu() {
                                 <MdChevronRight className="rx-dropdown-right-slot" />
                             </DD.SubTrigger>
                             <DD.SubContent className="rx-dropdown-menu" sideOffset={5}>
-                                <DD.Item
-                                    onClick={() => {
-                                        globalDialogStore.open(Dialogs.GenericWarning, {
-                                            message:
-                                                "Importing a backup will overwrite all of your current data.",
-                                            continueFunction: () => {
-                                                document.getElementById("json-selector").click();
-                                            },
-                                        });
-                                    }}
-                                >
-                                    <MdOutlineFileUpload /> Restore
-                                </DD.Item>
+                                {boardStore.isOwner && (
+                                    <DD.Item
+                                        onClick={() => {
+                                            globalDialogStore.open(Dialogs.GenericWarning, {
+                                                message:
+                                                    "Importing a backup will overwrite all of your current data.",
+                                                continueFunction: () => {
+                                                    document.getElementById("json-selector").click();
+                                                },
+                                            });
+                                        }}
+                                    >
+                                        <MdOutlineFileUpload /> Restore
+                                    </DD.Item>
+                                )}
                                 <DD.Item onClick={backupToFile}>
                                     <MdOutlineFileDownload /> Backup
                                 </DD.Item>
@@ -126,7 +129,7 @@ function AppMenu() {
             />
         </>
     );
-}
+});
 
 /**
  * Allows users to switch and create boards.

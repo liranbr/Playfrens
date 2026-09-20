@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { Response } from "../response.js";
 import { supabase } from "../supabaseClient.js";
 import { requireAuth } from "../auth/requireAuth.js";
-import { requireBoardAccess } from "../auth/requireBoardAccess.js";
+import { requireBoardAccess, permissionLevel } from "../auth/requireBoardAccess.js";
 import {
     deleteGuestRow,
     insertBoard,
@@ -131,7 +131,7 @@ async function updateBoard(req, res) {
     if (!Array.isArray(path) || value === undefined) {
         return Response.send(res, BAD_REQUEST, { error: "Invalid partial update payload" });
     }
-    if (OWNER_ONLY_BOARD_KEYS.includes(path[0]) && req.user.id !== req.board.owner_id) {
+    if (OWNER_ONLY_BOARD_KEYS.includes(path[0]) && !req.isBoardOwner) {
         return Response.send(res, FORBIDDEN, { error: "Only the board owner can change this." });
     }
 
@@ -220,11 +220,7 @@ async function listGuests(req, res) {
  * Creates a "board guest" login for this board.
  */
 async function createGuest(req, res) {
-    const { OK, BAD_REQUEST, FORBIDDEN, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
-    if (req.user.id !== req.board.owner_id) {
-        return Response.send(res, FORBIDDEN, { error: "Only the board owner can add guests." });
-    }
-
+    const { OK, BAD_REQUEST, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
     const { username, password } = req.body;
     if (!username || typeof username !== "string" || !username.trim()) {
         return Response.send(res, BAD_REQUEST, { error: "A username is required." });
@@ -286,11 +282,7 @@ async function createGuest(req, res) {
  * Removes a guest from this board
  */
 async function removeGuest(req, res) {
-    const { OK, BAD_REQUEST, FORBIDDEN, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
-    if (req.user.id !== req.board.owner_id) {
-        return Response.send(res, FORBIDDEN, { error: "Only the board owner can remove guests." });
-    }
-
+    const { OK, BAD_REQUEST, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
     const { userId } = req.params;
     const { data: guest, error: fetchError } = await supabase
         .from("guests")
@@ -321,12 +313,12 @@ router.use(requireAuth);
 router.get("/", listBoards);
 router.post("/", createBoard);
 router.get("/:boardId", requireBoardAccess, getBoard);
-router.post("/:boardId", requireBoardAccess, saveBoard);
-router.post("/:boardId/rename", requireBoardAccess, renameBoard);
+router.post("/:boardId", requireBoardAccess, permissionLevel.Owner, saveBoard);
+router.post("/:boardId/rename", requireBoardAccess, permissionLevel.Owner, renameBoard);
 router.post("/:boardId/update", requireBoardAccess, updateBoard);
-router.delete("/:boardId", requireBoardAccess, deleteBoard);
+router.delete("/:boardId", requireBoardAccess, permissionLevel.Owner, deleteBoard);
 router.get("/:boardId/guests", requireBoardAccess, listGuests);
-router.post("/:boardId/guests", requireBoardAccess, createGuest);
-router.delete("/:boardId/guests/:userId", requireBoardAccess, removeGuest);
+router.post("/:boardId/guests", requireBoardAccess, permissionLevel.Owner, createGuest);
+router.delete("/:boardId/guests/:userId", requireBoardAccess, permissionLevel.Owner, removeGuest);
 
 export default router;

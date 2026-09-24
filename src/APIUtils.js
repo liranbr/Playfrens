@@ -266,3 +266,29 @@ export async function removeBoardGuest(boardId, userId) {
         throw new Error(json.error || `Failed to remove guest (status ${response.status})`);
     }
 }
+
+/** Owner can assigns an account (owner or guest id) onto a friend tag. Returns the new linkedAccountIds. */
+export async function assignAccountToTag(boardId, tagId, accountId) {
+    const response = await fetch(`/api/boards/${boardId}/tags/${tagId}/accounts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ accountId }),
+    });
+    const json = await response.json().catch(() => ({}));
+    if (!response.ok)
+        throw new Error(json.error || `Failed to assign account (status ${response.status})`);
+    return json.linkedAccountIds;
+}
+
+/** Owner can unassigns an account from a friend tag. Returns the new linkedAccountIds. */
+export async function unassignAccountFromTag(boardId, tagId, accountId) {
+    const response = await fetch(`/api/boards/${boardId}/tags/${tagId}/accounts/${accountId}`, {
+        method: "DELETE",
+        credentials: "include",
+    });
+    const json = await response.json().catch(() => ({}));
+    if (!response.ok)
+        throw new Error(json.error || `Failed to unassign account (status ${response.status})`);
+    return json.linkedAccountIds;
+}

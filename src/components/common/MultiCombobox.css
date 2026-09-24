@@ -1,0 +1,22 @@
+.multi-combobox-combos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.multi-combobox-combo {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 6px 4px 10px;
+    background: var(--pf-bg-700);
+    border: var(--pf-border-700);
+    border-radius: 999px;
+    font-size: 13px;
+
+    .icon-button {
+        --icon-size: 16px;
+        padding: 2px;
+    }
+}

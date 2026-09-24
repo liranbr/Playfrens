@@ -1,4 +1,5 @@
 export { SearchSelect } from "./common/SearchSelect.jsx";
+export { MultiCombobox } from "./common/MultiCombobox.jsx";
 export { Input } from "./common/Input.jsx";
 export { Button } from "./common/Button.jsx";
 export { Collapsible } from "./common/Collapsible.jsx";

@@ -199,6 +199,7 @@ const BoardSwitcher = observer(() => {
 
 const AppHeader = observer(() => {
     const filterStore = useFilterStore();
+    const boardStore = useBoardStore();
     const search = filterStore.search;
     const updateSearch = (e) => filterStore.setSearch(e.target.value);
 
@@ -234,15 +235,17 @@ const AppHeader = observer(() => {
             </CenterAndEdgesRow>
 
             <div className="app-header-right">
-                <ArrowToFeature enable={globalDataStore.allGames.size === 0}>
-                    <button
-                        className="new-game-button"
-                        onClick={() => globalDialogStore.open(Dialogs.EditGame)}
-                    >
-                        <MdOutlineGamepad />
-                        Add Game
-                    </button>
-                </ArrowToFeature>
+                {boardStore.isOwner && (
+                    <ArrowToFeature enable={globalDataStore.allGames.size === 0}>
+                        <button
+                            className="new-game-button"
+                            onClick={() => globalDialogStore.open(Dialogs.EditGame)}
+                        >
+                            <MdOutlineGamepad />
+                            Add Game
+                        </button>
+                    </ArrowToFeature>
+                )}
 
                 <Notifications />
 

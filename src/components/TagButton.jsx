@@ -7,8 +7,10 @@ import {
     useFilterStore,
     Dialogs,
     globalDialogStore,
+    useBoardStore,
     useDataStore,
     useSettingsStore,
+    useUserStore,
 } from "@/stores";
 import { IconButton, FriendAvatar } from "@/components";
 import { tagTypes } from "@/models";
@@ -121,6 +123,10 @@ export const SidebarTagButton = observer(({ tag }) => {
 
 const SidebarTBMenuButton = observer(({ tag, filterStore, dropdownOpen, setDropdownOpen }) => {
     const dataStore = useDataStore();
+    const { userInfo } = useUserStore();
+    const { isOwner } = useBoardStore();
+    // Friend tags linked to an account can only be managed by the owner or an assigned account
+    const canManage = tag.isManageableBy({ accountId: userInfo?.id, isOwner });
     const excludeLabel = filterStore.isTagExcluded(tag) ? "Undo Exclude" : "Exclude";
     const toggleExclusion = () => filterStore.toggleTagExclusion(tag);
 
@@ -156,12 +162,16 @@ const SidebarTBMenuButton = observer(({ tag, filterStore, dropdownOpen, setDropd
                     <DD.Item onClick={toggleExclusion}>
                         <MdOutlineSearchOff /> {excludeLabel}
                     </DD.Item>
-                    <DD.Item onClick={openEditDialog}>
-                        <MdEdit /> Edit
-                    </DD.Item>
-                    <DD.Item data-danger onClick={openDeleteDialog}>
-                        <MdDeleteOutline /> Delete
-                    </DD.Item>
+                    {canManage && (
+                        <DD.Item onClick={openEditDialog}>
+                            <MdEdit /> Edit
+                        </DD.Item>
+                    )}
+                    {canManage && (
+                        <DD.Item data-danger onClick={openDeleteDialog}>
+                            <MdDeleteOutline /> Delete
+                        </DD.Item>
+                    )}
                 </DD.Content>
             </DD.Portal>
         </DD.Root>

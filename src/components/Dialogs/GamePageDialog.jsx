@@ -21,9 +21,11 @@ import {
     Dialogs,
     globalDialogStore,
     updateTagBothGameCounters,
+    useBoardStore,
     useDataStore,
     useFilterStore,
     useSettingsStore,
+    useUserStore,
 } from "@/stores";
 import { ReminderObject, tagTypes, tagTypeStrings } from "@/models";
 import { DialogBase } from "./DialogRoot.jsx";
@@ -88,11 +90,15 @@ const AddTagButton = ({ tagType, party }) => {
 
 const GPTagButton = observer(({ party, tag }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const { userInfo } = useUserStore();
+    const { isOwner } = useBoardStore();
+    // Friend tags linked to an account can only be managed by the owner or an assigned account
+    const canManage = tag.isManageableBy({ accountId: userInfo?.id, isOwner });
     const handleRemove = () => {
         party.removeTag(tag);
         updateTagBothGameCounters(tag);
     };
-    const handleClick = () => setDropdownOpen(true);
+    const handleClick = () => canManage && setDropdownOpen(true);
 
     return (
         <div
@@ -107,7 +113,7 @@ const GPTagButton = observer(({ party, tag }) => {
             }}
             onContextMenu={(e) => {
                 e.preventDefault(); // don't open right-click context menu
-                setDropdownOpen(true); // open button's dropdown instead
+                if (canManage) setDropdownOpen(true); // open button's dropdown instead
             }}
         >
             <span role="button" className="tag-button" draggable="true">
@@ -117,24 +123,26 @@ const GPTagButton = observer(({ party, tag }) => {
                 </span>
             </span>
 
-            <DD.Root open={dropdownOpen} onOpenChange={setDropdownOpen}>
-                <DD.Trigger asChild>
-                    <IconButton icon={<MdMoreVert />} />
-                </DD.Trigger>
+            {canManage && (
+                <DD.Root open={dropdownOpen} onOpenChange={setDropdownOpen}>
+                    <DD.Trigger asChild>
+                        <IconButton icon={<MdMoreVert />} />
+                    </DD.Trigger>
 
-                <DD.Portal>
-                    <DD.Content
-                        className="rx-dropdown-menu"
-                        align={"start"}
-                        side={"bottom"}
-                        sideOffset={5}
-                    >
-                        <DD.Item data-danger onClick={handleRemove}>
-                            <MdRemove /> Remove
-                        </DD.Item>
-                    </DD.Content>
-                </DD.Portal>
-            </DD.Root>
+                    <DD.Portal>
+                        <DD.Content
+                            className="rx-dropdown-menu"
+                            align={"start"}
+                            side={"bottom"}
+                            sideOffset={5}
+                        >
+                            <DD.Item data-danger onClick={handleRemove}>
+                                <MdRemove /> Remove
+                            </DD.Item>
+                        </DD.Content>
+                    </DD.Portal>
+                </DD.Root>
+            )}
         </div>
     );
 });

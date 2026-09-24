@@ -88,7 +88,7 @@ export const EditTagDialog = observer(function EditTagDialog({
     const { userInfo } = useUserStore();
     const { isOwner } = useBoardStore();
     // Only owner or a linked account can manage this friend tag
-    const canManage = !isEdit || editingTag.isManageableBy(userInfo?.id, isOwner);
+    const canManage = !isEdit || editingTag.isManageableBy({ accountId: userInfo?.id, isOwner });
 
     const handleSave = () => {
         if (!canManage) return;

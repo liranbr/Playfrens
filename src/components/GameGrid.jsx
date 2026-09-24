@@ -7,7 +7,9 @@ import {
     Dialogs,
     globalDialogStore,
     updateTagBothGameCounters,
+    useBoardStore,
     useDataStore,
+    useUserStore,
 } from "@/stores";
 import { toastError } from "@/Utils";
 import { SlGameController } from "react-icons/sl";
@@ -21,6 +23,8 @@ const GameCard = observer(({ game }) => {
     const filterStore = useFilterStore();
     const { draggedTag, hoveredTag } = filterStore;
     const hoverTagSetting = useSettingsStore().tagHoverGameHighlight;
+    const { userInfo } = useUserStore();
+    const { isOwner } = useBoardStore();
 
     const hasPartyWithoutTag = (tag) => game.parties.some((party) => !party.hasTag(tag));
     const allPartiesHaveTag = (tag) => !hasPartyWithoutTag(tag);
@@ -49,6 +53,10 @@ const GameCard = observer(({ game }) => {
 
     const handleDrop = () => {
         setDraggedOver(false);
+        if (!draggedTag) return;
+        if (!draggedTag.isManageableBy({ accountId: userInfo?.id, isOwner })) {
+            return toastError(`You don't have permission to add ${draggedTag.name} to a game.`);
+        }
         if (game.parties.length === 1) {
             game.parties[0].addTag(draggedTag); // just 1 party, can attempt to add directly
             updateTagBothGameCounters(draggedTag);

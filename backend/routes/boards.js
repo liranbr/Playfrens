@@ -69,7 +69,25 @@ async function createBoard(req, res) {
 
 /** GET /:boardId (access is already resolved and the row already loaded by requireBoardAccess). */
 async function getBoard(req, res) {
-    const { OK } = Response.HttpStatus;
+    const { OK, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+
+    const boardIsEmpty = Object.keys(req.board.board ?? {}).length === 0;
+    const ownerId = req.board.owner_id;
+    const hasOwnerTag =
+        !boardIsEmpty &&
+        (req.board.board.allFriends ?? []).some(([, json]) =>
+            json?.linkedAccountIds?.includes(ownerId),
+        );
+    if (!boardIsEmpty && !hasOwnerTag) {
+        const { data: owner, error } = await supabase
+            .from("users")
+            .select("display_name")
+            .eq("id", ownerId)
+            .single();
+        if (error) return Response.send(res, INTERNAL_SERVER_ERROR, { error: error.message });
+        await ensureLinkedFriendTag(req.board, ownerId, owner.display_name);
+    }
+
     return Response.send(res, OK, { board: req.board });
 }
 
@@ -120,6 +138,9 @@ async function renameBoard(req, res) {
 // Only owners can change these, no one else!
 const OWNER_ONLY_BOARD_KEYS = ["settings", "defaultFilters"];
 
+// Guests can edit/reorder/remove entries in these collections but cannot add new ones.
+const GUEST_NO_ADD_KEYS = ["allGames", "allFriends", "allCategories", "allStatuses"];
+
 /**
  * Updates a board JSONB key via RPC. `expectedLastUpdated`, when sent, rejects the write with 409
  * if the board changed since the client last saw it, instead of silently overwriting someone
@@ -133,6 +154,19 @@ async function updateBoard(req, res) {
     }
     if (OWNER_ONLY_BOARD_KEYS.includes(path[0]) && !req.isBoardOwner) {
         return Response.send(res, FORBIDDEN, { error: "Only the board owner can change this." });
+    }
+    if (GUEST_NO_ADD_KEYS.includes(path[0]) && !req.isBoardOwner) {
+        const collectionIds = (value) => {
+            return new Set((Array.isArray(value) ? value : []).map(([id]) => id));
+        };
+        const existingIds = collectionIds(req.board.board[path[0]]);
+        const incomingIds = collectionIds(value);
+        const addsNewEntry = [...incomingIds].some((id) => !existingIds.has(id));
+        if (addsNewEntry) {
+            return Response.send(res, FORBIDDEN, {
+                error: "Only the board owner can add new games or tags.",
+            });
+        }
     }
 
     // Returns the new last_updated on success, or null if expectedLastUpdated didn't match.
@@ -174,6 +208,65 @@ async function deleteBoard(req, res) {
 
     broadcastToBoard(req.board.id, { type: "board-deleted" });
     return Response.send(res, OK, { message: "Board deleted" });
+}
+
+/**
+ * Persists a new `allFriends` array and broadcasts it, mutating `board.board.allFriends` in place
+ * so the caller's already-loaded copy (e.g. the response about to be sent) reflects it too.
+ */
+async function persistAndBroadcastFriends(board, updatedFriends) {
+    const { data: newLastUpdated, error } = await supabase.rpc("update_board_path", {
+        _board_id: board.id,
+        _path: ["allFriends"],
+        _value: updatedFriends,
+        _expected_last_updated: null,
+    });
+    if (error) throw error;
+
+    board.board.allFriends = updatedFriends;
+    if (newLastUpdated) board.last_updated = newLastUpdated;
+    broadcastToBoard(board.id, {
+        type: "board-update",
+        path: ["allFriends"],
+        value: updatedFriends,
+        lastUpdated: newLastUpdated,
+    });
+}
+
+/** Finds (or lazily creates + persists) a FriendTagObject json linked to accountId. */
+async function ensureLinkedFriendTag(board, accountId, displayName) {
+    const allFriends = board.board.allFriends ?? [];
+    const existing = allFriends.find(([, json]) => json?.linkedAccountIds?.includes(accountId));
+    if (existing) return existing[1];
+
+    const tagJson = {
+        type: "friend",
+        id: uuidv4(),
+        name: displayName,
+        steamID: "",
+        iconURL: "",
+        linkedAccountIds: [accountId],
+    };
+    await persistAndBroadcastFriends(board, [...allFriends, [tagJson.id, tagJson]]);
+    return tagJson;
+}
+
+/**
+ * Removes accountId from every tag's linkedAccountIds. Tags aren't deleted here, they may still
+ * be a meaningful free-form tag, or shared with other linked accounts.
+ */
+async function unlinkAccountFromAllTags(board, accountId) {
+    const allFriends = board.board.allFriends ?? [];
+    if (!allFriends.some(([, json]) => json?.linkedAccountIds?.includes(accountId))) return;
+
+    const updatedFriends = allFriends.map(([id, json]) => {
+        if (!json?.linkedAccountIds?.includes(accountId)) return [id, json];
+        return [
+            id,
+            { ...json, linkedAccountIds: json.linkedAccountIds.filter((a) => a !== accountId) },
+        ];
+    });
+    await persistAndBroadcastFriends(board, updatedFriends);
 }
 
 /** GET /:boardId/guests (owner + every guest's public profile fields). */
@@ -270,6 +363,7 @@ async function createGuest(req, res) {
     if (guestError) {
         return Response.send(res, INTERNAL_SERVER_ERROR, { error: guestError.message });
     }
+    await ensureLinkedFriendTag(req.board, guest.id, username);
 
     broadcastToBoard(req.board.id, { type: "guests-changed" });
     return Response.send(res, OK, {
@@ -299,12 +393,80 @@ async function removeGuest(req, res) {
     } catch (err) {
         return Response.send(res, INTERNAL_SERVER_ERROR, { error: err.message });
     }
+    await unlinkAccountFromAllTags(req.board, guest.id);
 
     // Kick their live connection immediately instead of waiting for their next request to fail.
     closeUserSockets(guest.id, "This account was removed.");
 
     broadcastToBoard(req.board.id, { type: "guests-changed" });
     return Response.send(res, OK, { message: "Guest removed" });
+}
+
+/**
+ * Assigns/unassigns an account onto a friend tag. Owner-only: any account in linkedAccountIds can
+ * self-join/leave and manage the tag, so growing/shrinking that list is kept owner-gated.
+ */
+async function assignAccountToTag(req, res) {
+    const { OK, BAD_REQUEST, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+    const { tagId } = req.params;
+    const { accountId } = req.body;
+    if (!accountId || typeof accountId !== "string") {
+        return Response.send(res, BAD_REQUEST, { error: "An accountId is required." });
+    }
+    const isValidAccount =
+        accountId === req.board.owner_id || (req.board.members_id ?? []).includes(accountId);
+    if (!isValidAccount) {
+        return Response.send(res, BAD_REQUEST, { error: "That account isn't on this board." });
+    }
+
+    const allFriends = req.board.board.allFriends ?? [];
+    const entry = allFriends.find(([id]) => id === tagId);
+    if (!entry || entry[1]?.type !== "friend") {
+        return Response.send(res, BAD_REQUEST, { error: "That tag doesn't exist." });
+    }
+
+    const [, tagJson] = entry;
+    const linkedAccountIds = tagJson.linkedAccountIds ?? [];
+    if (linkedAccountIds.includes(accountId)) {
+        return Response.send(res, OK, { linkedAccountIds });
+    }
+
+    try {
+        const updatedTagJson = { ...tagJson, linkedAccountIds: [...linkedAccountIds, accountId] };
+        const updatedFriends = allFriends.map(([id, json]) =>
+            id === tagId ? [id, updatedTagJson] : [id, json],
+        );
+        await persistAndBroadcastFriends(req.board, updatedFriends);
+        return Response.send(res, OK, { linkedAccountIds: updatedTagJson.linkedAccountIds });
+    } catch (err) {
+        return Response.send(res, INTERNAL_SERVER_ERROR, { error: err.message });
+    }
+}
+
+async function unassignAccountFromTag(req, res) {
+    const { OK, BAD_REQUEST, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+    const { tagId, accountId } = req.params;
+
+    const allFriends = req.board.board.allFriends ?? [];
+    const entry = allFriends.find(([id]) => id === tagId);
+    if (!entry || entry[1]?.type !== "friend") {
+        return Response.send(res, BAD_REQUEST, { error: "That tag doesn't exist." });
+    }
+
+    const [, tagJson] = entry;
+    try {
+        const updatedTagJson = {
+            ...tagJson,
+            linkedAccountIds: (tagJson.linkedAccountIds ?? []).filter((id) => id !== accountId),
+        };
+        const updatedFriends = allFriends.map(([id, json]) =>
+            id === tagId ? [id, updatedTagJson] : [id, json],
+        );
+        await persistAndBroadcastFriends(req.board, updatedFriends);
+        return Response.send(res, OK, { linkedAccountIds: updatedTagJson.linkedAccountIds });
+    } catch (err) {
+        return Response.send(res, INTERNAL_SERVER_ERROR, { error: err.message });
+    }
 }
 
 const router = Router();
@@ -320,5 +482,17 @@ router.delete("/:boardId", requireBoardAccess, permissionLevel.Owner, deleteBoar
 router.get("/:boardId/guests", requireBoardAccess, listGuests);
 router.post("/:boardId/guests", requireBoardAccess, permissionLevel.Owner, createGuest);
 router.delete("/:boardId/guests/:userId", requireBoardAccess, permissionLevel.Owner, removeGuest);
+router.post(
+    "/:boardId/tags/:tagId/accounts",
+    requireBoardAccess,
+    permissionLevel.Owner,
+    assignAccountToTag,
+);
+router.delete(
+    "/:boardId/tags/:tagId/accounts/:accountId",
+    requireBoardAccess,
+    permissionLevel.Owner,
+    unassignAccountFromTag,
+);
 
 export default router;

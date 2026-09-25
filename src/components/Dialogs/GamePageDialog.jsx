@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import * as Dialog from "@radix-ui/react-dialog";
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Popover from "@radix-ui/react-popover";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
@@ -11,6 +10,7 @@ import { CgRename } from "react-icons/cg";
 import {
     Button,
     CenterAndEdgesRow,
+    Dropdown,
     FriendAvatar,
     IconButton,
     Input,
@@ -35,8 +35,6 @@ import "@/components/TagButton.css";
 import "./GamePageDialog.css";
 import { GameCoverDisplay } from "@/components/GameCoverDisplay.jsx";
 
-const DD = DropdownMenu;
-
 const AddTagButton = ({ tagType, party }) => {
     const dataStore = useDataStore();
     const allTagsOfType = [...dataStore.allTags[tagType].values()];
@@ -46,33 +44,23 @@ const AddTagButton = ({ tagType, party }) => {
 
     if (tagsPartyDoesntHave.length !== 0)
         return (
-            <DD.Root onOpenChange={setOpenDropdown}>
-                <DD.Trigger asChild>
-                    <IconButton icon={<MdAdd />} activate={openDropdown} />
-                </DD.Trigger>
-
-                <DD.Portal>
-                    <DD.Content
-                        className="rx-dropdown-menu"
-                        align={"start"}
-                        side={"bottom"}
-                        sideOffset={5}
+            <Dropdown
+                trigger={<IconButton icon={<MdAdd />} activate={openDropdown} />}
+                onOpenChange={setOpenDropdown}
+            >
+                {tagsPartyDoesntHave.map((t) => (
+                    <Dropdown.Item
+                        key={t.id}
+                        onClick={() => {
+                            party.addTag(t);
+                            updateTagBothGameCounters(t);
+                        }}
                     >
-                        {tagsPartyDoesntHave.map((t) => (
-                            <DD.Item
-                                key={t.id}
-                                onClick={() => {
-                                    party.addTag(t);
-                                    updateTagBothGameCounters(t);
-                                }}
-                            >
-                                <span className="item-label">{t.name}</span>{" "}
-                                {/* Dropdown items need a text wrapper (span) to prevent overflow */}
-                            </DD.Item>
-                        ))}
-                    </DD.Content>
-                </DD.Portal>
-            </DD.Root>
+                        <span className="item-label">{t.name}</span>{" "}
+                        {/* Dropdown items need a text wrapper (span) to prevent overflow */}
+                    </Dropdown.Item>
+                ))}
+            </Dropdown>
         );
     else {
         const issueMessage =
@@ -124,24 +112,15 @@ const GPTagButton = observer(({ party, tag }) => {
             </span>
 
             {canManage && (
-                <DD.Root open={dropdownOpen} onOpenChange={setDropdownOpen}>
-                    <DD.Trigger asChild>
-                        <IconButton icon={<MdMoreVert />} />
-                    </DD.Trigger>
-
-                    <DD.Portal>
-                        <DD.Content
-                            className="rx-dropdown-menu"
-                            align={"start"}
-                            side={"bottom"}
-                            sideOffset={5}
-                        >
-                            <DD.Item data-danger onClick={handleRemove}>
-                                <MdRemove /> Remove
-                            </DD.Item>
-                        </DD.Content>
-                    </DD.Portal>
-                </DD.Root>
+                <Dropdown
+                    trigger={<IconButton icon={<MdMoreVert />} />}
+                    open={dropdownOpen}
+                    onOpenChange={setDropdownOpen}
+                >
+                    <Dropdown.Item data-danger onClick={handleRemove}>
+                        <MdRemove /> Remove
+                    </Dropdown.Item>
+                </Dropdown>
             )}
         </div>
     );
@@ -202,43 +181,38 @@ function GameOptionsButton({ game, party, setPartyID, renamePartyRef }) {
     };
 
     return (
-        <DD.Root onOpenChange={setDropdownOpen}>
-            <DD.Trigger asChild>
-                <IconButton icon={<MdMoreVert />} activate={dropdownOpen} />
-            </DD.Trigger>
+        <Dropdown
+            trigger={<IconButton icon={<MdMoreVert />} activate={dropdownOpen} />}
+            onOpenChange={setDropdownOpen}
+        >
+            <Dropdown.Item onClick={() => game.createParty()}>
+                <MdAdd /> Add Group
+            </Dropdown.Item>
 
-            <DD.Portal>
-                <DD.Content className="rx-dropdown-menu" align="start" side="bottom" sideOffset={5}>
-                    <DD.Item onClick={() => game.createParty()}>
-                        <MdAdd /> Add Group
-                    </DD.Item>
+            {game.parties.length > 1 && (
+                <>
+                    <Dropdown.Item onClick={() => renamePartyRef.current?.(party)}>
+                        <CgRename /> Rename Group
+                    </Dropdown.Item>
+                    <Dropdown.Item data-danger onClick={handleDeleteGroup}>
+                        <MdDeleteOutline /> Delete Group
+                    </Dropdown.Item>
+                </>
+            )}
+            <Dropdown.Separator />
 
-                    {game.parties.length > 1 && (
-                        <>
-                            <DD.Item onClick={() => renamePartyRef.current?.(party)}>
-                                <CgRename /> Rename Group
-                            </DD.Item>
-                            <DD.Item data-danger onClick={handleDeleteGroup}>
-                                <MdDeleteOutline /> Delete Group
-                            </DD.Item>
-                        </>
-                    )}
-                    <DD.Separator />
+            <Dropdown.Item
+                onClick={() => {
+                    globalDialogStore.open(Dialogs.EditGame, { game });
+                }}
+            >
+                <MdEdit /> Edit Game
+            </Dropdown.Item>
 
-                    <DD.Item
-                        onClick={() => {
-                            globalDialogStore.open(Dialogs.EditGame, { game });
-                        }}
-                    >
-                        <MdEdit /> Edit Game
-                    </DD.Item>
-
-                    <DD.Item data-danger onClick={handleDeleteGame}>
-                        <MdDeleteOutline /> Delete Game
-                    </DD.Item>
-                </DD.Content>
-            </DD.Portal>
-        </DD.Root>
+            <Dropdown.Item data-danger onClick={handleDeleteGame}>
+                <MdDeleteOutline /> Delete Game
+            </Dropdown.Item>
+        </Dropdown>
     );
 }
 

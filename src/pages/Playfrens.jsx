@@ -34,6 +34,7 @@ import {
 import {
     CenterAndEdgesRow,
     DialogRoot,
+    Dropdown,
     GamesGrid,
     IconButton,
     ReminderCard,
@@ -48,77 +49,67 @@ import { toastError, toastSuccess } from "@/Utils";
 const AppMenu = observer(() => {
     const boardStore = useBoardStore();
     const [dropdownOpen, setDropdownOpen] = useState(false);
-    const DD = DropdownMenu;
     const LinkItem = ({ label, url }) => (
         <a href={url} target="_blank" rel="noopener noreferrer">
-            <DD.Item>{label}</DD.Item>
+            <Dropdown.Item>{label}</Dropdown.Item>
         </a>
     );
     return (
         <>
-            <DD.Root onOpenChange={setDropdownOpen}>
-                <DD.Trigger asChild>
-                    <IconButton icon={<MdMenu />} activate={dropdownOpen} />
-                </DD.Trigger>
-                <DD.Portal>
-                    <DD.Content
-                        className="rx-dropdown-menu"
-                        align={"start"}
-                        side={"bottom"}
-                        sideOffset={5}
-                    >
-                        <DD.Sub>
-                            <DD.Item onClick={() => globalDialogStore.open(Dialogs.BoardSettings)}>
-                                Board Settings
-                            </DD.Item>
-                            <DD.SubTrigger>
-                                Backup
-                                <MdChevronRight className="rx-dropdown-right-slot" />
-                            </DD.SubTrigger>
-                            <DD.SubContent className="rx-dropdown-menu" sideOffset={5}>
-                                {boardStore.isOwner && (
-                                    <DD.Item
-                                        onClick={() => {
-                                            globalDialogStore.open(Dialogs.GenericWarning, {
-                                                message:
-                                                    "Importing a backup will overwrite all of your current data.",
-                                                continueFunction: () => {
-                                                    document.getElementById("json-selector").click();
-                                                },
-                                            });
-                                        }}
-                                    >
-                                        <MdOutlineFileUpload /> Restore
-                                    </DD.Item>
-                                )}
-                                <DD.Item onClick={backupToFile}>
-                                    <MdOutlineFileDownload /> Backup
-                                </DD.Item>
-                            </DD.SubContent>
-                        </DD.Sub>
-                        <DD.Separator />
-                        <DD.Sub>
-                            <DD.SubTrigger>
-                                Links
-                                <MdChevronRight className="rx-dropdown-right-slot" />
-                            </DD.SubTrigger>
-                            <DD.SubContent className="rx-dropdown-menu" sideOffset={5}>
-                                <LinkItem
-                                    label="GitHub"
-                                    url="https://github.com/liranbr/Playfrens"
-                                />
-                                <LinkItem label="Discord" url="https://discord.gg/aTdwEGau4Q" />
-                                <LinkItem label="Homepage" url="/" />
-                            </DD.SubContent>
-                        </DD.Sub>
-                        <DD.Separator />
+            <Dropdown
+                trigger={<IconButton icon={<MdMenu />} activate={dropdownOpen} />}
+                onOpenChange={setDropdownOpen}
+            >
+                <Dropdown.Sub>
+                    <Dropdown.Item onClick={() => globalDialogStore.open(Dialogs.BoardSettings)}>
+                        Board Settings
+                    </Dropdown.Item>
+                    <Dropdown.SubTrigger>
+                        Backup
+                        <MdChevronRight className="rx-dropdown-right-slot" />
+                    </Dropdown.SubTrigger>
+                    <Dropdown.SubContent>
+                        {boardStore.isOwner && (
+                            <Dropdown.Item
+                                onClick={() => {
+                                    globalDialogStore.open(Dialogs.GenericWarning, {
+                                        message:
+                                            "Importing a backup will overwrite all of your current data.",
+                                        continueFunction: () => {
+                                            document.getElementById("json-selector").click();
+                                        },
+                                    });
+                                }}
+                            >
+                                <MdOutlineFileUpload /> Restore
+                            </Dropdown.Item>
+                        )}
+                        <Dropdown.Item onClick={backupToFile}>
+                            <MdOutlineFileDownload /> Backup
+                        </Dropdown.Item>
+                    </Dropdown.SubContent>
+                </Dropdown.Sub>
+                <Dropdown.Separator />
+                <Dropdown.Sub>
+                    <Dropdown.SubTrigger>
+                        Links
+                        <MdChevronRight className="rx-dropdown-right-slot" />
+                    </Dropdown.SubTrigger>
+                    <Dropdown.SubContent>
                         <LinkItem
-                            label="Send feedback"
-                            url="mailto:playfrens@proton.me?subject=Feedback"
+                            label="GitHub"
+                            url="https://github.com/liranbr/Playfrens"
                         />
-                    </DD.Content>
-                </DD.Portal>
-            </DD.Root>
+                        <LinkItem label="Discord" url="https://discord.gg/aTdwEGau4Q" />
+                        <LinkItem label="Homepage" url="/" />
+                    </Dropdown.SubContent>
+                </Dropdown.Sub>
+                <Dropdown.Separator />
+                <LinkItem
+                    label="Send feedback"
+                    url="mailto:playfrens@proton.me?subject=Feedback"
+                />
+            </Dropdown>
 
             <input
                 type="file"
@@ -138,7 +129,6 @@ const AppMenu = observer(() => {
 const BoardSwitcher = observer(() => {
     const boardStore = useBoardStore();
     const { userInfo } = useUserStore();
-    const DD = DropdownMenu;
 
     if (userInfo.isGuest) {
         return (
@@ -156,43 +146,30 @@ const BoardSwitcher = observer(() => {
     return (
         <>
             <div className="app-brand-separator" />
-            <DD.Root>
-                <DD.Trigger asChild>
+            <Dropdown
+                trigger={
                     <span className="board-switcher-trigger">
                         <span className="board-switcher-trigger-label">
                             {boardStore.activeBoard?.name ?? "Board"}
                         </span>
                         <MdKeyboardArrowDown />
                     </span>
-                </DD.Trigger>
-                <DD.Portal>
-                    <DD.Content
-                        className="rx-dropdown-menu"
-                        align={"start"}
-                        side={"bottom"}
-                        sideOffset={5}
-                    >
-                        {boardStore.boards.map((board) => (
-                            <DD.Item
-                                key={board.id}
-                                onClick={() => boardStore.switchBoard(board.id)}
-                            >
-                                {board.name}
-                            </DD.Item>
-                        ))}
-                        {boardStore.canCreateBoard && (
-                            <>
-                                <DD.Separator />
-                                <DD.Item
-                                    onClick={() => globalDialogStore.open(Dialogs.CreateBoard)}
-                                >
-                                    Create board
-                                </DD.Item>
-                            </>
-                        )}
-                    </DD.Content>
-                </DD.Portal>
-            </DD.Root>
+                }
+            >
+                {boardStore.boards.map((board) => (
+                    <Dropdown.Item key={board.id} onClick={() => boardStore.switchBoard(board.id)}>
+                        {board.name}
+                    </Dropdown.Item>
+                ))}
+                {boardStore.canCreateBoard && (
+                    <>
+                        <Dropdown.Separator />
+                        <Dropdown.Item onClick={() => globalDialogStore.open(Dialogs.CreateBoard)}>
+                            Create board
+                        </Dropdown.Item>
+                    </>
+                )}
+            </Dropdown>
         </>
     );
 });

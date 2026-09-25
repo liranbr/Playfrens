@@ -33,9 +33,9 @@ export function MultiCombobox({
 
     return (
         <div className="multi-combobox">
-            {selected.length > 0 && (
-                <div className="multi-combobox-combos">
-                    {selected.map((option) => (
+            <div className="multi-combobox-combos">
+                {selected.length > 0 ? (
+                    selected.map((option) => (
                         <span key={option.id} className="multi-combobox-combo">
                             {getLabel(option)}
                             <IconButton
@@ -45,9 +45,11 @@ export function MultiCombobox({
                                 aria-label={`Remove ${getLabel(option)}`}
                             />
                         </span>
-                    ))}
-                </div>
-            )}
+                    ))
+                ) : (
+                    <span className="multi-combobox-combo-empty">None</span>
+                )}
+            </div>
             <SearchSelect
                 // Remounts after every add/remove, clearing the query and forcing a fresh search
                 // so a newly-(de)selected option immediately drops out of/into results.

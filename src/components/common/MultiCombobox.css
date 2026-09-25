@@ -5,18 +5,28 @@
     margin-bottom: 8px;
 }
 
-.multi-combobox-combo {
+.multi-combobox-combo,
+.multi-combobox-combo-empty {
     display: flex;
     align-items: center;
-    gap: 4px;
-    padding: 4px 6px 4px 10px;
+    padding: 4px 10px;
     background: var(--pf-bg-700);
     border: var(--pf-border-700);
     border-radius: 999px;
     font-size: 13px;
+}
+
+.multi-combobox-combo {
+    gap: 4px;
+    padding-right: 6px;
 
     .icon-button {
         --icon-size: 16px;
         padding: 2px;
     }
+}
+
+.multi-combobox-combo-empty {
+    font-style: italic;
+    opacity: 0.6;
 }

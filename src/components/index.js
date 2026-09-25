@@ -8,6 +8,7 @@ export { CenterAndEdgesRow } from "./common/CenterAndEdgesRow.jsx";
 export { ScrollView } from "./common/ScrollView.jsx";
 export { Spinner } from "./common/Spinner.jsx";
 export { SimpleTooltip } from "./common/SimpleTooltip.jsx";
+export { Dropdown } from "./common/Dropdown.jsx";
 export { InfoIcon } from "./common/InfoIcon.jsx";
 export { LabelBadge } from "./common/LabelBadge.jsx";
 export { ArrowToFeature } from "./common/ArrowToFeature.jsx";

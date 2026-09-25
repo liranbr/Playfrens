@@ -9,6 +9,7 @@ export { ScrollView } from "./common/ScrollView.jsx";
 export { Spinner } from "./common/Spinner.jsx";
 export { SimpleTooltip } from "./common/SimpleTooltip.jsx";
 export { Dropdown } from "./common/Dropdown.jsx";
+export { CardPageLayout } from "./common/CardPageLayout.jsx";
 export { InfoIcon } from "./common/InfoIcon.jsx";
 export { LabelBadge } from "./common/LabelBadge.jsx";
 export { ArrowToFeature } from "./common/ArrowToFeature.jsx";
@@ -24,6 +25,8 @@ export { DialogRoot } from "./Dialogs/DialogRoot.jsx";
 export { BoardSwitcher } from "./BoardSwitcher.jsx";
 export { ShareGamesAsText } from "./ShareGamesAsText.jsx";
 export { Notifications } from "./Notifications.jsx";
+export { EmailAuthForm } from "./EmailAuthForm.jsx";
+export { GuestAuthForm } from "./GuestAuthForm.jsx";
 
 // export { EmblaCarousel } from "./EmblaCarousel.jsx";
 // Not importing the Carousel here, it's only used in the homepage, so that imports it directly.

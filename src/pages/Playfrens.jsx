@@ -1,25 +1,19 @@
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { Navigate, useParams } from "react-router-dom";
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Avatar from "@radix-ui/react-avatar";
-import * as Popover from "@radix-ui/react-popover";
 import {
     MdChevronRight,
     MdClose,
     MdFilterAltOff,
-    MdKeyboardArrowDown,
     MdMenu,
-    MdOutlineCheckCircle,
     MdOutlineFileDownload,
     MdOutlineFileUpload,
     MdOutlineGamepad,
-    MdOutlineNotifications,
     MdPerson,
-    MdShare,
 } from "react-icons/md";
 
-import { tagTypes, tagTypeStrings } from "@/models";
+import { tagTypes } from "@/models";
 import {
     backupToFile,
     Dialogs,
@@ -27,24 +21,24 @@ import {
     globalDialogStore,
     restoreFromFile,
     useBoardStore,
-    useDataStore,
     useFilterStore,
     useUserStore,
 } from "@/stores";
 import {
+    ArrowToFeature,
+    BoardSwitcher,
     CenterAndEdgesRow,
     DialogRoot,
     Dropdown,
     GamesGrid,
     IconButton,
-    ReminderCard,
+    Notifications,
+    ShareGamesAsText,
     SidebarTagButtonGroup,
     SimpleTooltip,
-    ArrowToFeature,
 } from "@/components";
 
 import "./Playfrens.css";
-import { toastError, toastSuccess } from "@/Utils";
 
 const AppMenu = observer(() => {
     const boardStore = useBoardStore();
@@ -96,19 +90,13 @@ const AppMenu = observer(() => {
                         <MdChevronRight className="rx-dropdown-right-slot" />
                     </Dropdown.SubTrigger>
                     <Dropdown.SubContent>
-                        <LinkItem
-                            label="GitHub"
-                            url="https://github.com/liranbr/Playfrens"
-                        />
+                        <LinkItem label="GitHub" url="https://github.com/liranbr/Playfrens" />
                         <LinkItem label="Discord" url="https://discord.gg/aTdwEGau4Q" />
                         <LinkItem label="Homepage" url="/" />
                     </Dropdown.SubContent>
                 </Dropdown.Sub>
                 <Dropdown.Separator />
-                <LinkItem
-                    label="Send feedback"
-                    url="mailto:playfrens@proton.me?subject=Feedback"
-                />
+                <LinkItem label="Send feedback" url="mailto:playfrens@proton.me?subject=Feedback" />
             </Dropdown>
 
             <input
@@ -118,58 +106,6 @@ const AppMenu = observer(() => {
                 style={{ display: "none" }}
                 onChange={(e) => restoreFromFile(e.target.files[0])}
             />
-        </>
-    );
-});
-
-/**
- * Allows users to switch and create boards.
- * Guests cannot create one so this will be overriden with showcasing the name of the board.
-*/
-const BoardSwitcher = observer(() => {
-    const boardStore = useBoardStore();
-    const { userInfo } = useUserStore();
-
-    if (userInfo.isGuest) {
-        return (
-            <>
-                <div className="app-brand-separator" />
-                <span className="board-switcher-trigger board-name-static">
-                    <span className="board-switcher-trigger-label">
-                        {boardStore.activeBoard?.name ?? "Board"}
-                    </span>
-                </span>
-            </>
-        );
-    }
-
-    return (
-        <>
-            <div className="app-brand-separator" />
-            <Dropdown
-                trigger={
-                    <span className="board-switcher-trigger">
-                        <span className="board-switcher-trigger-label">
-                            {boardStore.activeBoard?.name ?? "Board"}
-                        </span>
-                        <MdKeyboardArrowDown />
-                    </span>
-                }
-            >
-                {boardStore.boards.map((board) => (
-                    <Dropdown.Item key={board.id} onClick={() => boardStore.switchBoard(board.id)}>
-                        {board.name}
-                    </Dropdown.Item>
-                ))}
-                {boardStore.canCreateBoard && (
-                    <>
-                        <Dropdown.Separator />
-                        <Dropdown.Item onClick={() => globalDialogStore.open(Dialogs.CreateBoard)}>
-                            Create board
-                        </Dropdown.Item>
-                    </>
-                )}
-            </Dropdown>
         </>
     );
 });
@@ -232,166 +168,33 @@ const AppHeader = observer(() => {
     );
 });
 
-const ShareGamesAsText = observer(() => {
-    const { search, selectedTagIDs, excludedTagIDs, areFiltersActive, filteredGames } =
-        useFilterStore();
-    const { userInfo } = useUserStore();
-    const makeFiltersText = () => {
-        if (!areFiltersActive) return "**No filters active**";
-        const currentFilters = [];
-        if (search) currentFilters.push("**Search:** " + search);
-        const tagFiltersLine = (tagSets, filterText) => {
-            if (Object.values(tagSets).some((set) => set.size > 0)) {
-                const selectedTagsText = [];
-                for (const tagType in tagSets) {
-                    if (tagSets[tagType].size > 0) {
-                        const tagPlural = tagTypeStrings[tagType].plural;
-                        const tagNames = Array.from(tagSets[tagType]).map(
-                            (id) => globalDataStore.getTagByID(id, tagType).name,
-                        );
-                        selectedTagsText.push(`* ${tagPlural} [${tagNames.join(", ")}]`);
-                    }
-                }
-                currentFilters.push(filterText, ...selectedTagsText);
-            }
-        };
-        tagFiltersLine(selectedTagIDs, "**Selected Tags:**");
-        tagFiltersLine(excludedTagIDs, "~~Excluded Tags:~~");
-
-        return currentFilters.join("  \n");
-    };
-    const makeGamesText = (withLinks) => {
-        const currentGames = [`### ${filteredGames.length} Games`];
-        filteredGames.forEach((game) => {
-            // If it's a steam game, format the title as a link to its store page
-            if (withLinks && !!game.storeID && game.storeType === "steam") {
-                const steamLink = "https://s.team/a/" + game.storeID; // using official s.team shortener to fit more games in one message
-                currentGames.push("* [" + game.title + "](<" + steamLink + ">)");
-            } else currentGames.push("* " + game.title);
-        });
-
-        return currentGames.join("  \n");
-    };
-    const handleCopy = async (withLinks) => {
-        const pfLink = "https://playfrens.com/";
-        try {
-            const text = [
-                `## ${userInfo.displayName}'s [Playfrens](<${pfLink}>) Board`,
-                makeFiltersText(),
-                makeGamesText(withLinks),
-            ].join("  \n");
-            await navigator.clipboard.writeText(text);
-            toastSuccess("Copied to clipboard!");
-        } catch (err) {
-            const errMsg = "Failed to copy text: " + err;
-            console.error(errMsg);
-            toastError(errMsg);
-        }
-    };
-
-    const DD = DropdownMenu;
-    return (
-        <DD.Root>
-            <SimpleTooltip message="Share current games">
-                <DD.Trigger asChild>
-                    <IconButton icon={<MdShare />} onClick={handleCopy} />
-                </DD.Trigger>
-            </SimpleTooltip>
-            <DD.Portal>
-                <DD.Content
-                    className="rx-dropdown-menu"
-                    align={"start"}
-                    side={"bottom"}
-                    sideOffset={5}
-                >
-                    <DD.Item onClick={() => handleCopy(true)}>Share as text</DD.Item>
-                    <DD.Item onClick={() => handleCopy(false)}>Share as text without links</DD.Item>
-                </DD.Content>
-            </DD.Portal>
-        </DD.Root>
-    );
-});
-
 const AppUserAvatar = observer(() => {
     const userStore = useUserStore();
     const { userInfo } = userStore;
     localStorage.setItem("last-auth-used", JSON.stringify(userInfo.provider, null, 4));
-    const DD = DropdownMenu;
+
     return (
-        <DD.Root>
-            <DD.Trigger asChild className="rx-avatar">
+        <Dropdown
+            trigger={
                 <Avatar.Root>
-                    <Avatar.Image
-                        src={userInfo?.avatar ?? undefined}
-                        referrerPolicy="no-referrer"
-                    />
+                    <Avatar.Image src={userInfo?.avatar ?? undefined} referrerPolicy="no-referrer" />
                     <Avatar.Fallback className="rx-avatarless" asChild>
                         <MdPerson />
                     </Avatar.Fallback>
                 </Avatar.Root>
-            </DD.Trigger>
-            <DD.Portal>
-                <DD.Content
-                    className="rx-dropdown-menu"
-                    align={"start"}
-                    side={"bottom"}
-                    sideOffset={5}
-                >
-                    {!userInfo.isGuest && (
-                        <DD.Item onClick={() => globalDialogStore.open(Dialogs.SteamImport)}>
-                            Import from Steam
-                        </DD.Item>
-                    )}
-                    <DD.Item onClick={() => globalDialogStore.open(Dialogs.AccountSettings)}>
-                        Account Settings
-                    </DD.Item>
-                    <DD.Item onClick={() => userStore.logout()}>Logout</DD.Item>
-                </DD.Content>
-            </DD.Portal>
-        </DD.Root>
-    );
-});
-
-const Notifications = observer(() => {
-    const timeoutDuration = 15 * 60 * 1000; // Every 15 minutes, check whether reminders have activated to update the badge
-    const [, forceUpdate] = useState(0);
-    useEffect(() => {
-        const interval = setInterval(() => forceUpdate((n) => n + 1), timeoutDuration);
-        return () => clearInterval(interval);
-    });
-
-    const [popoverOpen, setPopoverOpen] = useState(false);
-    const dataStore = useDataStore();
-    const reminders = dataStore.sortedReminders;
-
-    const now = new Date();
-    const activeRemindersCount = reminders.filter((r) => r.date < now).length;
-
-    return (
-        <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
-            <Popover.Trigger asChild>
-                <button className={"notifications-button" + (popoverOpen ? " activated" : "")}>
-                    {activeRemindersCount > 0 && (
-                        <span className="notifications-badge">{activeRemindersCount}</span>
-                    )}
-                    <MdOutlineNotifications />
-                </button>
-            </Popover.Trigger>
-            <Popover.Content className="rx-popover notifications-drawer" align="end" sideOffset={5}>
-                <div className="reminders-list">
-                    {reminders.length === 0 ? (
-                        <div className="no-reminders">
-                            <MdOutlineCheckCircle />
-                            You have no reminders.
-                        </div>
-                    ) : (
-                        reminders.map((reminder) => (
-                            <ReminderCard key={reminder.id} reminder={reminder} outsideOfGamePage />
-                        ))
-                    )}
-                </div>
-            </Popover.Content>
-        </Popover.Root>
+            }
+            triggerClassName="rx-avatar"
+        >
+            {!userInfo.isGuest && (
+                <Dropdown.Item onClick={() => globalDialogStore.open(Dialogs.SteamImport)}>
+                    Import from Steam
+                </Dropdown.Item>
+            )}
+            <Dropdown.Item onClick={() => globalDialogStore.open(Dialogs.AccountSettings)}>
+                Account Settings
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => userStore.logout()}>Logout</Dropdown.Item>
+        </Dropdown>
     );
 });
 

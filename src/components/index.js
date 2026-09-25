@@ -21,6 +21,9 @@ export { SidebarTagButton } from "./TagButton.jsx";
 export { SidebarTagButtonGroup } from "./TagButtonGroup.jsx";
 export { ReminderCard } from "./ReminderCard.jsx";
 export { DialogRoot } from "./Dialogs/DialogRoot.jsx";
+export { BoardSwitcher } from "./BoardSwitcher.jsx";
+export { ShareGamesAsText } from "./ShareGamesAsText.jsx";
+export { Notifications } from "./Notifications.jsx";
 
 // export { EmblaCarousel } from "./EmblaCarousel.jsx";
 // Not importing the Carousel here, it's only used in the homepage, so that imports it directly.

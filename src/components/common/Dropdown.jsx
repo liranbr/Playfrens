@@ -1,10 +1,13 @@
 import * as RadixDropdown from "@radix-ui/react-dropdown-menu";
+import { SimpleTooltip } from "./SimpleTooltip.jsx";
 
 /**
  * A standard dropdown menu that skips writing Root, Trigger, Portal and Content subcomponents.
  * For the sub-menus use the Dropdown.Sub/SubTrigger/SubContent components inside children.
  * @param {{
  *   trigger: React.ReactNode,
+ *   triggerClassName?: string,
+ *   tooltip?: string,
  *   open?: boolean,
  *   onOpenChange?: (open: boolean) => void,
  *   align?: "start" | "center" | "end",
@@ -16,6 +19,8 @@ import * as RadixDropdown from "@radix-ui/react-dropdown-menu";
  */
 export function Dropdown({
     trigger,
+    triggerClassName,
+    tooltip,
     open,
     onOpenChange,
     align = "start",
@@ -23,9 +28,14 @@ export function Dropdown({
     sideOffset = 5,
     children,
 }) {
+    const triggerElement = (
+        <RadixDropdown.Trigger asChild className={triggerClassName}>
+            {trigger}
+        </RadixDropdown.Trigger>
+    );
     return (
         <RadixDropdown.Root open={open} onOpenChange={onOpenChange}>
-            <RadixDropdown.Trigger asChild>{trigger}</RadixDropdown.Trigger>
+            {tooltip ? <SimpleTooltip message={tooltip}>{triggerElement}</SimpleTooltip> : triggerElement}
             <RadixDropdown.Portal>
                 <RadixDropdown.Content
                     className="rx-dropdown-menu"

@@ -383,6 +383,33 @@ export class DataStore {
         console.warn(`applyRemoteUpdate: unhandled storageKey "${storageKey}"`);
     }
 
+    /** Refetches the whole board */
+    async resyncFromBackend() {
+        if (!this.#isHydrated || !this.activeBoardId) return;
+        const fresh = await getBoard(this.activeBoardId);
+        if (!fresh?.board) return;
+
+        const board = fresh.board;
+        const keys = [
+            storageKeys[tT.friend],
+            storageKeys[tT.category],
+            storageKeys[tT.status],
+            storageKeys.games,
+            storageKeys.reminders,
+            storageKeys.tagsCustomOrders,
+        ];
+        this.withRemoteApplyGuard(() => {
+            for (const key of keys) {
+                if (board[key] !== undefined) this.#applyPathValue([key], board[key]);
+            }
+            if (board[storageKeys.settings])
+                globalSettingsStore.populate(board[storageKeys.settings]);
+        });
+        // Only the stored default is refreshed, so the user's current filters aren't reset.
+        saveToStorage(storageKeys.defaultFilters, board[storageKeys.defaultFilters]);
+        this.#boardLastUpdated = fresh.last_updated;
+    }
+
     notifyRemoteBoardReplaced(lastUpdated) {
         if (lastUpdated) this.#boardLastUpdated = lastUpdated;
         toastInfo("This board's data was replaced (e.g. a backup restore). Refreshing...");

@@ -11,6 +11,7 @@ let currentBoardId = null;
 let reconnectAttempt = 0;
 let reconnectTimer = null;
 let intentionallyClosed = false;
+let hasOpenedBefore = false;
 
 function wsURL() {
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
@@ -56,13 +57,6 @@ function handleMessage(event) {
         case "guests-changed":
             globalBoardStore.invalidateGuestsCache(currentBoardId);
             break;
-        case "removed-from-board":
-            // Only act if we're still looking at that board. Ignore if already navigated away.
-            if (message.boardId === currentBoardId) {
-                toastError(message.reason || "You were removed from this board.");
-                setTimeout(() => window.location.assign("/app"), 1500);
-            }
-            break;
         case "account-removed":
             toastError(message.reason || "This account was removed. :(");
             setTimeout(() => window.location.assign("/"), 3000);
@@ -92,8 +86,12 @@ function connectSocket() {
 
     socket.onopen = () => {
         reconnectAttempt = 0;
-        if (currentBoardId)
-            socket.send(JSON.stringify({ type: "subscribe", boardId: currentBoardId }));
+        const isReconnect = hasOpenedBefore;
+        hasOpenedBefore = true;
+        if (!currentBoardId) return;
+        socket.send(JSON.stringify({ type: "subscribe", boardId: currentBoardId }));
+        // Do catch up since last time ever since we missed lots of broadcasts.
+        if (isReconnect) globalDataStore.resyncFromBackend();
     };
     socket.onmessage = handleMessage;
     socket.onclose = scheduleReconnect;
@@ -119,4 +117,5 @@ export function closeBoardSocket() {
     socket?.close();
     socket = null;
     currentBoardId = null;
+    hasOpenedBefore = false;
 }

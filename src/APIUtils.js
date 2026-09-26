@@ -267,6 +267,19 @@ export async function removeBoardGuest(boardId, userId) {
     }
 }
 
+export async function setBoardGuestPassword(boardId, userId, password) {
+    const response = await fetch(`/api/boards/${boardId}/guests/${userId}/password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ password }),
+    });
+    if (!response.ok) {
+        const json = await response.json().catch(() => ({}));
+        throw new Error(json.error || `Failed to change password (status ${response.status})`);
+    }
+}
+
 /** Owner can assigns an account (owner or guest id) onto a friend tag. Returns the new linkedAccountIds. */
 export async function assignAccountToTag(boardId, tagId, accountId) {
     const response = await fetch(`/api/boards/${boardId}/tags/${tagId}/accounts`, {

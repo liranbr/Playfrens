@@ -141,6 +141,22 @@ const OWNER_ONLY_BOARD_KEYS = ["settings", "defaultFilters"];
 // Guests can edit/reorder/remove entries in these collections but cannot add new ones.
 const GUEST_NO_ADD_KEYS = ["allGames", "allFriends", "allCategories", "allStatuses"];
 
+// Anything outside this list only changes through a full save (e.g. restore from backup).
+const WRITABLE_BOARD_KEYS = [
+    ...OWNER_ONLY_BOARD_KEYS,
+    ...GUEST_NO_ADD_KEYS,
+    "allReminders",
+    "tagsCustomOrders",
+];
+
+function preserveLinkedAccountIds(storedFriends, incomingFriends) {
+    const storedById = new Map((storedFriends ?? []).map(([id, json]) => [id, json]));
+    return incomingFriends.map(([id, json]) => {
+        const linkedAccountIds = storedById.get(id)?.linkedAccountIds ?? [];
+        return [id, { ...json, linkedAccountIds }];
+    });
+}
+
 /**
  * Updates a board JSONB key via RPC. `expectedLastUpdated`, when sent, rejects the write with 409
  * if the board changed since the client last saw it, instead of silently overwriting someone
@@ -148,16 +164,24 @@ const GUEST_NO_ADD_KEYS = ["allGames", "allFriends", "allCategories", "allStatus
  */
 async function updateBoard(req, res) {
     const { OK, BAD_REQUEST, FORBIDDEN, CONFLICT } = Response.HttpStatus;
-    const { path, value, expectedLastUpdated } = req.body;
-    if (!Array.isArray(path) || value === undefined) {
+    const { path, expectedLastUpdated } = req.body;
+    let { value } = req.body;
+    if (!Array.isArray(path) || path.length !== 1 || value === undefined) {
         return Response.send(res, BAD_REQUEST, { error: "Invalid partial update payload" });
+    }
+    if (!WRITABLE_BOARD_KEYS.includes(path[0])) {
+        return Response.send(res, BAD_REQUEST, { error: "That board key can't be updated." });
+    }
+    // Just in case we are passing none array value
+    if (GUEST_NO_ADD_KEYS.includes(path[0]) && !Array.isArray(value)) {
+        return Response.send(res, BAD_REQUEST, { error: "Expected a list of entries." });
     }
     if (OWNER_ONLY_BOARD_KEYS.includes(path[0]) && !req.isBoardOwner) {
         return Response.send(res, FORBIDDEN, { error: "Only the board owner can change this." });
     }
     if (GUEST_NO_ADD_KEYS.includes(path[0]) && !req.isBoardOwner) {
         const collectionIds = (value) => {
-            return new Set((Array.isArray(value) ? value : []).map(([id]) => id));
+            return new Set((Array.isArray(value) ? value : []).map((entry) => entry?.[0]));
         };
         const existingIds = collectionIds(req.board.board[path[0]]);
         const incomingIds = collectionIds(value);
@@ -166,6 +190,9 @@ async function updateBoard(req, res) {
             return Response.send(res, FORBIDDEN, {
                 error: "Only the board owner can add new games or tags.",
             });
+        }
+        if (path[0] === "allFriends") {
+            value = preserveLinkedAccountIds(req.board.board.allFriends, value);
         }
     }
 
@@ -402,6 +429,35 @@ async function removeGuest(req, res) {
     return Response.send(res, OK, { message: "Guest removed" });
 }
 
+/** Sets a new password for a guest login */
+async function setGuestPassword(req, res) {
+    const { OK, BAD_REQUEST, FORBIDDEN, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+    const { userId } = req.params;
+    const { password } = req.body;
+    if (!req.isBoardOwner && req.user.id !== userId) {
+        return Response.send(res, FORBIDDEN, { error: "You can't change this guest's password." });
+    }
+    if (!password || typeof password !== "string" || password.length < 8) {
+        return Response.send(res, BAD_REQUEST, {
+            error: "Password must be at least 8 characters.",
+        });
+    }
+
+    const { data: guest, error: fetchError } = await supabase
+        .from("guests")
+        .select("auth_user_id")
+        .eq("id", userId)
+        .eq("home_board_id", req.board.id)
+        .maybeSingle();
+    if (fetchError || !guest) {
+        return Response.send(res, BAD_REQUEST, { error: "That guest doesn't exist." });
+    }
+
+    const { error } = await supabase.auth.admin.updateUserById(guest.auth_user_id, { password });
+    if (error) return Response.send(res, INTERNAL_SERVER_ERROR, { error: error.message });
+    return Response.send(res, OK, { message: "Password updated" });
+}
+
 /**
  * Assigns/unassigns an account onto a friend tag. Owner-only: any account in linkedAccountIds can
  * self-join/leave and manage the tag, so growing/shrinking that list is kept owner-gated.
@@ -482,6 +538,7 @@ router.delete("/:boardId", requireBoardAccess, permissionLevel.Owner, deleteBoar
 router.get("/:boardId/guests", requireBoardAccess, listGuests);
 router.post("/:boardId/guests", requireBoardAccess, permissionLevel.Owner, createGuest);
 router.delete("/:boardId/guests/:userId", requireBoardAccess, permissionLevel.Owner, removeGuest);
+router.post("/:boardId/guests/:userId/password", requireBoardAccess, setGuestPassword);
 router.post(
     "/:boardId/tags/:tagId/accounts",
     requireBoardAccess,

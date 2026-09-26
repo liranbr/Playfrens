@@ -134,6 +134,60 @@
     }
 }
 
+.guest-row-actions {
+    --icon-size: 28px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    .icon-button {
+        font-size: 18px;
+    }
+}
+
+.guest-password-field {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.guest-password-input {
+    position: relative;
+
+    input {
+        width: 160px;
+        background: var(--pf-bg-200);
+        border-radius: 4px;
+        padding: 4px calc(var(--icon-size) + 4px) 4px 8px;
+    }
+
+    input:disabled {
+        opacity: 0.7;
+    }
+
+    .guest-password-reveal {
+        --icon-size: 22px;
+        font-size: 16px;
+        position: absolute;
+        top: 50%;
+        right: 2px;
+        transform: translateY(-50%);
+    }
+}
+
+.guest-password-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 4px;
+    width: calc(var(--icon-size) * 2 + 4px);
+}
+
+.board-member-row .guest-remove-button {
+    &:hover {
+        color: hsl(354 90% 65%);
+    }
+}
+
 .board-member-details {
     display: flex;
     flex-direction: column;

@@ -1,10 +1,24 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import * as Avatar from "@radix-ui/react-avatar";
-import { MdContentCopy, MdPerson, MdPersonRemove } from "react-icons/md";
-import { Button } from "@/components";
-import { globalBoardStore, userStore } from "@/stores";
-import { createBoardGuest, listBoardGuests, removeBoardGuest } from "@/APIUtils.js";
+import {
+    MdClose,
+    MdContentCopy,
+    MdDelete,
+    MdEdit,
+    MdPerson,
+    MdSave,
+    MdVisibility,
+    MdVisibilityOff,
+} from "react-icons/md";
+import { Button, IconButton, SimpleTooltip } from "@/components";
+import { Dialogs, globalBoardStore, globalDialogStore, userStore } from "@/stores";
+import {
+    createBoardGuest,
+    listBoardGuests,
+    removeBoardGuest,
+    setBoardGuestPassword,
+} from "@/APIUtils.js";
 import { toastError, toastSuccess } from "@/Utils";
 
 // Lists this board's guests and, if you're the owner, lets you create or remove logins.
@@ -92,7 +106,9 @@ export const MembersTab = observer(() => {
                         <MdContentCopy /> Copy
                     </Button>
                 </div>
-                <small>Anyone who already has a login below can use this to jump to this board.</small>
+                <small>
+                    Anyone who already has a login below can use this to jump to this board.
+                </small>
             </div>
 
             {loading ? (
@@ -117,12 +133,19 @@ export const MembersTab = observer(() => {
                                 </span>
                                 <small>{guest.role === "owner" ? "Owner" : "Guest"}</small>
                             </div>
-                            {guest.role !== "owner" && isOwner && (
-                                <RemoveGuestButton
-                                    boardId={boardId}
-                                    guest={guest}
-                                    onRemoved={refresh}
-                                />
+                            {guest.role !== "owner" && (
+                                <div className="guest-row-actions">
+                                    {(isOwner || guest.id === userStore.userInfo?.id) && (
+                                        <GuestPasswordField boardId={boardId} guest={guest} />
+                                    )}
+                                    {isOwner && (
+                                        <RemoveGuestButton
+                                            boardId={boardId}
+                                            guest={guest}
+                                            onRemoved={refresh}
+                                        />
+                                    )}
+                                </div>
                             )}
                         </div>
                     ))}
@@ -136,7 +159,8 @@ export const MembersTab = observer(() => {
                         <div className="dialog-callout">
                             <label>Create New Guest</label>
                             <small>
-                                A guest login allows people without an account participate onto this board.
+                                A guest login allows people without an account participate onto this
+                                board.
                             </small>
                         </div>
                         <fieldset>
@@ -190,27 +214,113 @@ export const MembersTab = observer(() => {
     );
 });
 
-// Gave it the same behavior as deleting accounts so it won't be accidental.
-const REMOVE_WARNING_DURATION_SECONDS = 10;
-const RemoveGuestButton = ({ boardId, guest, onRemoved }) => {
-    const [startedCountdown, setStartedCountdown] = useState(false);
-    const [secondsRemaining, setSecondsRemaining] = useState(REMOVE_WARNING_DURATION_SECONDS);
-    const [countdownCleared, setCountdownCleared] = useState(false);
+// Stays masked until edit is clicked, which swaps to a new-password input that can be cancelled.
+const GuestPasswordField = ({ boardId, guest }) => {
+    const [editing, setEditing] = useState(false);
+    const [revealed, setRevealed] = useState(false);
+    const [password, setPassword] = useState("");
+    const [saving, setSaving] = useState(false);
+    const inputRef = useRef(null);
 
     useEffect(() => {
-        if (!startedCountdown) return;
-        const countdownInterval = setInterval(() => {
-            if (secondsRemaining <= 0) {
-                setSecondsRemaining(0);
-                clearInterval(countdownInterval);
-                setCountdownCleared(true);
-                return;
-            }
-            setSecondsRemaining(secondsRemaining - 1);
-        }, 1000);
-        return () => clearInterval(countdownInterval);
-    }, [secondsRemaining, startedCountdown]);
+        if (editing) inputRef.current?.focus();
+    }, [editing]);
 
+    function cancel() {
+        setEditing(false);
+        setRevealed(false);
+        setPassword("");
+    }
+
+    async function save() {
+        if (saving) return;
+        if (password.length < 8) {
+            toastError("Password must be at least 8 characters.");
+            return;
+        }
+        setSaving(true);
+        try {
+            await setBoardGuestPassword(boardId, guest.id, password);
+            toastSuccess(`Changed ${guest.displayName}'s password`);
+            cancel();
+        } catch (err) {
+            toastError(err.message);
+        } finally {
+            setSaving(false);
+        }
+    }
+
+    const onKeyDown = (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            save();
+        } else if (e.key === "Escape") {
+            e.preventDefault();
+            e.stopPropagation(); // don't close the dialog
+            cancel();
+        }
+    };
+
+    return (
+        <div className="guest-password-field">
+            <div className="guest-password-input">
+                <input
+                    ref={inputRef}
+                    type={editing && revealed ? "text" : "password"}
+                    value={editing ? password : "••••••••"}
+                    placeholder="New password"
+                    disabled={!editing}
+                    onChange={(e) => setPassword(e.target.value)}
+                    onKeyDown={onKeyDown}
+                    autoComplete="new-password"
+                    aria-label={`Password for ${guest.displayName}`}
+                />
+                {editing && (
+                    <SimpleTooltip message={revealed ? "Hide" : "Reveal"}>
+                        <IconButton
+                            className="guest-password-reveal"
+                            icon={revealed ? <MdVisibilityOff /> : <MdVisibility />}
+                            aria-label={revealed ? "Hide password" : "Reveal password"}
+                            onClick={() => setRevealed(!revealed)}
+                        />
+                    </SimpleTooltip>
+                )}
+            </div>
+            <div className="guest-password-actions">
+                {editing ? (
+                    <>
+                        <SimpleTooltip message="Save">
+                            <IconButton
+                                icon={<MdSave />}
+                                aria-label="Save password"
+                                disabled={saving}
+                                onClick={save}
+                            />
+                        </SimpleTooltip>
+                        <SimpleTooltip message="Cancel">
+                            <IconButton
+                                icon={<MdClose />}
+                                aria-label="Cancel"
+                                disabled={saving}
+                                onClick={cancel}
+                            />
+                        </SimpleTooltip>
+                    </>
+                ) : (
+                    <SimpleTooltip message="Change password">
+                        <IconButton
+                            icon={<MdEdit />}
+                            aria-label="Change password"
+                            onClick={() => setEditing(true)}
+                        />
+                    </SimpleTooltip>
+                )}
+            </div>
+        </div>
+    );
+};
+
+const RemoveGuestButton = ({ boardId, guest, onRemoved }) => {
     async function handleRemove() {
         try {
             await removeBoardGuest(boardId, guest.id);
@@ -221,17 +331,21 @@ const RemoveGuestButton = ({ boardId, guest, onRemoved }) => {
         }
     }
 
-    if (!startedCountdown) {
-        return (
-            <Button variant="danger-secondary" onClick={() => setStartedCountdown(true)}>
-                <MdPersonRemove /> Remove
-            </Button>
-        );
-    }
-
     return (
-        <Button variant="danger" disabled={!countdownCleared} onClick={handleRemove}>
-            {secondsRemaining > 0 ? `Are you sure? (${secondsRemaining})` : "Yes, Remove"}
-        </Button>
+        <SimpleTooltip message="Remove guest">
+            <IconButton
+                className="guest-remove-button"
+                icon={<MdDelete />}
+                aria-label={`Remove ${guest.displayName}`}
+                onClick={() =>
+                    globalDialogStore.open(Dialogs.DeleteWarning, {
+                        itemName: guest.displayName,
+                        description: "Their login will be deleted and they'll be signed out.",
+                        countdownSeconds: 10,
+                        deleteFunction: handleRemove,
+                    })
+                }
+            />
+        </SimpleTooltip>
     );
 };

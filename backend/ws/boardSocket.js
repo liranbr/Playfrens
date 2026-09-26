@@ -3,6 +3,7 @@ import { WebSocketServer } from "ws";
 import { supabase } from "../supabaseClient.js";
 
 export const WS_PATH = "/ws";
+const VERIFY_SOCKET_INTERVAL_MS = 30000;
 
 // boardId -> Set<WebSocket>, and userId -> Set<WebSocket>
 // This is all memory right now, we should look for alternatives (like redis).
@@ -31,17 +32,6 @@ function untrackUserSocket(userId, ws) {
     if (!sockets) return;
     sockets.delete(ws);
     if (sockets.size === 0) socketsByUser.delete(userId);
-}
-
-/** Kicks a removed guest off a board immediately, notifying the client why. */
-export function forceDisconnectUserFromBoard(userId, boardId, reason) {
-    for (const ws of socketsByUser.get(userId) ?? []) {
-        if (ws.boardId !== boardId) continue;
-        if (ws.readyState === ws.OPEN) {
-            ws.send(JSON.stringify({ type: "removed-from-board", boardId, reason }));
-        }
-        unsubscribe(ws);
-    }
 }
 
 /** Closes every live connection for a user, used when their whole account is deleted. */
@@ -102,9 +92,26 @@ export function attachBoardSocketServer(httpServer, { sessionMiddleware, passpor
         });
     });
 
+    // Drops sockets that stopped responding.
+    const heartbeat = setInterval(() => {
+        for (const ws of wss.clients) {
+            if (!ws.isAlive) {
+                ws.terminate();
+                continue;
+            }
+            ws.isAlive = false;
+            ws.ping();
+        }
+    }, VERIFY_SOCKET_INTERVAL_MS);
+    wss.on("close", () => clearInterval(heartbeat));
+
     wss.on("connection", (ws, req) => {
         const userId = req.user.id;
         trackUserSocket(userId, ws);
+        ws.isAlive = true;
+        ws.on("pong", () => {
+            ws.isAlive = true;
+        });
         // Only accept the latest request for subscription
         let latestRequestedBoardId = null;
 
@@ -138,4 +145,3 @@ export function attachBoardSocketServer(httpServer, { sessionMiddleware, passpor
 
     return wss;
 }
-

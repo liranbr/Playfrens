@@ -12,6 +12,7 @@ import {
     TagSortOptions,
     Dialogs,
     globalDialogStore,
+    useBoardStore,
     useDataStore,
 } from "@/stores";
 import {
@@ -26,6 +27,7 @@ import { useState } from "react";
 
 export const SidebarTagButtonGroup = observer(({ tagType }) => {
     const { allTags } = useDataStore();
+    const { isOwner } = useBoardStore();
     const typeStrings = tagTypeStrings[tagType];
     const handleAddButtonClick = () => {
         globalDialogStore.open(Dialogs.EditTag, { addingTagOfType: tagType });
@@ -36,11 +38,13 @@ export const SidebarTagButtonGroup = observer(({ tagType }) => {
             <CenterAndEdgesRow className="ui-card-header">
                 <SidebarTBGMenu tagType={tagType} />
                 <h4>{typeStrings.plural.toUpperCase()}</h4>
-                <ArrowToFeature enable={allTags[tagType].size === 0}>
-                    <SimpleTooltip message={"Add a new " + typeStrings.single}>
-                        <IconButton icon={<MdAdd />} onClick={handleAddButtonClick} />
-                    </SimpleTooltip>
-                </ArrowToFeature>
+                {isOwner && (
+                    <ArrowToFeature enable={allTags[tagType].size === 0}>
+                        <SimpleTooltip message={"Add a new " + typeStrings.single}>
+                            <IconButton icon={<MdAdd />} onClick={handleAddButtonClick} />
+                        </SimpleTooltip>
+                    </ArrowToFeature>
+                )}
             </CenterAndEdgesRow>
 
             <div className="tag-button-list">
@@ -52,8 +56,12 @@ export const SidebarTagButtonGroup = observer(({ tagType }) => {
                     <span className="empty-list-placeholder">
                         <p>
                             <b>You have no {typeStrings.plural}!</b>
-                            <br />
-                            click the + to add some
+                            {isOwner && (
+                                <>
+                                    <br />
+                                    click the + to add some
+                                </>
+                            )}
                         </p>
                     </span>
                 )}

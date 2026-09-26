@@ -2,6 +2,8 @@ export class Response {
     // Stable codes clients can match on, instead of parsing error text message such "Not logged in."
     static ErrorCode = Object.freeze({
         NOT_AUTHENTICATED: "NOT_AUTHENTICATED",
+        FEATURE_DISABLED: "FEATURE_DISABLED",
+        STALE_WRITE: "STALE_WRITE",
     });
 
     static HttpStatus = Object.freeze({
@@ -16,6 +18,7 @@ export class Response {
         UNAUTHORIZED: 401,
         FORBIDDEN: 403,
         NOT_FOUND: 404,
+        CONFLICT: 409,
         GONE: 410,
         TOO_MANY_REQUESTS: 429,
 

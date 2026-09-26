@@ -1,17 +1,24 @@
+import { useState } from "react";
 import { Navigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
-import { BiLogoDiscordAlt, BiLogoGoogle, BiLogoSteam } from "react-icons/bi";
 import { useUserStore } from "@/stores";
-import { Button } from "@/components";
+import { EmailAuthForm, GuestAuthForm } from "@/components";
 import { usePageMeta } from "@/hooks/usePageMeta.js";
 import "./Login.css";
 import "./CardPage.css";
-import { loadFromStorage, toastError } from "@/Utils";
+import { toastError } from "@/Utils";
 
 const Login = observer(() => {
-    const userStore = useUserStore();
-    const { loading, userInfo } = userStore;
-    const lastAuth = loadFromStorage("last-auth-used", "");
+    const { loading, userInfo } = useUserStore();
+
+    // Present when arriving via a shared board link; carried through every login path so you
+    // land back on that board afterward.
+    const params = new URLSearchParams(window.location.search);
+    const targetBoard = params.get("board");
+    const targetGuestName = params.get("guest");
+
+    // Board Guest accounts log in with a username/password.
+    const [guestMode, setGuestMode] = useState(!!targetBoard);
 
     usePageMeta({
         title: "Sign in",
@@ -21,52 +28,18 @@ const Login = observer(() => {
     });
 
     if (loading) return <div className="loading-page">Loading...</div>;
-    if (userInfo) return <Navigate to="/app" replace />;
+    if (userInfo) return <Navigate to={targetBoard ? `/app/${targetBoard}` : "/app"} replace />;
 
     if (window.location.search.includes("failed=true")) toastError("Login failed.");
 
-    return (
-        <div id="card-page">
-            <div className="card-page-body">
-                <div className="card-page-header">
-                    <h1>Sign in</h1>
-                    <span>to use Playfrens</span>
-                </div>
-                <div className="auth-buttons">
-                    <Button
-                        variant="secondary"
-                        className={lastAuth === "steam" ? "last-auth" : ""}
-                        onClick={() => userStore.login("steam")}
-                    >
-                        <BiLogoSteam />
-                        Continue with Steam
-                    </Button>
-                    <Button
-                        variant="secondary"
-                        className={lastAuth === "google" ? "last-auth" : ""}
-                        onClick={() => userStore.login("google")}
-                    >
-                        <BiLogoGoogle />
-                        Continue with Google
-                    </Button>
-                    <Button
-                        variant="secondary"
-                        className={lastAuth === "discord" ? "last-auth" : ""}
-                        onClick={() => userStore.login("discord")}
-                    >
-                        <BiLogoDiscordAlt />
-                        Continue with Discord
-                    </Button>
-                </div>
-                <div className="login-footer">
-                    <a href="/privacy">Privacy Policy</a>
-                </div>
-            </div>
-            <a href="/" className="app-brand">
-                <img src="/Playfrens_Logo.png" alt="Playfrens Logo" />
-                Playfrens
-            </a>
-        </div>
+    return guestMode ? (
+        <GuestAuthForm
+            targetBoard={targetBoard}
+            defaultUsername={targetGuestName}
+            onBack={() => setGuestMode(false)}
+        />
+    ) : (
+        <EmailAuthForm targetBoard={targetBoard} onGuestModeClick={() => setGuestMode(true)} />
     );
 });
 

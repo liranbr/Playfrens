@@ -5,8 +5,7 @@ yarn.lock
 pnpm-lock.yaml
 
 # Ignore build outputs
-dist
-public
+backend/public
 coverage
 
 # Ignore system / editor files

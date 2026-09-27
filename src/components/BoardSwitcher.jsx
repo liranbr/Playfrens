@@ -1,11 +1,11 @@
 import { observer } from "mobx-react-lite";
-import { MdKeyboardArrowDown } from "react-icons/md";
+import { MdKeyboardArrowDown, MdOutlineSettings } from "react-icons/md";
 import { Dialogs, globalDialogStore, useBoardStore, useUserStore } from "@/stores";
-import { Dropdown } from "@/components";
+import { Dropdown, SimpleTooltip } from "@/components";
 
 /**
- * Allows users to switch and create boards.
- * Guests cannot create one so this will be overriden with showcasing the name of the board.
+ * Allows users to manage current boards setting and switch to other ones.
+ * For Guests, this is swapped with Boards settings which they can view, but cannot edit.
  */
 export const BoardSwitcher = observer(() => {
     const boardStore = useBoardStore();
@@ -15,11 +15,17 @@ export const BoardSwitcher = observer(() => {
         return (
             <>
                 <div className="app-brand-separator" />
-                <span className="board-switcher-trigger board-name-static">
-                    <span className="board-switcher-trigger-label">
-                        {boardStore.activeBoard?.name ?? "Board"}
-                    </span>
-                </span>
+                <SimpleTooltip message="Board settings">
+                    <button
+                        className="board-switcher-trigger"
+                        onClick={() => globalDialogStore.open(Dialogs.BoardSettings)}
+                    >
+                        <span className="board-switcher-trigger-label">
+                            {boardStore.activeBoard?.name ?? "Board"}
+                        </span>
+                        <MdOutlineSettings />
+                    </button>
+                </SimpleTooltip>
             </>
         );
     }
@@ -42,13 +48,14 @@ export const BoardSwitcher = observer(() => {
                         {board.name}
                     </Dropdown.Item>
                 ))}
+                <Dropdown.Separator />
+                <Dropdown.Item onClick={() => globalDialogStore.open(Dialogs.BoardSettings)}>
+                    Board Settings
+                </Dropdown.Item>
                 {boardStore.canCreateBoard && (
-                    <>
-                        <Dropdown.Separator />
-                        <Dropdown.Item onClick={() => globalDialogStore.open(Dialogs.CreateBoard)}>
-                            Create board
-                        </Dropdown.Item>
-                    </>
+                    <Dropdown.Item onClick={() => globalDialogStore.open(Dialogs.CreateBoard)}>
+                        Create board
+                    </Dropdown.Item>
                 )}
             </Dropdown>
         </>

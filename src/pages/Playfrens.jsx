@@ -42,6 +42,7 @@ import "./Playfrens.css";
 
 const AppMenu = observer(() => {
     const boardStore = useBoardStore();
+    const { userInfo } = useUserStore();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const LinkItem = ({ label, url }) => (
         <a href={url} target="_blank" rel="noopener noreferrer">
@@ -54,30 +55,31 @@ const AppMenu = observer(() => {
                 trigger={<IconButton icon={<MdMenu />} activate={dropdownOpen} />}
                 onOpenChange={setDropdownOpen}
             >
-                <Dropdown.Sub>
-                    <Dropdown.Item onClick={() => globalDialogStore.open(Dialogs.BoardSettings)}>
-                        Board Settings
+                {!userInfo.isGuest && (
+                    <Dropdown.Item onClick={() => globalDialogStore.open(Dialogs.SteamImport)}>
+                        Import from Steam
                     </Dropdown.Item>
+                )}
+                <Dropdown.Sub>
                     <Dropdown.SubTrigger>
                         Backup
                         <MdChevronRight className="rx-dropdown-right-slot" />
                     </Dropdown.SubTrigger>
                     <Dropdown.SubContent>
-                        {boardStore.isOwner && (
-                            <Dropdown.Item
-                                onClick={() => {
-                                    globalDialogStore.open(Dialogs.GenericWarning, {
-                                        message:
-                                            "Importing a backup will overwrite all of your current data.",
-                                        continueFunction: () => {
-                                            document.getElementById("json-selector").click();
-                                        },
-                                    });
-                                }}
-                            >
-                                <MdOutlineFileUpload /> Restore
-                            </Dropdown.Item>
-                        )}
+                        <Dropdown.Item
+                            disabled={!boardStore.isOwner}
+                            onSelect={() => {
+                                globalDialogStore.open(Dialogs.GenericWarning, {
+                                    message:
+                                        "Importing a backup will overwrite all of your current data.",
+                                    continueFunction: () => {
+                                        document.getElementById("json-selector").click();
+                                    },
+                                });
+                            }}
+                        >
+                            <MdOutlineFileUpload /> Restore
+                        </Dropdown.Item>
                         <Dropdown.Item onClick={backupToFile}>
                             <MdOutlineFileDownload /> Backup
                         </Dropdown.Item>
@@ -177,7 +179,10 @@ const AppUserAvatar = observer(() => {
         <Dropdown
             trigger={
                 <Avatar.Root>
-                    <Avatar.Image src={userInfo?.avatar ?? undefined} referrerPolicy="no-referrer" />
+                    <Avatar.Image
+                        src={userInfo?.avatar ?? undefined}
+                        referrerPolicy="no-referrer"
+                    />
                     <Avatar.Fallback className="rx-avatarless" asChild>
                         <MdPerson />
                     </Avatar.Fallback>
@@ -185,11 +190,6 @@ const AppUserAvatar = observer(() => {
             }
             triggerClassName="rx-avatar"
         >
-            {!userInfo.isGuest && (
-                <Dropdown.Item onClick={() => globalDialogStore.open(Dialogs.SteamImport)}>
-                    Import from Steam
-                </Dropdown.Item>
-            )}
             <Dropdown.Item onClick={() => globalDialogStore.open(Dialogs.AccountSettings)}>
                 Account Settings
             </Dropdown.Item>

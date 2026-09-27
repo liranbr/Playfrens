@@ -1,23 +1,22 @@
-import { DialogBase } from "./DialogRoot.jsx";
+import { observer } from "mobx-react-lite";
 import * as Dialog from "@radix-ui/react-dialog";
-import "./AccountSettingsDialog.css";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { Button } from "@/components/index.js";
-import { globalDataStore, userStore } from "@/stores/index.js";
-import { tagTypes } from "@/models/index.js";
-import { useEffect, useState } from "react";
-import { HttpStatus } from "#shared/http.js";
-import { toastError, toastSuccess } from "@/Utils";
+import { Button } from "@/components";
+import { globalBoardStore } from "@/stores";
+import { DialogBase } from "./DialogRoot.jsx";
+import { SettingsTabs } from "./SettingsTabs.jsx";
+import { AccountTab } from "./AccountSettingsDialog/AccountTab.jsx";
+import { SidebarTab } from "./AccountSettingsDialog/SidebarTab.jsx";
+import { GamesGridTab } from "./AccountSettingsDialog/GamesGridTab.jsx";
+import "./AccountSettingsDialog.css";
 
-const PROVIDER_LABELS = {
-    steam: "Steam",
-    google: "Google",
-    discord: "Discord",
-    email: "Email",
+const AccountSettingsTabs = {
+    account: { label: "Account", Component: AccountTab },
+    sidebar: { label: "Sidebar", Component: SidebarTab, ownerOnly: true },
+    grid: { label: "Games Grid", Component: GamesGridTab, ownerOnly: true },
 };
 
-export const AccountSettingsDialog = ({ open, closeDialog }) => {
-    const { userInfo } = userStore;
+export const AccountSettingsDialog = observer(({ open, closeDialog }) => {
     return (
         <DialogBase
             open={open}
@@ -27,33 +26,15 @@ export const AccountSettingsDialog = ({ open, closeDialog }) => {
                     e.preventDefault(); // Focuses the dialog content instead of the first interactable element
                     e.target.focus();
                 },
-                className: "rx-dialog account-settings-dialog",
+                className: "rx-dialog settings-dialog account-settings-dialog",
             }}
         >
             <Dialog.Title>Account Settings</Dialog.Title>
             <VisuallyHidden>
-                <Dialog.Description>Account information and settings</Dialog.Description>
+                <Dialog.Description>Account information and display settings</Dialog.Description>
             </VisuallyHidden>
 
-            <dl className="account-info">
-                <dt>Display Name</dt>
-                <dd>{userInfo?.displayName}</dd>
-                <dt>Sign-in Method</dt>
-                <dd>{userInfo?.isGuest ? "Guest" : PROVIDER_LABELS[userInfo?.provider]}</dd>
-            </dl>
-            <dl className="account-stats">
-                <dt>Data</dt>
-                <dd className="account-data-table">
-                    <label>Created:</label>
-                    <p>{userInfo?.createdAt.toLocaleDateString()}</p>
-                    <label>Games:</label>
-                    <p>{globalDataStore.allGames.size}</p>
-                    <label>Friends:</label>
-                    <p>{globalDataStore.allTags[tagTypes.friend].size}</p>
-                </dd>
-            </dl>
-
-            {!userInfo.isGuest && <DeleteAccountButton />}
+            <SettingsTabs tabs={AccountSettingsTabs} canEditOwnerOnly={globalBoardStore.isOwner} />
 
             <div className="rx-dialog-footer">
                 <Button variant="secondary" onClick={closeDialog}>
@@ -62,58 +43,4 @@ export const AccountSettingsDialog = ({ open, closeDialog }) => {
             </div>
         </DialogBase>
     );
-};
-
-const DEBUGGING_SKIP_ACCOUNT_DELETION_WARNING = false;
-const DeleteAccountButton = () => {
-    const WARNING_DURATION_SECONDS = 10;
-    const [startedCountdown, setStartedCountdown] = useState(false);
-    const [secondsRemaining, setSecondsRemaining] = useState(
-        DEBUGGING_SKIP_ACCOUNT_DELETION_WARNING ? 1 : WARNING_DURATION_SECONDS,
-    );
-    const [countdownCleared, setCountdownCleared] = useState(false);
-    useEffect(() => {
-        if (startedCountdown) {
-            const countdownInterval = setInterval(() => {
-                if (secondsRemaining <= 0) {
-                    setSecondsRemaining(0);
-                    clearInterval(countdownInterval);
-                    setCountdownCleared(true);
-                }
-
-                setSecondsRemaining(secondsRemaining - 1);
-            }, 1000);
-
-            return () => clearInterval(countdownInterval);
-        }
-    }, [secondsRemaining, startedCountdown]);
-    const deleteAccountFunction = async () => {
-        try {
-            const response = await fetch("/auth/deleteAccount", {
-                method: "DELETE",
-                credentials: "include",
-            });
-            if (response.status === HttpStatus.OK) {
-                toastSuccess("Account Deleted successfully. Reloading..");
-                setTimeout(() => window.location.reload(), 3000);
-            } else {
-                console.error("Failed to delete Account: ", response);
-                toastError("Failed to delete Account");
-            }
-        } catch (err) {
-            console.error("Failed to delete Account:", err);
-            toastError("Failed to delete Account");
-        }
-    };
-    const confirmMessage =
-        secondsRemaining > 0 ? `Are you sure? (${secondsRemaining})` : "Yes, Delete Account";
-    return startedCountdown ? (
-        <Button variant="danger" disabled={!countdownCleared} onClick={deleteAccountFunction}>
-            {confirmMessage}
-        </Button>
-    ) : (
-        <Button variant="danger-secondary" onClick={() => setStartedCountdown(true)}>
-            Delete Account
-        </Button>
-    );
-};
+});

@@ -1,5 +1,6 @@
 import { enqueueRequest } from "@/services/RequestQueue.js";
-import { HttpStatus, toastError, toastInfo } from "@/Utils";
+import { HttpStatus } from "#shared/http.js";
+import { toastError, toastInfo } from "@/Utils";
 
 export async function searchTitleOnStore(title, storeType, includeMature = false) {
     if (!title || typeof title !== "string" || !title.trim()) return [];

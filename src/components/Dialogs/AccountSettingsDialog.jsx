@@ -6,7 +6,8 @@ import { Button } from "@/components/index.js";
 import { globalDataStore, userStore } from "@/stores/index.js";
 import { tagTypes } from "@/models/index.js";
 import { useEffect, useState } from "react";
-import { toastError, toastSuccess, HttpStatus } from "@/Utils";
+import { HttpStatus } from "#shared/http.js";
+import { toastError, toastSuccess } from "@/Utils";
 
 const PROVIDER_LABELS = {
     steam: "Steam",

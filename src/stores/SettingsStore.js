@@ -1,6 +1,5 @@
 import { createContext, useContext } from "react";
-import { makeAutoObservable, reaction } from "mobx";
-import { saveToStorage } from "@/Utils";
+import { makeAutoObservable } from "mobx";
 import { tagTypes } from "@/models";
 
 export const settingsStorageKey = "settings";

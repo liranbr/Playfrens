@@ -1,7 +1,7 @@
 import { createContext, useContext } from "react";
 import { makeAutoObservable, runInAction } from "mobx";
 import { globalBoardStore } from "@/stores";
-import { HttpStatus } from "@/Utils";
+import { ErrorCode, HttpStatus } from "#shared/http.js";
 
 export class UserStore {
     /**
@@ -42,7 +42,7 @@ export class UserStore {
                     .clone()
                     .json()
                     .catch(() => null);
-                if (body?.code === "NOT_AUTHENTICATED") {
+                if (body?.code === ErrorCode.NOT_AUTHENTICATED) {
                     runInAction(() => {
                         this.userInfo = undefined;
                     });

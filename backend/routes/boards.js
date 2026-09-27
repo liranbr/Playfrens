@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { v4 as uuidv4 } from "uuid";
+import { GUEST_PASSWORD_MIN_LENGTH, MAX_OWNED_BOARDS } from "#shared/boardLimits.js";
 import { Response } from "../response.js";
 import { supabase } from "../supabaseClient.js";
 import { requireAuth } from "../auth/requireAuth.js";
@@ -34,8 +35,6 @@ async function listBoards(req, res) {
     }));
     return Response.send(res, OK, { boards: list });
 }
-
-const MAX_OWNED_BOARDS = 10;
 
 async function createBoard(req, res) {
     const { OK, BAD_REQUEST, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
@@ -345,9 +344,9 @@ async function createGuest(req, res) {
     if (!username || typeof username !== "string" || !username.trim()) {
         return Response.send(res, BAD_REQUEST, { error: "A username is required." });
     }
-    if (!password || typeof password !== "string" || password.length < 8) {
+    if (!password || typeof password !== "string" || password.length < GUEST_PASSWORD_MIN_LENGTH) {
         return Response.send(res, BAD_REQUEST, {
-            error: "Password must be at least 8 characters.",
+            error: `Password must be at least ${GUEST_PASSWORD_MIN_LENGTH} characters.`,
         });
     }
 
@@ -437,9 +436,9 @@ async function setGuestPassword(req, res) {
     if (!req.isBoardOwner && req.user.id !== userId) {
         return Response.send(res, FORBIDDEN, { error: "You can't change this guest's password." });
     }
-    if (!password || typeof password !== "string" || password.length < 8) {
+    if (!password || typeof password !== "string" || password.length < GUEST_PASSWORD_MIN_LENGTH) {
         return Response.send(res, BAD_REQUEST, {
-            error: "Password must be at least 8 characters.",
+            error: `Password must be at least ${GUEST_PASSWORD_MIN_LENGTH} characters.`,
         });
     }
 

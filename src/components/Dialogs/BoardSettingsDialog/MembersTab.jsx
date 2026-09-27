@@ -19,6 +19,7 @@ import {
     removeBoardGuest,
     setBoardGuestPassword,
 } from "@/APIUtils.js";
+import { GUEST_PASSWORD_MIN_LENGTH } from "#shared/boardLimits.js";
 import { toastError, toastSuccess } from "@/Utils";
 
 // Lists this board's guests and, if you're the owner, lets you create or remove logins.
@@ -60,7 +61,8 @@ export const MembersTab = observer(() => {
     }, [boardId]);
 
     async function handleCreate() {
-        if (creating || !newUsername.trim() || newPassword.length < 8) return;
+        if (creating || !newUsername.trim() || newPassword.length < GUEST_PASSWORD_MIN_LENGTH)
+            return;
         setCreating(true);
         try {
             const result = await createBoardGuest(boardId, newUsername.trim(), newPassword);
@@ -234,8 +236,8 @@ const GuestPasswordField = ({ boardId, guest }) => {
 
     async function save() {
         if (saving) return;
-        if (password.length < 8) {
-            toastError("Password must be at least 8 characters.");
+        if (password.length < GUEST_PASSWORD_MIN_LENGTH) {
+            toastError(`Password must be at least ${GUEST_PASSWORD_MIN_LENGTH} characters.`);
             return;
         }
         setSaving(true);

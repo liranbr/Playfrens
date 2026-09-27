@@ -1,7 +1,14 @@
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { Button } from "@/components";
-import { globalBoardStore } from "@/stores";
+import { Button, InfoIcon, RadioSetting, Setting } from "@/components";
+import {
+    globalBoardStore,
+    SettingsDefaults,
+    ShowMatureContentOptions,
+    useFilterStore,
+    useSettingsStore,
+} from "@/stores";
+import { ReadOnlyCallout } from "../SettingsTabs.jsx";
 import { toastError, toastSuccess } from "@/Utils";
 
 export const GeneralTab = observer(({ closeDialog }) => {
@@ -38,31 +45,79 @@ export const GeneralTab = observer(({ closeDialog }) => {
     return (
         <>
             {!isOwner && (
-                <dl className="board-info">
-                    <dt>Board name</dt>
-                    <dd>{board?.name}</dd>
-                </dl>
+                <div className="board-guest-header">
+                    <h3 className="board-name-header">{board?.name}</h3>
+                    <ReadOnlyCallout />
+                </div>
             )}
             {isOwner && (
-                <>
-                    <fieldset>
-                        <label className="board-name-label">Board Name</label>
-                        <div className="board-name-row">
-                            <input
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                onKeyDown={saveOnEnter}
-                            />
-                            <Button variant="primary" disabled={!canSave} onClick={handleSave}>
-                                Save
-                            </Button>
-                        </div>
-                    </fieldset>
+                <fieldset>
+                    <label className="board-name-label">Board Name</label>
+                    <div className="board-name-row">
+                        <input
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            onKeyDown={saveOnEnter}
+                        />
+                        <Button variant="primary" disabled={!canSave} onClick={handleSave}>
+                            Save
+                        </Button>
+                    </div>
+                </fieldset>
+            )}
 
+            <div className={`settings-tab${isOwner ? "" : " read-only"}`} inert={!isOwner}>
+                <FilterSettings />
+            </div>
+
+            {isOwner && (
+                <>
                     <div className="separator" />
                     <DeleteBoardButton board={board} closeDialog={closeDialog} />
                 </>
             )}
+        </>
+    );
+});
+
+const FilterSettings = observer(() => {
+    const settingsStore = useSettingsStore();
+    const filterStore = useFilterStore();
+
+    return (
+        <>
+            <Setting
+                title="Show Explicit Content"
+                titleExtra={
+                    <InfoIcon message="Only affects games whose main content is explicit sexual material. Games with general mature themes, violence, or occasional nudity aren't hidden by this." />
+                }
+                description="Include explicit/adult-only games when searching for a game to add"
+                isDefault={settingsStore.showMatureContent === SettingsDefaults.showMatureContent}
+                onReset={() =>
+                    settingsStore.setShowMatureContent(SettingsDefaults.showMatureContent)
+                }
+            >
+                <RadioSetting
+                    name="showMatureContent"
+                    value={settingsStore.showMatureContent}
+                    options={ShowMatureContentOptions}
+                    onChange={(option) => settingsStore.setShowMatureContent(option)}
+                />
+            </Setting>
+
+            <Setting
+                title="Default Filter State"
+                description="Set current filters as the default state to show on load"
+            >
+                <div className="default-filters-buttons">
+                    <Button variant="secondary" onClick={() => filterStore.saveDefaultFilters()}>
+                        Set as Default
+                    </Button>
+                    <Button variant="secondary" onClick={() => filterStore.resetDefaultFilters()}>
+                        Reset
+                    </Button>
+                </div>
+            </Setting>
         </>
     );
 });

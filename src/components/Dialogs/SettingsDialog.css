@@ -1,0 +1,58 @@
+.rx-dialog.settings-dialog {
+    gap: 8px;
+    width: 650px;
+    max-width: 85vw;
+    height: 825px;
+    max-height: 85vh;
+    overflow: hidden;
+
+    .settings-tabs {
+        gap: 8px;
+        border-bottom: var(--pf-border-300);
+
+        button {
+            width: fit-content;
+            height: fit-content;
+            background: none;
+            padding: 6px 12px;
+            border-radius: 8px 8px 0 0;
+            border-bottom: none;
+            outline: 1px solid var(--pf-bg-900);
+            font-size: 13px;
+
+            &[data-state="off"] {
+                outline: none;
+                color: var(--pf-fg-700);
+            }
+        }
+    }
+
+    .settings-dialog-body {
+        display: flex;
+        flex-direction: column;
+        gap: 36px;
+        flex: 1;
+        min-height: 0; /* flex child won't shrink below its content height */
+        overflow-y: auto;
+        scrollbar-gutter: stable;
+        padding-top: 16px; /* breathing room below the tab strip */
+        padding-right: 4px; /* for scrollbar-gutter*/
+    }
+
+    .settings-tab {
+        display: contents;
+
+        &.read-only > * {
+            opacity: 0.6;
+        }
+    }
+
+    .dialog-callout label {
+        font-weight: bold;
+        font-size: 14px;
+    }
+    .dialog-callout small {
+        opacity: 0.7;
+    }
+}
+

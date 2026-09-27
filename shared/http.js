@@ -1,4 +1,4 @@
-// Stable codes clients can match on, instead of parsing error text message such "Not logged in."
+// Error codes to clarify the exact error recieved.
 export const ErrorCode = Object.freeze({
     NOT_AUTHENTICATED: "NOT_AUTHENTICATED",
     FEATURE_DISABLED: "FEATURE_DISABLED",

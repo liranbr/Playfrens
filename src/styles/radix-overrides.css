@@ -50,6 +50,14 @@
             }
         }
 
+        &[data-selected] {
+            background-color: var(--pf-bg-500);
+            border-top-left-radius: 1px;
+            border-bottom-left-radius: 1px;
+            box-shadow: inset 3px 0 0 var(--pf-btn-primary);
+            font-weight: 600;
+        }
+
         &:hover,
         &:focus {
             background-color: var(--pf-bg-300);

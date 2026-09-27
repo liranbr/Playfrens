@@ -44,7 +44,11 @@ export const BoardSwitcher = observer(() => {
                 }
             >
                 {boardStore.boards.map((board) => (
-                    <Dropdown.Item key={board.id} onClick={() => boardStore.switchBoard(board.id)}>
+                    <Dropdown.Item
+                        key={board.id}
+                        data-selected={board.id === boardStore.activeBoardId || undefined}
+                        onClick={() => boardStore.switchBoard(board.id)}
+                    >
                         {board.name}
                     </Dropdown.Item>
                 ))}

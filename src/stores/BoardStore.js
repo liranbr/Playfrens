@@ -15,12 +15,10 @@ import {
     globalSettingsStore,
     settingsStorageKey,
 } from "@/stores";
+import { MAX_OWNED_BOARDS } from "#shared/boardLimits.js";
 import { loadFromStorage, saveToStorage } from "@/Utils";
 
 const LAST_BOARD_STORAGE_KEY = "last-active-board-id";
-
-// Capped to 3 for now
-const MAX_OWNED_BOARDS = 10;
 
 // Tracks which boards the user can access and which one is active.
 export class BoardStore {

@@ -3,6 +3,9 @@
     "private": true,
     "version": "0.2.2",
     "type": "module",
+    "imports": {
+        "#shared/*": "./shared/*"
+    },
     "scripts": {
         "start": "npm run dev",
         "dev": "concurrently -n F,B -c cyan,green \"npm run dev:vite\" \"npm run dev:backend\"",

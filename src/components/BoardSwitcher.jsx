@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import { MdKeyboardArrowDown, MdOutlineSettings } from "react-icons/md";
+import { MdAdd, MdKeyboardArrowDown, MdOutlineSettings, MdSettings } from "react-icons/md";
 import { Dialogs, globalDialogStore, useBoardStore, useUserStore } from "@/stores";
 import { Dropdown, SimpleTooltip } from "@/components";
 
@@ -53,14 +53,14 @@ export const BoardSwitcher = observer(() => {
                     </Dropdown.Item>
                 ))}
                 <Dropdown.Separator />
-                <Dropdown.Item onClick={() => globalDialogStore.open(Dialogs.BoardSettings)}>
-                    Board Settings
-                </Dropdown.Item>
                 {boardStore.canCreateBoard && (
                     <Dropdown.Item onClick={() => globalDialogStore.open(Dialogs.CreateBoard)}>
-                        Create board
+                        <MdAdd /> New Board
                     </Dropdown.Item>
                 )}
+                <Dropdown.Item onClick={() => globalDialogStore.open(Dialogs.BoardSettings)}>
+                    <MdSettings /> Board Settings
+                </Dropdown.Item>
             </Dropdown>
         </>
     );

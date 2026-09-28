@@ -1,16 +1,16 @@
 .steam-import-hint {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 8px;
-    padding: 10px 14px;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+    padding: 0.625rem 0.875rem;
     background: var(--pf-bg-700);
     border: var(--pf-border-700);
     border-radius: 12px;
 
     .steam-import-hint-icon {
         flex: 0 0 auto;
-        font-size: 26px;
+        font-size: 1.625rem;
         color: inherit;
     }
 
@@ -18,7 +18,7 @@
         flex: 1 1 auto;
         margin: 0;
         color: var(--pf-fg-500);
-        font-size: 13px;
+        font-size: 0.8125rem;
         line-height: 1.4;
     }
 
@@ -29,7 +29,7 @@
     .steam-import-hint-dismiss {
         --icon-size: 24px;
         flex: 0 0 auto;
-        font-size: 16px;
+        font-size: 1rem;
     }
 }
 
@@ -62,7 +62,7 @@
         cursor: default;
 
         & svg.rx-avatarless {
-            font-size: 20px;
+            font-size: 1.25rem;
         }
     }
 }

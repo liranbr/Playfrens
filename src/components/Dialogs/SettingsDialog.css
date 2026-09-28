@@ -1,5 +1,5 @@
 .rx-dialog.settings-dialog {
-    gap: 8px;
+    gap: 0.5rem;
     width: 650px;
     max-width: 85vw;
     height: 825px;
@@ -7,18 +7,18 @@
     overflow: hidden;
 
     .settings-tabs {
-        gap: 8px;
+        gap: 0.5rem;
         border-bottom: var(--pf-border-300);
 
         button {
             width: fit-content;
             height: fit-content;
             background: none;
-            padding: 6px 12px;
+            padding: 0.375rem 0.75rem;
             border-radius: 8px 8px 0 0;
             border-bottom: none;
             outline: 1px solid var(--pf-bg-900);
-            font-size: 13px;
+            font-size: 0.8125rem;
 
             &[data-state="off"] {
                 outline: none;
@@ -30,13 +30,13 @@
     .settings-dialog-body {
         display: flex;
         flex-direction: column;
-        gap: 36px;
+        gap: 2.25rem;
         flex: 1;
         min-height: 0; /* flex child won't shrink below its content height */
         overflow-y: auto;
         scrollbar-gutter: stable;
-        padding-top: 16px; /* breathing room below the tab strip */
-        padding-right: 4px; /* for scrollbar-gutter*/
+        padding-top: 1rem; /* breathing room below the tab strip */
+        padding-right: 0.25rem; /* for scrollbar-gutter*/
     }
 
     .settings-tab {
@@ -49,7 +49,7 @@
 
     .dialog-callout label {
         font-weight: bold;
-        font-size: 14px;
+        font-size: 0.875rem;
     }
     .dialog-callout small {
         opacity: 0.7;

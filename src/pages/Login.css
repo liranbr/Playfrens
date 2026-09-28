@@ -18,15 +18,15 @@
 .btn {
     width: 256px;
     height: 48px;
-    font-size: 18px;
+    font-size: 1.125rem;
     justify-content: left;
-    gap: 8px;
+    gap: 0.5rem;
     border-radius: 12px;
     position: relative;
     overflow: visible;
 
     svg {
-        font-size: 36px;
+        font-size: 2.25rem;
     }
 
     &.last-auth::after {
@@ -36,16 +36,16 @@
         right: 0;
         transform: translate(25%, -25%);
         background-color: var(--pf-btn-primary-hover);
-        padding: 2px 4px;
+        padding: 0.125rem 0.25rem;
         border-radius: 8px;
-        font-size: 12px;
+        font-size: 0.75rem;
     }
 }
 
 .auth-buttons {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 1rem;
     padding: auto;
 
     .btn {
@@ -66,9 +66,9 @@
 .back-button {
     display: flex;
     align-items: center;
-    gap: 6px;
-    margin-top: 20px;
-    font-size: 14px;
+    gap: 0.375rem;
+    margin-top: 1.25rem;
+    font-size: 0.875rem;
 }
 
 .email-auth-form {
@@ -78,7 +78,7 @@
 
     .btn {
         width: 100%;
-        margin-top: 20px;
+        margin-top: 1.25rem;
         justify-content: center;
     }
 
@@ -86,11 +86,11 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 8px;
+        gap: 0.5rem;
         /* Move the label's own top/bottom margin up here, so it and the badge
            share the same (zero-margin) box and actually line up with align-items. */
-        margin-top: 20px;
-        margin-bottom: 8px;
+        margin-top: 1.25rem;
+        margin-bottom: 0.5rem;
 
         label {
             margin: 0;
@@ -99,9 +99,9 @@
 
     .last-used-badge {
         background-color: var(--pf-btn-primary-hover);
-        padding: 2px 4px;
+        padding: 0.125rem 0.25rem;
         border-radius: 8px;
-        font-size: 12px;
+        font-size: 0.75rem;
         white-space: nowrap;
     }
 }
@@ -110,11 +110,11 @@
     width: 256px;
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-top: 32px;
-    margin-bottom: 12px;
+    gap: 0.75rem;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
     color: var(--pf-fg-500);
-    font-size: 14px;
+    font-size: 0.875rem;
 
     &::before,
     &::after {
@@ -129,18 +129,18 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
-    margin-top: 16px;
-    font-size: 14px;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    font-size: 0.875rem;
 }
 
 .login-footer {
     width: 100%;
     display: flex;
-    gap: 24px;
+    gap: 1.5rem;
     align-items: end;
     justify-content: left;
-    margin-top: 24px;
+    margin-top: 1.5rem;
     a {
         color: var(--pf-fg-500);
         cursor: pointer;

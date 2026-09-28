@@ -9,9 +9,9 @@
     --ui-card-width: 275px;
     --ui-card-border-radius: 20px;
     --game-card-width: 210px; /* a default value, overridden by a setting, for game cards in the grid.*/
-    --game-grid-gap: 20px;
-    --game-grid-row-gap: 30px;
-    --game-grid-container-padding: 30px;
+    --game-grid-gap: 1.25rem;
+    --game-grid-row-gap: 1.875rem;
+    --game-grid-container-padding: 1.875rem;
     --game-card-border-radius: 4px;
     --icon-size: 30px; /* for icon buttons like ⋮ or + */
     --dialog-fade-duration: 250ms;
@@ -96,9 +96,18 @@ body {
 
     font-family: "Roboto", sans-serif, system-ui;
     font-weight: 400;
-    font-size: 14px;
     line-height: 1.5;
     text-rendering: optimizeSpeed;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+
+/* Base font size */
+body {
+    font-size: 0.875rem; /* which is 14px */
+}
+
+/* Multiplication that will be adjusted through settings and affect size of all fonts across the app */
+html {
+    font-size: 100%;
 }

@@ -1,15 +1,15 @@
 .app-header {
     background-color: var(--pf-bg-900);
-    padding: 0 16px;
+    padding: 0 1rem;
     height: var(--app-header-height);
     position: fixed;
     border-bottom: var(--pf-border-500);
     z-index: 2;
     .app-brand-row {
-        margin-left: 16px;
+        margin-left: 1rem;
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 0.75rem;
     }
 }
 
@@ -22,15 +22,15 @@
 .board-switcher-trigger {
     display: flex;
     align-items: center;
-    gap: 2px;
-    font-size: 16px;
+    gap: 0.125rem;
+    font-size: 1rem;
     font-weight: bold;
     color: var(--pf-fg-300);
     max-width: 256px;
     background-color: #55555500;
     border: none;
     border-radius: 8px;
-    padding: 4px 8px;
+    padding: 0.25rem 0.5rem;
     transition: 0.1s ease;
     cursor: pointer;
     font-family: inherit;
@@ -56,7 +56,7 @@
     max-height: 100%;
     min-width: fit-content;
     max-width: fit-content;
-    padding: 12px 0 12px 12px; /* right gap comes from the grid */
+    padding: 0.75rem 0 0.75rem 0.75rem; /* right gap comes from the grid */
 }
 
 .game-search {
@@ -68,8 +68,8 @@
         border-radius: inherit;
         border: var(--pf-border-500);
         outline: none;
-        padding: 0 var(--icon-size) 0 12px;
-        font-size: 16px;
+        padding: 0 var(--icon-size) 0 0.75rem;
+        font-size: 1rem;
 
         &::placeholder {
             color: var(--pf-fg-500);
@@ -82,7 +82,7 @@
         visibility: hidden;
         position: absolute;
         width: fit-content;
-        font-size: 20px;
+        font-size: 1.25rem;
         right: 0;
         top: 50%;
         transform: translateY(-50%);
@@ -100,7 +100,7 @@
 
 .app-header-right {
     display: flex;
-    gap: 12px;
+    gap: 0.75rem;
     overflow: visible;
 
     .new-game-button,
@@ -115,7 +115,7 @@
         color: var(--pf-fg-300);
 
         svg {
-            font-size: 26px;
+            font-size: 1.625rem;
         }
 
         &:hover,
@@ -129,9 +129,9 @@
     .new-game-button {
         width: fit-content;
         border-radius: 16px;
-        gap: 4px;
-        padding: 0 8px;
-        font-size: 14px;
+        gap: 0.25rem;
+        padding: 0 0.5rem;
+        font-size: 0.875rem;
         font-weight: 500;
     }
 
@@ -159,16 +159,16 @@
     }
 
     .notifications-drawer {
-        max-height: 600px;
+        max-height: min(600px, 75vh);
         min-width: 300px;
-        padding: 16px calc(20px - var(--scrollbar-width));
+        padding: 1rem calc(1.25rem - var(--scrollbar-width));
         background-color: var(--pf-bg-700);
         border: var(--pf-border-500);
 
         .reminders-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 0.75rem;
             overflow-y: auto;
             scrollbar-gutter: stable both-edges;
 
@@ -177,13 +177,13 @@
                 flex-direction: row;
                 align-items: center;
                 justify-content: center;
-                gap: 8px;
+                gap: 0.5rem;
                 color: var(--pf-fg-500);
                 text-align: center;
-                padding: 12px 0;
+                padding: 0.75rem 0;
 
                 svg {
-                    font-size: 20px;
+                    font-size: 1.25rem;
                 }
             }
         }
@@ -191,7 +191,7 @@
 }
 
 .app-header-center {
-    gap: 16px;
+    gap: 1rem;
 }
 
 .app-header-left {

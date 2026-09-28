@@ -78,7 +78,7 @@ const SidebarTBGMenu = observer(({ tagType }) => {
         <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
             <SimpleTooltip message={pluralString + " settings"}>
                 <Popover.Trigger asChild>
-                    <IconButton icon={<LuSettings2 fontSize={18} />} activate={popoverOpen} />
+                    <IconButton icon={<LuSettings2 fontSize="1.125rem" />} activate={popoverOpen} />
                 </Popover.Trigger>
             </SimpleTooltip>
             <Popover.Portal>

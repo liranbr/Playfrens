@@ -1,7 +1,7 @@
 /* radix dropdown menu */
 .rx-dropdown-menu {
     --dd-max-height: 500px;
-    --dd-padding: 4px;
+    --dd-padding: 0.25rem;
     max-height: var(--dd-max-height);
     min-width: 150px;
     max-width: 300px;
@@ -24,10 +24,10 @@
     div[role="menuitem"] {
         display: flex;
         align-items: center;
-        font-size: 16px;
+        font-size: 1rem;
         min-height: 36px;
         max-height: 72px;
-        padding: 0 14px;
+        padding: 0 0.875rem;
         border-radius: 4px;
         outline: none;
         border: none;
@@ -69,13 +69,13 @@
 
         .rx-dropdown-right-slot {
             margin-left: auto;
-            margin-right: -6px;
+            margin-right: -0.375rem;
         }
 
         & svg {
-            font-size: 20px;
-            margin-right: 8px;
-            margin-left: -6px;
+            font-size: 1.25rem;
+            margin-right: 0.5rem;
+            margin-left: -0.375rem;
         }
 
         &[data-danger] {
@@ -100,13 +100,13 @@
     div[role="separator"] {
         height: 0;
         flex-shrink: 0;
-        margin: 4px 0;
+        margin: 0.25rem 0;
         border-top: var(--pf-border-500);
     }
 
     .rx-dropdown-label {
-        padding-left: 14px;
-        font-size: 14px;
+        padding-left: 0.875rem;
+        font-size: 0.875rem;
         color: var(--pf-fg-300);
         cursor: default;
     }
@@ -140,8 +140,8 @@
 }
 
 .rx-dialog {
-    --dialog-pad-y: 20px;
-    --dialog-pad-x: calc(20px - var(--scrollbar-width));
+    --dialog-pad-y: 1.25rem;
+    --dialog-pad-x: calc(1.25rem - var(--scrollbar-width));
     --dialog-radius: 12px;
 
     display: flex;
@@ -171,7 +171,7 @@
     }
 
     h2 {
-        font-size: 18px;
+        font-size: 1.125rem;
         text-align: center;
         overflow: hidden;
         text-wrap: nowrap;
@@ -181,17 +181,17 @@
         z-index: 1;
         flex-shrink: 0;
         margin: 0 calc(-1 * var(--dialog-pad-x));
-        padding: var(--dialog-pad-y) var(--dialog-pad-x) 12px;
+        padding: var(--dialog-pad-y) var(--dialog-pad-x) 0.75rem;
         background: linear-gradient(var(--pf-bg-900) 80%, transparent 100%);
         border-radius: var(--dialog-radius) var(--dialog-radius) 0 0;
     }
 
     .rx-dialog-footer {
         display: flex;
-        margin-top: 16px;
+        margin-top: 1rem;
         justify-content: flex-end;
         align-items: center;
-        gap: 16px;
+        gap: 1rem;
 
         .footer-left {
             display: flex;
@@ -212,13 +212,13 @@
     min-width: var(--ui-card-width);
     width: fit-content;
     max-width: 500px;
-    padding: 16px 20px;
+    padding: 1rem 1.25rem;
     border-radius: 12px;
     background-color: var(--pf-bg-500);
     border: var(--pf-border-300);
     box-shadow: 0 0 16px 2px rgba(0, 0, 0, 1);
     z-index: 2; /* stay above hovered game cards */
-    gap: 4px;
+    gap: 0.25rem;
     --select-width: 250px;
 
     &[data-state="open"] {
@@ -237,7 +237,7 @@
 
     p {
         color: var(--pf-fg-200);
-        font-size: 14px;
+        font-size: 0.875rem;
     }
 
     .rx-select-trigger {
@@ -278,7 +278,7 @@
         justify-content: center;
         background-color: var(--pf-bg-500);
         color: var(--pf-fg-500);
-        font-size: 28px;
+        font-size: 1.75rem;
         padding: 0;
         line-height: 1;
         font-weight: 500;
@@ -292,12 +292,12 @@
 .rx-radio-group {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 0.25rem;
     label {
         display: flex;
         align-items: center;
-        gap: 6px;
-        font-size: 14px;
+        gap: 0.375rem;
+        font-size: 0.875rem;
         color: #ddd;
         font-weight: 500;
     }
@@ -361,17 +361,17 @@
     border-radius: 8px;
     border: var(--pf-border-300);
     background-color: var(--pf-bg-300);
-    padding: 0 15px;
-    font-size: 14px;
+    padding: 0 0.9375rem;
+    font-size: 0.875rem;
     color: var(--pf-fg-100);
     line-height: 1;
     height: 32px;
-    gap: 5px;
+    gap: 0.3125rem;
     cursor: default;
 
     svg {
         color: var(--pf-fg-500);
-        font-size: 16px;
+        font-size: 1rem;
     }
 
     &:hover {
@@ -389,7 +389,7 @@
     background-color: var(--pf-bg-700);
     border: var(--pf-border-700);
     border-radius: 8px;
-    padding: 4px;
+    padding: 0.25rem;
     z-index: 102;
 
     &[data-state="open"] {
@@ -404,10 +404,10 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        font-size: 14px;
+        font-size: 0.875rem;
         color: var(--pf-fg-200);
         height: 32px;
-        padding: 0 12px;
+        padding: 0 0.75rem;
         border-radius: 4px;
         user-select: none;
 
@@ -418,7 +418,7 @@
 
         .item-indicator {
             color: var(--pf-fg-200);
-            font-size: 16px;
+            font-size: 1rem;
         }
 
         &:has(.item-indicator) {
@@ -442,12 +442,12 @@
 .rx-toggle-group {
     display: flex;
     width: 100%;
-    margin-top: 4px;
+    margin-top: 0.25rem;
     button {
         width: 100%;
         height: 24px;
         border: var(--pf-border-500);
-        font-size: 12px;
+        font-size: 0.75rem;
         color: var(--pf-fg-500);
         background-color: var(--pf-bg-500);
 
@@ -479,7 +479,7 @@
     color: var(--pf-fg-400);
     border-radius: 8px;
     border: var(--pf-border-700);
-    padding: 4px;
+    padding: 0.25rem;
     cursor: default;
     max-width: 400px;
     width: fit-content;

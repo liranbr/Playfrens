@@ -1,31 +1,31 @@
 .rx-dialog.board-settings-dialog {
     .default-filters-buttons {
         display: flex;
-        gap: 12px;
+        gap: 0.75rem;
 
         button {
             min-height: 28px;
             height: 28px;
-            font-size: 14px;
+            font-size: 0.875rem;
         }
     }
 
     .board-name-label {
-        font-size: 16px;
+        font-size: 1rem;
     }
 }
 
 .board-guest-header {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 1rem;
 }
 
 .board-name-header {
     margin: 0;
-    padding-bottom: 12px;
+    padding-bottom: 0.75rem;
     border-bottom: var(--pf-border-300);
-    font-size: 22px;
+    font-size: 1.375rem;
     text-align: left;
     overflow-wrap: anywhere;
 }
@@ -33,7 +33,7 @@
 .board-name-row {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 0.5rem;
 
     input {
         flex: 1;
@@ -44,19 +44,19 @@
 .new-guest-section {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 0.75rem;
 }
 
 .board-members-copy-row {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 0.5rem;
 
     input,
     code {
         background: var(--pf-bg-200);
         border-radius: 4px;
-        padding: 4px 8px;
+        padding: 0.25rem 0.5rem;
         flex: 1;
         min-width: 0;
     }
@@ -68,13 +68,13 @@
 .board-members-list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 0.5rem;
 }
 
 .board-member-row {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 0.75rem;
 
     .rx-avatar {
         width: 40px;
@@ -87,17 +87,17 @@
     --icon-size: 28px;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 0.25rem;
 
     .icon-button {
-        font-size: 18px;
+        font-size: 1.125rem;
     }
 }
 
 .guest-password-field {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 0.25rem;
 }
 
 .guest-password-input {
@@ -107,7 +107,7 @@
         width: 160px;
         background: var(--pf-bg-200);
         border-radius: 4px;
-        padding: 4px calc(var(--icon-size) + 4px) 4px 8px;
+        padding: 0.25rem calc(var(--icon-size) + 0.25rem) 0.25rem 0.5rem;
     }
 
     input:disabled {
@@ -116,7 +116,7 @@
 
     .guest-password-reveal {
         --icon-size: 22px;
-        font-size: 16px;
+        font-size: 1rem;
         position: absolute;
         top: 50%;
         right: 2px;
@@ -127,7 +127,7 @@
 .guest-password-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 4px;
+    gap: 0.25rem;
     width: calc(var(--icon-size) * 2 + 4px);
 }
 

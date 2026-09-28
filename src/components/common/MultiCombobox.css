@@ -1,28 +1,28 @@
 .multi-combobox-combos {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 8px;
+    gap: 0.375rem;
+    margin-bottom: 0.5rem;
 }
 
 .multi-combobox-combo,
 .multi-combobox-combo-empty {
     display: flex;
     align-items: center;
-    padding: 4px 10px;
+    padding: 0.25rem 0.625rem;
     background: var(--pf-bg-700);
     border: var(--pf-border-700);
     border-radius: 999px;
-    font-size: 13px;
+    font-size: 0.8125rem;
 }
 
 .multi-combobox-combo {
-    gap: 4px;
-    padding-right: 6px;
+    gap: 0.25rem;
+    padding-right: 0.375rem;
 
     .icon-button {
         --icon-size: 16px;
-        padding: 2px;
+        padding: 0.125rem;
     }
 }
 

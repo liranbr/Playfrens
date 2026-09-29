@@ -442,12 +442,10 @@ async function setGuestPassword(req, res) {
         });
     }
 
-    const { data: guest, error: fetchError } = await supabase
-        .from("guests")
-        .select("auth_user_id")
-        .eq("id", userId)
-        .eq("home_board_id", req.board.id)
-        .maybeSingle();
+    // Guests can change their own password from any board, owners only for guests of their board.
+    let query = supabase.from("guests").select("auth_user_id").eq("id", userId);
+    if (req.user.id !== userId) query = query.eq("home_board_id", req.board.id);
+    const { data: guest, error: fetchError } = await query.maybeSingle();
     if (fetchError || !guest) {
         return Response.send(res, BAD_REQUEST, { error: "That guest doesn't exist." });
     }

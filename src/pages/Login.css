@@ -15,7 +15,8 @@
     text-decoration: none;
 }
 
-.btn {
+.email-auth-form .btn,
+.auth-buttons .btn {
     width: 256px;
     height: 48px;
     font-size: 1.125rem;

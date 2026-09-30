@@ -4,9 +4,6 @@
     gap: 2.25rem;
 
     & > header {
-        padding-bottom: 0.5rem;
-        border-bottom: var(--pf-border-500);
-
         h3 {
             font-size: 1.125rem;
         }
@@ -14,5 +11,15 @@
             color: var(--pf-fg-500);
             font-size: 0.8125rem;
         }
+    }
+
+    & > :not(header) {
+        margin-left: 1rem;
+    }
+
+    /* No separator above the first section, it sits right under the tabs */
+    &:not(:first-child) > header {
+        padding-top: 1.5rem;
+        border-top: var(--pf-border-500);
     }
 }

@@ -15,6 +15,7 @@ export { LabelBadge } from "./common/LabelBadge.jsx";
 export { ArrowToFeature } from "./common/ArrowToFeature.jsx";
 export { FriendAvatar } from "./common/FriendAvatar.jsx";
 export { Setting } from "./common/Setting.jsx";
+export { SettingsSection } from "./common/SettingsSection.jsx";
 export { Slider } from "./common/Slider.jsx";
 export { RadioSetting } from "./common/RadioSetting.jsx";
 export { GamesGrid } from "./GameGrid.jsx";

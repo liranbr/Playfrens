@@ -1,0 +1,18 @@
+.settings-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2.25rem;
+
+    & > header {
+        padding-bottom: 0.5rem;
+        border-bottom: var(--pf-border-500);
+
+        h3 {
+            font-size: 1.125rem;
+        }
+        p {
+            color: var(--pf-fg-500);
+            font-size: 0.8125rem;
+        }
+    }
+}

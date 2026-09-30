@@ -27,10 +27,9 @@ export default function Contact() {
                     <p>Share feedback, report bugs, or just say hi</p>
                     <h2>Email</h2>
                     <p>
-                        To contact us privately, share feedback, or let us know what
-                        you&apos;d like to see next, email us at
+                        To give feedback or contact us privately, email us at{" "}
+                        <a href="mailto:playfrens@proton.me">playfrens@proton.me</a>
                     </p>
-                    <a href="mailto:playfrens@proton.me">playfrens@proton.me</a>
                 </div>
             </div>
             <a href="/" className="app-brand">

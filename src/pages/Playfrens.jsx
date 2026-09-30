@@ -127,6 +127,7 @@ const AppHeader = observer(() => {
                         <img src="/Playfrens_Logo.png" alt="Playfrens Logo" />
                         Playfrens
                     </div>
+                    <div className="app-brand-separator" />
                     <BoardSwitcher />
                 </div>
             </div>

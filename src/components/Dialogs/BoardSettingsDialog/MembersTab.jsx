@@ -161,8 +161,7 @@ export const MembersTab = observer(() => {
                         <div className="dialog-callout">
                             <label>Create New Guest</label>
                             <small>
-                                A guest login allows people without an account participate onto this
-                                board.
+                                Guest logins let others participate in this board, without making a regular account
                             </small>
                         </div>
                         <fieldset>

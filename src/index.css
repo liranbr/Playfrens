@@ -14,7 +14,7 @@
     --game-grid-container-padding: 1.875rem;
     --game-card-border-radius: 4px;
     --icon-size: 30px; /* for icon buttons like ⋮ or + */
-    --dialog-fade-duration: 250ms;
+    --dialog-fade-duration: 200ms;
     --scrollbar-width: 0; /* a default value, overridden by the scrollbar measuring function in App */
 
     color-scheme: dark;

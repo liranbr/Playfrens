@@ -6,15 +6,11 @@ import { DialogBase } from "./DialogRoot.jsx";
 import { SettingsTabs } from "./SettingsTabs.jsx";
 import { AccountTab } from "./AccountSettingsDialog/AccountTab.jsx";
 import { AppearanceTab } from "./AccountSettingsDialog/AppearanceTab.jsx";
-import { SidebarTab } from "./AccountSettingsDialog/SidebarTab.jsx";
-import { GamesGridTab } from "./AccountSettingsDialog/GamesGridTab.jsx";
 import "./AccountSettingsDialog.css";
 
 const AccountSettingsTabs = {
     account: { label: "Account", Component: AccountTab },
     appearance: { label: "Appearance", Component: AppearanceTab },
-    sidebar: { label: "Sidebar", Component: SidebarTab },
-    grid: { label: "Games Grid", Component: GamesGridTab },
 };
 
 export const AccountSettingsDialog = observer(({ open, closeDialog }) => {

@@ -1,6 +1,7 @@
 import { useDebouncedCallback } from "@/Utils";
 import { useEffect, useRef, useState } from "react";
 import * as Popover from "@radix-ui/react-popover";
+import { globalSettingsStore } from "@/stores";
 import "./SearchSelect.css";
 
 /**
@@ -44,11 +45,12 @@ export function SearchSelect({
         if (highlighted < 0) return;
         const item = resultsRef.current?.children[highlighted];
         if (!item) return;
+        const behavior = globalSettingsStore.isMotionReduced() ? "instant" : "smooth";
         // "nearest" for first and last option only partially visible when scrolled away from edge
-        if (highlighted === 0) item.scrollIntoView({ behavior: "smooth", block: "end" });
+        if (highlighted === 0) item.scrollIntoView({ behavior, block: "end" });
         else if (highlighted === results.length - 1)
-            item.scrollIntoView({ behavior: "smooth", block: "start" });
-        else item.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            item.scrollIntoView({ behavior, block: "start" });
+        else item.scrollIntoView({ behavior, block: "nearest" });
     }, [highlighted, results.length]);
 
     const handleInputChange = (e) => {
@@ -86,7 +88,10 @@ export function SearchSelect({
     };
 
     return (
-        <Popover.Root open={shouldShowDropdown} onOpenChange={(open) => !open && setShowDropdown(false)}>
+        <Popover.Root
+            open={shouldShowDropdown}
+            onOpenChange={(open) => !open && setShowDropdown(false)}
+        >
             <Popover.Anchor asChild>
                 <input
                     {...inputRest}
@@ -126,7 +131,9 @@ export function SearchSelect({
                         {results.map((option, idx) => (
                             <li
                                 tabIndex={idx}
-                                className={"list-item" + (highlighted === idx ? " highlighted" : "")}
+                                className={
+                                    "list-item" + (highlighted === idx ? " highlighted" : "")
+                                }
                                 key={option.name + "-id-" + option.id}
                                 onClick={() => handleOptionClick(option)}
                             >

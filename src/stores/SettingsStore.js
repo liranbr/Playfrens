@@ -49,11 +49,17 @@ export const GamesGridDensityOptions = {
     simple: "Simple",
     compact: "Compact",
 };
+export const ReduceMotionOptions = {
+    system: "Match System",
+    on: "On",
+    off: "Off",
+};
 export const GamesGridCardWidthRange = { min: 140, max: 320, step: 10 };
 export const FontSizeRange = { min: 75, max: 125, step: 5 }; // in % of the browser default
 
 export const SettingsDefaults = {
     fontSize: 100,
+    reduceMotion: "system",
     tagHoverGameHighlight: "darken",
     tagGameCounterDisplay: "countFiltered",
     friendIconDisplay: "hideMissing",
@@ -63,9 +69,12 @@ export const SettingsDefaults = {
     showMatureContent: "off",
 };
 
+const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+
 class SettingsStore {
     // Default values, overridden by settings loaded from storage
     fontSize = SettingsDefaults.fontSize;
+    reduceMotion = SettingsDefaults.reduceMotion;
     tagHoverGameHighlight = SettingsDefaults.tagHoverGameHighlight;
     tagFilterLogic = {
         [tagTypes.friend]: "AND",
@@ -96,6 +105,7 @@ class SettingsStore {
         // Everything sized in rem scales with this
         autorun(() => {
             document.documentElement.style.fontSize = `${this.fontSize}%`;
+            document.documentElement.dataset.reduceMotion = this.reduceMotion; // see index.css
         });
     }
 
@@ -122,6 +132,17 @@ class SettingsStore {
         const settings = JSON.parse(JSON.stringify(this));
         for (const key of ACCOUNT_SETTINGS_KEYS) delete settings[key];
         return settings;
+    }
+
+    /** Checks if there's Motion Reduction enabled, use this call when CSS motion is handled inside JS */
+    isMotionReduced() {
+        if (this.reduceMotion === "system") return reducedMotionQuery.matches;
+        return this.reduceMotion === "on";
+    }
+
+    setReduceMotion(option) {
+        if (ReduceMotionOptions[option]) this.reduceMotion = option;
+        else console.warn(`Invalid ReduceMotion option: ${option}`);
     }
 
     setFontSize(percent) {

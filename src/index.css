@@ -111,3 +111,25 @@ body {
 html {
     font-size: 100%;
 }
+
+/* Reduce Motion setting, spinner excluded. Durations are shortened instead to avoid animation replying when disabling the setting */
+html[data-reduce-motion="on"] *:not(.spinner),
+html[data-reduce-motion="on"] *::before,
+html[data-reduce-motion="on"] *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+}
+@media (prefers-reduced-motion: reduce) {
+    html[data-reduce-motion="system"] *:not(.spinner),
+    html[data-reduce-motion="system"] *::before,
+    html[data-reduce-motion="system"] *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-delay: 0s !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+    }
+}

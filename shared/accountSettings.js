@@ -1,6 +1,7 @@
 // Settings saved per account ([users|guests].settings).
 export const ACCOUNT_SETTINGS_KEYS = [
     "fontSize",
+    "reduceMotion",
     "tagHoverGameHighlight",
     "tagGameCounterDisplay",
     "friendIconDisplay",

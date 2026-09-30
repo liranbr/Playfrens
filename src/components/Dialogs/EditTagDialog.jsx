@@ -45,7 +45,7 @@ const AssignedAccountsSection = observer(({ tag }) => {
         <fieldset>
             <label>
                 Assigned Accounts
-                <InfoIcon message="Assigned accounts can self-join/leave groups with this tag, and manage it." />
+                <InfoIcon message="Assigned accounts can manage this tag." />
             </label>
             <MultiCombobox
                 options={members}
@@ -211,11 +211,12 @@ export const EditTagDialog = observer(function EditTagDialog({
                                 </Button>
                             </>
                         )}
+                        {isEdit && isOwner && <AssignedAccountsSection tag={editingTag} />}
                     </>
-                )}
+                )
+                }
             </fieldset>
 
-            {isFriend && isEdit && isOwner && <AssignedAccountsSection tag={editingTag} />}
 
             <div className="rx-dialog-footer">
                 {isFriend && !editingTag?.steamID && !editingTag?.iconURL && (

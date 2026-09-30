@@ -273,10 +273,14 @@ export class DataStore {
     // Call only after SettingsStore's initial populate, otherwise this echoes the just-loaded settings right back.
     watchSettingsForBackendSync() {
         reaction(
-            () => JSON.stringify(globalSettingsStore),
+            () => JSON.stringify(globalSettingsStore.boardSettings),
             () => {
                 if (this.#applyingRemote) return;
-                this.syncBoardKeyToBackend(storageKeys.settings, globalSettingsStore, 1000);
+                this.syncBoardKeyToBackend(
+                    storageKeys.settings,
+                    globalSettingsStore.boardSettings,
+                    1000,
+                );
             },
         );
     }
@@ -403,7 +407,7 @@ export class DataStore {
                 if (board[key] !== undefined) this.#applyPathValue([key], board[key]);
             }
             if (board[storageKeys.settings])
-                globalSettingsStore.populate(board[storageKeys.settings]);
+                globalSettingsStore.populateBoardSettings(board[storageKeys.settings]);
         });
         // Only the stored default is refreshed, so the user's current filters aren't reset.
         saveToStorage(storageKeys.defaultFilters, board[storageKeys.defaultFilters]);

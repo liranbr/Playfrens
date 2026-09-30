@@ -1,7 +1,8 @@
 import { createContext, useContext } from "react";
-import { makeAutoObservable, runInAction } from "mobx";
-import { globalBoardStore } from "@/stores";
+import { makeAutoObservable, reaction, runInAction } from "mobx";
+import { globalBoardStore, globalSettingsStore } from "@/stores";
 import { ErrorCode, HttpStatus } from "#shared/http.js";
+import { debounce, toastError } from "@/Utils";
 
 export class UserStore {
     /**
@@ -10,6 +11,9 @@ export class UserStore {
      */
     userInfo = undefined;
     loading = true;
+    #accountSettings = {};
+    #watchingAccountSettings = false;
+    #saveTimers = {};
 
     constructor() {
         makeAutoObservable(this);
@@ -65,6 +69,7 @@ export class UserStore {
             }
             const data = await res.json();
             const user = data?.user;
+            this.#accountSettings = user?.settings ?? {};
             runInAction(() => {
                 this.userInfo = {
                     provider: user?.provider,
@@ -86,8 +91,40 @@ export class UserStore {
     }
 
     async populateStores() {
+        globalSettingsStore.populateAccountSettings(this.#accountSettings);
+        this.#watchAccountSettings();
         // Resolves the active board and loads the stores for it.
         await globalBoardStore.populate();
+    }
+
+    // Registered after the initial populate so the loaded settings aren't echoed back.
+    #watchAccountSettings() {
+        if (this.#watchingAccountSettings) return;
+        this.#watchingAccountSettings = true;
+        reaction(
+            () => JSON.stringify(globalSettingsStore.accountSettings),
+            () =>
+                debounce(
+                    this.#saveTimers,
+                    "settings",
+                    () => this.saveAccountSettings(globalSettingsStore.accountSettings),
+                    1000,
+                ),
+        );
+    }
+
+    async saveAccountSettings(settings) {
+        try {
+            const res = await fetch("/auth/settings", {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ settings }),
+            });
+            if (!res.ok) throw new Error(`status ${res.status}`);
+        } catch (err) {
+            toastError("Failed to save settings.", err);
+        }
     }
 
     login(provider, board) {

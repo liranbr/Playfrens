@@ -3,7 +3,13 @@ import passport from "passport";
 import rateLimit from "express-rate-limit";
 import { Response } from "../response.js";
 import { requireAuth } from "../auth/requireAuth.js";
-import { deleteUserAccountRow, findAccountById, upsertUser } from "../auth/passport.js";
+import {
+    deleteUserAccountRow,
+    findAccountById,
+    invalidateUserCache,
+    upsertUser,
+} from "../auth/passport.js";
+import { pickAccountSettings } from "#shared/accountSettings.js";
 import { supabase, supabaseAuth } from "../supabaseClient.js";
 import { resolveBaseURL, strToBool } from "../utils.js";
 
@@ -168,6 +174,20 @@ async function getRequestIdentity(req, res) {
     } else {
         Response.send(res, NO_CONTENT, { message: "Requester is not logged in." });
     }
+}
+
+// Owners and guests each keep their own display settings, independent of the board.
+async function saveAccountSettings(req, res) {
+    const { OK, BAD_REQUEST, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+    const settings = pickAccountSettings(req.body?.settings);
+    if (!settings) return Response.send(res, BAD_REQUEST, { error: "Invalid settings." });
+
+    const table = req.user.member_username ? "guests" : "users";
+    const { error } = await supabase.from(table).update({ settings }).eq("id", req.user.id);
+    if (error) return Response.send(res, INTERNAL_SERVER_ERROR, { error: error.message });
+
+    invalidateUserCache(req.user.id);
+    Response.send(res, OK, { message: "Settings saved." });
 }
 
 async function logout(req, res, next) {
@@ -420,6 +440,7 @@ async function emailSession(req, res) {
 }
 
 router.get("/me", getRequestIdentity);
+router.post("/settings", requireAuth, saveAccountSettings);
 router.get("/logout", requireAuth, logout);
 router.get("/avatar", getAvatar);
 router.delete("/deleteAccount", deleteAccount);

@@ -2,18 +2,19 @@ import { observer } from "mobx-react-lite";
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components";
-import { globalBoardStore } from "@/stores";
 import { DialogBase } from "./DialogRoot.jsx";
 import { SettingsTabs } from "./SettingsTabs.jsx";
 import { AccountTab } from "./AccountSettingsDialog/AccountTab.jsx";
+import { AppearanceTab } from "./AccountSettingsDialog/AppearanceTab.jsx";
 import { SidebarTab } from "./AccountSettingsDialog/SidebarTab.jsx";
 import { GamesGridTab } from "./AccountSettingsDialog/GamesGridTab.jsx";
 import "./AccountSettingsDialog.css";
 
 const AccountSettingsTabs = {
     account: { label: "Account", Component: AccountTab },
-    sidebar: { label: "Sidebar", Component: SidebarTab, ownerOnly: true },
-    grid: { label: "Games Grid", Component: GamesGridTab, ownerOnly: true },
+    appearance: { label: "Appearance", Component: AppearanceTab },
+    sidebar: { label: "Sidebar", Component: SidebarTab },
+    grid: { label: "Games Grid", Component: GamesGridTab },
 };
 
 export const AccountSettingsDialog = observer(({ open, closeDialog }) => {
@@ -34,7 +35,7 @@ export const AccountSettingsDialog = observer(({ open, closeDialog }) => {
                 <Dialog.Description>Account information and display settings</Dialog.Description>
             </VisuallyHidden>
 
-            <SettingsTabs tabs={AccountSettingsTabs} canEditOwnerOnly={globalBoardStore.isOwner} />
+            <SettingsTabs tabs={AccountSettingsTabs} />
 
             <div className="rx-dialog-footer">
                 <Button variant="secondary" onClick={closeDialog}>

@@ -31,7 +31,7 @@ function handleMessage(event) {
             const [storageKey] = message.path;
             if (storageKey === "settings") {
                 globalDataStore.withRemoteApplyGuard(() =>
-                    globalSettingsStore.populate(message.value),
+                    globalSettingsStore.populateBoardSettings(message.value),
                 );
                 // Keep in sync or the next edit gets wrongly flagged as a stale write.
                 if (message.lastUpdated) globalDataStore.setBoardLastUpdated(message.lastUpdated);

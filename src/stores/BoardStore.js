@@ -122,7 +122,7 @@ export class BoardStore {
         saveToStorage(LAST_BOARD_STORAGE_KEY, this.activeBoardId);
 
         await globalDataStore.populate(this.activeBoardId);
-        globalSettingsStore.populate(loadFromStorage(settingsStorageKey, {}));
+        globalSettingsStore.populateBoardSettings(loadFromStorage(settingsStorageKey, {}));
         globalFilterStore.populate(loadFromStorage(defaultFiltersStorageKey, {}));
         globalDataStore.watchSettingsForBackendSync();
 

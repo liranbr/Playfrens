@@ -1,6 +1,7 @@
 import { createContext, useContext } from "react";
-import { makeAutoObservable } from "mobx";
+import { autorun, makeAutoObservable } from "mobx";
 import { tagTypes } from "@/models";
+import { ACCOUNT_SETTINGS_KEYS, pickAccountSettings } from "#shared/accountSettings.js";
 
 export const settingsStorageKey = "settings";
 
@@ -49,8 +50,10 @@ export const GamesGridDensityOptions = {
     compact: "Compact",
 };
 export const GamesGridCardWidthRange = { min: 140, max: 320, step: 10 };
+export const FontSizeRange = { min: 75, max: 125, step: 5 }; // in % of the browser default
 
 export const SettingsDefaults = {
+    fontSize: 100,
     tagHoverGameHighlight: "darken",
     tagGameCounterDisplay: "countFiltered",
     friendIconDisplay: "hideMissing",
@@ -62,6 +65,7 @@ export const SettingsDefaults = {
 
 class SettingsStore {
     // Default values, overridden by settings loaded from storage
+    fontSize = SettingsDefaults.fontSize;
     tagHoverGameHighlight = SettingsDefaults.tagHoverGameHighlight;
     tagFilterLogic = {
         [tagTypes.friend]: "AND",
@@ -89,10 +93,40 @@ class SettingsStore {
 
     constructor() {
         makeAutoObservable(this);
+        // Everything sized in rem scales with this
+        autorun(() => {
+            document.documentElement.style.fontSize = `${this.fontSize}%`;
+        });
     }
 
     populate(settings = {}) {
         Object.assign(this, settings);
+    }
+
+    populateAccountSettings(settings) {
+        this.populate(pickAccountSettings(settings) ?? {});
+    }
+
+    // Board data may still hold account keys from before they moved to the account
+    populateBoardSettings(settings = {}) {
+        const boardOnly = { ...settings };
+        for (const key of ACCOUNT_SETTINGS_KEYS) delete boardOnly[key];
+        this.populate(boardOnly);
+    }
+
+    get accountSettings() {
+        return Object.fromEntries(ACCOUNT_SETTINGS_KEYS.map((key) => [key, this[key]]));
+    }
+
+    get boardSettings() {
+        const settings = JSON.parse(JSON.stringify(this));
+        for (const key of ACCOUNT_SETTINGS_KEYS) delete settings[key];
+        return settings;
+    }
+
+    setFontSize(percent) {
+        const { min, max } = FontSizeRange;
+        this.fontSize = Math.min(max, Math.max(min, Number(percent)));
     }
 
     setTagHoverGameHighlight(option) {

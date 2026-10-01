@@ -44,11 +44,6 @@ const AppMenu = observer(() => {
     const boardStore = useBoardStore();
     const { userInfo } = useUserStore();
     const [dropdownOpen, setDropdownOpen] = useState(false);
-    const LinkItem = ({ label, url }) => (
-        <a href={url} target="_blank" rel="noopener noreferrer">
-            <Dropdown.Item>{label}</Dropdown.Item>
-        </a>
-    );
     return (
         <>
             <Dropdown
@@ -92,13 +87,13 @@ const AppMenu = observer(() => {
                         <MdChevronRight className="rx-dropdown-right-slot" />
                     </Dropdown.SubTrigger>
                     <Dropdown.SubContent>
-                        <LinkItem label="GitHub" url="https://github.com/liranbr/Playfrens" />
-                        <LinkItem label="Discord" url="https://discord.gg/aTdwEGau4Q" />
-                        <LinkItem label="Homepage" url="/" />
+                        <Dropdown.LinkItem label="GitHub" url="https://github.com/liranbr/Playfrens" />
+                        <Dropdown.LinkItem label="Discord" url="https://discord.gg/aTdwEGau4Q" />
+                        <Dropdown.LinkItem label="Homepage" url="/" />
                     </Dropdown.SubContent>
                 </Dropdown.Sub>
                 <Dropdown.Separator />
-                <LinkItem label="Send feedback" url="mailto:playfrens@proton.me?subject=Feedback" />
+                <Dropdown.LinkItem label="Send feedback" url="mailto:playfrens@proton.me?subject=Feedback" />
             </Dropdown>
 
             <input

@@ -55,6 +55,14 @@ Dropdown.Separator = RadixDropdown.Separator;
 Dropdown.Sub = RadixDropdown.Sub;
 Dropdown.SubTrigger = RadixDropdown.SubTrigger;
 
+Dropdown.LinkItem = function DropdownLinkItem({ label, url }) {
+    return (
+        <a href={url} target="_blank" rel="noopener noreferrer">
+            <RadixDropdown.Item>{label}</RadixDropdown.Item>
+        </a>
+    );
+};
+
 Dropdown.SubContent = function DropdownSubContent({ sideOffset = 5, ...rest }) {
     return (
         <RadixDropdown.SubContent className="rx-dropdown-menu" sideOffset={sideOffset} {...rest} />

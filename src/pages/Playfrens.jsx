@@ -14,6 +14,7 @@ import {
 } from "react-icons/md";
 
 import { tagTypes } from "@/models";
+import { pickFile } from "@/Utils";
 import {
     backupToFile,
     Dialogs,
@@ -45,65 +46,56 @@ const AppMenu = observer(() => {
     const { userInfo } = useUserStore();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     return (
-        <>
-            <Dropdown
-                trigger={<IconButton icon={<MdMenu />} activate={dropdownOpen} />}
-                onOpenChange={setDropdownOpen}
-            >
-                {!userInfo.isGuest && (
-                    <Dropdown.Item onClick={() => globalDialogStore.open(Dialogs.SteamImport)}>
-                        Import from Steam
+        <Dropdown
+            trigger={<IconButton icon={<MdMenu />} activate={dropdownOpen} />}
+            onOpenChange={setDropdownOpen}
+        >
+            {!userInfo.isGuest && (
+                <Dropdown.Item onClick={() => globalDialogStore.open(Dialogs.SteamImport)}>
+                    Import from Steam
+                </Dropdown.Item>
+            )}
+            <Dropdown.Sub>
+                <Dropdown.SubTrigger>
+                    Backup
+                    <MdChevronRight className="rx-dropdown-right-slot" />
+                </Dropdown.SubTrigger>
+                <Dropdown.SubContent>
+                    <Dropdown.Item
+                        disabled={!boardStore.isOwner}
+                        onSelect={() => {
+                            globalDialogStore.open(Dialogs.GenericWarning, {
+                                message:
+                                    "Importing a backup will overwrite all of your current data.",
+                                continueFunction: () => pickFile(restoreFromFile, ".json"),
+                            });
+                        }}
+                    >
+                        <MdOutlineFileUpload /> Restore
                     </Dropdown.Item>
-                )}
-                <Dropdown.Sub>
-                    <Dropdown.SubTrigger>
-                        Backup
-                        <MdChevronRight className="rx-dropdown-right-slot" />
-                    </Dropdown.SubTrigger>
-                    <Dropdown.SubContent>
-                        <Dropdown.Item
-                            disabled={!boardStore.isOwner}
-                            onSelect={() => {
-                                globalDialogStore.open(Dialogs.GenericWarning, {
-                                    message:
-                                        "Importing a backup will overwrite all of your current data.",
-                                    continueFunction: () => {
-                                        document.getElementById("json-selector").click();
-                                    },
-                                });
-                            }}
-                        >
-                            <MdOutlineFileUpload /> Restore
-                        </Dropdown.Item>
-                        <Dropdown.Item onClick={backupToFile}>
-                            <MdOutlineFileDownload /> Backup
-                        </Dropdown.Item>
-                    </Dropdown.SubContent>
-                </Dropdown.Sub>
-                <Dropdown.Separator />
-                <Dropdown.Sub>
-                    <Dropdown.SubTrigger>
-                        Links
-                        <MdChevronRight className="rx-dropdown-right-slot" />
-                    </Dropdown.SubTrigger>
-                    <Dropdown.SubContent>
-                        <Dropdown.LinkItem label="GitHub" url="https://github.com/liranbr/Playfrens" />
-                        <Dropdown.LinkItem label="Discord" url="https://discord.gg/aTdwEGau4Q" />
-                        <Dropdown.LinkItem label="Homepage" url="/" />
-                    </Dropdown.SubContent>
-                </Dropdown.Sub>
-                <Dropdown.Separator />
-                <Dropdown.LinkItem label="Send feedback" url="mailto:playfrens@proton.me?subject=Feedback" />
-            </Dropdown>
-
-            <input
-                type="file"
-                id="json-selector"
-                accept=".json"
-                style={{ display: "none" }}
-                onChange={(e) => restoreFromFile(e.target.files[0])}
+                    <Dropdown.Item onClick={backupToFile}>
+                        <MdOutlineFileDownload /> Backup
+                    </Dropdown.Item>
+                </Dropdown.SubContent>
+            </Dropdown.Sub>
+            <Dropdown.Separator />
+            <Dropdown.Sub>
+                <Dropdown.SubTrigger>
+                    Links
+                    <MdChevronRight className="rx-dropdown-right-slot" />
+                </Dropdown.SubTrigger>
+                <Dropdown.SubContent>
+                    <Dropdown.LinkItem label="GitHub" url="https://github.com/liranbr/Playfrens" />
+                    <Dropdown.LinkItem label="Discord" url="https://discord.gg/aTdwEGau4Q" />
+                    <Dropdown.LinkItem label="Homepage" url="/" />
+                </Dropdown.SubContent>
+            </Dropdown.Sub>
+            <Dropdown.Separator />
+            <Dropdown.LinkItem
+                label="Send feedback"
+                url="mailto:playfrens@proton.me?subject=Feedback"
             />
-        </>
+        </Dropdown>
     );
 });
 

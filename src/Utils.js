@@ -298,3 +298,23 @@ export function updateObject(obj, partial = {}) {
 
     return updated;
 }
+
+/**
+ * Opens the file picker with a temporary hidden input.
+ * @param {(file: File) => void} onPick - called with the selected file
+ * @param {string} [accept] - accepted file types, e.g. ".json"
+ */
+export function pickFile(onPick, accept = "") {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = accept;
+    input.style.display = "none";
+    input.onchange = () => {
+        const file = input.files[0];
+        input.remove();
+        if (file) onPick(file);
+    };
+    input.oncancel = () => input.remove();
+    document.body.appendChild(input);
+    input.click();
+}

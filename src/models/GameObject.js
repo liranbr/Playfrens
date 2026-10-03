@@ -3,13 +3,22 @@ import { toastSuccess, toastError, compareAlphaIgnoreCase } from "@/Utils";
 import { TagObject, tagTypes } from "@/models";
 import { v4 as randomUUID } from "uuid";
 
-export const storeTypes = Object.freeze({
+export const storeDisplayNames = Object.freeze({
     steam: "Steam",
     gog: "GOG",
     xbox: "Xbox",
     egs: "Epic",
     bnet: "Battle.net",
     custom: "Other",
+});
+
+export const storeTypes = Object.freeze({
+    steam: "steam",
+    gog: "gog",
+    xbox: "xbox",
+    egs: "egs",
+    bnet: "bnet",
+    custom: "custom",
 });
 
 /**
@@ -32,7 +41,7 @@ export class GameObject {
     coverThumbURL = "/missing_game_cover.png";
     coverIsOfficial = false;
     sortingTitle = "";
-    storeType = "custom";
+    storeType = storeTypes.custom;
     storeID = "";
     sgdbID = "";
     isAdult = false;
@@ -57,7 +66,7 @@ export class GameObject {
         this.coverThumbURL = coverThumbURL ?? this.coverThumbURL;
         this.coverIsOfficial = coverIsOfficial ?? this.coverIsOfficial;
         this.sortingTitle = sortingTitle ?? this.sortingTitle;
-        this.storeType = storeType ? storeType : this.storeType; // so that if empty, makes it the default "custom"
+        this.storeType = storeType ? storeType : this.storeType; // so that if empty, makes it the default storeTypes.custom
         this.storeID = storeID ?? this.storeID;
         this.sgdbID = sgdbID ?? this.sgdbID;
         this.isAdult = isAdult ?? this.isAdult;

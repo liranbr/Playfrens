@@ -1,7 +1,7 @@
 import { runInAction } from "mobx";
 import { getOfficialCoverImageURLs, updateBoard } from "@/APIUtils.js";
-import { GameObject, storeTypes } from "@/models";
-import { deserializePartyTagIDs, Party } from "@/models/GameObject.js";
+import { GameObject, storeDisplayNames } from "@/models";
+import { deserializePartyTagIDs, Party, storeTypes } from "@/models/GameObject.js";
 import { globalSettingsStore } from "@/stores";
 import {
     coverToThumb,
@@ -41,11 +41,13 @@ async function refreshOfficialCovers(entries) {
     // eslint-disable-next-line no-unreachable
     const officialSteamGames = entries
         .map(([, game]) => game)
-        .filter((game) => game.storeType === "steam" && game.coverIsOfficial && game.storeID);
+        .filter(
+            (game) => game.storeType === storeTypes.steam && game.coverIsOfficial && game.storeID,
+        );
     if (officialSteamGames.length === 0) return false; // Based and skin-pilled
 
     const covers = await getOfficialCoverImageURLs(
-        "steam",
+        storeTypes.steam,
         officialSteamGames.map((game) => game.storeID),
     );
     if (!covers) return false;
@@ -120,15 +122,15 @@ export function addGame(
         toastError("Cannot save a game without a cover thumbnail");
         return null;
     }
-    if (storeType !== "custom" && !storeID) {
+    if (storeType !== storeTypes.custom && !storeID) {
         toastError(
-            `Cannot save a ${storeTypes[storeType]} game without selecting it from its search`,
+            `Cannot save a ${storeDisplayNames[storeType]} game without selecting it from its search`,
         );
         return null;
     }
     const allGamesArray = [...store.allGames.values()];
 
-    if (storeType !== "custom") {
+    if (storeType !== storeTypes.custom) {
         const identicalGame = allGamesArray.find(
             (g) => g.storeID === storeID && g.storeType === storeType, // Game with the same ID on the same store
         );
@@ -171,7 +173,7 @@ export function preImportSteamGames(store, remoteGames) {
             return (
                 t instanceof GameObject &&
                 t.storeID === remoteGame.storeID &&
-                t.storeType == "steam"
+                t.storeType == storeTypes.steam
             );
         });
 
@@ -217,7 +219,7 @@ export function importSteamGames(store, remoteGames) {
             title: uniqueTitle,
             coverImageURL,
             coverThumbURL,
-            coverIsOfficial: storeType === "steam",
+            coverIsOfficial: storeType === storeTypes.steam,
             sortingTitle,
             storeType,
             storeID,
@@ -263,15 +265,15 @@ export function editGame(
     if (!storedGame) return toastError(`${game.title} does not exist in the games list`);
     if (!title || typeof title !== "string" || !title.trim())
         return toastError("Cannot save a game without a title");
-    if (storeType !== "custom" && !storeID)
+    if (storeType !== storeTypes.custom && !storeID)
         return toastError(
-            `Cannot save a ${storeTypes[storeType]} game without selecting it from its search`,
+            `Cannot save a ${storeDisplayNames[storeType]} game without selecting it from its search`,
         );
     if (!coverImageURL) return toastError("Cannot save a game without a cover image");
     if (!coverThumbURL) return toastError("Cannot save a game without a cover thumbnail");
 
     const allGamesArray = [...store.allGames.values()];
-    if (storeType !== "custom") {
+    if (storeType !== storeTypes.custom) {
         // Looking for a different GameObject that has the same storeID from the same storeType
         const identicalGame = allGamesArray.find(
             (g) => g.storeID === storeID && g.storeType === storeType && g.id !== game.id,

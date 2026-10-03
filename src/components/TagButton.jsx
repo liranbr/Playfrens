@@ -12,7 +12,7 @@ import {
     useUserStore,
 } from "@/stores";
 import { Dropdown, IconButton, FriendAvatar } from "@/components";
-import { tagTypes } from "@/models";
+import { storeTypes, tagTypes } from "@/models";
 import "./TagButton.css";
 
 export const SidebarTagButton = observer(({ tag }) => {
@@ -36,7 +36,7 @@ export const SidebarTagButton = observer(({ tag }) => {
     let onDragLeave = undefined;
     if (
         draggedTag &&
-        settingsStore.tagSortMethods[tag.type] === "custom" &&
+        settingsStore.tagSortMethods[tag.type] === storeTypes.custom &&
         draggedTag.type === tag.type &&
         draggedTag.id !== tag.id
     ) {

@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import { MdShare } from "react-icons/md";
-import { tagTypeStrings } from "@/models";
+import { storeTypes, tagTypeStrings } from "@/models";
 import { globalDataStore, useFilterStore, useUserStore } from "@/stores";
 import { Dropdown, IconButton } from "@/components";
 import { toastError, toastSuccess } from "@/Utils";
@@ -37,7 +37,7 @@ export const ShareGamesAsText = observer(() => {
         const currentGames = [`### ${filteredGames.length} Games`];
         filteredGames.forEach((game) => {
             // If it's a steam game, format the title as a link to its store page
-            if (withLinks && !!game.storeID && game.storeType === "steam") {
+            if (withLinks && !!game.storeID && game.storeType === storeTypes.steam) {
                 const steamLink = "https://s.team/a/" + game.storeID; // using official s.team shortener to fit more games in one message
                 currentGames.push("* [" + game.title + "](<" + steamLink + ">)");
             } else currentGames.push("* " + game.title);

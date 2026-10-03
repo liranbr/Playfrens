@@ -8,7 +8,7 @@ import "./GamePageDialog.css";
 import "./EditGameDialog.css";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import * as Switch from "@radix-ui/react-switch";
-import { storeTypes } from "@/models";
+import { storeDisplayNames, storeTypes } from "@/models";
 import { getOfficialCoverImageURL, searchTitleOnStore, sgdbDatedTitle } from "@/APIUtils.js";
 import { GameCoverDisplay } from "@/components/GameCoverDisplay.jsx";
 import { HttpStatus } from "#shared/http.js";
@@ -33,7 +33,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
     const dialogTitle = game ? "Edit Game Details" : "Add Game";
     const dialogDescription = game ? `Editing ${game.title}` : "Adding a new game";
     const titlePlaceholder =
-        storeType === "custom" ? "Enter title" : `Search for a ${storeTypes[storeType]} game`;
+        storeType === storeTypes.custom ? "Enter title" : `Search for a ${storeDisplayNames[storeType]} game`;
 
     const handleSave = async () => {
         if (game) {
@@ -79,7 +79,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
         setStoreType(selectedOption.storeType);
         setStoreID(selectedOption.storeID);
 
-        if (selectedOption.storeType === "custom") {
+        if (selectedOption.storeType === storeTypes.custom) {
             setSgdbID(selectedOption.sgdbID);
             setSgdbTitle(selectedOption.sgdbTitle);
         }
@@ -140,8 +140,8 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                                         if (value) setStoreType(value); // to avoid empty values
                                     }}
                                 >
-                                    {Object.entries(storeTypes)
-                                        .filter(([key]) => ["steam", "custom"].includes(key)) // other store types not supported yet
+                                    {Object.entries(storeDisplayNames)
+                                        .filter(([key]) => [storeTypes.steam, storeTypes.custom].includes(key)) // other store types not supported yet
                                         .map(([key, value]) => (
                                             <ToggleGroup.Item key={key} value={key}>
                                                 {value}
@@ -184,10 +184,10 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                                     />
                                 </>
                             )}
-                            {advancedView && storeType !== "custom" && (
+                            {advancedView && storeType !== storeTypes.custom && (
                                 <>
                                     <label style={{ color: "#777" }}>
-                                        {storeTypes[storeType] + " Game ID"}
+                                        {storeDisplayNames[storeType] + " Game ID"}
                                     </label>
                                     <input disabled value={storeID} />
                                 </>

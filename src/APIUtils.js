@@ -1,17 +1,18 @@
 import { enqueueRequest } from "@/services/RequestQueue.js";
 import { HttpStatus } from "#shared/http.js";
 import { toastError, toastInfo } from "@/Utils";
+import { storeTypes } from "./models";
 
 export async function searchTitleOnStore(title, storeType, includeMature = false) {
     if (!title || typeof title !== "string" || !title.trim()) return [];
     let fetchResponse;
     switch (storeType) {
-        case "steam":
+        case storeTypes.steam:
             fetchResponse = await fetch(
                 `/api/steam/catalog/search?term=${title}&excludeDlc=true&includeMature=${includeMature}`,
             );
             break;
-        case "custom":
+        case storeTypes.custom:
             fetchResponse = await fetch(`/api/steamgriddb/searchTitle?query=${title}`);
             break;
         default:
@@ -29,22 +30,22 @@ export async function searchTitleOnStore(title, storeType, includeMature = false
 
     let results = [];
     switch (storeType) {
-        case "steam":
+        case storeTypes.steam:
             results = json?.map((item) => ({
                 id: item.appid,
                 name: item.name,
                 title: item.name,
-                storeType: "steam",
+                storeType: storeTypes.steam,
                 storeID: item.appid,
             }));
             break;
-        case "custom":
+        case storeTypes.custom:
             results = json?.map((item) => {
                 return {
                     id: item.id,
                     name: sgdbDatedTitle(item), // name is what's displayed in SearchSelect results
                     title: item.name,
-                    storeType: "custom",
+                    storeType: storeTypes.custom,
                     sgdbID: item.id,
                     sgdbTitle: sgdbDatedTitle(item),
                 };
@@ -73,7 +74,7 @@ export async function getOfficialCoverImageURL(storeType, storeID) {
     if (!storeType || !storeID) return "";
     let fetchResponse;
     switch (storeType) {
-        case "steam":
+        case storeTypes.steam:
             fetchResponse = await fetch(`/api/steam/getGameCover?appId=${storeID}`);
             break;
         default:
@@ -96,7 +97,7 @@ export async function getOfficialCoverImageURLs(storeType, storeIDs) {
     if (!storeType || !storeIDs?.length) return {};
     let fetchResponse;
     switch (storeType) {
-        case "steam":
+        case storeTypes.steam:
             fetchResponse = await fetch(`/api/steam/getGameCovers`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

@@ -1,6 +1,6 @@
 #card-page {
     min-height: 100vh;
-    padding: clamp(16px, 5%, 64px);
+    padding: clamp(1rem, 5%, 4rem);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -29,7 +29,7 @@
     min-width: 300px;
     width: min(450px, 90%);
     border-radius: 12px;
-    padding: 36px;
+    padding: 2.25rem;
     box-shadow: 8px 8px hsl(215 98% 42%);
 
     .card-page-header {
@@ -40,7 +40,7 @@
 
         span {
             color: var(--pf-fg-300);
-            font-size: 16px;
+            font-size: 1rem;
         }
     }
 }

@@ -11,9 +11,9 @@
     outline: none;
     overflow: unset;
     box-shadow: none;
-    gap: 12px;
+    gap: 0.75rem;
 
-    --cover-art-width: 450px;
+    --cover-art-width: min(450px, calc(85vh / 1.5));
     --cover-art-height: calc(var(--cover-art-width) * 1.5);
     --container-shadow: 0 0 20px rgba(0, 0, 0, 1);
     --element-shadow: 0 0 8px 3px rgba(0, 0, 0, 0.3);
@@ -58,7 +58,7 @@
             align-items: center;
             justify-content: center;
             transition: 0.125s ease-in;
-            padding: 16px;
+            padding: 1rem;
             border-radius: var(--border-radius);
             background-color: transparent;
 
@@ -74,15 +74,15 @@
                 background-color: var(--pf-bg-500);
                 box-shadow: 0 0 12px rgba(0, 0, 0, 0.9);
                 border: var(--border);
-                padding: 8px;
+                padding: 0.5rem;
                 border-radius: 12px;
-                gap: 8px;
+                gap: 0.5rem;
 
                 a {
                     transition: none;
                     font-weight: bold;
                     width: 100px;
-                    font-size: 16px;
+                    font-size: 1rem;
                     color: var(--pf-bg-500);
                     text-decoration: none;
                     border-radius: 12px;
@@ -147,11 +147,11 @@
             z-index: 1;
 
             .center-and-edges-row {
-                padding: 6px 12px;
+                padding: 0.375rem 0.75rem;
                 .gp-title {
                     display: block;
-                    font-size: 24px;
-                    padding: 0 12px;
+                    font-size: 1.5rem;
+                    padding: 0 0.75rem;
                     color: #fff;
                     margin: 0;
                     text-align: center;
@@ -164,8 +164,8 @@
 
             .party-tabs {
                 width: 100%;
-                gap: 12px;
-                padding: 0 12px;
+                gap: 0.75rem;
+                padding: 0 0.75rem;
                 max-width: 586px;
                 /* temporarily hardcoded, there's no reason for the GamePage's body to get wider yet, its max width is fit-content for now */
                 overflow-x: auto;
@@ -174,10 +174,10 @@
                     width: 150px;
                     min-width: fit-content;
                     height: fit-content;
-                    padding: 6px 12px;
+                    padding: 0.375rem 0.75rem;
                     border-radius: 8px 8px 0 0;
                     border-bottom: none;
-                    font-size: 14px;
+                    font-size: 0.875rem;
 
                     &.filtered-out {
                         border: 2px dashed var(--pf-bg-100);
@@ -193,7 +193,7 @@
                 /* input for renaming a party */
                 input {
                     width: 120px;
-                    padding: 0 4px;
+                    padding: 0 0.25rem;
                     height: fit-content;
                     border: none;
                     outline: none;
@@ -214,14 +214,14 @@
             display: flex;
             flex-direction: row;
             overflow: hidden;
-            gap: 12px;
-            padding: 12px;
+            gap: 0.75rem;
+            padding: 0.75rem;
 
             .gp-column {
                 display: flex;
                 flex-direction: column;
                 width: var(--ui-card-width);
-                gap: 12px;
+                gap: 0.75rem;
             }
 
             .ui-card {
@@ -257,7 +257,7 @@
                 background: none;
                 right: 0;
                 left: 0;
-                padding: 0 8px;
+                padding: 0 0.5rem;
                 border: none;
                 outline: none;
                 border-radius: var(--border-radius);
@@ -268,7 +268,7 @@
                 .reminders-list {
                     display: flex;
                     flex-direction: column;
-                    gap: 12px;
+                    gap: 0.75rem;
                     overflow-y: auto;
                     scrollbar-gutter: stable both-edges;
                 }

@@ -17,7 +17,7 @@
         overflow: hidden;
 
         .separator-vertical {
-            margin: 0 20px; /* same as the dialog's padding */
+            margin: 0 1.25rem; /* same as the dialog's padding */
         }
 
         .edit-game-fields {
@@ -43,30 +43,30 @@
             }
 
             .steam-import-informer {
-                font-size: 16px;
+                font-size: 1rem;
                 height: 100%;
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
                 align-items: center;
-                gap: 12px;
+                gap: 0.75rem;
             }
         }
         .cover-art-selector {
             flex: 1;
             display: flex;
             flex-direction: column;
-            --covers-gallery-padding: 16px; /* padding to give space for selection highlight */
+            --covers-gallery-padding: 1rem; /* padding to give space for selection highlight */
 
             input {
-                margin-bottom: 8px;
+                margin-bottom: 0.5rem;
             }
 
             .covers-gallery {
                 display: grid;
                 grid-template-columns: repeat(2, 1fr);
-                gap: 16px;
-                padding: 16px calc(12px - var(--scrollbar-width));
+                gap: 1rem;
+                padding: 1rem calc(0.75rem - var(--scrollbar-width));
                 overflow-y: auto;
                 scrollbar-gutter: stable both-edges;
 
@@ -94,8 +94,8 @@
                         top: -4px;
                         font-weight: 500;
                         border-radius: 4px;
-                        font-size: 12px;
-                        padding: 1px 4px;
+                        font-size: 0.75rem;
+                        padding: 1px 0.25rem;
                     }
                     &.previous-cover::before {
                         content: "Previous selection";
@@ -120,7 +120,7 @@
 
         .inner-footer {
             display: flex;
-            gap: 16px;
+            gap: 1rem;
         }
     }
 }

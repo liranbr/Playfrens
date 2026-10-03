@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import * as Dialog from "@radix-ui/react-dialog";
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Popover from "@radix-ui/react-popover";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
@@ -11,8 +10,10 @@ import { CgRename } from "react-icons/cg";
 import {
     Button,
     CenterAndEdgesRow,
+    Dropdown,
     FriendAvatar,
     IconButton,
+    Input,
     ReminderCard,
     SimpleTooltip,
 } from "@/components";
@@ -20,9 +21,11 @@ import {
     Dialogs,
     globalDialogStore,
     updateTagBothGameCounters,
+    useBoardStore,
     useDataStore,
     useFilterStore,
     useSettingsStore,
+    useUserStore,
 } from "@/stores";
 import { ReminderObject, tagTypes, tagTypeStrings } from "@/models";
 import { DialogBase } from "./DialogRoot.jsx";
@@ -31,8 +34,6 @@ import "@/components/TagButtonGroup.css";
 import "@/components/TagButton.css";
 import "./GamePageDialog.css";
 import { GameCoverDisplay } from "@/components/GameCoverDisplay.jsx";
-
-const DD = DropdownMenu;
 
 const AddTagButton = ({ tagType, party }) => {
     const dataStore = useDataStore();
@@ -43,33 +44,23 @@ const AddTagButton = ({ tagType, party }) => {
 
     if (tagsPartyDoesntHave.length !== 0)
         return (
-            <DD.Root onOpenChange={setOpenDropdown}>
-                <DD.Trigger asChild>
-                    <IconButton icon={<MdAdd />} activate={openDropdown} />
-                </DD.Trigger>
-
-                <DD.Portal>
-                    <DD.Content
-                        className="rx-dropdown-menu"
-                        align={"start"}
-                        side={"bottom"}
-                        sideOffset={5}
+            <Dropdown
+                trigger={<IconButton icon={<MdAdd />} activate={openDropdown} />}
+                onOpenChange={setOpenDropdown}
+            >
+                {tagsPartyDoesntHave.map((t) => (
+                    <Dropdown.Item
+                        key={t.id}
+                        onClick={() => {
+                            party.addTag(t);
+                            updateTagBothGameCounters(t);
+                        }}
                     >
-                        {tagsPartyDoesntHave.map((t) => (
-                            <DD.Item
-                                key={t.id}
-                                onClick={() => {
-                                    party.addTag(t);
-                                    updateTagBothGameCounters(t);
-                                }}
-                            >
-                                <span className="item-label">{t.name}</span>{" "}
-                                {/* Dropdown items need a text wrapper (span) to prevent overflow */}
-                            </DD.Item>
-                        ))}
-                    </DD.Content>
-                </DD.Portal>
-            </DD.Root>
+                        <span className="item-label">{t.name}</span>{" "}
+                        {/* Dropdown items need a text wrapper (span) to prevent overflow */}
+                    </Dropdown.Item>
+                ))}
+            </Dropdown>
         );
     else {
         const issueMessage =
@@ -87,11 +78,15 @@ const AddTagButton = ({ tagType, party }) => {
 
 const GPTagButton = observer(({ party, tag }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const { userInfo } = useUserStore();
+    const { isOwner } = useBoardStore();
+    // Friend tags linked to an account can only be managed by the owner or an assigned account
+    const canManage = tag.isManageableBy({ accountId: userInfo?.id, isOwner });
     const handleRemove = () => {
         party.removeTag(tag);
         updateTagBothGameCounters(tag);
     };
-    const handleClick = () => setDropdownOpen(true);
+    const handleClick = () => canManage && setDropdownOpen(true);
 
     return (
         <div
@@ -106,7 +101,7 @@ const GPTagButton = observer(({ party, tag }) => {
             }}
             onContextMenu={(e) => {
                 e.preventDefault(); // don't open right-click context menu
-                setDropdownOpen(true); // open button's dropdown instead
+                if (canManage) setDropdownOpen(true); // open button's dropdown instead
             }}
         >
             <span role="button" className="tag-button" draggable="true">
@@ -116,24 +111,17 @@ const GPTagButton = observer(({ party, tag }) => {
                 </span>
             </span>
 
-            <DD.Root open={dropdownOpen} onOpenChange={setDropdownOpen}>
-                <DD.Trigger asChild>
-                    <IconButton icon={<MdMoreVert />} />
-                </DD.Trigger>
-
-                <DD.Portal>
-                    <DD.Content
-                        className="rx-dropdown-menu"
-                        align={"start"}
-                        side={"bottom"}
-                        sideOffset={5}
-                    >
-                        <DD.Item data-danger onClick={handleRemove}>
-                            <MdRemove /> Remove
-                        </DD.Item>
-                    </DD.Content>
-                </DD.Portal>
-            </DD.Root>
+            {canManage && (
+                <Dropdown
+                    trigger={<IconButton icon={<MdMoreVert />} />}
+                    open={dropdownOpen}
+                    onOpenChange={setDropdownOpen}
+                >
+                    <Dropdown.Item data-danger onClick={handleRemove}>
+                        <MdRemove /> Remove
+                    </Dropdown.Item>
+                </Dropdown>
+            )}
         </div>
     );
 });
@@ -148,7 +136,10 @@ const GPTagButtonGroup = observer(({ party, tagType }) => {
             const order = [...dataStore.allTags[tagType].keys()];
             return order.indexOf(id1) - order.indexOf(id2);
         })
-        .map((id) => dataStore.getTagByID(id, tagType));
+        .map((id) => dataStore.getTagByID(id, tagType))
+        // A party can end up with a tag ID that no longer resolves to a real tag,
+        // drop it instead of crashing on tag.id below.
+        .filter(Boolean);
     return (
         <div className="tag-button-group">
             <CenterAndEdgesRow className="ui-card-header">
@@ -190,43 +181,38 @@ function GameOptionsButton({ game, party, setPartyID, renamePartyRef }) {
     };
 
     return (
-        <DD.Root onOpenChange={setDropdownOpen}>
-            <DD.Trigger asChild>
-                <IconButton icon={<MdMoreVert />} activate={dropdownOpen} />
-            </DD.Trigger>
+        <Dropdown
+            trigger={<IconButton icon={<MdMoreVert />} activate={dropdownOpen} />}
+            onOpenChange={setDropdownOpen}
+        >
+            <Dropdown.Item onClick={() => game.createParty()}>
+                <MdAdd /> Add Group
+            </Dropdown.Item>
 
-            <DD.Portal>
-                <DD.Content className="rx-dropdown-menu" align="start" side="bottom" sideOffset={5}>
-                    <DD.Item onClick={() => game.createParty()}>
-                        <MdAdd /> Add Group
-                    </DD.Item>
+            {game.parties.length > 1 && (
+                <>
+                    <Dropdown.Item onClick={() => renamePartyRef.current?.(party)}>
+                        <CgRename /> Rename Group
+                    </Dropdown.Item>
+                    <Dropdown.Item data-danger onClick={handleDeleteGroup}>
+                        <MdDeleteOutline /> Delete Group
+                    </Dropdown.Item>
+                </>
+            )}
+            <Dropdown.Separator />
 
-                    {game.parties.length > 1 && (
-                        <>
-                            <DD.Item onClick={() => renamePartyRef.current?.(party)}>
-                                <CgRename /> Rename Group
-                            </DD.Item>
-                            <DD.Item data-danger onClick={handleDeleteGroup}>
-                                <MdDeleteOutline /> Delete Group
-                            </DD.Item>
-                        </>
-                    )}
-                    <DD.Separator />
+            <Dropdown.Item
+                onClick={() => {
+                    globalDialogStore.open(Dialogs.EditGame, { game });
+                }}
+            >
+                <MdEdit /> Edit Game
+            </Dropdown.Item>
 
-                    <DD.Item
-                        onClick={() => {
-                            globalDialogStore.open(Dialogs.EditGame, { game });
-                        }}
-                    >
-                        <MdEdit /> Edit Game
-                    </DD.Item>
-
-                    <DD.Item data-danger onClick={handleDeleteGame}>
-                        <MdDeleteOutline /> Delete Game
-                    </DD.Item>
-                </DD.Content>
-            </DD.Portal>
-        </DD.Root>
+            <Dropdown.Item data-danger onClick={handleDeleteGame}>
+                <MdDeleteOutline /> Delete Game
+            </Dropdown.Item>
+        </Dropdown>
     );
 }
 
@@ -278,10 +264,9 @@ const AddReminderPopover = ({ game, party }) => {
                         onChange={handleDateChange}
                         autoFocus
                     />
-                    <textarea
+                    <Input
+                        textarea
                         className="reminder-textarea"
-                        rows={4}
-                        spellCheck={false}
                         value={message}
                         placeholder="Message"
                         onChange={(e) => setMessage(e.target.value)}
@@ -374,9 +359,17 @@ export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID
     const renamePartyRef = useRef(null);
 
     const dataStore = useDataStore();
-    const partyReminders = dataStore.sortedReminders.filter(
-        (reminder) => reminder.gameID === game.id && reminder.partyID === party.id,
-    );
+    const partyReminders = party
+        ? dataStore.sortedReminders.filter(
+            (reminder) => reminder.gameID === game.id && reminder.partyID === party.id,
+        )
+        : [];
+
+    // Party (or game) may get deleted remotely while open, close instead of crashing.
+    useEffect(() => {
+        if (!party) closeDialog();
+    }, [party, closeDialog]);
+    if (!party) return null;
 
     return (
         <DialogBase
@@ -466,12 +459,13 @@ export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID
                                 <h4>NOTE</h4>
                                 <div />
                             </CenterAndEdgesRow>
-                            <textarea
+                            <Input
+                                textarea
                                 className="game-note"
                                 rows={5}
-                                spellCheck={false}
                                 value={party.note}
-                                onChange={(e) => party.setNote(e.target.value)}
+                                onCommit={(value) => party.setNote(value)}
+                                active={open}
                                 maxLength={2000}
                             />
                         </div>

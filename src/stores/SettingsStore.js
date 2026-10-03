@@ -1,7 +1,7 @@
 import { createContext, useContext } from "react";
-import { makeAutoObservable, reaction } from "mobx";
-import { saveToStorage } from "@/Utils";
+import { autorun, makeAutoObservable } from "mobx";
 import { tagTypes } from "@/models";
+import { ACCOUNT_SETTINGS_KEYS, pickAccountSettings } from "#shared/accountSettings.js";
 
 export const settingsStorageKey = "settings";
 
@@ -33,8 +33,8 @@ export const TagGameCounterOptions = {
     none: "None",
 };
 export const HideGameStoreButtonsOptions = {
-    on: "On",
     off: "Off",
+    on: "On",
 };
 export const ShowMatureContentOptions = {
     off: "Off",
@@ -49,9 +49,17 @@ export const GamesGridDensityOptions = {
     simple: "Simple",
     compact: "Compact",
 };
+export const ReduceMotionOptions = {
+    system: "Match System",
+    on: "On",
+    off: "Off",
+};
 export const GamesGridCardWidthRange = { min: 140, max: 320, step: 10 };
+export const FontSizeRange = { min: 75, max: 125, step: 5 }; // in % of the browser default
 
 export const SettingsDefaults = {
+    fontSize: 100,
+    reduceMotion: "system",
     tagHoverGameHighlight: "darken",
     tagGameCounterDisplay: "countFiltered",
     friendIconDisplay: "hideMissing",
@@ -61,8 +69,12 @@ export const SettingsDefaults = {
     showMatureContent: "off",
 };
 
+const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+
 class SettingsStore {
     // Default values, overridden by settings loaded from storage
+    fontSize = SettingsDefaults.fontSize;
+    reduceMotion = SettingsDefaults.reduceMotion;
     tagHoverGameHighlight = SettingsDefaults.tagHoverGameHighlight;
     tagFilterLogic = {
         [tagTypes.friend]: "AND",
@@ -90,10 +102,52 @@ class SettingsStore {
 
     constructor() {
         makeAutoObservable(this);
+        // Everything sized in rem scales with this
+        autorun(() => {
+            document.documentElement.style.fontSize = `${this.fontSize}%`;
+            document.documentElement.dataset.reduceMotion = this.reduceMotion; // see index.css
+        });
     }
 
     populate(settings = {}) {
         Object.assign(this, settings);
+    }
+
+    populateAccountSettings(settings) {
+        this.populate(pickAccountSettings(settings) ?? {});
+    }
+
+    // Board data may still hold account keys from before they moved to the account
+    populateBoardSettings(settings = {}) {
+        const boardOnly = { ...settings };
+        for (const key of ACCOUNT_SETTINGS_KEYS) delete boardOnly[key];
+        this.populate(boardOnly);
+    }
+
+    get accountSettings() {
+        return Object.fromEntries(ACCOUNT_SETTINGS_KEYS.map((key) => [key, this[key]]));
+    }
+
+    get boardSettings() {
+        const settings = JSON.parse(JSON.stringify(this));
+        for (const key of ACCOUNT_SETTINGS_KEYS) delete settings[key];
+        return settings;
+    }
+
+    /** Checks if there's Motion Reduction enabled, use this call when CSS motion is handled inside JS */
+    isMotionReduced() {
+        if (this.reduceMotion === "system") return reducedMotionQuery.matches;
+        return this.reduceMotion === "on";
+    }
+
+    setReduceMotion(option) {
+        if (ReduceMotionOptions[option]) this.reduceMotion = option;
+        else console.warn(`Invalid ReduceMotion option: ${option}`);
+    }
+
+    setFontSize(percent) {
+        const { min, max } = FontSizeRange;
+        this.fontSize = Math.min(max, Math.max(min, Number(percent)));
     }
 
     setTagHoverGameHighlight(option) {

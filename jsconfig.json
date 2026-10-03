@@ -2,7 +2,8 @@
     "compilerOptions": {
         "target": "es6",
         "paths": {
-            "@/*": ["./src/*"]
+            "@/*": ["./src/*"],
+            "#shared/*": ["./shared/*"]
         },
         "jsx": "react"
     },

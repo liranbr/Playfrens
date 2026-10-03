@@ -1,10 +1,9 @@
 import { observer } from "mobx-react-lite";
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Popover from "@radix-ui/react-popover";
 import { MdClose, MdDeleteOutline, MdEdit, MdMoreVert } from "react-icons/md";
 import { useRef, useState } from "react";
 import { Dialogs, globalDialogStore, useDataStore } from "@/stores";
-import { Button, IconButton } from "@/components";
+import { Button, Dropdown, IconButton, Input } from "@/components";
 // eslint-disable-next-line no-unused-vars -- for reference
 import { ReminderObject } from "@/models";
 import "./ReminderCard.css";
@@ -70,30 +69,20 @@ export const ReminderCard = observer(({ reminder, outsideOfGamePage = false }) =
 const ReminderMenu = observer(({ reminder, dropdownOpen, setDropdownOpen, setEditorOpen }) => {
     const dataStore = useDataStore();
 
-    const DD = DropdownMenu;
     return (
-        <DD.Root open={dropdownOpen} onOpenChange={setDropdownOpen}>
-            <DD.Trigger asChild>
-                <IconButton icon={<MdMoreVert />} />
-            </DD.Trigger>
-
-            <DD.Portal>
-                <DD.Content
-                    className="rx-dropdown-menu"
-                    align={"start"}
-                    side={"bottom"}
-                    sideOffset={5}
-                >
-                    {/* the 1ms timeout lets the dropdown close before opening the editor popover */}
-                    <DD.Item onClick={() => setTimeout(() => setEditorOpen(true), 1)}>
-                        <MdEdit /> Edit
-                    </DD.Item>
-                    <DD.Item data-danger onClick={() => dataStore.removeReminder(reminder)}>
-                        <MdDeleteOutline /> Delete
-                    </DD.Item>
-                </DD.Content>
-            </DD.Portal>
-        </DD.Root>
+        <Dropdown
+            trigger={<IconButton icon={<MdMoreVert />} />}
+            open={dropdownOpen}
+            onOpenChange={setDropdownOpen}
+        >
+            {/* the 1ms timeout lets the dropdown close before opening the editor popover */}
+            <Dropdown.Item onClick={() => setTimeout(() => setEditorOpen(true), 1)}>
+                <MdEdit /> Edit
+            </Dropdown.Item>
+            <Dropdown.Item data-danger onClick={() => dataStore.removeReminder(reminder)}>
+                <MdDeleteOutline /> Delete
+            </Dropdown.Item>
+        </Dropdown>
     );
 });
 
@@ -130,10 +119,9 @@ const ReminderEditor = observer(({ reminder, editorOpen, setEditorOpen, containe
                         onChange={handleDateChange}
                         autoFocus
                     />
-                    <textarea
+                    <Input
+                        textarea
                         className="reminder-textarea"
-                        rows={4}
-                        spellCheck={false}
                         value={message}
                         placeholder="Message"
                         onChange={(e) => setMessage(e.target.value)}

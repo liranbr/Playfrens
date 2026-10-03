@@ -3,13 +3,22 @@ import { toastSuccess, toastError, compareAlphaIgnoreCase } from "@/Utils";
 import { TagObject, tagTypes } from "@/models";
 import { v4 as randomUUID } from "uuid";
 
-export const storeTypes = Object.freeze({
+export const storeDisplayNames = Object.freeze({
     steam: "Steam",
     gog: "GOG",
     xbox: "Xbox",
     egs: "Epic",
     bnet: "Battle.net",
     custom: "Other",
+});
+
+export const storeTypes = Object.freeze({
+    steam: "steam",
+    gog: "gog",
+    xbox: "xbox",
+    egs: "egs",
+    bnet: "bnet",
+    custom: "custom",
 });
 
 /**
@@ -32,7 +41,7 @@ export class GameObject {
     coverThumbURL = "/missing_game_cover.png";
     coverIsOfficial = false;
     sortingTitle = "";
-    storeType = "custom";
+    storeType = storeTypes.custom;
     storeID = "";
     sgdbID = "";
     isAdult = false;
@@ -57,7 +66,7 @@ export class GameObject {
         this.coverThumbURL = coverThumbURL ?? this.coverThumbURL;
         this.coverIsOfficial = coverIsOfficial ?? this.coverIsOfficial;
         this.sortingTitle = sortingTitle ?? this.sortingTitle;
-        this.storeType = storeType ? storeType : this.storeType; // so that if empty, makes it the default "custom"
+        this.storeType = storeType ? storeType : this.storeType; // so that if empty, makes it the default storeTypes.custom
         this.storeID = storeID ?? this.storeID;
         this.sgdbID = sgdbID ?? this.sgdbID;
         this.isAdult = isAdult ?? this.isAdult;
@@ -72,6 +81,47 @@ export class GameObject {
     hasTag(tag) {
         for (const party of this.parties) if (party.hasTag(tag)) return party.id;
         return "";
+    }
+
+    // Applies a fresh JSON snapshot onto this instance in place
+    // Should also sync with dialogs
+    patchFromJSON(json) {
+        this.title = json.title;
+        this.coverImageURL = json.coverImageURL ?? this.coverImageURL;
+        this.coverThumbURL = json.coverThumbURL ?? this.coverThumbURL;
+        this.coverIsOfficial = json.coverIsOfficial ?? this.coverIsOfficial;
+        this.sortingTitle = json.sortingTitle ?? this.sortingTitle;
+        this.storeType = json.storeType ? json.storeType : this.storeType;
+        this.storeID = json.storeID ?? this.storeID;
+        this.sgdbID = json.sgdbID ?? this.sgdbID;
+        this.isAdult = json.isAdult ?? this.isAdult;
+        this.#patchParties(json.parties ?? []);
+    }
+
+    // Same as above but for groups.
+    #patchParties(partyJsons) {
+        const incomingIds = new Set();
+        for (const partyJson of partyJsons) {
+            if (!partyJson?.id || !partyJson?.name) {
+                console.warn(`Skipping invalid party, id: ${partyJson?.id}`);
+                continue;
+            }
+            incomingIds.add(partyJson.id);
+            const existing = this.parties.find((party) => party.id === partyJson.id);
+            if (existing) existing.patchFromJSON(partyJson);
+            else {
+                this.parties.push(
+                    new Party({
+                        ...partyJson,
+                        tagIDs: deserializePartyTagIDs(partyJson.tagIDs),
+                        parent: this,
+                    }),
+                );
+            }
+        }
+        for (let i = this.parties.length - 1; i >= 0; i--) {
+            if (!incomingIds.has(this.parties[i].id)) this.parties.splice(i, 1);
+        }
     }
 
     createParty(name = "") {
@@ -108,6 +158,20 @@ export function compareGameTitlesAZ(a, b) {
     return compareAlphaIgnoreCase(titleA, titleB);
 }
 
+// Converts a Party's serialized tagIDs (plain arrays) back into the live shape (a Set per tag
+// type). Shared by DataStore's hydration and GameObject's patchFromJSON.
+export function deserializePartyTagIDs(tagIDs) {
+    const result = {
+        [tagTypes.friend]: new Set(),
+        [tagTypes.category]: new Set(),
+        [tagTypes.status]: new Set(),
+    };
+    for (const tagType in tagIDs) {
+        if (tagType in result) result[tagType] = new Set(tagIDs[tagType]);
+    }
+    return result;
+}
+
 /**
  * Parties are like instances of a game, with their own tag collection. Each is a Tab in the Game Page.
  * GameObject starts off with one (no tabs visible), while those with multiple Parties/Groups/Playthroughs have more of these,
@@ -142,6 +206,13 @@ export class Party {
         this.note = note ?? this.note;
         this.id = id ?? randomUUID();
         makeAutoObservable(this, { parent: false });
+    }
+
+    /** Applies a fresh JSON snapshot onto THIS instance in place (see GameObject.patchFromJSON). */
+    patchFromJSON(json) {
+        this.name = json.name;
+        this.note = json.note ?? "";
+        this.tagIDs = deserializePartyTagIDs(json.tagIDs);
     }
 
     addTag(tag) {

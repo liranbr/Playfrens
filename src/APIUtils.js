@@ -1,16 +1,18 @@
 import { enqueueRequest } from "@/services/RequestQueue.js";
-import { HttpStatus, toastError, toastInfo } from "@/Utils";
+import { HttpStatus } from "#shared/http.js";
+import { toastError, toastInfo } from "@/Utils";
+import { storeTypes } from "./models";
 
 export async function searchTitleOnStore(title, storeType, includeMature = false) {
     if (!title || typeof title !== "string" || !title.trim()) return [];
     let fetchResponse;
     switch (storeType) {
-        case "steam":
+        case storeTypes.steam:
             fetchResponse = await fetch(
                 `/api/steam/catalog/search?term=${title}&excludeDlc=true&includeMature=${includeMature}`,
             );
             break;
-        case "custom":
+        case storeTypes.custom:
             fetchResponse = await fetch(`/api/steamgriddb/searchTitle?query=${title}`);
             break;
         default:
@@ -28,22 +30,22 @@ export async function searchTitleOnStore(title, storeType, includeMature = false
 
     let results = [];
     switch (storeType) {
-        case "steam":
+        case storeTypes.steam:
             results = json?.map((item) => ({
                 id: item.appid,
                 name: item.name,
                 title: item.name,
-                storeType: "steam",
+                storeType: storeTypes.steam,
                 storeID: item.appid,
             }));
             break;
-        case "custom":
+        case storeTypes.custom:
             results = json?.map((item) => {
                 return {
                     id: item.id,
                     name: sgdbDatedTitle(item), // name is what's displayed in SearchSelect results
                     title: item.name,
-                    storeType: "custom",
+                    storeType: storeTypes.custom,
                     sgdbID: item.id,
                     sgdbTitle: sgdbDatedTitle(item),
                 };
@@ -72,7 +74,7 @@ export async function getOfficialCoverImageURL(storeType, storeID) {
     if (!storeType || !storeID) return "";
     let fetchResponse;
     switch (storeType) {
-        case "steam":
+        case storeTypes.steam:
             fetchResponse = await fetch(`/api/steam/getGameCover?appId=${storeID}`);
             break;
         default:
@@ -95,7 +97,7 @@ export async function getOfficialCoverImageURLs(storeType, storeIDs) {
     if (!storeType || !storeIDs?.length) return {};
     let fetchResponse;
     switch (storeType) {
-        case "steam":
+        case storeTypes.steam:
             fetchResponse = await fetch(`/api/steam/getGameCovers`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -112,9 +114,42 @@ export async function getOfficialCoverImageURLs(storeType, storeIDs) {
     return json;
 }
 
-export async function getBoard() {
+// Lists boards the current user can access (their own + any they've joined as a guest).
+export async function listBoards() {
     try {
-        const response = await fetch("/api/board", {
+        const response = await fetch("/api/boards", { credentials: "include" });
+        // Not logged in is a normal state (e.g. stale session), not an error, so don't toast for
+        // it. UserStore already guards against this; this is just a backstop for other callers.
+        if (response.status === HttpStatus.UNAUTHORIZED) return [];
+        if (!response.ok) {
+            toastError("Error loading boards, please try again later", await response.json());
+            return [];
+        }
+        const { boards } = await response.json();
+        return boards;
+    } catch (err) {
+        toastError("Error loading boards, please try again later", err);
+        return [];
+    }
+}
+
+/** Creates an additional owned board (capped server-side). Returns { id, shortId, name, role }. */
+export async function createBoard(name) {
+    const response = await fetch("/api/boards", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ name }),
+    });
+    const json = await response.json().catch(() => ({}));
+    if (!response.ok)
+        throw new Error(json.error || `Failed to create board (status ${response.status})`);
+    return json.board;
+}
+
+export async function getBoard(boardId) {
+    try {
+        const response = await fetch(`/api/boards/${boardId}`, {
             method: "GET",
             credentials: "include",
         });
@@ -139,29 +174,136 @@ export async function getBoard() {
 }
 
 // Replaces the entire Board
-export function saveBoard(data) {
+export function saveBoard(boardId, data) {
     return enqueueRequest(async () => {
         const json = JSON.stringify({ data });
-        const response = await fetch("/api/board/save", {
+        const response = await fetch(`/api/boards/${boardId}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
             body: json,
         });
         if (!response.ok) throw new Error(`Failed to save board (status ${response.status})`);
+        return await response.json(); // { message, lastUpdated }
     });
 }
 
-// Updates parts of the Board
-export function updateBoard(path, value) {
+// Updates part of the Board
+export function updateBoard(boardId, path, value, getExpectedLastUpdated) {
     return enqueueRequest(async () => {
-        const json = JSON.stringify({ path: path, value: value });
-        const response = await fetch("/api/board/update", {
+        const expectedLastUpdated =
+            typeof getExpectedLastUpdated === "function"
+                ? getExpectedLastUpdated()
+                : getExpectedLastUpdated;
+        const body = { path, value };
+        if (expectedLastUpdated) body.expectedLastUpdated = expectedLastUpdated;
+
+        const response = await fetch(`/api/boards/${boardId}/update`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
-            body: json,
+            body: JSON.stringify(body),
         });
+        const json = await response.json().catch(() => ({}));
+
+        if (response.status === HttpStatus.CONFLICT) {
+            const error = new Error(json.error || "Board changed since your last sync.");
+            error.staleWrite = true;
+            throw error;
+        }
         if (!response.ok) throw new Error(`Failed to update board (status ${response.status})`);
+        return json; // { message, lastUpdated }
     });
+}
+
+export async function renameBoard(boardId, name) {
+    const response = await fetch(`/api/boards/${boardId}/rename`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ name }),
+    });
+    const json = await response.json().catch(() => ({}));
+    if (!response.ok)
+        throw new Error(json.error || `Failed to rename board (status ${response.status})`);
+    return json.name;
+}
+
+export async function deleteBoard(boardId) {
+    const response = await fetch(`/api/boards/${boardId}`, {
+        method: "DELETE",
+        credentials: "include",
+    });
+    if (!response.ok) throw new Error(`Failed to delete board (status ${response.status})`);
+}
+
+export async function listBoardGuests(boardId) {
+    const response = await fetch(`/api/boards/${boardId}/guests`, { credentials: "include" });
+    if (!response.ok) throw new Error(`Failed to load guests (status ${response.status})`);
+    const { guests } = await response.json();
+    return guests;
+}
+
+/** Returns { guest, password }, where the password is shown only once here. */
+export async function createBoardGuest(boardId, username, password) {
+    const response = await fetch(`/api/boards/${boardId}/guests`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ username, password }),
+    });
+    const json = await response.json().catch(() => ({}));
+    if (!response.ok)
+        throw new Error(json.error || `Failed to create guest (status ${response.status})`);
+    return json;
+}
+
+export async function removeBoardGuest(boardId, userId) {
+    const response = await fetch(`/api/boards/${boardId}/guests/${userId}`, {
+        method: "DELETE",
+        credentials: "include",
+    });
+    if (!response.ok) {
+        const json = await response.json().catch(() => ({}));
+        throw new Error(json.error || `Failed to remove guest (status ${response.status})`);
+    }
+}
+
+export async function setBoardGuestPassword(boardId, userId, password) {
+    const response = await fetch(`/api/boards/${boardId}/guests/${userId}/password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ password }),
+    });
+    if (!response.ok) {
+        const json = await response.json().catch(() => ({}));
+        throw new Error(json.error || `Failed to change password (status ${response.status})`);
+    }
+}
+
+/** Owner can assigns an account (owner or guest id) onto a friend tag. Returns the new linkedAccountIds. */
+export async function assignAccountToTag(boardId, tagId, accountId) {
+    const response = await fetch(`/api/boards/${boardId}/tags/${tagId}/accounts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ accountId }),
+    });
+    const json = await response.json().catch(() => ({}));
+    if (!response.ok)
+        throw new Error(json.error || `Failed to assign account (status ${response.status})`);
+    return json.linkedAccountIds;
+}
+
+/** Owner can unassigns an account from a friend tag. Returns the new linkedAccountIds. */
+export async function unassignAccountFromTag(boardId, tagId, accountId) {
+    const response = await fetch(`/api/boards/${boardId}/tags/${tagId}/accounts/${accountId}`, {
+        method: "DELETE",
+        credentials: "include",
+    });
+    const json = await response.json().catch(() => ({}));
+    if (!response.ok)
+        throw new Error(json.error || `Failed to unassign account (status ${response.status})`);
+    return json.linkedAccountIds;
 }

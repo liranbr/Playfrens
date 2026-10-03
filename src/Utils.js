@@ -229,7 +229,6 @@ export async function thumbToCover(thumbURL) {
 
 // Find a game's thumbnail URL from its cover URL (educated guesses)
 export async function coverToThumb(coverURL) {
-    console.log("Converting cover image URL to thumbnail URL");
     if (!coverURL) return coverURL;
     const sources = [];
     if (coverURL.includes("cdn2.steamgriddb.com/grid/")) {

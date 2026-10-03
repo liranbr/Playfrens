@@ -152,7 +152,6 @@ export function editTag(store, tag, data = {}) {
         }
         // Defined inside so we should update the info
         else if (key in tag) {
-            console.log(key);
             storedTag[key] = data[key];
         }
     }

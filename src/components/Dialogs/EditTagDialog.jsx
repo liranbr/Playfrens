@@ -3,12 +3,19 @@ import { observer } from "mobx-react-lite";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { DialogBase } from "./DialogRoot.jsx";
 import { TagObject, tagTypeStrings, FriendTagObject } from "@/models";
-import { Dialogs, globalDialogStore, useBoardStore, useDataStore, useUserStore } from "@/stores";
+import {
+    Dialogs,
+    globalDialogStore,
+    globalHintStore,
+    useBoardStore,
+    useDataStore,
+    useUserStore,
+} from "@/stores";
 import { Button, FriendAvatar, IconButton, InfoIcon, LabelBadge, MultiCombobox } from "@/components";
 import { useEffect, useState } from "react";
 import { BiLogoSteam } from "react-icons/bi";
 import { MdClose } from "react-icons/md";
-import { loadFromStorage, saveToStorage, toastError } from "@/Utils";
+import { toastError } from "@/Utils";
 import { assignAccountToTag, listBoardGuests, unassignAccountFromTag } from "@/APIUtils.js";
 import "./EditTagDialog.css";
 
@@ -61,8 +68,7 @@ const AssignedAccountsSection = observer(({ tag }) => {
     );
 });
 
-// Dismiss the Steam import hint on the client side only.
-const STEAM_FRIEND_HINT_DISMISSED_KEY = "friend-steam-hint-dismissed";
+const STEAM_HINT_KEY = "steam-friend-import";
 
 // Both Edits existing tags, and Adds new ones - depending on whether a TagObject is provided, otherwise based on the newTagType
 export const EditTagDialog = observer(function EditTagDialog({
@@ -73,9 +79,7 @@ export const EditTagDialog = observer(function EditTagDialog({
 }) {
     const [advancedView, setAdvancedView] = useState(false);
     const [iconURLPreview, setIconURLPreview] = useState(editingTag?.iconURL ?? "");
-    const [hintDismissed, setHintDismissed] = useState(() =>
-        loadFromStorage(STEAM_FRIEND_HINT_DISMISSED_KEY, false),
-    );
+    const hintDismissed = globalHintStore.isDismissed(STEAM_HINT_KEY);
     const isEdit = editingTag instanceof TagObject;
     const mode = isEdit ? "Edit" : "Add";
     const tagType = isEdit ? editingTag.type : addingTagOfType;
@@ -145,10 +149,7 @@ export const EditTagDialog = observer(function EditTagDialog({
                         className="steam-import-hint-dismiss"
                         icon={<MdClose />}
                         aria-label="Dismiss"
-                        onClick={() => {
-                            saveToStorage(STEAM_FRIEND_HINT_DISMISSED_KEY, true);
-                            setHintDismissed(true);
-                        }}
+                        onClick={() => globalHintStore.dismiss(STEAM_HINT_KEY, "Add Friend Hint")}
                     />
                 </div>
             )}

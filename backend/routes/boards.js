@@ -1,6 +1,11 @@
 import { Router } from "express";
 import { v4 as uuidv4 } from "uuid";
-import { GUEST_PASSWORD_MIN_LENGTH, MAX_OWNED_BOARDS } from "#shared/boardLimits.js";
+import {
+    GUEST_PASSWORD_MIN_LENGTH,
+    MAX_BOARD_HISTORY_ENTRIES,
+    MAX_BOARD_HISTORY_MESSAGE_LENGTH,
+    MAX_OWNED_BOARDS,
+} from "#shared/boardLimits.js";
 import { Response } from "../response.js";
 import { supabase } from "../supabaseClient.js";
 import { requireAuth } from "../auth/requireAuth.js";
@@ -221,6 +226,39 @@ async function updateBoard(req, res) {
         message: "Board updated (partial)",
         lastUpdated: newLastUpdated,
     });
+}
+
+/** Appends an activity entry, author and date are stamped here so they can't be spoofed. */
+async function appendBoardHistory(req, res) {
+    const { OK, BAD_REQUEST } = Response.HttpStatus;
+    const { message, gameLink } = req.body;
+    if (typeof message !== "string" || !message.trim()) {
+        return Response.send(res, BAD_REQUEST, { error: "A history message is required." });
+    }
+
+    const entry = {
+        id: uuidv4(),
+        message: message.trim().slice(0, MAX_BOARD_HISTORY_MESSAGE_LENGTH),
+        date: new Date().toISOString(),
+        author: { id: req.user.id, name: req.user.display_name ?? "Unknown" },
+        gameLink:
+            typeof gameLink?.gameID === "string"
+                ? {
+                      gameID: gameLink.gameID,
+                      partyID: typeof gameLink.partyID === "string" ? gameLink.partyID : undefined,
+                  }
+                : null,
+    };
+
+    const { error } = await supabase.rpc("append_board_history", {
+        _board_id: req.board.id,
+        _entry: entry,
+        _max: MAX_BOARD_HISTORY_ENTRIES,
+    });
+    if (error) throw error;
+
+    broadcastToBoard(req.board.id, { type: "board-history", entry });
+    return Response.send(res, OK, { entry });
 }
 
 async function deleteBoard(req, res) {
@@ -531,6 +569,7 @@ router.get("/:boardId", requireBoardAccess, getBoard);
 router.post("/:boardId", requireBoardAccess, permissionLevel.Owner, saveBoard);
 router.post("/:boardId/rename", requireBoardAccess, permissionLevel.Owner, renameBoard);
 router.post("/:boardId/update", requireBoardAccess, updateBoard);
+router.post("/:boardId/history", requireBoardAccess, appendBoardHistory);
 router.delete("/:boardId", requireBoardAccess, permissionLevel.Owner, deleteBoard);
 router.get("/:boardId/guests", requireBoardAccess, listGuests);
 router.post("/:boardId/guests", requireBoardAccess, permissionLevel.Owner, createGuest);

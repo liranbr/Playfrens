@@ -2,19 +2,33 @@ import { useRef } from "react";
 import { toast } from "react-toastify";
 
 let silentToasts = false;
+let toastListener = null;
 
 export function setToastSilence(silence) {
     silentToasts = silence;
 }
 
+/** @param {(message: string, gameLink: GameLink | null) => void} listener */
+export function setToastListener(listener) {
+    toastListener = listener;
+}
+
 /**
+ * @typedef {{ gameID: string, partyID?: string }} GameLink
+ * Lets the board history open the related game page.
+ */
+
+/**
+ * Success toasts are logged to the board history, unless `personal` (e.g. copied to clipboard).
  * @param {string} message
  * @param {string} consoleMessage
+ * @param {{ gameLink?: GameLink, personal?: boolean }} options
  * @returns {true}
  */
-export async function toastSuccess(message, consoleMessage = "") {
+export async function toastSuccess(message, consoleMessage = "", { gameLink, personal } = {}) {
     if (!silentToasts) {
         toast.success(message);
+        if (!personal) toastListener?.(message, gameLink ?? null);
         if (consoleMessage) console.log(consoleMessage);
     }
     return true;

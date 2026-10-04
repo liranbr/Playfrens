@@ -1,4 +1,5 @@
 import {
+    globalBoardHistoryStore,
     globalBoardStore,
     globalDataStore,
     globalFilterStore,
@@ -45,6 +46,9 @@ function handleMessage(event) {
             }
             break;
         }
+        case "board-history":
+            globalBoardHistoryStore.receive(message.entry);
+            break;
         case "board-replace":
             globalDataStore.notifyRemoteBoardReplaced(message.lastUpdated);
             break;

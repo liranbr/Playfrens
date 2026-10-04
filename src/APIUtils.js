@@ -216,6 +216,19 @@ export function updateBoard(boardId, path, value, getExpectedLastUpdated) {
     });
 }
 
+// Appends to the board's activity history and returns the server stamped entry
+export async function appendBoardHistory(boardId, message, gameLink) {
+    const response = await fetch(`/api/boards/${boardId}/history`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ message, gameLink }),
+    });
+    if (!response.ok) throw new Error(`Failed to save board history (status ${response.status})`);
+    const { entry } = await response.json();
+    return entry;
+}
+
 export async function renameBoard(boardId, name) {
     const response = await fetch(`/api/boards/${boardId}/rename`, {
         method: "POST",

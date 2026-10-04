@@ -14,11 +14,11 @@
     z-index: 103;
 
     &[data-state="open"] {
-        animation: fadeIn var(--dialog-fade-duration);
+        animation: popoverIn var(--popover-fade);
     }
 
     &[data-state="closed"] {
-        animation: fadeOut var(--dialog-fade-duration);
+        animation: popoverOut var(--popover-fade);
     }
 
     div[role="menuitem"] {
@@ -222,11 +222,11 @@
     --select-width: 250px;
 
     &[data-state="open"] {
-        animation: fadeIn var(--dialog-fade-duration);
+        animation: popoverIn var(--popover-fade);
     }
 
     &[data-state="closed"] {
-        animation: fadeOut var(--dialog-fade-duration);
+        animation: popoverOut var(--popover-fade);
     }
 
     .popover-close {
@@ -559,5 +559,27 @@
     to {
         opacity: 0;
         transform: scale(0.8);
+    }
+}
+
+@keyframes popoverIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes popoverOut {
+    from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.95);
     }
 }

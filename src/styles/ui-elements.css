@@ -68,6 +68,7 @@ fieldset {
     border: var(--pf-border-700);
     border-width: 2px;
     font-size: 1rem;
+    color: #ddd;
     border-radius: 12px;
 }
 

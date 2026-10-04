@@ -165,6 +165,47 @@
         padding: 1rem calc(1.25rem - var(--scrollbar-width));
         background-color: var(--pf-bg-700);
         border: var(--pf-border-500);
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        width: 340px;
+
+        .notifications-tabs {
+            width: auto;
+            margin: 0 var(--scrollbar-width);
+        }
+
+        .board-history {
+            gap: 0.25rem;
+        }
+
+        .board-history-entry {
+            padding: 0.5rem;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            color: var(--pf-fg-200);
+
+            label {
+                display: flex;
+                gap: 0.5rem;
+                font-size: 0.75rem;
+                color: var(--pf-fg-500);
+                b {
+                    color: hsl(215 60% 60%);
+                }
+            }
+            p {
+                overflow-wrap: anywhere;
+            }
+
+            &.clickable {
+                cursor: pointer;
+                &:hover,
+                &:focus-visible {
+                    background-color: var(--pf-bg-500);
+                }
+            }
+        }
 
         .reminders-list {
             display: flex;

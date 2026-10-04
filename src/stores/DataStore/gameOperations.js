@@ -157,7 +157,7 @@ export function addGame(
     if (store.allGames.has(newGame.id))
         throw new Error(`What do you MEAN this uuid (${newGame.id}) already exists`);
     store.allGames.set(newGame.id, newGame);
-    toastSuccess("Added " + title + " to games list");
+    toastSuccess("Added " + title + " to games list", "", { gameLink: { gameID: newGame.id } });
     return newGame; // used to open the GamePage right after adding the game
 }
 
@@ -298,8 +298,10 @@ export function editGame(
     storedGame.storeType = storeType;
     storedGame.storeID = storeID;
     storedGame.sgdbID = sgdbID;
-    if (oldTitle !== title) return toastSuccess(`Updated ${oldTitle} to ${storedGame.title}`);
-    else return toastSuccess(`Updated ${storedGame.title}`);
+    const options = { gameLink: { gameID: storedGame.id } };
+    if (oldTitle !== title)
+        return toastSuccess(`Updated ${oldTitle} to ${storedGame.title}`, "", options);
+    else return toastSuccess(`Updated ${storedGame.title}`, "", options);
 }
 
 export function sortGamesByMethod(store, sortMethod, isDescending) {
@@ -310,4 +312,3 @@ export function sortGamesByMethod(store, sortMethod, isDescending) {
     // Needs to be runInAction because used by reaction, which seems to lose binding otherwise
     runInAction(() => store.allGames.replace(entriesArray));
 }
-

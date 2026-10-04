@@ -2,7 +2,7 @@ import { computed, makeAutoObservable, ObservableMap, reaction, runInAction } fr
 import { createContext, useContext } from "react";
 import { getBoard, saveBoard, updateBoard } from "@/APIUtils.js";
 import { FriendTagObject, TagObject } from "@/models";
-import { globalSettingsStore } from "@/stores";
+import { globalBoardHistoryStore, globalSettingsStore } from "@/stores";
 import {
     debounce,
     deepEqual,
@@ -141,6 +141,7 @@ export class DataStore {
                 await saveToStorage(storageKeys.settings, board[storageKeys.settings]); // if it doesn't load correctly, need to reload
                 await saveToStorage(storageKeys.defaultFilters, board[storageKeys.defaultFilters]);
             }
+            globalBoardHistoryStore.populate(boardId, board[storageKeys.activityHistory]);
             this.#isHydrated = true;
         } catch (error) {
             console.info(error);
@@ -409,6 +410,7 @@ export class DataStore {
             if (board[storageKeys.settings])
                 globalSettingsStore.populateBoardSettings(board[storageKeys.settings]);
         });
+        globalBoardHistoryStore.populate(this.activeBoardId, board[storageKeys.activityHistory]);
         // Only the stored default is refreshed, so the user's current filters aren't reset.
         saveToStorage(storageKeys.defaultFilters, board[storageKeys.defaultFilters]);
         this.#boardLastUpdated = fresh.last_updated;

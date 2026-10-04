@@ -126,15 +126,20 @@ export class GameObject {
 
     createParty(name = "") {
         if (!name) name = `Group ${this.parties.length + 1}`;
-        this.parties.push(new Party({ parent: this, name: name }));
-        return toastSuccess("Group created");
+        const party = new Party({ parent: this, name: name });
+        this.parties.push(party);
+        return toastSuccess(`Created group ${name} for ${this.title}`, "", {
+            gameLink: { gameID: this.id, partyID: party.id },
+        });
     }
 
     deleteParty(id) {
         if (!id || typeof id !== "string") return toastError(`Unable to delete party ${id}`);
         const partyIndex = this.parties.findIndex((party) => party.id === id);
-        this.parties.splice(partyIndex, 1);
-        return toastSuccess("Group deleted");
+        const [party] = this.parties.splice(partyIndex, 1);
+        return toastSuccess(`Deleted group ${party?.name} from ${this.title}`, "", {
+            gameLink: { gameID: this.id },
+        });
     }
 
     getParty(id) {
@@ -226,6 +231,8 @@ export class Party {
             tagIDsSet.add(tag.id);
             return toastSuccess(
                 `Added ${tag.name} as a ${tag.typeStrings.single} for ${this.gameTitleWithParty}`,
+                "",
+                { gameLink: this.gameLink },
             );
         } else
             return toastError(
@@ -243,6 +250,8 @@ export class Party {
         if (tagIDsSet.delete(tag.id)) {
             return toastSuccess(
                 `Removed the ${tag.typeStrings.single} ${tag.name} from ${this.gameTitleWithParty}`,
+                "",
+                { gameLink: this.gameLink },
             );
         } else
             return toastError(
@@ -267,7 +276,13 @@ export class Party {
 
         const oldName = this.name;
         this.name = name;
-        return toastSuccess("Renamed group " + oldName + " to " + this.name);
+        return toastSuccess("Renamed group " + oldName + " to " + this.name, "", {
+            gameLink: this.gameLink,
+        });
+    }
+
+    get gameLink() {
+        return this.parent ? { gameID: this.parent.id, partyID: this.id } : null;
     }
 
     get gameTitle() {

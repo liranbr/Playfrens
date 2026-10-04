@@ -31,14 +31,18 @@ export function addReminder(store, reminder) {
     if (reminder.message.length === 0) return toastError("Reminder must have a message");
 
     store.allReminders.push(reminder);
-    return toastSuccess("Reminder added");
+    return toastSuccess("Reminder added", "", reminderLinkOptions(reminder));
 }
 
 export function removeReminder(store, reminder) {
     const index = store.allReminders.findIndex((r) => r.id === reminder.id);
     if (index === -1) return toastError("Error deleting reminder");
     store.allReminders.splice(index, 1);
-    return toastSuccess("Reminder deleted");
+    return toastSuccess("Reminder deleted", "", reminderLinkOptions(reminder));
+}
+
+function reminderLinkOptions(reminder) {
+    return { gameLink: { gameID: reminder.gameID, partyID: reminder.partyID } };
 }
 
 export function editReminder(store, reminder, newDate, newMessage) {
@@ -49,6 +53,5 @@ export function editReminder(store, reminder, newDate, newMessage) {
 
     store.allReminders[index].date = newDate;
     store.allReminders[index].message = newMessage;
-    return toastSuccess("Reminder edited");
+    return toastSuccess("Reminder edited", "", reminderLinkOptions(reminder));
 }
-

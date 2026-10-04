@@ -17,6 +17,7 @@ export const storageKeys = {
     version: "version",
     visited: "visited",
     tagsCustomOrders: "tagsCustomOrders",
+    activityHistory: "activityHistory", // written only through the /history endpoint
 };
 
 export const storageKeyToTagType = {
@@ -44,4 +45,3 @@ export function defaultTagsSample() {
         ],
     };
 }
-

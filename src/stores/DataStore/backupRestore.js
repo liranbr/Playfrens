@@ -1,5 +1,5 @@
 import { action } from "mobx";
-import { userStore } from "@/stores";
+import { globalBoardHistoryStore, userStore } from "@/stores";
 import { saveBoard } from "@/APIUtils.js";
 import { loadFromStorage, saveToStorage, toastError } from "@/Utils";
 import { version } from "/package.json";
@@ -24,6 +24,7 @@ export function ExportDataStoreToJSON(store) {
         [storageKeys.defaultFilters]: loadFromStorage(storageKeys.defaultFilters, {}),
         [storageKeys.version]: version,
         [storageKeys.tagsCustomOrders]: store.tagsCustomOrders,
+        [storageKeys.activityHistory]: globalBoardHistoryStore.entries,
     };
 }
 
@@ -62,6 +63,9 @@ export function restoreFromFile(store, file) {
         // Load the settings to localstorage, and reload, which also populates the SettingsStore
         saveToStorage(storageKeys.settings, data[storageKeys.settings]);
         saveToStorage(storageKeys.defaultFilters, data[storageKeys.defaultFilters]);
+        // Older backups have no history, keep the current one instead of wiping it
+        const history = data[storageKeys.activityHistory];
+        if (history !== undefined) globalBoardHistoryStore.populate(store.activeBoardId, history);
 
         saveBoard(store.activeBoardId, ExportDataStoreToJSON(store))
             .then(() => {
@@ -83,4 +87,3 @@ export function seedFirstVisitDefaults(store) {
     }
     saveToStorage(storageKeys.version, version);
 }
-

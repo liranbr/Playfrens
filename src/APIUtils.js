@@ -133,6 +133,30 @@ export async function listBoards() {
     }
 }
 
+/** A public board's read-only snapshot. Returns null if it's private or doesn't exist. */
+export async function getPublicBoard(shortId) {
+    try {
+        const response = await fetch(`/api/boards/public/${encodeURIComponent(shortId)}`);
+        if (!response.ok) return null;
+        const { board } = await response.json();
+        return board;
+    } catch {
+        return null;
+    }
+}
+
+export async function setBoardVisibility(boardId, isPublic) {
+    const response = await fetch(`/api/boards/${boardId}/visibility`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ isPublic }),
+    });
+    const json = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(json.error || "Failed to change board visibility.");
+    return json.isPublic;
+}
+
 /** Creates an additional owned board (capped server-side). Returns { id, shortId, name, role }. */
 export async function createBoard(name) {
     const response = await fetch("/api/boards", {

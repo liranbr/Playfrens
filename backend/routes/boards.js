@@ -25,7 +25,7 @@ async function listBoards(req, res) {
 
     const { data: boards, error } = await supabase
         .from("boards")
-        .select("id, name, short_id, owner_id, owner:owner_id(display_name)")
+        .select("id, name, short_id, owner_id, is_public, owner:owner_id(display_name)")
         .or(`owner_id.eq.${userId},members_id.cs.{${userId}}`);
 
     if (error) return Response.send(res, INTERNAL_SERVER_ERROR, { error: error.message });
@@ -34,6 +34,7 @@ async function listBoards(req, res) {
         id: b.id,
         shortId: b.short_id, // used to build the /app/<shortId> URL instead of the raw UUID
         role: b.owner_id === userId ? "owner" : "guest",
+        isPublic: b.is_public === true,
         name:
             b.name ||
             (b.owner_id === userId ? "My Board" : `${b.owner?.display_name ?? "Unknown"}'s Board`),
@@ -560,7 +561,76 @@ async function unassignAccountFromTag(req, res) {
     }
 }
 
+// Board keys a public viewer gets
+const PUBLIC_BOARD_KEYS = [
+    "allFriends",
+    "allCategories",
+    "allStatuses",
+    "allGames",
+    "allReminders",
+    "tagsCustomOrders",
+    "settings",
+    "defaultFilters",
+    "version",
+];
+
+/** GET /public/:shortId - only for boards the owner made public. */
+async function getPublicBoard(req, res) {
+    const { OK, NOT_FOUND, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+    const { data: row, error } = await supabase
+        .from("boards")
+        .select("id, short_id, name, board, last_updated, is_public, owner:owner_id(display_name)")
+        .eq("short_id", req.params.shortId)
+        .maybeSingle();
+    if (error) return Response.send(res, INTERNAL_SERVER_ERROR, { error: error.message });
+    // Same response for private and missing, so private boards can't be probed for
+    if (!row?.is_public) return Response.send(res, NOT_FOUND, { error: "Board not found" });
+
+    const source = row.board ?? {};
+    const board = {};
+    for (const key of PUBLIC_BOARD_KEYS) if (key in source) board[key] = source[key];
+    // Account ids are private, the tags themselves stay
+    if (Array.isArray(board.allFriends)) {
+        board.allFriends = board.allFriends.map(([id, json]) => {
+            const rest = { ...json };
+            delete rest.linkedAccountIds;
+            return [id, rest];
+        });
+    }
+
+    const ownerName = row.owner?.display_name ?? "Unknown";
+    return Response.send(res, OK, {
+        board: {
+            id: row.id,
+            shortId: row.short_id,
+            name: row.name || `${ownerName}'s Board`,
+            ownerName,
+            last_updated: row.last_updated,
+            board,
+        },
+    });
+}
+
+async function setBoardVisibility(req, res) {
+    const { OK, BAD_REQUEST, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+    const { isPublic } = req.body;
+    if (typeof isPublic !== "boolean") {
+        return Response.send(res, BAD_REQUEST, { error: "isPublic must be true or false." });
+    }
+
+    const { error } = await supabase
+        .from("boards")
+        .update({ is_public: isPublic })
+        .eq("id", req.board.id);
+    if (error) return Response.send(res, INTERNAL_SERVER_ERROR, { error: error.message });
+
+    broadcastToBoard(req.board.id, { type: "board-visibility", isPublic });
+    return Response.send(res, OK, { isPublic });
+}
+
 const router = Router();
+// Before requireAuth, logged out visitors can view public boards
+router.get("/public/:shortId", getPublicBoard);
 router.use(requireAuth);
 
 router.get("/", listBoards);
@@ -568,6 +638,7 @@ router.post("/", createBoard);
 router.get("/:boardId", requireBoardAccess, getBoard);
 router.post("/:boardId", requireBoardAccess, permissionLevel.Owner, saveBoard);
 router.post("/:boardId/rename", requireBoardAccess, permissionLevel.Owner, renameBoard);
+router.post("/:boardId/visibility", requireBoardAccess, permissionLevel.Owner, setBoardVisibility);
 router.post("/:boardId/update", requireBoardAccess, updateBoard);
 router.post("/:boardId/history", requireBoardAccess, appendBoardHistory);
 router.delete("/:boardId", requireBoardAccess, permissionLevel.Owner, deleteBoard);

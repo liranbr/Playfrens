@@ -70,7 +70,7 @@ const DeleteAccountButton = () => {
                 credentials: "include",
             });
             if (response.status === HttpStatus.OK) {
-                toastSuccess("Account Deleted successfully. Reloading..");
+                toastSuccess("Account Deleted successfully. Reloading..", "", { personal: true });
                 setTimeout(() => window.location.reload(), 3000);
             } else {
                 console.error("Failed to delete Account: ", response);

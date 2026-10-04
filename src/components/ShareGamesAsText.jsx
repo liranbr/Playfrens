@@ -54,7 +54,7 @@ export const ShareGamesAsText = observer(() => {
                 makeGamesText(withLinks),
             ].join("  \n");
             await navigator.clipboard.writeText(text);
-            toastSuccess("Copied to clipboard!");
+            toastSuccess("Copied to clipboard!", "", { personal: true });
         } catch (err) {
             const errMsg = "Failed to copy text: " + err;
             console.error(errMsg);

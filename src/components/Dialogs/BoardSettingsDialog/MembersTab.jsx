@@ -89,7 +89,7 @@ export const MembersTab = observer(() => {
     async function copyToClipboard(text, message) {
         try {
             await navigator.clipboard.writeText(text);
-            toastSuccess(message);
+            toastSuccess(message, "", { personal: true });
         } catch (err) {
             toastError("Failed to copy: " + err);
         }

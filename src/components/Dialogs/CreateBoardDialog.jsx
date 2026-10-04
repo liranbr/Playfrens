@@ -17,7 +17,7 @@ export function CreateBoardDialog({ open, closeDialog }) {
         setCreating(true);
         try {
             const board = await boardStore.createBoard(name.trim());
-            toastSuccess(`Created ${board.name}`);
+            toastSuccess(`Created ${board.name}`, "", { personal: true });
             setName("");
             closeDialog();
         } catch (err) {

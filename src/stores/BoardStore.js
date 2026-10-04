@@ -3,8 +3,10 @@ import { makeAutoObservable, runInAction } from "mobx";
 import {
     createBoard as createBoardAPI,
     deleteBoard as deleteBoardAPI,
+    getPublicBoard,
     listBoards,
     renameBoard as renameBoardAPI,
+    setBoardVisibility as setBoardVisibilityAPI,
 } from "@/APIUtils.js";
 import { resetRequestQueue } from "@/services/RequestQueue.js";
 import { subscribeToBoard } from "@/services/BoardSocket.js";
@@ -22,9 +24,11 @@ const LAST_BOARD_STORAGE_KEY = "last-active-board-id";
 
 // Tracks which boards the user can access and which one is active.
 export class BoardStore {
-    boards = []; // [{ id, name, role: "owner" | "guest" }]
+    boards = []; // [{ id, name, role: "owner" | "guest", isPublic }]
     activeBoardId = null;
     loading = true;
+    // Viewing someone else's public board: { id, shortId, name, ownerName }
+    publicBoard = null;
     #guestsCache = new Map();
 
     constructor() {
@@ -32,7 +36,12 @@ export class BoardStore {
     }
 
     get activeBoard() {
+        if (this.publicBoard) return this.publicBoard;
         return this.boards.find((b) => b.id === this.activeBoardId) ?? null;
+    }
+
+    get isReadOnly() {
+        return this.publicBoard !== null;
     }
 
     get ownedBoardsCount() {
@@ -50,6 +59,13 @@ export class BoardStore {
     async populate() {
         const boards = await listBoards();
         const requestedId = this.getRequestedBoardIdFromURL();
+        // A board link you're not a member of, view it as read only if it's public
+        const isMember = boards.some((b) => b.shortId === requestedId || b.id === requestedId);
+        if (requestedId && !isMember) {
+            runInAction(() => (this.boards = boards));
+            if (await this.populatePublic(requestedId)) return;
+        }
+
         const lastUsedId = loadFromStorage(LAST_BOARD_STORAGE_KEY, null);
         const resolvedId =
             (requestedId &&
@@ -66,6 +82,40 @@ export class BoardStore {
         });
 
         if (resolvedId) await this.#loadActiveBoard();
+    }
+
+    /** Loads a public board read-only, returns false if it's private or missing. */
+    async populatePublic(shortId = this.getRequestedBoardIdFromURL()) {
+        const board = shortId ? await getPublicBoard(shortId) : null;
+        if (!board) {
+            runInAction(() => (this.loading = false));
+            return false;
+        }
+
+        runInAction(() => {
+            this.publicBoard = {
+                id: board.id,
+                shortId: board.shortId,
+                name: board.name,
+                ownerName: board.ownerName,
+            };
+            this.activeBoardId = board.id;
+            this.loading = false;
+        });
+        // No socket subscription or settings sync, viewers never write
+        resetRequestQueue();
+        await globalDataStore.populate(board.id, board);
+        globalSettingsStore.populateBoardSettings(board.board.settings ?? {});
+        globalFilterStore.populate(board.board.defaultFilters ?? {});
+        return true;
+    }
+
+    async setVisibility(boardId, isPublic) {
+        const result = await setBoardVisibilityAPI(boardId, isPublic);
+        runInAction(() => {
+            const board = this.boards.find((b) => b.id === boardId);
+            if (board) board.isPublic = result;
+        });
     }
 
     switchBoard(boardId) {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { Navigate, useParams } from "react-router-dom";
+import { Link, Navigate, useParams } from "react-router-dom";
 import * as Avatar from "@radix-ui/react-avatar";
 import {
     MdChevronRight,
@@ -10,6 +10,7 @@ import {
     MdOutlineFileDownload,
     MdOutlineFileUpload,
     MdOutlineGamepad,
+    MdOutlineVisibility,
     MdPerson,
 } from "react-icons/md";
 
@@ -45,40 +46,43 @@ const AppMenu = observer(() => {
     const boardStore = useBoardStore();
     const { userInfo } = useUserStore();
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const isViewer = boardStore.isReadOnly;
     return (
         <Dropdown
             trigger={<IconButton icon={<MdMenu />} activate={dropdownOpen} />}
             onOpenChange={setDropdownOpen}
         >
-            {!userInfo.isGuest && (
+            {!isViewer && !userInfo.isGuest && (
                 <Dropdown.Item onClick={() => globalDialogStore.open(Dialogs.SteamImport)}>
                     Import from Steam
                 </Dropdown.Item>
             )}
-            <Dropdown.Sub>
-                <Dropdown.SubTrigger>
-                    Backup
-                    <MdChevronRight className="rx-dropdown-right-slot" />
-                </Dropdown.SubTrigger>
-                <Dropdown.SubContent>
-                    <Dropdown.Item
-                        disabled={!boardStore.isOwner}
-                        onSelect={() => {
-                            globalDialogStore.open(Dialogs.GenericWarning, {
-                                message:
-                                    "Importing a backup will overwrite all of your current data.",
-                                continueFunction: () => pickFile(restoreFromFile, ".json"),
-                            });
-                        }}
-                    >
-                        <MdOutlineFileUpload /> Restore
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={backupToFile}>
-                        <MdOutlineFileDownload /> Backup
-                    </Dropdown.Item>
-                </Dropdown.SubContent>
-            </Dropdown.Sub>
-            <Dropdown.Separator />
+            {!isViewer && (
+                <Dropdown.Sub>
+                    <Dropdown.SubTrigger>
+                        Backup
+                        <MdChevronRight className="rx-dropdown-right-slot" />
+                    </Dropdown.SubTrigger>
+                    <Dropdown.SubContent>
+                        <Dropdown.Item
+                            disabled={!boardStore.isOwner}
+                            onSelect={() => {
+                                globalDialogStore.open(Dialogs.GenericWarning, {
+                                    message:
+                                        "Importing a backup will overwrite all of your current data.",
+                                    continueFunction: () => pickFile(restoreFromFile, ".json"),
+                                });
+                            }}
+                        >
+                            <MdOutlineFileUpload /> Restore
+                        </Dropdown.Item>
+                        <Dropdown.Item onClick={backupToFile}>
+                            <MdOutlineFileDownload /> Backup
+                        </Dropdown.Item>
+                    </Dropdown.SubContent>
+                </Dropdown.Sub>
+            )}
+            {!isViewer && <Dropdown.Separator />}
             <Dropdown.Sub>
                 <Dropdown.SubTrigger>
                     Links
@@ -150,6 +154,8 @@ const AppHeader = observer(() => {
                     </ArrowToFeature>
                 )}
 
+                {boardStore.isReadOnly && <ReadOnlyBadge />}
+
                 <Notifications />
 
                 <AppUserAvatar />
@@ -158,9 +164,34 @@ const AppHeader = observer(() => {
     );
 });
 
+const ReadOnlyBadge = observer(() => {
+    const { activeBoard } = useBoardStore();
+    return (
+        <SimpleTooltip
+            message={`You're viewing ${activeBoard?.ownerName}'s board. Only its members can make changes.`}
+        >
+            <div className="read-only-badge">
+                <MdOutlineVisibility />
+                Read Only
+            </div>
+        </SimpleTooltip>
+    );
+});
+
 const AppUserAvatar = observer(() => {
     const userStore = useUserStore();
     const { userInfo } = userStore;
+    const boardStore = useBoardStore();
+
+    // Logged out public viewer, logging in brings them back to this board
+    if (!userInfo) {
+        const shortId = boardStore.activeBoard?.shortId;
+        return (
+            <Link className="log-in-button" to={shortId ? `/login?board=${shortId}` : "/login"}>
+                Log in
+            </Link>
+        );
+    }
     localStorage.setItem("last-auth-used", JSON.stringify(userInfo.provider, null, 4));
 
     return (
@@ -215,8 +246,9 @@ const Playfrens = observer(() => {
     }, [shortId, boardStore, boardStore.loading, boardStore.boards, boardStore.activeBoardId]);
 
     if (loading) return <div className="loading-page">Loading...</div>;
-    // Requires login, and carries the board id along so signing in lands back on it.
-    if (userInfo === undefined) {
+    // Requires login (unless it's a public board), and carries the board id along so signing in lands back on it.
+    // Guest login links always go to login, even when the board is public.
+    if (userInfo === undefined && (!boardStore.isReadOnly || guestName)) {
         if (!shortId) return <Navigate to="/login" replace />;
         const guestQuery = guestName ? `&guest=${encodeURIComponent(guestName)}` : "";
         return <Navigate to={`/login?board=${shortId}${guestQuery}`} replace />;

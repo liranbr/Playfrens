@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite";
 import { MdShare } from "react-icons/md";
 import { storeTypes, tagTypeStrings } from "@/models";
-import { globalDataStore, useFilterStore, useUserStore } from "@/stores";
+import { globalDataStore, useBoardStore, useFilterStore, useUserStore } from "@/stores";
 import { Dropdown, IconButton } from "@/components";
 import { toastError, toastSuccess } from "@/Utils";
 
@@ -9,6 +9,9 @@ export const ShareGamesAsText = observer(() => {
     const { search, selectedTagIDs, excludedTagIDs, areFiltersActive, filteredGames } =
         useFilterStore();
     const { userInfo } = useUserStore();
+    const { publicBoard } = useBoardStore();
+    // A public board is someone else's so logged out viewers have no name either
+    const boardOwnerName = publicBoard?.ownerName ?? userInfo?.displayName;
     const makeFiltersText = () => {
         if (!areFiltersActive) return "**No filters active**";
         const currentFilters = [];
@@ -49,7 +52,7 @@ export const ShareGamesAsText = observer(() => {
         const pfLink = "https://playfrens.com/";
         try {
             const text = [
-                `## ${userInfo.displayName}'s [Playfrens](<${pfLink}>) Board`,
+                `## ${boardOwnerName}'s [Playfrens](<${pfLink}>) Board`,
                 makeFiltersText(),
                 makeGamesText(withLinks),
             ].join("  \n");

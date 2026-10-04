@@ -92,6 +92,8 @@ export class DataStore {
     #syncTimers = {};
     // Which board is currently loaded, set by populate() and read by every outgoing sync call.
     activeBoardId = null;
+    // Public read-only view
+    readOnly = false;
     // Last known `boards.last_updated` for the active board; used as the stale-write guard when
     // resending a whole collection array (see watchAndSyncCollection).
     #boardLastUpdated = null;
@@ -113,17 +115,23 @@ export class DataStore {
         );
     }
 
-    async populate(boardId) {
+    /** @param {object} [publicBoard] a public board snapshot, loads it read-only instead of fetching */
+    async populate(boardId, publicBoard = null) {
         this.activeBoardId = boardId;
+        this.readOnly = !!publicBoard;
         try {
-            const response = await fetch(`/api/boards/${boardId}`);
-            const json = await response.json();
-            if (!response.ok) throw new Error(json.error);
-            const board = json.board.board;
-            this.#boardLastUpdated = json.board.last_updated;
+            let boardRow = publicBoard;
+            if (!boardRow) {
+                const response = await fetch(`/api/boards/${boardId}`);
+                const json = await response.json();
+                if (!response.ok) throw new Error(json.error);
+                boardRow = json.board;
+            }
+            const board = boardRow.board ?? {};
+            this.#boardLastUpdated = boardRow.last_updated;
 
             // Set to default via Empty Board for now.
-            if (Object.keys(board).length === 0) {
+            if (Object.keys(board).length === 0 && !this.readOnly) {
                 const data = defaultTagsSample();
                 this.populateTagsFromTagNames(data);
                 const saved = await saveBoard(this.activeBoardId, exportDataStoreToJSON(this));
@@ -141,12 +149,17 @@ export class DataStore {
                 await saveToStorage(storageKeys.settings, board[storageKeys.settings]); // if it doesn't load correctly, need to reload
                 await saveToStorage(storageKeys.defaultFilters, board[storageKeys.defaultFilters]);
             }
-            globalBoardHistoryStore.populate(boardId, board[storageKeys.activityHistory]);
+            // No board id means nothing gets recorded, viewers can't write history
+            globalBoardHistoryStore.populate(
+                this.readOnly ? null : boardId,
+                board[storageKeys.activityHistory],
+            );
             this.#isHydrated = true;
         } catch (error) {
             console.info(error);
             toastError(error);
         }
+        if (this.readOnly) return; // no backend sync for viewers
 
         // Seed the "last synced" snapshots now that hydration is done, so the first reaction
         // tick diffs against real data.
@@ -246,6 +259,7 @@ export class DataStore {
     }
 
     async #pushBoardUpdate(path, value, { getExpectedLastUpdated, onStaleWrite } = {}) {
+        if (this.readOnly) return;
         try {
             const result = await updateBoard(
                 this.activeBoardId,

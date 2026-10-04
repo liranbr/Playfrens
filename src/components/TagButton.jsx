@@ -21,6 +21,7 @@ export const SidebarTagButton = observer(({ tag }) => {
     const filterStore = useFilterStore();
     const settingsStore = useSettingsStore();
     const dataStore = useDataStore();
+    const { isReadOnly } = useBoardStore();
 
     // CSS for button different states
     const classes = ["tag-button-container", "sidebar-tbc"];
@@ -99,7 +100,7 @@ export const SidebarTagButton = observer(({ tag }) => {
                 }}
                 onMouseEnter={() => filterStore.setHoveredTag(tag)}
                 onMouseLeave={() => filterStore.setHoveredTag(null)}
-                draggable="true"
+                draggable={isReadOnly ? "false" : "true"} // dragging tags only edits (reorder, add to game)
                 onDragStart={() => filterStore.setDraggedTag(tag)} // instead of e.dataTransfer, has more functionality
                 onDragEnd={() => filterStore.setDraggedTag(null)}
             >
@@ -108,7 +109,7 @@ export const SidebarTagButton = observer(({ tag }) => {
                     <span className="tag-name">{tag.name}</span>
                 </span>
                 <label>{gameCounter !== 0 ? gameCounter : ""}</label>
-                <RxDragHandleHorizontal className="hover-drag-indicator" />
+                {!isReadOnly && <RxDragHandleHorizontal className="hover-drag-indicator" />}
             </span>
             <SidebarTBMenuButton
                 tag={tag}
@@ -123,9 +124,9 @@ export const SidebarTagButton = observer(({ tag }) => {
 const SidebarTBMenuButton = observer(({ tag, filterStore, dropdownOpen, setDropdownOpen }) => {
     const dataStore = useDataStore();
     const { userInfo } = useUserStore();
-    const { isOwner } = useBoardStore();
+    const { isOwner, isReadOnly } = useBoardStore();
     // Friend tags linked to an account can only be managed by the owner or an assigned account
-    const canManage = tag.isManageableBy({ accountId: userInfo?.id, isOwner });
+    const canManage = !isReadOnly && tag.isManageableBy({ accountId: userInfo?.id, isOwner });
     const excludeLabel = filterStore.isTagExcluded(tag) ? "Undo Exclude" : "Exclude";
     const toggleExclusion = () => filterStore.toggleTagExclusion(tag);
 

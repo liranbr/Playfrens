@@ -18,8 +18,8 @@ export class UserStore {
     constructor() {
         makeAutoObservable(this);
         this.getUser()
-            // load board data if logged in
-            .then(() => (this.userInfo ? this.populateStores() : undefined))
+            // load board data if logged in, otherwise try the URL's board as a public read only view
+            .then(() => (this.userInfo ? this.populateStores() : globalBoardStore.populatePublic()))
             .then(() =>
                 runInAction(() => {
                     this.loading = false;

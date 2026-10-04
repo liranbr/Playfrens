@@ -79,9 +79,9 @@ const AddTagButton = ({ tagType, party }) => {
 const GPTagButton = observer(({ party, tag }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const { userInfo } = useUserStore();
-    const { isOwner } = useBoardStore();
+    const { isOwner, isReadOnly } = useBoardStore();
     // Friend tags linked to an account can only be managed by the owner or an assigned account
-    const canManage = tag.isManageableBy({ accountId: userInfo?.id, isOwner });
+    const canManage = !isReadOnly && tag.isManageableBy({ accountId: userInfo?.id, isOwner });
     const handleRemove = () => {
         party.removeTag(tag);
         updateTagBothGameCounters(tag);
@@ -128,6 +128,7 @@ const GPTagButton = observer(({ party, tag }) => {
 
 const GPTagButtonGroup = observer(({ party, tagType }) => {
     const dataStore = useDataStore();
+    const { isReadOnly } = useBoardStore();
     const title = tagTypeStrings[tagType].plural.toUpperCase();
     // Instead of sorting the tags inside every GameObject according to current sort-by settings (inefficient and awkward),
     // we'll just display a game's tags in its GamePage as they are ordered in the (auto sorted) DataStore
@@ -145,7 +146,7 @@ const GPTagButtonGroup = observer(({ party, tagType }) => {
             <CenterAndEdgesRow className="ui-card-header">
                 <div />
                 <h4>{title}</h4>
-                <AddTagButton tagType={tagType} party={party} />
+                {isReadOnly ? <div /> : <AddTagButton tagType={tagType} party={party} />}
             </CenterAndEdgesRow>
             <div className="tag-button-list">
                 {tags.map((tag) => (
@@ -281,7 +282,7 @@ const AddReminderPopover = ({ game, party }) => {
     );
 };
 
-const PartyTabs = ({ game, partyID, setPartyID, renamePartyRef }) => {
+const PartyTabs = ({ game, partyID, setPartyID, renamePartyRef, readOnly }) => {
     const filterStore = useFilterStore();
     const tabClassName = (party) => (filterStore.doesPartyPassFilters(party) ? "" : "filtered-out");
 
@@ -320,7 +321,7 @@ const PartyTabs = ({ game, partyID, setPartyID, renamePartyRef }) => {
                     value={party.id}
                     className={tabClassName(party)}
                     onDoubleClick={() => {
-                        renamePartyRef.current?.(party);
+                        if (!readOnly) renamePartyRef.current?.(party);
                     }}
                 >
                     {renamingID === party.id ? (
@@ -357,6 +358,7 @@ export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID
     const [partyID, setPartyID] = useState(openOnPartyID ?? firstPartyIDThatPassesFilters());
     const party = game.getParty(partyID);
     const renamePartyRef = useRef(null);
+    const { isReadOnly } = useBoardStore();
 
     const dataStore = useDataStore();
     const partyReminders = party
@@ -421,12 +423,16 @@ export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID
             <div className="gp-container">
                 <div className="gp-header">
                     <CenterAndEdgesRow>
-                        <GameOptionsButton
-                            game={game}
-                            party={party}
-                            setPartyID={setPartyID}
-                            renamePartyRef={renamePartyRef}
-                        />
+                        {isReadOnly ? (
+                            <div />
+                        ) : (
+                            <GameOptionsButton
+                                game={game}
+                                party={party}
+                                setPartyID={setPartyID}
+                                renamePartyRef={renamePartyRef}
+                            />
+                        )}
                         <Dialog.Title autoFocus className="gp-title">
                             {game.title}
                         </Dialog.Title>
@@ -437,6 +443,7 @@ export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID
                         partyID={partyID}
                         setPartyID={setPartyID}
                         renamePartyRef={renamePartyRef}
+                        readOnly={isReadOnly}
                     />
                 </div>
                 <div className="gp-header-shadow" />
@@ -467,6 +474,7 @@ export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID
                                 onCommit={(value) => party.setNote(value)}
                                 active={open}
                                 maxLength={2000}
+                                readOnly={isReadOnly}
                             />
                         </div>
 
@@ -474,7 +482,11 @@ export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID
                             <CenterAndEdgesRow className="ui-card-header">
                                 <div />
                                 <h4>REMINDERS</h4>
-                                <AddReminderPopover game={game} party={party} />
+                                {isReadOnly ? (
+                                    <div />
+                                ) : (
+                                    <AddReminderPopover game={game} party={party} />
+                                )}
                             </CenterAndEdgesRow>
 
                             <div className="reminders-list">

@@ -24,7 +24,7 @@ const GameCard = observer(({ game }) => {
     const { draggedTag, hoveredTag } = filterStore;
     const hoverTagSetting = useSettingsStore().tagHoverGameHighlight;
     const { userInfo } = useUserStore();
-    const { isOwner } = useBoardStore();
+    const { isOwner, isReadOnly } = useBoardStore();
 
     const hasPartyWithoutTag = (tag) => game.parties.some((party) => !party.hasTag(tag));
     const allPartiesHaveTag = (tag) => !hasPartyWithoutTag(tag);
@@ -53,7 +53,7 @@ const GameCard = observer(({ game }) => {
 
     const handleDrop = () => {
         setDraggedOver(false);
-        if (!draggedTag) return;
+        if (!draggedTag || isReadOnly) return;
         if (!draggedTag.isManageableBy({ accountId: userInfo?.id, isOwner })) {
             return toastError(`You don't have permission to add ${draggedTag.name} to a game.`);
         }

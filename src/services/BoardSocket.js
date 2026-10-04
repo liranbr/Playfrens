@@ -53,6 +53,7 @@ function handleMessage(event) {
             globalDataStore.notifyRemoteBoardReplaced(message.lastUpdated);
             break;
         case "board-renamed":
+        case "board-visibility":
             globalBoardStore.refreshBoardsList();
             break;
         case "board-deleted":
@@ -107,6 +108,7 @@ function connectSocket() {
  * every time the active board changes, since a tab only ever has one active subscription.
  */
 export function subscribeToBoard(boardId) {
+    if (globalBoardStore.isReadOnly) return; // public viewers get no live updates
     currentBoardId = boardId;
     if (socket?.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify({ type: "subscribe", boardId }));

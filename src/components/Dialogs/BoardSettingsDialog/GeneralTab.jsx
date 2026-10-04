@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
+import { MdContentCopy } from "react-icons/md";
 import { Button, InfoIcon, RadioSetting, Setting } from "@/components";
 import {
     globalBoardStore,
@@ -67,6 +68,7 @@ export const GeneralTab = observer(({ closeDialog }) => {
             )}
 
             <div className={`settings-tab${isOwner ? "" : " read-only"}`} inert={!isOwner}>
+                {isOwner && board && <PublicLinkSetting board={board} />}
                 <FilterSettings />
             </div>
 
@@ -77,6 +79,59 @@ export const GeneralTab = observer(({ closeDialog }) => {
                 </>
             )}
         </>
+    );
+});
+
+const PublicLinkOptions = { off: "Off", on: "On" };
+
+const PublicLinkSetting = observer(({ board }) => {
+    const [saving, setSaving] = useState(false);
+    const link = `${window.location.origin}/board/${board.shortId}`;
+
+    async function handleChange(option) {
+        if (saving) return;
+        const isPublic = option === "on";
+        setSaving(true);
+        try {
+            await globalBoardStore.setVisibility(board.id, isPublic);
+            toastSuccess(isPublic ? "Board is now publicly viewable" : "Board is now private");
+        } catch (err) {
+            toastError(err.message);
+        } finally {
+            setSaving(false);
+        }
+    }
+
+    return (
+        <Setting
+            title="Public Read-Only Link"
+            description="Anyone with the board link can view it without logging in, but can't change anything"
+        >
+            <RadioSetting
+                name="publicReadOnly"
+                value={board.isPublic ? "on" : "off"}
+                options={PublicLinkOptions}
+                onChange={handleChange}
+            />
+            {board.isPublic && (
+                <div className="board-members-copy-row">
+                    <input readOnly value={link} onFocus={(e) => e.target.select()} />
+                    <Button
+                        variant="secondary"
+                        onClick={() =>
+                            navigator.clipboard
+                                .writeText(link)
+                                .then(() =>
+                                    toastSuccess("Board link copied!", "", { personal: true }),
+                                )
+                                .catch((err) => toastError("Failed to copy: " + err))
+                        }
+                    >
+                        <MdContentCopy /> Copy
+                    </Button>
+                </div>
+            )}
+        </Setting>
     );
 });
 

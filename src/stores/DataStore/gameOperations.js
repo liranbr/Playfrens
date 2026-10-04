@@ -88,7 +88,7 @@ export async function populateGames(store, gameJsons, version) {
 
     runInAction(() => {
         store.allGames.replace(entries); // mutate in place, don't reassign the Map
-        if (changed) {
+        if (changed && !store.readOnly) {
             const snapshot = entries.map(([id, game]) => [id, toPlainObject(game)]);
             updateBoard(store.activeBoardId, [storageKeys.games], snapshot)
                 .then((result) => {

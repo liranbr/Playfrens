@@ -10,19 +10,28 @@ import { Dropdown } from "@/components";
 export const BoardSwitcher = observer(() => {
     const boardStore = useBoardStore();
     const { userInfo } = useUserStore();
+    const canSwitch = userInfo && !userInfo.isGuest;
+    const boardName = boardStore.activeBoard?.name ?? "Board";
+
+    // Public viewer with nothing to switch to or manage
+    if (!canSwitch && boardStore.isReadOnly) {
+        return (
+            <span className="board-switcher-trigger">
+                <span className="board-switcher-trigger-label">{boardName}</span>
+            </span>
+        );
+    }
 
     return (
         <Dropdown
             trigger={
                 <span className="board-switcher-trigger">
-                    <span className="board-switcher-trigger-label">
-                        {boardStore.activeBoard?.name ?? "Board"}
-                    </span>
+                    <span className="board-switcher-trigger-label">{boardName}</span>
                     <MdKeyboardArrowDown />
                 </span>
             }
         >
-            {!userInfo.isGuest && (
+            {canSwitch && (
                 <>
                     {boardStore.boards.map((board) => (
                         <Dropdown.Item
@@ -41,9 +50,11 @@ export const BoardSwitcher = observer(() => {
                     )}
                 </>
             )}
-            <Dropdown.Item onClick={() => globalDialogStore.open(Dialogs.BoardSettings)}>
-                <MdSettings /> Board Settings
-            </Dropdown.Item>
+            {!boardStore.isReadOnly && (
+                <Dropdown.Item onClick={() => globalDialogStore.open(Dialogs.BoardSettings)}>
+                    <MdSettings /> Board Settings
+                </Dropdown.Item>
+            )}
         </Dropdown>
     );
 });

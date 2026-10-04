@@ -3,7 +3,13 @@ import { observer } from "mobx-react-lite";
 import * as Popover from "@radix-ui/react-popover";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import { MdHistory, MdOutlineCheckCircle, MdOutlineNotifications } from "react-icons/md";
-import { Dialogs, globalBoardHistoryStore, globalDialogStore, useDataStore } from "@/stores";
+import {
+    Dialogs,
+    globalBoardHistoryStore,
+    globalDialogStore,
+    useBoardStore,
+    useDataStore,
+} from "@/stores";
 import { ReminderCard } from "@/components";
 
 const tabs = { reminders: "Reminders", history: "History" };
@@ -19,6 +25,9 @@ export const Notifications = observer(() => {
     const [popoverOpen, setPopoverOpen] = useState(false);
     const [activeTab, setActiveTab] = useState("reminders");
     const dataStore = useDataStore();
+    // History is members only, public viewers just get reminders
+    const { isReadOnly } = useBoardStore();
+    const showHistory = !isReadOnly && activeTab === "history";
     const reminders = dataStore.sortedReminders;
 
     const now = new Date();
@@ -35,19 +44,21 @@ export const Notifications = observer(() => {
                 </button>
             </Popover.Trigger>
             <Popover.Content className="rx-popover notifications-drawer" align="end" sideOffset={5}>
-                <ToggleGroup.Root
-                    type="single"
-                    className="rx-toggle-group notifications-tabs"
-                    value={activeTab}
-                    onValueChange={(tab) => tab && setActiveTab(tab)} // to avoid empty values
-                >
-                    {Object.entries(tabs).map(([tab, label]) => (
-                        <ToggleGroup.Item value={tab} key={tab}>
-                            {label}
-                        </ToggleGroup.Item>
-                    ))}
-                </ToggleGroup.Root>
-                {activeTab === "reminders" ? (
+                {!isReadOnly && (
+                    <ToggleGroup.Root
+                        type="single"
+                        className="rx-toggle-group notifications-tabs"
+                        value={activeTab}
+                        onValueChange={(tab) => tab && setActiveTab(tab)} // to avoid empty values
+                    >
+                        {Object.entries(tabs).map(([tab, label]) => (
+                            <ToggleGroup.Item value={tab} key={tab}>
+                                {label}
+                            </ToggleGroup.Item>
+                        ))}
+                    </ToggleGroup.Root>
+                )}
+                {!showHistory ? (
                     <div className="reminders-list">
                         {reminders.length === 0 ? (
                             <div className="no-reminders">

@@ -117,7 +117,12 @@ const httpServer = useHttps ? createHttpsServer(app) : http.createServer(app);
 attachBoardSocketServer(httpServer, { sessionMiddleware, passport });
 
 httpServer.listen(env.BACKEND_PORT, env.DOMAIN, () => {
+    const { FgCyan, Reset, success, url } = ConsoleColors;
+    const baseURL = resolveBaseURL();
     console.log(
-        `${ConsoleColors.FgRGB(191, 255, 0)} Playfrens server running @ ${resolveBaseURL()}${ConsoleColors.Reset}`,
+        `${success} Playfrens server running :)${Reset}\n` +
+            `  ${FgCyan}[_]${Reset}     ${url}${baseURL}${Reset}\n` +
+            `  ${FgCyan}[App]${Reset}   ${url}${baseURL}/app${Reset}\n` +
+            `  ${FgCyan}[Login]${Reset} ${url}${baseURL}/login${Reset}`,
     );
 });

@@ -15,13 +15,16 @@ import { Dropdown, IconButton, FriendAvatar } from "@/components";
 import { storeTypes, tagTypes } from "@/models";
 import "./TagButton.css";
 
-export const SidebarTagButton = observer(({ tag }) => {
+export const SidebarTagButton = observer(({ tag, isOwn = false }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [draggedOverDirection, setDraggedOverDirection] = useState(""); // another tag is being dragged over the "bottom" or "top" half of this one, or not ("")
     const filterStore = useFilterStore();
     const settingsStore = useSettingsStore();
     const dataStore = useDataStore();
-    const { isReadOnly } = useBoardStore();
+    const { isOwner, isReadOnly } = useBoardStore();
+    const { userInfo } = useUserStore();
+    // Dragging tags only edits (reorder, add to game)
+    const canDrag = !isReadOnly && tag.isManageableBy({ accountId: userInfo?.id, isOwner });
 
     // CSS for button different states
     const classes = ["tag-button-container", "sidebar-tbc"];
@@ -29,6 +32,8 @@ export const SidebarTagButton = observer(({ tag }) => {
     if (filterStore.isTagExcluded(tag)) classes.push("excluded");
     if (filterStore.draggedTag?.id === tag.id) classes.push("being-dragged");
     if (dropdownOpen) classes.push("dd-open");
+    if (isOwn) classes.push("own-tag");
+    if (!canDrag) classes.push("not-draggable");
 
     // Handling Custom Sorting, when another tag is being dragged over this one
     const draggedTag = filterStore.draggedTag;
@@ -100,16 +105,16 @@ export const SidebarTagButton = observer(({ tag }) => {
                 }}
                 onMouseEnter={() => filterStore.setHoveredTag(tag)}
                 onMouseLeave={() => filterStore.setHoveredTag(null)}
-                draggable={isReadOnly ? "false" : "true"} // dragging tags only edits (reorder, add to game)
-                onDragStart={() => filterStore.setDraggedTag(tag)} // instead of e.dataTransfer, has more functionality
-                onDragEnd={() => filterStore.setDraggedTag(null)}
+                draggable={canDrag ? "true" : "false"}
+                onDragStart={canDrag ? () => filterStore.setDraggedTag(tag) : undefined} // instead of e.dataTransfer, has more functionality
+                onDragEnd={canDrag ? () => filterStore.setDraggedTag(null) : undefined}
             >
                 <span className="tag-name-wrapper">
                     {tag.type === tagTypes.friend && <FriendAvatar iconURL={tag.iconURL} />}
                     <span className="tag-name">{tag.name}</span>
                 </span>
                 <label>{gameCounter !== 0 ? gameCounter : ""}</label>
-                {!isReadOnly && <RxDragHandleHorizontal className="hover-drag-indicator" />}
+                {canDrag && <RxDragHandleHorizontal className="hover-drag-indicator" />}
             </span>
             <SidebarTBMenuButton
                 tag={tag}

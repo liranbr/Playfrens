@@ -5,7 +5,7 @@ import * as Popover from "@radix-ui/react-popover";
 import * as RadioGroup from "@radix-ui/react-radio-group";
 import * as Select from "@radix-ui/react-select";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
-import { tagTypeStrings } from "@/models";
+import { tagTypes, tagTypeStrings } from "@/models";
 import {
     useSettingsStore,
     TagFilterLogicOptions,
@@ -14,6 +14,7 @@ import {
     globalDialogStore,
     useBoardStore,
     useDataStore,
+    useUserStore,
 } from "@/stores";
 import {
     SidebarTagButton,
@@ -28,7 +29,14 @@ import { useState } from "react";
 export const SidebarTagButtonGroup = observer(({ tagType }) => {
     const { allTags } = useDataStore();
     const { isOwner } = useBoardStore();
+    const { userInfo } = useUserStore();
     const typeStrings = tagTypeStrings[tagType];
+    // Guests see the friend tags they control above the rest
+    const splitOwnTags = !!userInfo?.isGuest && tagType === tagTypes.friend;
+    const tags = [...allTags[tagType].values()];
+    const isOwnTag = (tag) => tag.linkedAccountIds?.includes(userInfo.id);
+    const ownTags = splitOwnTags ? tags.filter(isOwnTag) : [];
+    const otherTags = splitOwnTags ? tags.filter((t) => !isOwnTag(t)) : tags;
     const handleAddButtonClick = () => {
         globalDialogStore.open(Dialogs.EditTag, { addingTagOfType: tagType });
     };
@@ -48,8 +56,17 @@ export const SidebarTagButtonGroup = observer(({ tagType }) => {
             </CenterAndEdgesRow>
 
             <div className="tag-button-list">
-                {[...allTags[tagType]].map(([id, tag]) => (
-                    <SidebarTagButton key={id} tag={tag} />
+                {splitOwnTags && (
+                    <>
+                        {ownTags.map((tag) => (
+                            <SidebarTagButton key={tag.id} tag={tag} isOwn />
+                        ))}
+                        {ownTags.length === 0 && <span className="own-tags-none">None</span>}
+                        <div className="separator own-tags-separator" />
+                    </>
+                )}
+                {otherTags.map((tag) => (
+                    <SidebarTagButton key={tag.id} tag={tag} />
                 ))}
 
                 {allTags[tagType].size === 0 && (

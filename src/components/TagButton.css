@@ -91,6 +91,9 @@
                 transform 0.3s ease 0.7s;
         }
     }
+    &.not-draggable:hover .tag-button {
+        padding-left: 0.75rem;
+    }
     &.being-dragged {
         filter: brightness(0.5);
         .hover-drag-indicator {
@@ -120,6 +123,10 @@
             color: var(--pf-fg-300);
             font-weight: normal;
         }
+    }
+
+    &.own-tag {
+        background-color: color-mix(in srgb, var(--pf-btn-primary) 10%, transparent);
     }
 
     &.excluded {

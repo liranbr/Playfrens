@@ -18,12 +18,15 @@ export const ReminderCard = observer(({ reminder, outsideOfGamePage = false }) =
     if (outsideOfGamePage) {
         const dataStore = useDataStore();
         const game = dataStore.allGames.get(reminder.gameID);
-        gameTitle = game.title;
-        onClickGameTitle = () =>
-            globalDialogStore.open(Dialogs.GamePage, {
-                game: game,
-                openOnPartyID: reminder.partyID,
-            });
+        // The game may have been deleted without its reminders
+        if (game) {
+            gameTitle = game.title;
+            onClickGameTitle = () =>
+                globalDialogStore.open(Dialogs.GamePage, {
+                    game: game,
+                    openOnPartyID: reminder.partyID,
+                });
+        }
     }
 
     const classes = ["reminder-container"];

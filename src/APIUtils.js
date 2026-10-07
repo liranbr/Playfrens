@@ -319,15 +319,27 @@ export async function setBoardGuestPassword(boardId, userId, password) {
     }
 }
 
-/** Replaces the guest's login link, returns { token }. */
-export async function createBoardGuestLoginLink(boardId, userId) {
+/** The guest's current login link { token }, made if they don't have one yet. */
+export async function getBoardGuestLoginLink(boardId, userId) {
     const response = await fetch(`/api/boards/${boardId}/guests/${userId}/login-link`, {
         method: "POST",
         credentials: "include",
     });
     const json = await response.json().catch(() => ({}));
     if (!response.ok)
-        throw new Error(json.error || `Failed to create login link (status ${response.status})`);
+        throw new Error(json.error || `Failed to get login link (status ${response.status})`);
+    return json.loginLink;
+}
+
+/** Replaces the guest's login link, returns { token }. */
+export async function replaceBoardGuestLoginLink(boardId, userId) {
+    const response = await fetch(`/api/boards/${boardId}/guests/${userId}/login-link/replace`, {
+        method: "POST",
+        credentials: "include",
+    });
+    const json = await response.json().catch(() => ({}));
+    if (!response.ok)
+        throw new Error(json.error || `Failed to replace login link (status ${response.status})`);
     return json.loginLink;
 }
 

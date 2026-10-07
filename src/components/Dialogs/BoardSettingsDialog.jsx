@@ -19,6 +19,7 @@ export const BoardSettingsDialog = observer(({ open, closeDialog }) => {
             open={open}
             onOpenChange={closeDialog}
             contentProps={{
+                forceMount: true, // keeps the open tab and its state while a confirm dialog is on top
                 className: "rx-dialog settings-dialog board-settings-dialog",
                 onOpenAutoFocus: (e) => {
                     e.preventDefault(); // Focuses the dialog content instead of the first interactable element

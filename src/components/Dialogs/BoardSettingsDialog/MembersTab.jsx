@@ -1,25 +1,28 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import * as Avatar from "@radix-ui/react-avatar";
 import {
+    MdAutorenew,
     MdClose,
     MdContentCopy,
     MdDelete,
-    MdEdit,
-    MdLink,
     MdLogout,
+    MdMoreVert,
+    MdPassword,
     MdPerson,
+    MdPersonAdd,
     MdSave,
     MdVisibility,
     MdVisibilityOff,
 } from "react-icons/md";
-import { Button, IconButton, SimpleTooltip } from "@/components";
+import { Button, Dropdown, IconButton, LabelBadge, SimpleTooltip } from "@/components";
 import { Dialogs, globalBoardStore, globalDialogStore, userStore } from "@/stores";
 import {
     createBoardGuest,
-    createBoardGuestLoginLink,
+    getBoardGuestLoginLink,
     listBoardGuests,
     removeBoardGuest,
+    replaceBoardGuestLoginLink,
     setBoardGuestPassword,
     signOutBoardGuest,
 } from "@/APIUtils.js";
@@ -60,9 +63,11 @@ export const MembersTab = observer(() => {
     const [guests, setGuests] = useState(cached ?? []);
     const [loading, setLoading] = useState(cached === null);
     const [creating, setCreating] = useState(false);
+    const [showCreateForm, setShowCreateForm] = useState(false);
     const [newUsername, setNewUsername] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [latestInvite, setLatestInvite] = useState(null); // { username, password, text }
+    const [editingPasswordFor, setEditingPasswordFor] = useState(null); // guest id
 
     async function refresh() {
         setLoading(true);
@@ -86,10 +91,10 @@ export const MembersTab = observer(() => {
         // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-run when the board changes
     }, [boardId]);
 
-    function showInvite(username, token, password) {
-        const text = buildGuestInvite(activeBoard, username, token, password);
-        setLatestInvite({ username, password, text });
-        return text;
+    function closeCreateForm() {
+        setShowCreateForm(false);
+        setNewUsername("");
+        setNewPassword("");
     }
 
     async function handleCreate() {
@@ -102,12 +107,14 @@ export const MembersTab = observer(() => {
                 newUsername.trim(),
                 newPassword || undefined,
             );
-            showInvite(result.guest.username, result.loginLink?.token, result.password);
+            const { username } = result.guest;
+            setLatestInvite({
+                username, password: result.password, text: buildGuestInvite(activeBoard, username, result.loginLink?.token, result.password,),
+            });
             if (!result.loginLink) {
                 toastError("Couldn't create a login link, try again from their row.");
             }
-            setNewUsername("");
-            setNewPassword("");
+            closeCreateForm();
             await refresh();
             await globalBoardStore.refreshBoardsList();
             toastSuccess(`Created a login for ${result.guest.displayName}`);
@@ -126,10 +133,10 @@ export const MembersTab = observer(() => {
     };
 
     // No password here, it isn't stored.
-    async function handleNewLink(guest) {
+    async function handleCopyLink(guest) {
         try {
-            const { token } = await createBoardGuestLoginLink(boardId, guest.id);
-            const text = showInvite(guest.username, token);
+            const { token } = await getBoardGuestLoginLink(boardId, guest.id);
+            const text = buildGuestInvite(activeBoard, guest.username, token);
             await copyToClipboard(text, `Login link for ${guest.displayName} copied!`);
         } catch (err) {
             toastError(err.message);
@@ -178,24 +185,34 @@ export const MembersTab = observer(() => {
                             </div>
                             {guest.role !== "owner" && (
                                 <div className="guest-row-actions">
-                                    {(isOwner || guest.id === userStore.userInfo?.id) && (
-                                        <GuestPasswordField boardId={boardId} guest={guest} />
-                                    )}
-                                    {isOwner && (
+                                    {editingPasswordFor === guest.id ? (
+                                        <GuestPasswordField
+                                            boardId={boardId}
+                                            guest={guest}
+                                            onDone={() => setEditingPasswordFor(null)}
+                                        />
+                                    ) : (
                                         <>
-                                            <SimpleTooltip message="Copy a new login link, the old one stops working">
-                                                <IconButton
-                                                    icon={<MdLink />}
-                                                    aria-label={`New login link for ${guest.displayName}`}
-                                                    onClick={() => handleNewLink(guest)}
+                                            {isOwner && (
+                                                <SimpleTooltip message="Copy login link">
+                                                    <IconButton
+                                                        icon={<MdContentCopy />}
+                                                        aria-label={`Copy login link for ${guest.displayName}`}
+                                                        onClick={() => handleCopyLink(guest)}
+                                                    />
+                                                </SimpleTooltip>
+                                            )}
+                                            {(isOwner || guest.id === userStore.userInfo?.id) && (
+                                                <GuestMenu
+                                                    boardId={boardId}
+                                                    guest={guest}
+                                                    isOwner={isOwner}
+                                                    onChangePassword={() =>
+                                                        setEditingPasswordFor(guest.id)
+                                                    }
+                                                    onRemoved={refresh}
                                                 />
-                                            </SimpleTooltip>
-                                            <SignOutGuestButton boardId={boardId} guest={guest} />
-                                            <RemoveGuestButton
-                                                boardId={boardId}
-                                                guest={guest}
-                                                onRemoved={refresh}
-                                            />
+                                            )}
                                         </>
                                     )}
                                 </div>
@@ -215,34 +232,60 @@ export const MembersTab = observer(() => {
                                 Guest logins let others participate in this board, without making a regular account
                             </small>
                         </div>
-                        <fieldset>
-                            <label>New Guest&apos;s Username</label>
-                            <input
-                                value={newUsername}
-                                onChange={(e) => setNewUsername(e.target.value)}
-                                onKeyDown={saveOnEnter}
-                                autoFocus
-                            />
-                            <label>Password (optional)</label>
-                            <input
-                                type="password"
-                                value={newPassword}
-                                onChange={(e) => setNewPassword(e.target.value)}
-                                onKeyDown={saveOnEnter}
-                                autoComplete="new-password"
-                            />
-                        </fieldset>
-                        <Button variant="primary" disabled={creating} onClick={handleCreate}>
-                            Create login
-                        </Button>
+                        {showCreateForm ? (
+                            <>
+                                <fieldset>
+                                    <label>New Guest&apos;s Username</label>
+                                    <input
+                                        value={newUsername}
+                                        onChange={(e) => setNewUsername(e.target.value)}
+                                        onKeyDown={saveOnEnter}
+                                        autoFocus
+                                    />
+                                    <label>
+                                        Password
+                                        <LabelBadge />
+                                    </label>
+                                    <input
+                                        type="password"
+                                        value={newPassword}
+                                        onChange={(e) => setNewPassword(e.target.value)}
+                                        onKeyDown={saveOnEnter}
+                                        autoComplete="new-password"
+                                    />
+                                </fieldset>
+                                <div className="new-guest-actions">
+                                    <Button
+                                        variant="primary"
+                                        disabled={creating}
+                                        onClick={handleCreate}
+                                    >
+                                        Create login
+                                    </Button>
+                                    <Button
+                                        variant="secondary"
+                                        disabled={creating}
+                                        onClick={closeCreateForm}
+                                    >
+                                        Cancel
+                                    </Button>
+                                </div>
+                            </>
+                        ) : (
+                            <div className="new-guest-actions">
+                                <Button variant="secondary" onClick={() => setShowCreateForm(true)}>
+                                    <MdPersonAdd /> New guest
+                                </Button>
+                            </div>
+                        )}
                     </div>
 
                     {latestInvite && (
                         <div className="dialog-callout">
                             <b>
-                                Share this with {latestInvite.username} now, the login link
-                                {latestInvite.password && " and password"} won&apos;t be shown
-                                again.
+                                Share this with {latestInvite.username}
+                                {latestInvite.password && " now, the password won't be shown again"}
+                                .
                             </b>
                             <div className="board-members-copy-row">
                                 <code>{latestInvite.username}</code>
@@ -262,23 +305,11 @@ export const MembersTab = observer(() => {
     );
 });
 
-// Stays masked until edit is clicked, which swaps to a new-password input that can be cancelled.
-const GuestPasswordField = ({ boardId, guest }) => {
-    const [editing, setEditing] = useState(false);
+// Opened from the guest's menu, closes on save or cancel.
+const GuestPasswordField = ({ boardId, guest, onDone }) => {
     const [revealed, setRevealed] = useState(false);
     const [password, setPassword] = useState("");
     const [saving, setSaving] = useState(false);
-    const inputRef = useRef(null);
-
-    useEffect(() => {
-        if (editing) inputRef.current?.focus();
-    }, [editing]);
-
-    function cancel() {
-        setEditing(false);
-        setRevealed(false);
-        setPassword("");
-    }
 
     async function save() {
         if (saving) return;
@@ -290,10 +321,9 @@ const GuestPasswordField = ({ boardId, guest }) => {
         try {
             await setBoardGuestPassword(boardId, guest.id, password);
             toastSuccess(`Changed ${guest.displayName}'s password`);
-            cancel();
+            onDone();
         } catch (err) {
             toastError(err.message);
-        } finally {
             setSaving(false);
         }
     }
@@ -305,7 +335,7 @@ const GuestPasswordField = ({ boardId, guest }) => {
         } else if (e.key === "Escape") {
             e.preventDefault();
             e.stopPropagation(); // don't close the dialog
-            cancel();
+            onDone();
         }
     };
 
@@ -313,92 +343,69 @@ const GuestPasswordField = ({ boardId, guest }) => {
         <div className="guest-password-field">
             <div className="guest-password-input">
                 <input
-                    ref={inputRef}
-                    type={editing && revealed ? "text" : "password"}
-                    value={editing ? password : "••••••••"}
+                    autoFocus
+                    type={revealed ? "text" : "password"}
+                    value={password}
                     placeholder="New password"
-                    disabled={!editing}
                     onChange={(e) => setPassword(e.target.value)}
                     onKeyDown={onKeyDown}
                     autoComplete="new-password"
-                    aria-label={`Password for ${guest.displayName}`}
+                    aria-label={`New password for ${guest.displayName}`}
                 />
-                {editing && (
-                    <SimpleTooltip message={revealed ? "Hide" : "Reveal"}>
-                        <IconButton
-                            className="guest-password-reveal"
-                            icon={revealed ? <MdVisibilityOff /> : <MdVisibility />}
-                            aria-label={revealed ? "Hide password" : "Reveal password"}
-                            onClick={() => setRevealed(!revealed)}
-                        />
-                    </SimpleTooltip>
-                )}
+                <SimpleTooltip message={revealed ? "Hide" : "Reveal"}>
+                    <IconButton
+                        className="guest-password-reveal"
+                        icon={revealed ? <MdVisibilityOff /> : <MdVisibility />}
+                        aria-label={revealed ? "Hide password" : "Reveal password"}
+                        onClick={() => setRevealed(!revealed)}
+                    />
+                </SimpleTooltip>
             </div>
             <div className="guest-password-actions">
-                {editing ? (
-                    <>
-                        <SimpleTooltip message="Save">
-                            <IconButton
-                                icon={<MdSave />}
-                                aria-label="Save password"
-                                disabled={saving}
-                                onClick={save}
-                            />
-                        </SimpleTooltip>
-                        <SimpleTooltip message="Cancel">
-                            <IconButton
-                                icon={<MdClose />}
-                                aria-label="Cancel"
-                                disabled={saving}
-                                onClick={cancel}
-                            />
-                        </SimpleTooltip>
-                    </>
-                ) : (
-                    <SimpleTooltip message="Change password">
-                        <IconButton
-                            icon={<MdEdit />}
-                            aria-label="Change password"
-                            onClick={() => setEditing(true)}
-                        />
-                    </SimpleTooltip>
-                )}
+                <SimpleTooltip message="Save">
+                    <IconButton
+                        icon={<MdSave />}
+                        aria-label="Save password"
+                        disabled={saving}
+                        onClick={save}
+                    />
+                </SimpleTooltip>
+                <SimpleTooltip message="Cancel">
+                    <IconButton
+                        icon={<MdClose />}
+                        aria-label="Cancel"
+                        disabled={saving}
+                        onClick={onDone}
+                    />
+                </SimpleTooltip>
             </div>
         </div>
     );
 };
 
-const SignOutGuestButton = ({ boardId, guest }) => {
-    async function handleSignOut() {
-        try {
-            await signOutBoardGuest(boardId, guest.id);
-            toastSuccess(`Signed out ${guest.displayName} everywhere`);
-        } catch (err) {
-            toastError(err.message);
-        }
+// Everything except copying the link, guests only get Change password for themselves.
+const GuestMenu = ({ boardId, guest, isOwner, onChangePassword, onRemoved }) => {
+    const [open, setOpen] = useState(false);
+    const name = guest.displayName;
+
+    function confirmThen(message, action, successMessage) {
+        globalDialogStore.open(Dialogs.GenericWarning, {
+            message,
+            continueFunction: async () => {
+                try {
+                    await action();
+                    toastSuccess(successMessage);
+                } catch (err) {
+                    toastError(err.message);
+                }
+            },
+        });
     }
 
-    return (
-        <SimpleTooltip message="Sign out everywhere">
-            <IconButton
-                icon={<MdLogout />}
-                aria-label={`Sign out ${guest.displayName} everywhere`}
-                onClick={() =>
-                    globalDialogStore.open(Dialogs.GenericWarning, {
-                        message: `Sign ${guest.displayName} out on every device and cancel their login link? A password, if they have one, keeps working.`,
-                        continueFunction: handleSignOut,
-                    })
-                }
-            />
-        </SimpleTooltip>
-    );
-};
-
-const RemoveGuestButton = ({ boardId, guest, onRemoved }) => {
     async function handleRemove() {
         try {
             await removeBoardGuest(boardId, guest.id);
-            toastSuccess(`Removed ${guest.displayName}`);
+            toastSuccess(`Removed ${name}`);
             await onRemoved();
         } catch (err) {
             toastError(err.message);
@@ -406,20 +413,60 @@ const RemoveGuestButton = ({ boardId, guest, onRemoved }) => {
     }
 
     return (
-        <SimpleTooltip message="Remove guest">
-            <IconButton
-                className="guest-remove-button"
-                icon={<MdDelete />}
-                aria-label={`Remove ${guest.displayName}`}
-                onClick={() =>
-                    globalDialogStore.open(Dialogs.DeleteWarning, {
-                        itemName: guest.displayName,
-                        description: "Their login will be deleted and they'll be signed out.",
-                        countdownSeconds: 5,
-                        deleteFunction: handleRemove,
-                    })
-                }
-            />
-        </SimpleTooltip>
+        <Dropdown
+            trigger={
+                <IconButton icon={<MdMoreVert />} activate={open} aria-label={`More for ${name}`} />
+            }
+            open={open}
+            onOpenChange={setOpen}
+            align="end"
+        >
+            {isOwner && (
+                <Dropdown.Item
+                    onSelect={() =>
+                        confirmThen(
+                            `Make a new login link for ${name}? Their current link stops working.`,
+                            () => replaceBoardGuestLoginLink(boardId, guest.id),
+                            `Replaced ${name}'s login link`,
+                        )
+                    }
+                >
+                    <MdAutorenew /> Replace login link
+                </Dropdown.Item>
+            )}
+            <Dropdown.Item onSelect={onChangePassword}>
+                <MdPassword /> Change password
+            </Dropdown.Item>
+            {isOwner && (
+                <>
+                    <Dropdown.Item
+                        onSelect={() =>
+                            confirmThen(
+                                `Sign ${name} out on every device and cancel their login link? A password, if they have one, keeps working.`,
+                                () => signOutBoardGuest(boardId, guest.id),
+                                `Signed out ${name} everywhere`,
+                            )
+                        }
+                    >
+                        <MdLogout /> Sign out everywhere
+                    </Dropdown.Item>
+                    <Dropdown.Separator />
+                    <Dropdown.Item
+                        data-danger
+                        onSelect={() =>
+                            globalDialogStore.open(Dialogs.DeleteWarning, {
+                                itemName: name,
+                                description:
+                                    "Their login will be deleted and they'll be signed out.",
+                                countdownSeconds: 5,
+                                deleteFunction: handleRemove,
+                            })
+                        }
+                    >
+                        <MdDelete /> Remove guest
+                    </Dropdown.Item>
+                </>
+            )}
+        </Dropdown>
     );
 };

@@ -21,7 +21,11 @@ import {
     insertGuest,
     removeOrphanedBoardGuests,
 } from "../auth/passport.js";
-import { cancelGuestLoginLink, createGuestLoginLink } from "../auth/guestLoginLinks.js";
+import {
+    cancelGuestLoginLink,
+    createGuestLoginLink,
+    getGuestLoginLink,
+} from "../auth/guestLoginLinks.js";
 import { destroyUserSessions } from "../auth/SupabaseSessionStore.js";
 import { broadcastToBoard, closeUserSockets } from "../ws/boardSocket.js";
 
@@ -469,8 +473,29 @@ async function findBoardGuest(boardId, guestId) {
     return guest;
 }
 
+/** The guest's current login link { token }, made if they don't have one yet. */
+async function getGuestLink(req, res) {
+    const { OK, BAD_REQUEST, CONFLICT, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+    const guest = await findBoardGuest(req.board.id, req.params.userId);
+    if (!guest) return Response.send(res, BAD_REQUEST, { error: "That guest doesn't exist." });
+
+    try {
+        const loginLink = await getGuestLoginLink(guest.id);
+        if (loginLink && !loginLink.token) {
+            return Response.send(res, CONFLICT, {
+                error: "This login link can't be copied, replace it to get a new one.",
+            });
+        }
+        return Response.send(res, OK, {
+            loginLink: loginLink ?? (await createGuestLoginLink(guest.id)),
+        });
+    } catch (err) {
+        return Response.send(res, INTERNAL_SERVER_ERROR, { error: err.message });
+    }
+}
+
 /** Replaces the guest's login link, returns { token }. */
-async function createGuestLink(req, res) {
+async function replaceGuestLink(req, res) {
     const { OK, BAD_REQUEST, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
     const guest = await findBoardGuest(req.board.id, req.params.userId);
     if (!guest) return Response.send(res, BAD_REQUEST, { error: "That guest doesn't exist." });
@@ -711,7 +736,13 @@ router.post(
     "/:boardId/guests/:userId/login-link",
     requireBoardAccess,
     permissionLevel.Owner,
-    createGuestLink,
+    getGuestLink,
+);
+router.post(
+    "/:boardId/guests/:userId/login-link/replace",
+    requireBoardAccess,
+    permissionLevel.Owner,
+    replaceGuestLink,
 );
 router.post(
     "/:boardId/guests/:userId/sign-out",

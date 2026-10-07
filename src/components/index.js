@@ -28,6 +28,7 @@ export { ShareGamesAsText } from "./ShareGamesAsText.jsx";
 export { Notifications } from "./Notifications.jsx";
 export { EmailAuthForm } from "./EmailAuthForm.jsx";
 export { GuestAuthForm } from "./GuestAuthForm.jsx";
+export { GuestLinkForm } from "./GuestLinkForm.jsx";
 
 // export { EmblaCarousel } from "./EmblaCarousel.jsx";
 // Not importing the Carousel here, it's only used in the homepage, so that imports it directly.

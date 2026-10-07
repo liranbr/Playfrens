@@ -191,6 +191,40 @@ export class UserStore {
         }
     }
 
+    // Returns { ok, guest: { id, displayName } } without signing in.
+    async getGuestLinkInfo(board, token) {
+        try {
+            const res = await fetch("/auth/guest/link/info", {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ board, token }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) return { ok: false, error: data?.error || "Something went wrong." };
+            return { ok: true, guest: data.guest };
+        } catch {
+            return { ok: false, error: "Could not reach the server." };
+        }
+    }
+
+    // The caller reloads the page, no store refresh needed.
+    async loginWithGuestLink(board, token) {
+        try {
+            const res = await fetch("/auth/guest/link", {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ board, token }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) return { ok: false, error: data?.error || "Something went wrong." };
+            return { ok: true };
+        } catch {
+            return { ok: false, error: "Could not reach the server." };
+        }
+    }
+
     async sendMagicLink(email) {
         return this.postAuth("magic-link", { email });
     }

@@ -281,7 +281,7 @@ export async function listBoardGuests(boardId) {
     return guests;
 }
 
-/** Returns { guest, password }, where the password is shown only once here. */
+/** Returns { guest, password, loginLink }, password and loginLink are only shown once here. */
 export async function createBoardGuest(boardId, username, password) {
     const response = await fetch(`/api/boards/${boardId}/guests`, {
         method: "POST",
@@ -316,6 +316,29 @@ export async function setBoardGuestPassword(boardId, userId, password) {
     if (!response.ok) {
         const json = await response.json().catch(() => ({}));
         throw new Error(json.error || `Failed to change password (status ${response.status})`);
+    }
+}
+
+/** Replaces the guest's login link, returns { token }. */
+export async function createBoardGuestLoginLink(boardId, userId) {
+    const response = await fetch(`/api/boards/${boardId}/guests/${userId}/login-link`, {
+        method: "POST",
+        credentials: "include",
+    });
+    const json = await response.json().catch(() => ({}));
+    if (!response.ok)
+        throw new Error(json.error || `Failed to create login link (status ${response.status})`);
+    return json.loginLink;
+}
+
+export async function signOutBoardGuest(boardId, userId) {
+    const response = await fetch(`/api/boards/${boardId}/guests/${userId}/sign-out`, {
+        method: "POST",
+        credentials: "include",
+    });
+    if (!response.ok) {
+        const json = await response.json().catch(() => ({}));
+        throw new Error(json.error || `Failed to sign out guest (status ${response.status})`);
     }
 }
 

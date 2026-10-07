@@ -6,6 +6,8 @@ import {
     MdContentCopy,
     MdDelete,
     MdEdit,
+    MdLink,
+    MdLogout,
     MdPerson,
     MdSave,
     MdVisibility,
@@ -15,12 +17,36 @@ import { Button, IconButton, SimpleTooltip } from "@/components";
 import { Dialogs, globalBoardStore, globalDialogStore, userStore } from "@/stores";
 import {
     createBoardGuest,
+    createBoardGuestLoginLink,
     listBoardGuests,
     removeBoardGuest,
     setBoardGuestPassword,
+    signOutBoardGuest,
 } from "@/APIUtils.js";
 import { GUEST_PASSWORD_MIN_LENGTH } from "#shared/boardLimits.js";
 import { toastError, toastSuccess } from "@/Utils";
+
+async function copyToClipboard(text, message) {
+    try {
+        await navigator.clipboard.writeText(text);
+        toastSuccess(message, "", { personal: true });
+    } catch (err) {
+        toastError("Failed to copy: " + err);
+    }
+}
+
+// The token is attached after "#" which makes it impossible for bots and so on to read this or go to the server.
+// Without a token it opens the password login instead.
+function buildGuestInvite(board, username, token, password) {
+    const url = `${window.location.origin}/board/${board.shortId}`;
+    return [
+        `This is your login link for "${board.name}" on Playfrens:`,
+        token ? `${url}#${token}` : `${url}/${encodeURIComponent(username)}`,
+        "",
+        `Username: ${username}`,
+        ...(password ? [`Password: ${password}`] : []),
+    ].join("\n");
+}
 
 // Lists this board's guests and, if you're the owner, lets you create or remove logins.
 // For now only works for none-accounts.
@@ -36,7 +62,7 @@ export const MembersTab = observer(() => {
     const [creating, setCreating] = useState(false);
     const [newUsername, setNewUsername] = useState("");
     const [newPassword, setNewPassword] = useState("");
-    const [createdCredentials, setCreatedCredentials] = useState(null);
+    const [latestInvite, setLatestInvite] = useState(null); // { username, password, text }
 
     async function refresh() {
         setLoading(true);
@@ -60,13 +86,26 @@ export const MembersTab = observer(() => {
         // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-run when the board changes
     }, [boardId]);
 
+    function showInvite(username, token, password) {
+        const text = buildGuestInvite(activeBoard, username, token, password);
+        setLatestInvite({ username, password, text });
+        return text;
+    }
+
     async function handleCreate() {
-        if (creating || !newUsername.trim() || newPassword.length < GUEST_PASSWORD_MIN_LENGTH)
-            return;
+        const passwordTooShort = newPassword && newPassword.length < GUEST_PASSWORD_MIN_LENGTH;
+        if (creating || !newUsername.trim() || passwordTooShort) return;
         setCreating(true);
         try {
-            const result = await createBoardGuest(boardId, newUsername.trim(), newPassword);
-            setCreatedCredentials({ username: result.guest.username, password: result.password });
+            const result = await createBoardGuest(
+                boardId,
+                newUsername.trim(),
+                newPassword || undefined,
+            );
+            showInvite(result.guest.username, result.loginLink?.token, result.password);
+            if (!result.loginLink) {
+                toastError("Couldn't create a login link, try again from their row.");
+            }
             setNewUsername("");
             setNewPassword("");
             await refresh();
@@ -86,12 +125,14 @@ export const MembersTab = observer(() => {
         }
     };
 
-    async function copyToClipboard(text, message) {
+    // No password here, it isn't stored.
+    async function handleNewLink(guest) {
         try {
-            await navigator.clipboard.writeText(text);
-            toastSuccess(message, "", { personal: true });
+            const { token } = await createBoardGuestLoginLink(boardId, guest.id);
+            const text = showInvite(guest.username, token);
+            await copyToClipboard(text, `Login link for ${guest.displayName} copied!`);
         } catch (err) {
-            toastError("Failed to copy: " + err);
+            toastError(err.message);
         }
     }
 
@@ -141,11 +182,21 @@ export const MembersTab = observer(() => {
                                         <GuestPasswordField boardId={boardId} guest={guest} />
                                     )}
                                     {isOwner && (
-                                        <RemoveGuestButton
-                                            boardId={boardId}
-                                            guest={guest}
-                                            onRemoved={refresh}
-                                        />
+                                        <>
+                                            <SimpleTooltip message="Copy a new login link, the old one stops working">
+                                                <IconButton
+                                                    icon={<MdLink />}
+                                                    aria-label={`New login link for ${guest.displayName}`}
+                                                    onClick={() => handleNewLink(guest)}
+                                                />
+                                            </SimpleTooltip>
+                                            <SignOutGuestButton boardId={boardId} guest={guest} />
+                                            <RemoveGuestButton
+                                                boardId={boardId}
+                                                guest={guest}
+                                                onRemoved={refresh}
+                                            />
+                                        </>
                                     )}
                                 </div>
                             )}
@@ -172,7 +223,7 @@ export const MembersTab = observer(() => {
                                 onKeyDown={saveOnEnter}
                                 autoFocus
                             />
-                            <label>Password</label>
+                            <label>Password (optional)</label>
                             <input
                                 type="password"
                                 value={newPassword}
@@ -186,23 +237,19 @@ export const MembersTab = observer(() => {
                         </Button>
                     </div>
 
-                    {createdCredentials && (
+                    {latestInvite && (
                         <div className="dialog-callout">
                             <b>
-                                Share the link above plus these with your friend now, since the
-                                password won&apos;t be shown again.
+                                Share this with {latestInvite.username} now, the login link
+                                {latestInvite.password && " and password"} won&apos;t be shown
+                                again.
                             </b>
                             <div className="board-members-copy-row">
-                                <code>{createdCredentials.username}</code>
-                                <code>{createdCredentials.password}</code>
+                                <code>{latestInvite.username}</code>
+                                {latestInvite.password && <code>{latestInvite.password}</code>}
                                 <Button
                                     variant="secondary"
-                                    onClick={() =>
-                                        copyToClipboard(
-                                            `Board link: ${boardLink}/${encodeURIComponent(createdCredentials.username)}\nUsername: ${createdCredentials.username}\nPassword: ${createdCredentials.password}`,
-                                            "Copied!",
-                                        )
-                                    }
+                                    onClick={() => copyToClipboard(latestInvite.text, "Copied!")}
                                 >
                                     <MdContentCopy /> Copy all
                                 </Button>
@@ -321,6 +368,32 @@ const GuestPasswordField = ({ boardId, guest }) => {
     );
 };
 
+const SignOutGuestButton = ({ boardId, guest }) => {
+    async function handleSignOut() {
+        try {
+            await signOutBoardGuest(boardId, guest.id);
+            toastSuccess(`Signed out ${guest.displayName} everywhere`);
+        } catch (err) {
+            toastError(err.message);
+        }
+    }
+
+    return (
+        <SimpleTooltip message="Sign out everywhere">
+            <IconButton
+                icon={<MdLogout />}
+                aria-label={`Sign out ${guest.displayName} everywhere`}
+                onClick={() =>
+                    globalDialogStore.open(Dialogs.GenericWarning, {
+                        message: `Sign ${guest.displayName} out on every device and cancel their login link? A password, if they have one, keeps working.`,
+                        continueFunction: handleSignOut,
+                    })
+                }
+            />
+        </SimpleTooltip>
+    );
+};
+
 const RemoveGuestButton = ({ boardId, guest, onRemoved }) => {
     async function handleRemove() {
         try {
@@ -342,7 +415,7 @@ const RemoveGuestButton = ({ boardId, guest, onRemoved }) => {
                     globalDialogStore.open(Dialogs.DeleteWarning, {
                         itemName: guest.displayName,
                         description: "Their login will be deleted and they'll be signed out.",
-                        countdownSeconds: 10,
+                        countdownSeconds: 5,
                         deleteFunction: handleRemove,
                     })
                 }

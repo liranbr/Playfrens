@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { useUserStore } from "@/stores";
-import { EmailAuthForm, GuestAuthForm } from "@/components";
+import { EmailAuthForm, GuestAuthForm, GuestLinkForm } from "@/components";
+import { clearGuestLinkToken, guestLinkToken } from "@/services/GuestLinkToken.js";
 import { usePageMeta } from "@/hooks/usePageMeta.js";
 import "./Login.css";
 import "./CardPage.css";
@@ -19,6 +20,12 @@ const Login = observer(() => {
 
     // Board Guest accounts log in with a username/password.
     const [guestMode, setGuestMode] = useState(!!targetBoard);
+    // Or a login link.
+    const [linkMode, setLinkMode] = useState(!!(guestLinkToken && targetBoard));
+    const exitLinkMode = useCallback(() => {
+        clearGuestLinkToken();
+        setLinkMode(false);
+    }, []);
 
     usePageMeta({
         title: "Sign in",
@@ -28,6 +35,11 @@ const Login = observer(() => {
     });
 
     if (loading) return <div className="loading-page">Loading...</div>;
+    if (linkMode) {
+        return (
+            <GuestLinkForm targetBoard={targetBoard} token={guestLinkToken} onExit={exitLinkMode} />
+        );
+    }
     if (userInfo) return <Navigate to={targetBoard ? `/app/${targetBoard}` : "/app"} replace />;
 
     if (window.location.search.includes("failed=true")) toastError("Login failed.");

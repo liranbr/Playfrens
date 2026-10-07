@@ -9,6 +9,7 @@ import {
     invalidateUserCache,
     upsertUser,
 } from "../auth/passport.js";
+import { findGuestIdByLoginToken } from "../auth/guestLoginLinks.js";
 import { pickAccountSettings } from "#shared/accountSettings.js";
 import { supabase, supabaseAuth } from "../supabaseClient.js";
 import { resolveBaseURL, strToBool } from "../utils.js";
@@ -26,6 +27,15 @@ const oauthLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: "Too many login attempts, please try again later." },
+});
+
+// Looser, since the guest link page looks this up on every visit.
+const guestLinkInfoLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 30,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: "Too many requests, please try again later." },
 });
 
 // Providers whose avatar URLs we're willing to fetch server-side for the /avatar proxy below.
@@ -368,7 +378,7 @@ async function emailMagicLink(req, res) {
 function extractBoardShortId(input) {
     if (!input || typeof input !== "string") return null;
     const trimmed = input.trim();
-    const match = trimmed.match(/\/app\/([a-zA-Z0-9]+)/);
+    const match = trimmed.match(/\/(?:app|board)\/([a-zA-Z0-9]+)/);
     return match ? match[1] : trimmed || null;
 }
 
@@ -415,6 +425,57 @@ async function guestLogin(req, res) {
     if (error) return invalidCredentials();
 
     try {
+        await establishGuestSession(req, res, guest);
+    } catch (err) {
+        Response.send(res, INTERNAL_SERVER_ERROR, { error: err.message });
+    }
+}
+
+const INVALID_GUEST_LINK =
+    "This login link doesn't work anymore. Ask the board owner for a new one.";
+
+// The guest a login link belongs to, or null. Only works on the guest's own board.
+async function findLinkGuest(board, token) {
+    const boardShortId = extractBoardShortId(board);
+    if (!boardShortId) return null;
+
+    const { data: boardRow } = await supabase
+        .from("boards")
+        .select("id")
+        .eq("short_id", boardShortId)
+        .maybeSingle();
+    if (!boardRow) return null;
+
+    const guestId = await findGuestIdByLoginToken(token);
+    if (!guestId) return null;
+
+    const { data: guest } = await supabase
+        .from("guests")
+        .select("id, display_name")
+        .eq("id", guestId)
+        .eq("home_board_id", boardRow.id)
+        .maybeSingle();
+    return guest;
+}
+
+// Who a login link belongs to, shown before signing in.
+async function guestLinkInfo(req, res) {
+    const { OK, UNAUTHORIZED, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+    try {
+        const guest = await findLinkGuest(req.body.board, req.body.token);
+        if (!guest) return Response.send(res, UNAUTHORIZED, { error: INVALID_GUEST_LINK });
+        Response.send(res, OK, { guest: { id: guest.id, displayName: guest.display_name } });
+    } catch (err) {
+        Response.send(res, INTERNAL_SERVER_ERROR, { error: err.message });
+    }
+}
+
+// Login for board-guest accounts with their login link
+async function guestLinkLogin(req, res) {
+    const { UNAUTHORIZED, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+    try {
+        const guest = await findLinkGuest(req.body.board, req.body.token);
+        if (!guest) return Response.send(res, UNAUTHORIZED, { error: INVALID_GUEST_LINK });
         await establishGuestSession(req, res, guest);
     } catch (err) {
         Response.send(res, INTERNAL_SERVER_ERROR, { error: err.message });
@@ -476,6 +537,9 @@ router.post("/email/magic-link", oauthLimiter, emailMagicLink);
 router.post("/email/session", emailSession);
 
 router.post("/guest/login", oauthLimiter, guestLogin);
+router.post("/guest/link", oauthLimiter, guestLinkLogin);
+// POST so the token stays out of URLs and logs.
+router.post("/guest/link/info", guestLinkInfoLimiter, guestLinkInfo);
 
 // Strategy callbacks
 // Google and Discord - if renamed, update accordingly in the respective developer portal

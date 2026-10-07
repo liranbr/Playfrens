@@ -21,6 +21,8 @@ import {
     insertGuest,
     removeOrphanedBoardGuests,
 } from "../auth/passport.js";
+import { cancelGuestLoginLink, createGuestLoginLink } from "../auth/guestLoginLinks.js";
+import { destroyUserSessions } from "../auth/SupabaseSessionStore.js";
 import { broadcastToBoard, closeUserSockets } from "../ws/boardSocket.js";
 
 // Lists boards the caller can access, their own plus any they've joined.
@@ -381,7 +383,7 @@ async function listGuests(req, res) {
 }
 
 /**
- * Creates a "board guest" login for this board.
+ * Creates a "board guest" login for this board, with a login link and an optional password.
  */
 async function createGuest(req, res) {
     const { OK, BAD_REQUEST, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
@@ -389,7 +391,11 @@ async function createGuest(req, res) {
     if (!username || typeof username !== "string" || !username.trim()) {
         return Response.send(res, BAD_REQUEST, { error: "A username is required." });
     }
-    if (!password || typeof password !== "string" || password.length < GUEST_PASSWORD_MIN_LENGTH) {
+    const hasPassword = password !== undefined && password !== null && password !== "";
+    if (
+        hasPassword &&
+        (typeof password !== "string" || password.length < GUEST_PASSWORD_MIN_LENGTH)
+    ) {
         return Response.send(res, BAD_REQUEST, {
             error: `Password must be at least ${GUEST_PASSWORD_MIN_LENGTH} characters.`,
         });
@@ -412,7 +418,7 @@ async function createGuest(req, res) {
     const localEmail = `${uuidv4()}@guests.playfrens.local`;
     const { data: created, error: createError } = await supabase.auth.admin.createUser({
         email: localEmail,
-        password,
+        ...(hasPassword && { password }),
         email_confirm: true,
     });
     if (createError) {
@@ -436,11 +442,60 @@ async function createGuest(req, res) {
     }
     await ensureLinkedFriendTag(req.board, guest.id, username);
 
+    // Not fatal, the owner can make a new link later.
+    let loginLink = null;
+    try {
+        loginLink = await createGuestLoginLink(guest.id);
+    } catch (err) {
+        console.error("Error creating guest login link:", err);
+    }
+
     broadcastToBoard(req.board.id, { type: "guests-changed" });
     return Response.send(res, OK, {
         guest: { id: guest.id, displayName: username, username },
-        password, // shown once here for the inviter to copy/share out-of-band, never stored by us
+        // Both shown once here for the inviter to share out-of-band, never stored by us.
+        password: hasPassword ? password : null,
+        loginLink, // { token }
     });
+}
+
+async function findBoardGuest(boardId, guestId) {
+    const { data: guest } = await supabase
+        .from("guests")
+        .select("id")
+        .eq("id", guestId)
+        .eq("home_board_id", boardId)
+        .maybeSingle();
+    return guest;
+}
+
+/** Replaces the guest's login link, returns { token }. */
+async function createGuestLink(req, res) {
+    const { OK, BAD_REQUEST, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+    const guest = await findBoardGuest(req.board.id, req.params.userId);
+    if (!guest) return Response.send(res, BAD_REQUEST, { error: "That guest doesn't exist." });
+
+    try {
+        return Response.send(res, OK, { loginLink: await createGuestLoginLink(guest.id) });
+    } catch (err) {
+        return Response.send(res, INTERNAL_SERVER_ERROR, { error: err.message });
+    }
+}
+
+/** Signs a guest out everywhere and cancels their login link. */
+async function signOutGuest(req, res) {
+    const { OK, BAD_REQUEST, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+    const guest = await findBoardGuest(req.board.id, req.params.userId);
+    if (!guest) return Response.send(res, BAD_REQUEST, { error: "That guest doesn't exist." });
+
+    try {
+        await cancelGuestLoginLink(guest.id);
+        await destroyUserSessions(guest.id);
+    } catch (err) {
+        return Response.send(res, INTERNAL_SERVER_ERROR, { error: err.message });
+    }
+    closeUserSockets(guest.id, "The board owner signed you out.");
+    return Response.send(res, OK, { message: "Guest signed out" });
 }
 
 /**
@@ -652,6 +707,18 @@ router.get("/:boardId/guests", requireBoardAccess, listGuests);
 router.post("/:boardId/guests", requireBoardAccess, permissionLevel.Owner, createGuest);
 router.delete("/:boardId/guests/:userId", requireBoardAccess, permissionLevel.Owner, removeGuest);
 router.post("/:boardId/guests/:userId/password", requireBoardAccess, setGuestPassword);
+router.post(
+    "/:boardId/guests/:userId/login-link",
+    requireBoardAccess,
+    permissionLevel.Owner,
+    createGuestLink,
+);
+router.post(
+    "/:boardId/guests/:userId/sign-out",
+    requireBoardAccess,
+    permissionLevel.Owner,
+    signOutGuest,
+);
 router.post(
     "/:boardId/tags/:tagId/accounts",
     requireBoardAccess,

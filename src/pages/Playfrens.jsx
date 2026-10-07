@@ -39,6 +39,7 @@ import {
     SidebarTagButtonGroup,
     SimpleTooltip,
 } from "@/components";
+import { guestLinkToken } from "@/services/GuestLinkToken.js";
 
 import "./Playfrens.css";
 
@@ -245,6 +246,8 @@ const Playfrens = observer(() => {
         boardStore.switchBoard(board.id);
     }, [shortId, boardStore, boardStore.loading, boardStore.boards, boardStore.activeBoardId]);
 
+    // Guest login links are handled on the login page.
+    if (shortId && guestLinkToken) return <Navigate to={`/login?board=${shortId}`} replace />;
     if (loading) return <div className="loading-page">Loading...</div>;
     // Requires login (unless it's a public board), and carries the board id along so signing in lands back on it.
     // Guest login links always go to login, even when the board is public.

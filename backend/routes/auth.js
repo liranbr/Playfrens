@@ -11,8 +11,9 @@ import {
 } from "../auth/passport.js";
 import { findGuestIdByLoginToken } from "../auth/guestLoginLinks.js";
 import { pickAccountSettings } from "#shared/accountSettings.js";
+import { getAvatar } from "../services/avatarProxy.js";
 import { supabase, supabaseAuth } from "../supabaseClient.js";
-import { resolveBaseURL, strToBool } from "../utils.js";
+import { resolveBaseURL } from "../utils.js";
 
 const router = Router();
 const LOGIN_FAILED_ROUTE = "/login?failed=true";
@@ -38,89 +39,6 @@ const guestLinkInfoLimiter = rateLimit({
     message: { error: "Too many requests, please try again later." },
 });
 
-// Providers whose avatar URLs we're willing to fetch server-side for the /avatar proxy below.
-const ALLOWED_AVATAR_HOSTS = [
-    "lh3.googleusercontent.com",
-    "cdn.discordapp.com",
-    "avatars.steamstatic.com",
-    "avatars.akamai.steamstatic.com",
-];
-
-// Kill switch: set to false to redirect straight to the DB's avatar URL instead of proxying.
-const AVATAR_PROXY_ENABLED = strToBool(process.env.AVATAR_PROXY_ENABLED ?? "true");
-
-// TODO: swap these Maps for a real cache (Redis or similar), they grow unbounded and
-// reset on every restart/deploy, which is really bad for in long-term.
-// This project will not go viral, right? Right???
-const AVATAR_CACHE_LIFETIME_MS = 60 * 60 * 1000; // 1 hour
-const avatarCache = new Map(); // userId -> { buffer, contentType, expiresAt }
-const avatarFetches = new Map(); // userId -> in-flight fetch promise, to avoid double and more requests
-
-async function fetchAvatar(avatarUrl) {
-    const upstream = await fetch(avatarUrl);
-    if (!upstream.ok) throw new Error(`Provider responded with ${upstream.status}`);
-    const contentType = upstream.headers.get("content-type") || "image/jpeg";
-    const buffer = Buffer.from(await upstream.arrayBuffer());
-    return { buffer, contentType, expiresAt: Date.now() + AVATAR_CACHE_LIFETIME_MS };
-}
-
-async function getAvatar(req, res) {
-    const { OK, NOT_FOUND, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
-
-    if (!req.isAuthenticated() || !req.user.avatar_url) {
-        return Response.send(res, NOT_FOUND, { error: "No avatar available." });
-    }
-
-    if (!AVATAR_PROXY_ENABLED) {
-        return res.redirect(req.user.avatar_url);
-    }
-
-    let host;
-    try {
-        host = new URL(req.user.avatar_url).host;
-    } catch {
-        return Response.send(res, NOT_FOUND, { error: "Invalid avatar URL." });
-    }
-    if (!ALLOWED_AVATAR_HOSTS.includes(host)) {
-        return Response.send(res, NOT_FOUND, { error: "Unsupported avatar host." });
-    }
-
-    const userId = req.user.id;
-    const cached = avatarCache.get(userId);
-
-    if (cached && cached.expiresAt > Date.now()) {
-        res.set("Content-Type", cached.contentType);
-        res.set("Cache-Control", "private, max-age=3600");
-        return Response.sendMessage(res, OK, cached.buffer);
-    }
-
-    try {
-        // Dedupe concurrent requests for the same user into a single upstream fetch.
-        let fetchPromise = avatarFetches.get(userId);
-        if (!fetchPromise) {
-            fetchPromise = fetchAvatar(req.user.avatar_url).finally(() =>
-                avatarFetches.delete(userId),
-            );
-            avatarFetches.set(userId, fetchPromise);
-        }
-        const fresh = await fetchPromise;
-        avatarCache.set(userId, fresh);
-
-        res.set("Content-Type", fresh.contentType);
-        res.set("Cache-Control", "private, max-age=3600");
-        return Response.sendMessage(res, OK, fresh.buffer);
-    } catch (err) {
-        console.error("Error fetching avatar:", err);
-        // Provider is rate-limiting/unavailable, so fall back to the last known-good copy if it exist.
-        if (cached) {
-            res.set("Content-Type", cached.contentType);
-            res.set("Cache-Control", "private, max-age=60");
-            return Response.sendMessage(res, OK, cached.buffer);
-        }
-        return Response.send(res, INTERNAL_SERVER_ERROR, { error: "Error fetching avatar." });
-    }
-}
-
 // Stashes ?board=<shortId> in the session so it survives the OAuth round-trip; read by loginCallback below.
 function stashBoardRedirect(req, res, next) {
     if (req.query.board) req.session.pendingBoardRedirect = req.query.board;
@@ -144,10 +62,6 @@ function authCallback(provider) {
             provider,
             { failureRedirect: LOGIN_FAILED_ROUTE },
             (err, user, info) => {
-                console.log("OAuth ERROR:", err);
-                console.log("OAuth INFO:", info);
-                console.log("OAuth USER:", user);
-
                 if (err) {
                     console.error("OAuth fatal error:", err);
                     return next(err);
@@ -250,45 +164,36 @@ function emailProfileFrom(supabaseUser) {
     };
 }
 
-function establishGuestSession(req, res, guest) {
+// Starts the session and replies with the user.
+function logInAndRespond(req, res, user) {
     const { OK, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+    return new Promise((resolve) => {
+        req.logIn(user, (err) => {
+            if (err) {
+                Response.send(res, INTERNAL_SERVER_ERROR, { error: err.message });
+            } else {
+                Response.send(res, OK, { user });
+            }
+            resolve();
+        });
+    });
+}
+
+async function establishGuestSession(req, res, guest) {
     // guest.id is its own generated key, not the Supabase Auth id (that's auth_user_id).
-    return supabase
+    const { data: updatedGuest, error } = await supabase
         .from("guests")
         .update({ last_login: new Date() })
         .eq("id", guest.id)
         .select()
-        .single()
-        .then(({ data: updatedGuest, error }) => {
-            if (error) throw error;
-            return new Promise((resolve) => {
-                req.logIn(updatedGuest, (err) => {
-                    if (err) {
-                        Response.send(res, INTERNAL_SERVER_ERROR, { error: err.message });
-                    } else {
-                        Response.send(res, OK, { user: updatedGuest });
-                    }
-                    resolve();
-                });
-            });
-        });
+        .single();
+    if (error) throw error;
+    return logInAndRespond(req, res, updatedGuest);
 }
 
-function establishEmailSession(req, res, supabaseUser) {
-    const { OK, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
-    return upsertUser(emailProfileFrom(supabaseUser), "email").then(
-        (user) =>
-            new Promise((resolve) => {
-                req.logIn(user, (err) => {
-                    if (err) {
-                        Response.send(res, INTERNAL_SERVER_ERROR, { error: err.message });
-                    } else {
-                        Response.send(res, OK, { user });
-                    }
-                    resolve();
-                });
-            }),
-    );
+async function establishEmailSession(req, res, supabaseUser) {
+    const user = await upsertUser(emailProfileFrom(supabaseUser), "email");
+    return logInAndRespond(req, res, user);
 }
 
 // Check if we have this email in our records.
@@ -382,6 +287,15 @@ function extractBoardShortId(input) {
     return match ? match[1] : trimmed || null;
 }
 
+async function findBoardIdByShortId(shortId) {
+    const { data } = await supabase
+        .from("boards")
+        .select("id")
+        .eq("short_id", shortId)
+        .maybeSingle();
+    return data?.id ?? null;
+}
+
 // Login for board-guest accounts
 async function guestLogin(req, res) {
     const { BAD_REQUEST, UNAUTHORIZED, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
@@ -393,21 +307,17 @@ async function guestLogin(req, res) {
         });
     }
 
-    const { data: boardRow, error: boardError } = await supabase
-        .from("boards")
-        .select("id")
-        .eq("short_id", boardShortId)
-        .maybeSingle();
+    const boardId = await findBoardIdByShortId(boardShortId);
 
     const invalidCredentials = () =>
         Response.send(res, UNAUTHORIZED, { error: "Invalid username, password, or board link." });
-    if (boardError || !boardRow) return invalidCredentials();
+    if (!boardId) return invalidCredentials();
 
     const { data: guest, error: lookupError } = await supabase
         .from("guests")
         .select("*")
         .eq("member_username", username)
-        .eq("home_board_id", boardRow.id)
+        .eq("home_board_id", boardId)
         .maybeSingle();
     if (lookupError || !guest) return invalidCredentials();
 
@@ -439,12 +349,8 @@ async function findLinkGuest(board, token) {
     const boardShortId = extractBoardShortId(board);
     if (!boardShortId) return null;
 
-    const { data: boardRow } = await supabase
-        .from("boards")
-        .select("id")
-        .eq("short_id", boardShortId)
-        .maybeSingle();
-    if (!boardRow) return null;
+    const boardId = await findBoardIdByShortId(boardShortId);
+    if (!boardId) return null;
 
     const guestId = await findGuestIdByLoginToken(token);
     if (!guestId) return null;
@@ -453,7 +359,7 @@ async function findLinkGuest(board, token) {
         .from("guests")
         .select("id, display_name")
         .eq("id", guestId)
-        .eq("home_board_id", boardRow.id)
+        .eq("home_board_id", boardId)
         .maybeSingle();
     return guest;
 }

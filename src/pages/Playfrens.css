@@ -136,7 +136,8 @@
         font-weight: 500;
     }
 
-    .read-only-badge {
+    .read-only-badge,
+    .guest-badge {
         display: flex;
         align-items: center;
         gap: 0.375rem;

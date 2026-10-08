@@ -107,6 +107,7 @@ const AppMenu = observer(() => {
 const AppHeader = observer(() => {
     const filterStore = useFilterStore();
     const boardStore = useBoardStore();
+    const { userInfo } = useUserStore();
     const search = filterStore.search;
     const updateSearch = (e) => filterStore.setSearch(e.target.value);
 
@@ -156,7 +157,7 @@ const AppHeader = observer(() => {
                 )}
 
                 {boardStore.isReadOnly && <ReadOnlyBadge />}
-
+                {userInfo?.isGuest && <GuestBadge />}
                 <Notifications />
 
                 <AppUserAvatar />
@@ -174,6 +175,19 @@ const ReadOnlyBadge = observer(() => {
             <div className="read-only-badge">
                 <MdOutlineVisibility />
                 Read Only
+            </div>
+        </SimpleTooltip>
+    );
+});
+
+const GuestBadge = observer(() => {
+    return (
+        <SimpleTooltip
+            message={`Your account was made by the owner of this board. Create an account to create your own boards.`}
+        >
+            <div className="guest-badge">
+                <MdOutlineVisibility />
+                Guest
             </div>
         </SimpleTooltip>
     );

@@ -90,11 +90,11 @@ export class UserStore {
         }
     }
 
-    async populateStores() {
+    async populateStores(targetBoard) {
         globalSettingsStore.populateAccountSettings(this.#accountSettings);
         this.#watchAccountSettings();
         // Resolves the active board and loads the stores for it.
-        await globalBoardStore.populate();
+        await globalBoardStore.populate(targetBoard);
     }
 
     // Registered after the initial populate so the loaded settings aren't echoed back.
@@ -155,20 +155,20 @@ export class UserStore {
         return this.postAuth("exists", { email });
     }
 
-    async signupWithEmail(email, password) {
+    async signupWithEmail(email, password, targetBoard) {
         const result = await this.postAuth("signup", { email, password });
         if (result.ok && !result.confirmationRequired) {
             await this.getUser();
-            await this.populateStores();
+            await this.populateStores(targetBoard);
         }
         return result;
     }
 
-    async loginWithEmail(email, password) {
+    async loginWithEmail(email, password, targetBoard) {
         const result = await this.postAuth("login", { email, password });
         if (result.ok) {
             await this.getUser();
-            await this.populateStores();
+            await this.populateStores(targetBoard);
         }
         return result;
     }

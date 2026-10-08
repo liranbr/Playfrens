@@ -56,9 +56,10 @@ export class BoardStore {
         return this.activeBoard?.role === "owner";
     }
 
-    async populate() {
+    /** @param {string} [targetBoard] board to open after inside the page login, otherwise the URL's */
+    async populate(targetBoard) {
         const boards = await listBoards();
-        const requestedId = this.getRequestedBoardIdFromURL();
+        const requestedId = targetBoard ?? this.getRequestedBoardIdFromURL();
         // A board link you're not a member of, view it as read only if it's public
         const isMember = boards.some((b) => b.shortId === requestedId || b.id === requestedId);
         if (requestedId && !isMember) {
@@ -78,6 +79,7 @@ export class BoardStore {
         runInAction(() => {
             this.boards = boards;
             this.activeBoardId = resolvedId;
+            this.publicBoard = null;
             this.loading = false;
         });
 

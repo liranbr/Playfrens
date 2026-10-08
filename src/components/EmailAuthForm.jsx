@@ -59,14 +59,14 @@ export const EmailAuthForm = observer(({ targetBoard, onGuestModeClick }) => {
         setSubmitting(true);
         try {
             if (mode === "signup") {
-                const result = await userStore.signupWithEmail(email, password);
+                const result = await userStore.signupWithEmail(email, password, targetBoard);
                 if (!result.ok) {
                     toastError(result.error);
                 } else if (result.confirmationRequired) {
                     toastInfo("Check your email to confirm your account.");
                 }
             } else {
-                const result = await userStore.loginWithEmail(email, password);
+                const result = await userStore.loginWithEmail(email, password, targetBoard);
                 if (!result.ok) toastError(result.error);
             }
         } finally {

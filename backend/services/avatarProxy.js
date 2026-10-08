@@ -10,7 +10,7 @@ const ALLOWED_AVATAR_HOSTS = [
 ];
 
 // Kill switch: set to false to redirect straight to the DB's avatar URL instead of proxying.
-const AVATAR_PROXY_ENABLED = strToBool(process.env.AVATAR_PROXY_ENABLED) ?? true;
+const AVATAR_PROXY_ENABLED = strToBool(process.env.AVATAR_PROXY_ENABLED ?? "true");
 
 // TODO: swap these Maps for a real cache (Redis or similar), they grow unbounded and
 // reset on every restart/deploy, which is really bad for in long-term.

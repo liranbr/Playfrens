@@ -2,19 +2,33 @@ import { useRef } from "react";
 import { toast } from "react-toastify";
 
 let silentToasts = false;
+let toastListener = null;
 
 export function setToastSilence(silence) {
     silentToasts = silence;
 }
 
+/** @param {(message: string, gameLink: GameLink | null) => void} listener */
+export function setToastListener(listener) {
+    toastListener = listener;
+}
+
 /**
+ * @typedef {{ gameID: string, partyID?: string }} GameLink
+ * Lets the board history open the related game page.
+ */
+
+/**
+ * Success toasts are logged to the board history, unless `personal` (e.g. copied to clipboard).
  * @param {string} message
  * @param {string} consoleMessage
+ * @param {{ gameLink?: GameLink, personal?: boolean }} options
  * @returns {true}
  */
-export async function toastSuccess(message, consoleMessage = "") {
+export async function toastSuccess(message, consoleMessage = "", { gameLink, personal } = {}) {
     if (!silentToasts) {
         toast.success(message);
+        if (!personal) toastListener?.(message, gameLink ?? null);
         if (consoleMessage) console.log(consoleMessage);
     }
     return true;
@@ -229,7 +243,6 @@ export async function thumbToCover(thumbURL) {
 
 // Find a game's thumbnail URL from its cover URL (educated guesses)
 export async function coverToThumb(coverURL) {
-    console.log("Converting cover image URL to thumbnail URL");
     if (!coverURL) return coverURL;
     const sources = [];
     if (coverURL.includes("cdn2.steamgriddb.com/grid/")) {
@@ -299,24 +312,22 @@ export function updateObject(obj, partial = {}) {
     return updated;
 }
 
-export const HttpStatus = Object.freeze({
-    // 2xx: Success
-    OK: 200,
-    CREATED: 201,
-    ACCEPTED: 202,
-    NO_CONTENT: 204,
-
-    // 4xx: Client Errors
-    BAD_REQUEST: 400,
-    UNAUTHORIZED: 401,
-    FORBIDDEN: 403,
-    NOT_FOUND: 404,
-    GONE: 410,
-    URI_TOO_LONG: 414,
-    TOO_MANY_REQUESTS: 429,
-
-    // 5xx: Server Errors
-    INTERNAL_SERVER_ERROR: 500,
-    NOT_IMPLEMENTED: 501,
-    SERVICE_UNAVAILABLE: 503,
-});
+/**
+ * Opens the file picker with a temporary hidden input.
+ * @param {(file: File) => void} onPick - called with the selected file
+ * @param {string} [accept] - accepted file types, e.g. ".json"
+ */
+export function pickFile(onPick, accept = "") {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = accept;
+    input.style.display = "none";
+    input.onchange = () => {
+        const file = input.files[0];
+        input.remove();
+        if (file) onPick(file);
+    };
+    input.oncancel = () => input.remove();
+    document.body.appendChild(input);
+    input.click();
+}

@@ -1,25 +1,85 @@
 import * as Dialog from "@radix-ui/react-dialog";
+import { observer } from "mobx-react-lite";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { DialogBase } from "./DialogRoot.jsx";
 import { TagObject, tagTypeStrings, FriendTagObject } from "@/models";
-import { Dialogs, globalDialogStore, useDataStore } from "@/stores";
-import { Button, FriendAvatar, IconButton, InfoIcon, LabelBadge } from "@/components";
-import { useState } from "react";
+import {
+    Dialogs,
+    globalDialogStore,
+    globalHintStore,
+    useBoardStore,
+    useDataStore,
+    useUserStore,
+} from "@/stores";
+import { Button, FriendAvatar, IconButton, InfoIcon, LabelBadge, MultiCombobox } from "@/components";
+import { useEffect, useState } from "react";
 import { BiLogoSteam } from "react-icons/bi";
 import { MdClose } from "react-icons/md";
-import { loadFromStorage, saveToStorage } from "@/Utils";
+import { toastError } from "@/Utils";
+import { assignAccountToTag, listBoardUsers, unassignAccountFromTag } from "@/APIUtils.js";
 import "./EditTagDialog.css";
 
-// Dismiss the Steam import hint on the client side only.
-const STEAM_FRIEND_HINT_DISMISSED_KEY = "friend-steam-hint-dismissed";
+// Un-/Assign board members onto a friend tag. Assigned accounts can use this tag and manage it.
+const AssignedAccountsSection = observer(({ tag }) => {
+    const boardStore = useBoardStore();
+    const boardId = boardStore.activeBoardId;
+    const [members, setMembers] = useState(boardStore.getCachedUsers(boardId) ?? []);
+    const [pendingAccountId, setPendingAccountId] = useState(null);
+
+    useEffect(() => {
+        if (boardStore.getCachedUsers(boardId)) return;
+        listBoardUsers(boardId)
+            .then((fetched) => {
+                setMembers(fetched);
+                boardStore.setCachedUsers(boardId, fetched);
+            })
+            .catch((err) => toastError(err.message));
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-run when the board changes
+    }, [boardId]);
+
+    const updateAssignment = async (member, apiCall) => {
+        setPendingAccountId(member.id);
+        try {
+            tag.linkedAccountIds = await apiCall(boardId, tag.id, member.id);
+        } catch (err) {
+            toastError(err.message);
+        } finally {
+            setPendingAccountId(null);
+        }
+    };
+
+    return (
+        <fieldset>
+            <label>
+                Assigned Accounts
+                <InfoIcon message="Assigned accounts can manage this tag." />
+            </label>
+            <MultiCombobox
+                options={members}
+                selectedIds={tag.linkedAccountIds}
+                getLabel={(member) => member.displayName}
+                pendingOptionId={pendingAccountId}
+                placeholder="Search accounts to assign..."
+                emptyPlaceholder="Everyone is assigned"
+                onAdd={(member) => updateAssignment(member, assignAccountToTag)}
+                onRemove={(member) => updateAssignment(member, unassignAccountFromTag)}
+            />
+        </fieldset>
+    );
+});
+
+const STEAM_HINT_KEY = "steam-friend-import";
 
 // Both Edits existing tags, and Adds new ones - depending on whether a TagObject is provided, otherwise based on the newTagType
-export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagOfType = null }) {
+export const EditTagDialog = observer(function EditTagDialog({
+    open,
+    closeDialog,
+    editingTag = null,
+    addingTagOfType = null,
+}) {
     const [advancedView, setAdvancedView] = useState(false);
     const [iconURLPreview, setIconURLPreview] = useState(editingTag?.iconURL ?? "");
-    const [hintDismissed, setHintDismissed] = useState(() =>
-        loadFromStorage(STEAM_FRIEND_HINT_DISMISSED_KEY, false),
-    );
+    const hintDismissed = globalHintStore.isDismissed(STEAM_HINT_KEY);
     const isEdit = editingTag instanceof TagObject;
     const mode = isEdit ? "Edit" : "Add";
     const tagType = isEdit ? editingTag.type : addingTagOfType;
@@ -29,8 +89,13 @@ export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagO
         ? "Editing " + editingTag.name
         : "Adding a new " + tagTypeStrings[tagType].single;
     const dataStore = useDataStore();
+    const { userInfo } = useUserStore();
+    const { isOwner } = useBoardStore();
+    // Only owner or a linked account can manage this friend tag
+    const canManage = !isEdit || editingTag.isManageableBy({ accountId: userInfo?.id, isOwner });
 
     const handleSave = () => {
+        if (!canManage) return;
         const newTagName = document.getElementById("tagNameInput").value;
         const newSteamID = document.getElementById("tagSteamIDInput")?.value ?? "";
         const newIconURL = document.getElementById("tagIconURLInput")?.value ?? "";
@@ -73,7 +138,7 @@ export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagO
                 <Dialog.Description>{description}</Dialog.Description>
             </VisuallyHidden>
 
-            {isFriend && !isEdit && !hintDismissed && (
+            {isFriend && !isEdit && !hintDismissed && !userInfo.isGuest && (
                 <div className="steam-import-hint">
                     <BiLogoSteam className="steam-import-hint-icon" />
                     <p>Have Steam friends? You can import them in one go here:</p>
@@ -84,10 +149,7 @@ export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagO
                         className="steam-import-hint-dismiss"
                         icon={<MdClose />}
                         aria-label="Dismiss"
-                        onClick={() => {
-                            saveToStorage(STEAM_FRIEND_HINT_DISMISSED_KEY, true);
-                            setHintDismissed(true);
-                        }}
+                        onClick={() => globalHintStore.dismiss(STEAM_HINT_KEY, "Add Friend Hint")}
                     />
                 </div>
             )}
@@ -95,14 +157,20 @@ export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagO
             <fieldset>
                 <label>
                     Name
-                    {isFriend && (
-                        <InfoIcon message="Just a name. It doesn't connect to any account." />
-                    )}
+                    {isFriend &&
+                        (!editingTag?.linkedAccountIds?.length ? (
+                            <InfoIcon message="Just a name. It doesn't connect to any account." />
+                        ) : isOwner ? (
+                            <InfoIcon message="Linked to an account, see Assigned Accounts below." />
+                        ) : (
+                            <InfoIcon message="Linked to an account." />
+                        ))}
                 </label>
                 <input
                     id="tagNameInput"
                     onKeyDown={saveOnEnter}
                     defaultValue={editingTag?.name}
+                    disabled={!canManage}
                     autoFocus
                 />
                 {isFriend && (advancedView || editingTag?.steamID || editingTag?.iconURL) && (
@@ -117,6 +185,7 @@ export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagO
                                 onKeyDown={saveOnEnter}
                                 defaultValue={editingTag?.iconURL}
                                 onChange={(e) => setIconURLPreview(e.target.value)}
+                                disabled={!canManage}
                                 autoFocus
                             />
                             <FriendAvatar
@@ -133,8 +202,9 @@ export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagO
                             id="tagSteamIDInput"
                             onKeyDown={saveOnEnter}
                             defaultValue={editingTag?.steamID}
+                            disabled={!canManage}
                         />
-                        {hintDismissed && (
+                        {hintDismissed && !userInfo.isGuest && (
                             <>
                                 <label>Import Steam Friends List</label>
                                 <Button variant="secondary" onClick={handleGoToImport}>
@@ -142,9 +212,12 @@ export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagO
                                 </Button>
                             </>
                         )}
+                        {isEdit && isOwner && <AssignedAccountsSection tag={editingTag} />}
                     </>
-                )}
+                )
+                }
             </fieldset>
+
 
             <div className="rx-dialog-footer">
                 {isFriend && !editingTag?.steamID && !editingTag?.iconURL && (
@@ -157,10 +230,10 @@ export function EditTagDialog({ open, closeDialog, editingTag = null, addingTagO
                 <Button variant="secondary" onClick={closeDialog}>
                     Cancel
                 </Button>
-                <Button variant="primary" onClick={handleSave}>
+                <Button variant="primary" onClick={handleSave} disabled={!canManage}>
                     Save
                 </Button>
             </div>
         </DialogBase>
     );
-}
+});

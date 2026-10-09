@@ -74,6 +74,14 @@ export class TagObject {
         return tagTypeStrings[this.type];
     }
 
+    /**
+     * Applies a fresh JSON snapshot onto THIS instance instead of constructing a new TagObject,
+     * so anything holding a direct reference sees the update.
+     */
+    patchFromJSON(json) {
+        this.name = json.name;
+    }
+
     equals(other) {
         return (
             other instanceof TagObject &&
@@ -81,6 +89,15 @@ export class TagObject {
             this.type === other.type &&
             this.name === other.name
         );
+    }
+
+    /**
+     * Return boolean to verify if it can be managed, override to change behavior
+     * @param {Object} viewer - Who's asking to manage this tag.
+     **/
+    // eslint-disable-next-line no-unused-vars -- kept for subclasses to override with the same signature
+    isManageableBy(viewer) {
+        return true;
     }
 
     toJSON() {
@@ -101,13 +118,16 @@ export class TagObject {
 export class FriendTagObject extends TagObject {
     steamID = "";
     iconURL = "";
-    constructor({ name, id, steamID, iconURL }) {
+    linkedAccountIds = [];
+    constructor({ name, id, steamID, iconURL, linkedAccountIds }) {
         super({ type: tagTypes.friend, name: name, id: id });
         this.steamID = steamID;
         this.iconURL = iconURL;
+        this.linkedAccountIds = linkedAccountIds ?? [];
         makeObservable(this, {
             steamID: observable,
             iconURL: observable,
+            linkedAccountIds: observable,
         });
     }
 
@@ -117,12 +137,25 @@ export class FriendTagObject extends TagObject {
             ...obj,
             steamID: this.steamID,
             iconURL: this.iconURL,
+            linkedAccountIds: this.linkedAccountIds,
         };
+    }
+
+    patchFromJSON(json) {
+        super.patchFromJSON(json);
+        this.steamID = json.steamID;
+        this.iconURL = json.iconURL;
+        this.linkedAccountIds = json.linkedAccountIds ?? [];
+    }
+
+    /** Any linked account may be able to add/edit this tag, besides the board owner. */
+    isManageableBy({ accountId, isOwner }) {
+        return isOwner === true || (!!accountId && this.linkedAccountIds.includes(accountId));
     }
 
     toString() {
         const result = super.toString();
-        return `${result}, steamID: ${this.steamID}, iconURL: ${this.iconURL}`;
+        return `${result}, steamID: ${this.steamID}, iconURL: ${this.iconURL}, linkedAccountIds: ${this.linkedAccountIds}`;
     }
     /**
      * Only for data that we would like to keep updating without hurting the user's setup.

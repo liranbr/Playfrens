@@ -13,7 +13,7 @@ RUN npm install
 # Copy the rest of the project
 COPY . .
 
-# Build frontend -> outputs into /app/dist
+# Build frontend -> /app/backend/public
 RUN npm run build
 
 
@@ -24,8 +24,11 @@ WORKDIR /app
 # Copy backend source (flattened into /app)
 COPY backend/ ./ 
 
+# Code shared between frontend and backend
+COPY shared/ ./shared/
+
 # Copy frontend build into /app/public
-COPY --from=build /app/dist ./public
+COPY --from=build /app/backend/public ./public
 
 # Copy only package.json + lockfile
 COPY package*.json ./

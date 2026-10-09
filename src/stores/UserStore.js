@@ -1,26 +1,25 @@
 import { createContext, useContext } from "react";
-import { makeAutoObservable, runInAction } from "mobx";
-import {
-    defaultFiltersStorageKey,
-    globalDataStore,
-    globalFilterStore,
-    globalSettingsStore,
-    settingsStorageKey,
-} from "@/stores";
-import { HttpStatus, loadFromStorage } from "@/Utils";
+import { makeAutoObservable, reaction, runInAction } from "mobx";
+import { globalBoardStore, globalSettingsStore } from "@/stores";
+import { ErrorCode, HttpStatus } from "#shared/http.js";
+import { debounce, toastError } from "@/Utils";
 
 export class UserStore {
     /**
      * Only public profile details
-     * @type {{ provider: string, id: string, displayName: string, avatar: string, createdAt: Date }}
+     * @type {{ provider: string, id: string, displayName: string, avatar: string, createdAt: Date, isGuest: boolean }}
      */
     userInfo = undefined;
     loading = true;
+    #accountSettings = {};
+    #watchingAccountSettings = false;
+    #saveTimers = {};
 
     constructor() {
         makeAutoObservable(this);
         this.getUser()
-            .then(() => this.populateStores())
+            // load board data if logged in, otherwise try the URL's board as a public read only view
+            .then(() => (this.userInfo ? this.populateStores() : globalBoardStore.populatePublic()))
             .then(() =>
                 runInAction(() => {
                     this.loading = false;
@@ -47,7 +46,7 @@ export class UserStore {
                     .clone()
                     .json()
                     .catch(() => null);
-                if (body?.code === "NOT_AUTHENTICATED") {
+                if (body?.code === ErrorCode.NOT_AUTHENTICATED) {
                     runInAction(() => {
                         this.userInfo = undefined;
                     });
@@ -70,6 +69,7 @@ export class UserStore {
             }
             const data = await res.json();
             const user = data?.user;
+            this.#accountSettings = user?.settings ?? {};
             runInAction(() => {
                 this.userInfo = {
                     provider: user?.provider,
@@ -79,6 +79,7 @@ export class UserStore {
                     // URL directly. `u` just busts the browser cache on account switches.
                     avatar: user?.avatar_url ? `/auth/avatar?u=${user.id}` : null,
                     createdAt: new Date(user?.created_at),
+                    isGuest: !!user?.member_username,
                 };
             });
         } catch (error) {
@@ -89,20 +90,152 @@ export class UserStore {
         }
     }
 
-    async populateStores() {
-        // DataStore.populate loads the board, which the settings and default filters are then loaded from
-        await globalDataStore.populate().then(() => {
-            globalSettingsStore.populate(loadFromStorage(settingsStorageKey, {}));
-            globalFilterStore.populate(loadFromStorage(defaultFiltersStorageKey, {}));
-            globalDataStore.watchSettingsForBackendSync();
-        });
+    async populateStores(targetBoard) {
+        globalSettingsStore.populateAccountSettings(this.#accountSettings);
+        this.#watchAccountSettings();
+        // Resolves the active board and loads the stores for it.
+        await globalBoardStore.populate(targetBoard);
     }
 
-    login(provider) {
-        window.open(`/auth/${provider}`, "_self");
+    // Registered after the initial populate so the loaded settings aren't echoed back.
+    #watchAccountSettings() {
+        if (this.#watchingAccountSettings) return;
+        this.#watchingAccountSettings = true;
+        reaction(
+            () => JSON.stringify(globalSettingsStore.accountSettings),
+            () =>
+                debounce(
+                    this.#saveTimers,
+                    "settings",
+                    () => this.saveAccountSettings(globalSettingsStore.accountSettings),
+                    1000,
+                ),
+        );
+    }
+
+    async saveAccountSettings(settings) {
+        try {
+            const res = await fetch("/auth/settings", {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ settings }),
+            });
+            if (!res.ok) throw new Error(`status ${res.status}`);
+        } catch (err) {
+            toastError("Failed to save settings.", err);
+        }
+    }
+
+    login(provider, board) {
+        const query = board ? `?board=${encodeURIComponent(board)}` : "";
+        window.open(`/auth/${provider}${query}`, "_self");
     }
     logout() {
         window.open("/auth/logout", "_self");
+    }
+
+    async postAuth(path, body) {
+        try {
+            const res = await fetch(`/auth/email/${path}`, {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) return { ok: false, error: data?.error || "Something went wrong." };
+            return { ok: true, ...data };
+        } catch {
+            return { ok: false, error: "Could not reach the server." };
+        }
+    }
+
+    async checkEmailExists(email) {
+        return this.postAuth("exists", { email });
+    }
+
+    async signupWithEmail(email, password, targetBoard) {
+        const result = await this.postAuth("signup", { email, password });
+        if (result.ok && !result.confirmationRequired) {
+            await this.getUser();
+            await this.populateStores(targetBoard);
+        }
+        return result;
+    }
+
+    async loginWithEmail(email, password, targetBoard) {
+        const result = await this.postAuth("login", { email, password });
+        if (result.ok) {
+            await this.getUser();
+            await this.populateStores(targetBoard);
+        }
+        return result;
+    }
+
+    async loginAsGuest(username, password, board) {
+        try {
+            const res = await fetch("/auth/guest/login", {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password, board }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) return { ok: false, error: data?.error || "Something went wrong." };
+            await this.getUser();
+            await this.populateStores();
+            return { ok: true, ...data };
+        } catch {
+            return { ok: false, error: "Could not reach the server." };
+        }
+    }
+
+    // Returns { ok, guest: { id, displayName } } without signing in.
+    async getGuestLinkInfo(board, token) {
+        try {
+            const res = await fetch("/auth/guest/link/info", {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ board, token }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) return { ok: false, error: data?.error || "Something went wrong." };
+            return { ok: true, guest: data.guest };
+        } catch {
+            return { ok: false, error: "Could not reach the server." };
+        }
+    }
+
+    // The caller reloads the page, no store refresh needed.
+    async loginWithGuestLink(board, token) {
+        try {
+            const res = await fetch("/auth/guest/link", {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ board, token }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) return { ok: false, error: data?.error || "Something went wrong." };
+            return { ok: true };
+        } catch {
+            return { ok: false, error: "Could not reach the server." };
+        }
+    }
+
+    async sendMagicLink(email) {
+        return this.postAuth("magic-link", { email });
+    }
+
+    async completeMagicLinkSession(accessToken) {
+        const result = await this.postAuth("session", { access_token: accessToken });
+        if (result.ok) {
+            await this.getUser();
+            await this.populateStores();
+        }
+        return result;
     }
 }
 

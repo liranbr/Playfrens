@@ -4,10 +4,10 @@
     flex: 0 0 auto;
     border: none;
     border-radius: 4px;
-    margin-right: 8px;
+    margin-right: 0.5rem;
 
     & svg.rx-avatarless {
-        font-size: 18px;
+        font-size: 1.125rem;
     }
 }
 

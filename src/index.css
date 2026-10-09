@@ -9,12 +9,13 @@
     --ui-card-width: 275px;
     --ui-card-border-radius: 20px;
     --game-card-width: 210px; /* a default value, overridden by a setting, for game cards in the grid.*/
-    --game-grid-gap: 20px;
-    --game-grid-row-gap: 30px;
-    --game-grid-container-padding: 30px;
+    --game-grid-gap: 1.25rem;
+    --game-grid-row-gap: 1.875rem;
+    --game-grid-container-padding: 1.875rem;
     --game-card-border-radius: 4px;
     --icon-size: 30px; /* for icon buttons like ⋮ or + */
-    --dialog-fade-duration: 250ms;
+    --dialog-fade-duration: 200ms;
+    --popover-fade: 100ms ease-out;
     --scrollbar-width: 0; /* a default value, overridden by the scrollbar measuring function in App */
 
     color-scheme: dark;
@@ -96,9 +97,40 @@ body {
 
     font-family: "Roboto", sans-serif, system-ui;
     font-weight: 400;
-    font-size: 14px;
     line-height: 1.5;
     text-rendering: optimizeSpeed;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+
+/* Base font size */
+body {
+    font-size: 0.875rem; /* which is 14px */
+}
+
+/* Multiplication that will be adjusted through settings and affect size of all fonts across the app */
+html {
+    font-size: 100%;
+}
+
+/* Reduce Motion setting, spinner and toast timer (its animation drives autoClose) excluded. Durations are shortened instead to avoid animation replying when disabling the setting */
+html[data-reduce-motion="on"] *:not(.spinner, .Toastify__progress-bar),
+html[data-reduce-motion="on"] *::before,
+html[data-reduce-motion="on"] *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+}
+@media (prefers-reduced-motion: reduce) {
+    html[data-reduce-motion="system"] *:not(.spinner, .Toastify__progress-bar),
+    html[data-reduce-motion="system"] *::before,
+    html[data-reduce-motion="system"] *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-delay: 0s !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+    }
 }

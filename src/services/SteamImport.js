@@ -1,4 +1,5 @@
 import { getSteamIDFromVanity, getSteamUserSummary } from "@/APIUtils.js";
+import { storeTypes } from "@/models";
 import { FriendTagObject } from "@/models/TagObject.js";
 import { loadFromStorage } from "@/Utils";
 
@@ -129,7 +130,7 @@ export async function fetchSteamImportData(
             coverThumbURL: buildSteamAssetURL(item, item.assets?.library_capsule),
             thumbUrl: buildSteamAssetURL(item, item.assets?.library_capsule),
             sortingTitle: "",
-            storeType: "steam",
+            storeType: storeTypes.steam,
             storeID: item.id,
             wishlisted: wishlistIDs.has(String(item.id)),
             singleplayer: !item.categories?.supported_player_categoryids?.includes(1),

@@ -1,10 +1,9 @@
 import { observer } from "mobx-react-lite";
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Popover from "@radix-ui/react-popover";
 import { MdClose, MdDeleteOutline, MdEdit, MdMoreVert } from "react-icons/md";
 import { useRef, useState } from "react";
-import { Dialogs, globalDialogStore, useDataStore } from "@/stores";
-import { Button, IconButton } from "@/components";
+import { Dialogs, globalDialogStore, useBoardStore, useDataStore } from "@/stores";
+import { Button, Dropdown, IconButton, Input } from "@/components";
 // eslint-disable-next-line no-unused-vars -- for reference
 import { ReminderObject } from "@/models";
 import "./ReminderCard.css";
@@ -12,18 +11,22 @@ import "./ReminderCard.css";
 export const ReminderCard = observer(({ reminder, outsideOfGamePage = false }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [editorOpen, setEditorOpen] = useState(false);
+    const { isReadOnly } = useBoardStore();
 
     let gameTitle = "unknown game";
     let onClickGameTitle = undefined;
     if (outsideOfGamePage) {
         const dataStore = useDataStore();
         const game = dataStore.allGames.get(reminder.gameID);
-        gameTitle = game.title;
-        onClickGameTitle = () =>
-            globalDialogStore.open(Dialogs.GamePage, {
-                game: game,
-                openOnPartyID: reminder.partyID,
-            });
+        // The game may have been deleted without its reminders
+        if (game) {
+            gameTitle = game.title;
+            onClickGameTitle = () =>
+                globalDialogStore.open(Dialogs.GamePage, {
+                    game: game,
+                    openOnPartyID: reminder.partyID,
+                });
+        }
     }
 
     const classes = ["reminder-container"];
@@ -38,6 +41,7 @@ export const ReminderCard = observer(({ reminder, outsideOfGamePage = false }) =
                 role="button"
                 className="reminder"
                 onContextMenu={(e) => {
+                    if (isReadOnly) return;
                     e.preventDefault(); // don't open right-click context menu
                     setDropdownOpen(true); // open button's dropdown instead
                 }}
@@ -51,18 +55,22 @@ export const ReminderCard = observer(({ reminder, outsideOfGamePage = false }) =
                 )}
                 <p className="reminder-message">{reminder.message}</p>
             </span>
-            <ReminderMenu
-                reminder={reminder}
-                dropdownOpen={dropdownOpen}
-                setDropdownOpen={setDropdownOpen}
-                setEditorOpen={setEditorOpen}
-            />
-            <ReminderEditor
-                reminder={reminder}
-                editorOpen={editorOpen}
-                setEditorOpen={setEditorOpen}
-                containerRef={containerRef}
-            />
+            {!isReadOnly && (
+                <>
+                    <ReminderMenu
+                        reminder={reminder}
+                        dropdownOpen={dropdownOpen}
+                        setDropdownOpen={setDropdownOpen}
+                        setEditorOpen={setEditorOpen}
+                    />
+                    <ReminderEditor
+                        reminder={reminder}
+                        editorOpen={editorOpen}
+                        setEditorOpen={setEditorOpen}
+                        containerRef={containerRef}
+                    />
+                </>
+            )}
         </div>
     );
 });
@@ -70,30 +78,20 @@ export const ReminderCard = observer(({ reminder, outsideOfGamePage = false }) =
 const ReminderMenu = observer(({ reminder, dropdownOpen, setDropdownOpen, setEditorOpen }) => {
     const dataStore = useDataStore();
 
-    const DD = DropdownMenu;
     return (
-        <DD.Root open={dropdownOpen} onOpenChange={setDropdownOpen}>
-            <DD.Trigger asChild>
-                <IconButton icon={<MdMoreVert />} />
-            </DD.Trigger>
-
-            <DD.Portal>
-                <DD.Content
-                    className="rx-dropdown-menu"
-                    align={"start"}
-                    side={"bottom"}
-                    sideOffset={5}
-                >
-                    {/* the 1ms timeout lets the dropdown close before opening the editor popover */}
-                    <DD.Item onClick={() => setTimeout(() => setEditorOpen(true), 1)}>
-                        <MdEdit /> Edit
-                    </DD.Item>
-                    <DD.Item data-danger onClick={() => dataStore.removeReminder(reminder)}>
-                        <MdDeleteOutline /> Delete
-                    </DD.Item>
-                </DD.Content>
-            </DD.Portal>
-        </DD.Root>
+        <Dropdown
+            trigger={<IconButton icon={<MdMoreVert />} />}
+            open={dropdownOpen}
+            onOpenChange={setDropdownOpen}
+        >
+            {/* the 1ms timeout lets the dropdown close before opening the editor popover */}
+            <Dropdown.Item onClick={() => setTimeout(() => setEditorOpen(true), 1)}>
+                <MdEdit /> Edit
+            </Dropdown.Item>
+            <Dropdown.Item data-danger onClick={() => dataStore.removeReminder(reminder)}>
+                <MdDeleteOutline /> Delete
+            </Dropdown.Item>
+        </Dropdown>
     );
 });
 
@@ -130,10 +128,9 @@ const ReminderEditor = observer(({ reminder, editorOpen, setEditorOpen, containe
                         onChange={handleDateChange}
                         autoFocus
                     />
-                    <textarea
+                    <Input
+                        textarea
                         className="reminder-textarea"
-                        rows={4}
-                        spellCheck={false}
                         value={message}
                         placeholder="Message"
                         onChange={(e) => setMessage(e.target.value)}

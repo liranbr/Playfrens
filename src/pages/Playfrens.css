@@ -1,13 +1,54 @@
 .app-header {
     background-color: var(--pf-bg-900);
-    padding: 0 16px;
+    padding: 0 1rem;
     height: var(--app-header-height);
     position: fixed;
     border-bottom: var(--pf-border-500);
     z-index: 2;
-    .app-brand {
-        margin-left: 16px;
+    .app-brand-row {
+        margin-left: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
     }
+}
+
+.app-brand-separator {
+    width: 1px;
+    height: 22px;
+    background-color: var(--pf-fg-700);
+    margin-right: -0.5rem;
+}
+
+.board-switcher-trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.125rem;
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--pf-fg-300);
+    max-width: 256px;
+    background-color: #55555500;
+    border: none;
+    border-radius: 8px;
+    padding: 0.25rem 0.5rem;
+    transition: 0.1s ease;
+    cursor: pointer;
+    font-family: inherit;
+
+    &:hover,
+    &[data-state="open"] {
+        color: #fff;
+        background-color: #55555555;
+    }
+}
+
+.board-switcher-trigger-label {
+    min-width: 0;
+    overflow: hidden;
+    text-align: left;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .app-sidebar-container {
@@ -16,7 +57,7 @@
     max-height: 100%;
     min-width: fit-content;
     max-width: fit-content;
-    padding: 12px 0 12px 12px; /* right gap comes from the grid */
+    padding: 0.75rem 0 0.75rem 0.75rem; /* right gap comes from the grid */
 }
 
 .game-search {
@@ -28,8 +69,8 @@
         border-radius: inherit;
         border: var(--pf-border-500);
         outline: none;
-        padding: 0 var(--icon-size) 0 12px;
-        font-size: 16px;
+        padding: 0 var(--icon-size) 0 0.75rem;
+        font-size: 1rem;
 
         &::placeholder {
             color: var(--pf-fg-500);
@@ -42,7 +83,7 @@
         visibility: hidden;
         position: absolute;
         width: fit-content;
-        font-size: 20px;
+        font-size: 1.25rem;
         right: 0;
         top: 50%;
         transform: translateY(-50%);
@@ -60,7 +101,7 @@
 
 .app-header-right {
     display: flex;
-    gap: 12px;
+    gap: 0.75rem;
     overflow: visible;
 
     .new-game-button,
@@ -75,7 +116,7 @@
         color: var(--pf-fg-300);
 
         svg {
-            font-size: 26px;
+            font-size: 1.625rem;
         }
 
         &:hover,
@@ -89,10 +130,47 @@
     .new-game-button {
         width: fit-content;
         border-radius: 16px;
-        gap: 4px;
-        padding: 0 8px;
-        font-size: 14px;
+        gap: 0.25rem;
+        padding: 0 0.5rem;
+        font-size: 0.875rem;
         font-weight: 500;
+    }
+
+    .read-only-badge,
+    .guest-badge {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        height: var(--app-header-element-height);
+        padding: 0 0.875rem;
+        border-radius: 16px;
+        border: 1px dashed var(--pf-fg-300);
+        background-color: var(--pf-bg-500);
+        color: var(--pf-fg-300);
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: help;
+
+        svg {
+            font-size: 1.25rem;
+        }
+    }
+
+    .log-in-button {
+        display: flex;
+        align-items: center;
+        height: var(--app-header-element-height);
+        padding: 0 0.875rem;
+        border-radius: 16px;
+        background-color: var(--pf-btn-primary);
+        color: #fff;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-decoration: none;
+
+        &:hover {
+            background-color: var(--pf-btn-primary-hover);
+        }
     }
 
     .notifications-button {
@@ -119,16 +197,57 @@
     }
 
     .notifications-drawer {
-        max-height: 600px;
+        max-height: min(600px, 75vh);
         min-width: 300px;
-        padding: 16px calc(20px - var(--scrollbar-width));
+        padding: 1rem calc(1.25rem - var(--scrollbar-width));
         background-color: var(--pf-bg-700);
         border: var(--pf-border-500);
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        width: 340px;
+
+        .notifications-tabs {
+            width: auto;
+            margin: 0 var(--scrollbar-width);
+        }
+
+        .board-history {
+            gap: 0.25rem;
+        }
+
+        .board-history-entry {
+            padding: 0.5rem;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            color: var(--pf-fg-200);
+
+            label {
+                display: flex;
+                gap: 0.5rem;
+                font-size: 0.75rem;
+                color: var(--pf-fg-500);
+                b {
+                    color: hsl(215 60% 60%);
+                }
+            }
+            p {
+                overflow-wrap: anywhere;
+            }
+
+            &.clickable {
+                cursor: pointer;
+                &:hover,
+                &:focus-visible {
+                    background-color: var(--pf-bg-500);
+                }
+            }
+        }
 
         .reminders-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 0.75rem;
             overflow-y: auto;
             scrollbar-gutter: stable both-edges;
 
@@ -137,13 +256,13 @@
                 flex-direction: row;
                 align-items: center;
                 justify-content: center;
-                gap: 8px;
+                gap: 0.5rem;
                 color: var(--pf-fg-500);
                 text-align: center;
-                padding: 12px 0;
+                padding: 0.75rem 0;
 
                 svg {
-                    font-size: 20px;
+                    font-size: 1.25rem;
                 }
             }
         }
@@ -151,5 +270,10 @@
 }
 
 .app-header-center {
-    gap: 16px;
+    gap: 1rem;
+}
+
+.app-header-left {
+    display: flex;
+    align-items: center;
 }

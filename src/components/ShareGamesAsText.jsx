@@ -1,17 +1,15 @@
 import { observer } from "mobx-react-lite";
 import { MdShare } from "react-icons/md";
 import { storeTypes, tagTypeStrings } from "@/models";
-import { globalDataStore, useBoardStore, useFilterStore, useUserStore } from "@/stores";
+import { globalDataStore, useBoardStore, useFilterStore } from "@/stores";
 import { Dropdown, IconButton } from "@/components";
 import { toastError, toastSuccess } from "@/Utils";
 
 export const ShareGamesAsText = observer(() => {
     const { search, selectedTagIDs, excludedTagIDs, areFiltersActive, filteredGames } =
         useFilterStore();
-    const { userInfo } = useUserStore();
-    const { publicBoard } = useBoardStore();
-    // A public board is someone else's so logged out viewers have no name either
-    const boardOwnerName = publicBoard?.ownerName ?? userInfo?.displayName;
+    const { activeBoard } = useBoardStore();
+    const boardOwnerName = activeBoard?.owner?.displayName;
     const makeFiltersText = () => {
         if (!areFiltersActive) return "**No filters active**";
         const currentFilters = [];

@@ -274,11 +274,12 @@ export async function deleteBoard(boardId) {
     if (!response.ok) throw new Error(`Failed to delete board (status ${response.status})`);
 }
 
-export async function listBoardGuests(boardId) {
-    const response = await fetch(`/api/boards/${boardId}/guests`, { credentials: "include" });
-    if (!response.ok) throw new Error(`Failed to load guests (status ${response.status})`);
-    const { guests } = await response.json();
-    return guests;
+/** Everyone on the board, owner first: [{ id, displayName, avatarURL, username, role }] */
+export async function listBoardUsers(boardId) {
+    const response = await fetch(`/api/boards/${boardId}/users`, { credentials: "include" });
+    if (!response.ok) throw new Error(`Failed to load users (status ${response.status})`);
+    const { users } = await response.json();
+    return users;
 }
 
 /** Returns { guest, password, loginLink }, password and loginLink are only shown once here. */

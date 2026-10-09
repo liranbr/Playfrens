@@ -59,8 +59,8 @@ function handleMessage(event) {
         case "board-deleted":
             globalDataStore.notifyBoardDeleted();
             break;
-        case "guests-changed":
-            globalBoardStore.invalidateGuestsCache(currentBoardId);
+        case "users-changed":
+            globalBoardStore.invalidateUsersCache(currentBoardId);
             break;
         case "account-removed":
             toastError(message.reason || "This account was removed. :(");

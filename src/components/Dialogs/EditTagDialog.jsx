@@ -16,22 +16,22 @@ import { useEffect, useState } from "react";
 import { BiLogoSteam } from "react-icons/bi";
 import { MdClose } from "react-icons/md";
 import { toastError } from "@/Utils";
-import { assignAccountToTag, listBoardGuests, unassignAccountFromTag } from "@/APIUtils.js";
+import { assignAccountToTag, listBoardUsers, unassignAccountFromTag } from "@/APIUtils.js";
 import "./EditTagDialog.css";
 
 // Un-/Assign board members onto a friend tag. Assigned accounts can use this tag and manage it.
 const AssignedAccountsSection = observer(({ tag }) => {
     const boardStore = useBoardStore();
     const boardId = boardStore.activeBoardId;
-    const [members, setMembers] = useState(boardStore.getCachedGuests(boardId) ?? []);
+    const [members, setMembers] = useState(boardStore.getCachedUsers(boardId) ?? []);
     const [pendingAccountId, setPendingAccountId] = useState(null);
 
     useEffect(() => {
-        if (boardStore.getCachedGuests(boardId)) return;
-        listBoardGuests(boardId)
+        if (boardStore.getCachedUsers(boardId)) return;
+        listBoardUsers(boardId)
             .then((fetched) => {
                 setMembers(fetched);
-                boardStore.setCachedGuests(boardId, fetched);
+                boardStore.setCachedUsers(boardId, fetched);
             })
             .catch((err) => toastError(err.message));
         // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-run when the board changes

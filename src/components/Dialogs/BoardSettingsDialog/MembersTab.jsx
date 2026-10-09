@@ -20,7 +20,7 @@ import { Dialogs, globalBoardStore, globalDialogStore, userStore } from "@/store
 import {
     createBoardGuest,
     getBoardGuestLoginLink,
-    listBoardGuests,
+    listBoardUsers,
     removeBoardGuest,
     replaceBoardGuestLoginLink,
     setBoardGuestPassword,
@@ -51,16 +51,15 @@ function buildGuestInvite(board, username, token, password) {
     ].join("\n");
 }
 
-// Lists this board's guests and, if you're the owner, lets you create or remove logins.
-// For now only works for none-accounts.
+// Lists this board's users and, if you're the owner, lets you create or remove guest logins.
 export const MembersTab = observer(() => {
     const boardId = globalBoardStore.activeBoardId;
     const activeBoard = globalBoardStore.activeBoard;
     const isOwner = globalBoardStore.isOwner;
     const boardLink = `${window.location.origin}/board/${activeBoard?.shortId ?? boardId}`;
 
-    const cached = globalBoardStore.getCachedGuests(boardId);
-    const [guests, setGuests] = useState(cached ?? []);
+    const cached = globalBoardStore.getCachedUsers(boardId);
+    const [users, setUsers] = useState(cached ?? []);
     const [loading, setLoading] = useState(cached === null);
     const [creating, setCreating] = useState(false);
     const [showCreateForm, setShowCreateForm] = useState(false);
@@ -72,11 +71,11 @@ export const MembersTab = observer(() => {
     async function refresh() {
         setLoading(true);
         try {
-            const fetched = await listBoardGuests(boardId);
+            const fetched = await listBoardUsers(boardId);
             // Owner first, everyone else keeps the order the backend returned them in.
             fetched.sort((a, b) => (a.role === "owner" ? -1 : b.role === "owner" ? 1 : 0));
-            setGuests(fetched);
-            globalBoardStore.setCachedGuests(boardId, fetched);
+            setUsers(fetched);
+            globalBoardStore.setCachedUsers(boardId, fetched);
         } catch (err) {
             toastError(err.message);
         } finally {
@@ -86,7 +85,7 @@ export const MembersTab = observer(() => {
 
     useEffect(() => {
         // Use the cache instead when switching tabs, so we don't spam the service.
-        if (globalBoardStore.getCachedGuests(boardId)) return;
+        if (globalBoardStore.getCachedUsers(boardId)) return;
         refresh();
         // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-run when the board changes
     }, [boardId]);
@@ -165,11 +164,11 @@ export const MembersTab = observer(() => {
                 <p>Loading members...</p>
             ) : (
                 <div className="board-members-list">
-                    {guests.map((guest) => (
-                        <div className="board-member-row" key={guest.id}>
+                    {users.map((user) => (
+                        <div className="board-member-row" key={user.id}>
                             <Avatar.Root className="rx-avatar">
                                 <Avatar.Image
-                                    src={guest.avatarURL ?? undefined}
+                                    src={user.avatarURL ?? undefined}
                                     referrerPolicy="no-referrer"
                                 />
                                 <Avatar.Fallback className="rx-avatarless" asChild>
@@ -178,17 +177,17 @@ export const MembersTab = observer(() => {
                             </Avatar.Root>
                             <div className="board-member-details">
                                 <span>
-                                    {guest.displayName}
-                                    {guest.id === userStore.userInfo?.id && " (You)"}
+                                    {user.displayName}
+                                    {user.id === userStore.userInfo?.id && " (You)"}
                                 </span>
-                                <small>{guest.role === "owner" ? "Owner" : "Guest"}</small>
+                                <small>{user.role === "owner" ? "Owner" : "Guest"}</small>
                             </div>
-                            {guest.role !== "owner" && (
+                            {user.role === "guest" && (
                                 <div className="guest-row-actions">
-                                    {editingPasswordFor === guest.id ? (
+                                    {editingPasswordFor === user.id ? (
                                         <GuestPasswordField
                                             boardId={boardId}
-                                            guest={guest}
+                                            guest={user}
                                             onDone={() => setEditingPasswordFor(null)}
                                         />
                                     ) : (
@@ -197,18 +196,18 @@ export const MembersTab = observer(() => {
                                                 <SimpleTooltip message="Copy login link">
                                                     <IconButton
                                                         icon={<MdContentCopy />}
-                                                        aria-label={`Copy login link for ${guest.displayName}`}
-                                                        onClick={() => handleCopyLink(guest)}
+                                                        aria-label={`Copy login link for ${user.displayName}`}
+                                                        onClick={() => handleCopyLink(user)}
                                                     />
                                                 </SimpleTooltip>
                                             )}
-                                            {(isOwner || guest.id === userStore.userInfo?.id) && (
+                                            {(isOwner || user.id === userStore.userInfo?.id) && (
                                                 <GuestMenu
                                                     boardId={boardId}
-                                                    guest={guest}
+                                                    guest={user}
                                                     isOwner={isOwner}
                                                     onChangePassword={() =>
-                                                        setEditingPasswordFor(guest.id)
+                                                        setEditingPasswordFor(user.id)
                                                     }
                                                     onRemoved={refresh}
                                                 />

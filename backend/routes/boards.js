@@ -36,7 +36,9 @@ async function listBoards(req, res) {
 
     const { data: boards, error } = await supabase
         .from("boards")
-        .select("id, name, short_id, owner_id, is_public, owner:owner_id(display_name)")
+        .select(
+            "id, name, short_id, owner_id, is_public, owner:owner_id(id, display_name, avatar_url)",
+        )
         .or(`owner_id.eq.${userId},members_id.cs.{${userId}}`);
 
     if (error) return Response.send(res, INTERNAL_SERVER_ERROR, { error: error.message });
@@ -46,6 +48,11 @@ async function listBoards(req, res) {
         shortId: b.short_id, // used to build the /app/<shortId> URL instead of the raw UUID
         role: b.owner_id === userId ? "owner" : "guest",
         isPublic: b.is_public === true,
+        owner: {
+            id: b.owner_id,
+            displayName: b.owner?.display_name ?? "Unknown",
+            avatarURL: b.owner?.avatar_url ?? null,
+        },
         name:
             b.name ||
             (b.owner_id === userId ? "My Board" : `${b.owner?.display_name ?? "Unknown"}'s Board`),
@@ -346,8 +353,8 @@ async function unlinkAccountFromAllTags(board, accountId) {
     await persistAndBroadcastFriends(board, updatedFriends);
 }
 
-/** GET /:boardId/guests (owner + every guest's public profile fields). */
-async function listGuests(req, res) {
+/** GET /:boardId/users (owner + every guest's public profile fields). */
+async function listBoardUsers(req, res) {
     const { OK, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
 
     const { data: owner, error: ownerError } = await supabase
@@ -367,7 +374,7 @@ async function listGuests(req, res) {
     if (guestsError)
         return Response.send(res, INTERNAL_SERVER_ERROR, { error: guestsError.message });
 
-    const guests = [
+    const users = [
         {
             id: owner.id,
             displayName: owner.display_name,
@@ -383,7 +390,7 @@ async function listGuests(req, res) {
             role: "guest",
         })),
     ];
-    return Response.send(res, OK, { guests });
+    return Response.send(res, OK, { users });
 }
 
 /**
@@ -454,7 +461,7 @@ async function createGuest(req, res) {
         console.error("Error creating guest login link:", err);
     }
 
-    broadcastToBoard(req.board.id, { type: "guests-changed" });
+    broadcastToBoard(req.board.id, { type: "users-changed" });
     return Response.send(res, OK, {
         guest: { id: guest.id, displayName: username, username },
         // Both shown once here for the inviter to share out-of-band, never stored by us.
@@ -549,7 +556,7 @@ async function removeGuest(req, res) {
     // Kick their live connection immediately instead of waiting for their next request to fail.
     closeUserSockets(guest.id, "This account was removed.");
 
-    broadcastToBoard(req.board.id, { type: "guests-changed" });
+    broadcastToBoard(req.board.id, { type: "users-changed" });
     return Response.send(res, OK, { message: "Guest removed" });
 }
 
@@ -665,7 +672,9 @@ async function getPublicBoard(req, res) {
     const { OK, NOT_FOUND, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
     const { data: row, error } = await supabase
         .from("boards")
-        .select("id, short_id, name, board, last_updated, is_public, owner:owner_id(display_name)")
+        .select(
+            "id, short_id, name, board, last_updated, is_public, owner:owner_id(display_name, avatar_url)",
+        )
         .eq("short_id", req.params.shortId)
         .maybeSingle();
     if (error) return Response.send(res, INTERNAL_SERVER_ERROR, { error: error.message });
@@ -690,7 +699,8 @@ async function getPublicBoard(req, res) {
             id: row.id,
             shortId: row.short_id,
             name: row.name || `${ownerName}'s Board`,
-            ownerName,
+            // No owner id, account ids stay private here
+            owner: { displayName: ownerName, avatarURL: row.owner?.avatar_url ?? null },
             last_updated: row.last_updated,
             board,
         },
@@ -728,7 +738,7 @@ router.post("/:boardId/visibility", requireBoardAccess, permissionLevel.Owner, s
 router.post("/:boardId/update", requireBoardAccess, updateBoard);
 router.post("/:boardId/history", requireBoardAccess, appendBoardHistory);
 router.delete("/:boardId", requireBoardAccess, permissionLevel.Owner, deleteBoard);
-router.get("/:boardId/guests", requireBoardAccess, listGuests);
+router.get("/:boardId/users", requireBoardAccess, listBoardUsers);
 router.post("/:boardId/guests", requireBoardAccess, permissionLevel.Owner, createGuest);
 router.delete("/:boardId/guests/:userId", requireBoardAccess, permissionLevel.Owner, removeGuest);
 router.post("/:boardId/guests/:userId/password", requireBoardAccess, setGuestPassword);

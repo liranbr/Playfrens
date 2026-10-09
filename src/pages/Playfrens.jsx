@@ -170,7 +170,7 @@ const ReadOnlyBadge = observer(() => {
     const { activeBoard } = useBoardStore();
     return (
         <SimpleTooltip
-            message={`You're viewing ${activeBoard?.ownerName}'s board. Only its members can make changes.`}
+            message={`You're viewing ${activeBoard?.owner?.displayName}'s board. Only its members can make changes.`}
         >
             <div className="read-only-badge">
                 <MdOutlineVisibility />
@@ -181,9 +181,11 @@ const ReadOnlyBadge = observer(() => {
 });
 
 const GuestBadge = observer(() => {
+    const { activeBoard } = useBoardStore();
+    const ownerName = activeBoard?.owner?.displayName ?? "the owner of this board";
     return (
         <SimpleTooltip
-            message={`Your account was made by the owner of this board. Create an account to create your own boards.`}
+            message={`Your account was made by ${ownerName}. Create an account to create your own boards.`}
         >
             <div className="guest-badge">
                 <MdOutlineVisibility />

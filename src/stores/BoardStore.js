@@ -22,41 +22,81 @@ import { loadFromStorage, saveToStorage } from "@/Utils";
 
 const LAST_BOARD_STORAGE_KEY = "last-active-board-id";
 
-// Tracks which boards the user can access and which one is active.
+/** Tracks which boards the user can access and which one is active. */
 export class BoardStore {
-    boards = []; // [{ id, name, role: "owner" | "guest", isPublic }]
+    /**
+     * Boards the user can access, from listBoards(). shortId is used in /app/<shortId> URLs.
+     * @type {{
+     *     id: string,
+     *     shortId: string,
+     *     name: string,
+     *     role: "owner" | "guest",
+     *     isPublic: boolean,
+     *     owner: { id: string, displayName: string, avatarURL: string | null },
+     * }[]}
+     */
+    boards = [];
+    /** @type {string | null} */
     activeBoardId = null;
+    /** True until the boards list or public board has loaded. */
     loading = true;
-    // Viewing someone else's public board: { id, shortId, name, ownerName }
+    /**
+     * While logged out, selective information regarding the public board is sent and set here.
+     * @type {{
+     *     id: string,
+     *     shortId: string,
+     *     name: string,
+     *     owner: { displayName: string, avatarURL: string | null },
+     * } | null}
+     */
     publicBoard = null;
-    #guestsCache = new Map();
+    /**
+     * Cached users when loading the board members.
+     * @type {Map<string, {
+     *     id: string,
+     *     displayName: string,
+     *     avatarURL: string | null,
+     *     username: string | null,
+     *     role: "owner" | "guest",
+     * }[]>}
+     */
+    #usersCache = new Map();
 
     constructor() {
         makeAutoObservable(this);
     }
 
+    /** The board currently being viewed. */
     get activeBoard() {
         if (this.publicBoard) return this.publicBoard;
         return this.boards.find((b) => b.id === this.activeBoardId) ?? null;
     }
 
+    /** @returns {boolean} true when viewing a public board you're not on */
     get isReadOnly() {
         return this.publicBoard !== null;
     }
 
+    /** @returns {number} */
     get ownedBoardsCount() {
         return this.boards.filter((b) => b.role === "owner").length;
     }
 
+    /** @returns {boolean} false once you own MAX_OWNED_BOARDS */
     get canCreateBoard() {
         return this.ownedBoardsCount < MAX_OWNED_BOARDS;
     }
 
+    /** @returns {boolean} whether you own the active board, always false on public boards while logged out */
     get isOwner() {
         return this.activeBoard?.role === "owner";
     }
 
-    /** @param {string} [targetBoard] board to open after inside the page login, otherwise the URL's */
+    /**
+     * Loads the boards list and opens the requested, last used, or first owned board.
+     * @param {string} [targetBoard] board to open after inside the page login, otherwise the URL's
+     * @returns {Promise<void>}
+     */
     async populate(targetBoard) {
         const boards = await listBoards();
         const requestedId = targetBoard ?? this.getRequestedBoardIdFromURL();
@@ -86,7 +126,11 @@ export class BoardStore {
         if (resolvedId) await this.#loadActiveBoard();
     }
 
-    /** Loads a public board read-only, returns false if it's private or missing. */
+    /**
+     * Loads a public board read-only.
+     * @param {string | null} [shortId] defaults to the URL's
+     * @returns {Promise<boolean>} false if it's private or missing
+     */
     async populatePublic(shortId = this.getRequestedBoardIdFromURL()) {
         const board = shortId ? await getPublicBoard(shortId) : null;
         if (!board) {
@@ -99,7 +143,7 @@ export class BoardStore {
                 id: board.id,
                 shortId: board.shortId,
                 name: board.name,
-                ownerName: board.ownerName,
+                owner: board.owner,
             };
             this.activeBoardId = board.id;
             this.loading = false;
@@ -112,6 +156,11 @@ export class BoardStore {
         return true;
     }
 
+    /**
+     * Owner only.
+     * @param {string} boardId
+     * @param {boolean} isPublic
+     */
     async setVisibility(boardId, isPublic) {
         const result = await setBoardVisibilityAPI(boardId, isPublic);
         runInAction(() => {
@@ -120,24 +169,38 @@ export class BoardStore {
         });
     }
 
+    /**
+     * Remembers the board and reloads the app on it.
+     * @param {string} boardId
+     */
     switchBoard(boardId) {
         if (boardId === this.activeBoardId) return;
         saveToStorage(LAST_BOARD_STORAGE_KEY, boardId);
         window.location.assign("/app");
     }
 
-    getCachedGuests(boardId) {
-        return this.#guestsCache.get(boardId) ?? null;
+    /**
+     * Null if not fetched yet.
+     * @param {string} boardId
+     */
+    getCachedUsers(boardId) {
+        return this.#usersCache.get(boardId) ?? null;
     }
 
-    setCachedGuests(boardId, guests) {
-        this.#guestsCache.set(boardId, guests);
+    /**
+     * @param {string} boardId
+     * @param {object[]} users from listBoardUsers()
+     */
+    setCachedUsers(boardId, users) {
+        this.#usersCache.set(boardId, users);
     }
 
-    invalidateGuestsCache(boardId) {
-        this.#guestsCache.delete(boardId);
+    /** @param {string} boardId */
+    invalidateUsersCache(boardId) {
+        this.#usersCache.delete(boardId);
     }
 
+    /** Re-fetches the boards list, e.g. after a rename or visibility change. */
     async refreshBoardsList() {
         const boards = await listBoards();
         runInAction(() => {
@@ -145,7 +208,11 @@ export class BoardStore {
         });
     }
 
-    // Throws if you're at MAX_OWNED_BOARDS or the request fails.
+    /**
+     * Creates a board and switches to it. Throws if you're at MAX_OWNED_BOARDS or the request fails.
+     * @param {string} [name]
+     * @returns {Promise<{ id: string, shortId: string, name: string, role: "owner" }>}
+     */
     async createBoard(name) {
         const board = await createBoardAPI(name);
         await this.refreshBoardsList();
@@ -153,11 +220,20 @@ export class BoardStore {
         return board;
     }
 
+    /**
+     * Owner only.
+     * @param {string} boardId
+     * @param {string} name
+     */
     async renameBoard(boardId, name) {
         await renameBoardAPI(boardId, name);
         await this.refreshBoardsList();
     }
 
+    /**
+     * Owner only, switches to another board if the deleted one was active.
+     * @param {string} boardId
+     */
     async deleteBoard(boardId) {
         await deleteBoardAPI(boardId);
         const wasActive = boardId === this.activeBoardId;
@@ -169,6 +245,7 @@ export class BoardStore {
         else window.location.assign("/app"); // shouldn't happen - see above
     }
 
+    /** Loads the active board's data and subscribes to its live updates. */
     async #loadActiveBoard() {
         resetRequestQueue();
         saveToStorage(LAST_BOARD_STORAGE_KEY, this.activeBoardId);
@@ -181,6 +258,7 @@ export class BoardStore {
         subscribeToBoard(this.activeBoardId);
     }
 
+    /** @returns {string | null} the id or shortId from /app/<id> or /board/<id> */
     getRequestedBoardIdFromURL() {
         const match = window.location.pathname.match(/^\/(?:app|board)\/([^/]+)/);
         return match ? decodeURIComponent(match[1]) : null;

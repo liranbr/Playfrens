@@ -28,8 +28,8 @@ export const SortDirectionOptions = {
     desc: "Descending",
 };
 export const TagGameCounterOptions = {
-    countFiltered: "Game Count (current)",
-    countTotal: "Game Count (total)",
+    countFiltered: "Game Count (of filtered)",
+    countTotal: "Game Count (of total)",
     none: "None",
 };
 export const ShowMatureContentOptions = {

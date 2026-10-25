@@ -132,8 +132,8 @@ export const AppearanceTab = observer(() => {
                 </Setting>
 
                 <Setting
-                    title="Grid Spacing"
-                    description="Padding and gaps between cards in the games grid"
+                    title="Compact Grid Spacing"
+                    description="Make the games grid's padding and gaps smaller"
                     isDefault={
                         settingsStore.toggleCompactGameGrid ===
                         SettingsDefaults.toggleCompactGameGrid

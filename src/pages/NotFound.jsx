@@ -1,5 +1,5 @@
 import { usePageMeta } from "@/hooks/usePageMeta.js";
-import "./CardPage.css";
+import "../components/common/CardPageLayout.css";
 
 export default function NotFound() {
     usePageMeta({

@@ -65,10 +65,12 @@
 }
 
 .back-button {
+    position: absolute;
+    top: 1.5rem;
+    left: 1.5rem;
     display: flex;
     align-items: center;
     gap: 0.375rem;
-    margin-top: 1.25rem;
     font-size: 0.875rem;
 }
 
@@ -122,7 +124,7 @@
         content: "";
         flex: 1;
         height: 1px;
-        background: var(--pf-border-700);
+        border: var(--pf-border-700);
     }
 }
 

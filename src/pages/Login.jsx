@@ -2,11 +2,11 @@ import { useCallback, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { useUserStore } from "@/stores";
-import { EmailAuthForm, GuestAuthForm, GuestLinkForm } from "@/components";
+import { AccountAuthForm, GuestAuthForm, GuestLinkForm } from "@/components";
 import { clearGuestLinkToken, guestLinkToken } from "@/services/GuestLinkToken.js";
 import { usePageMeta } from "@/hooks/usePageMeta.js";
 import "./Login.css";
-import "./CardPage.css";
+import "../components/common/CardPageLayout.css";
 import { toastError } from "@/Utils";
 
 const Login = observer(() => {
@@ -51,7 +51,7 @@ const Login = observer(() => {
             onBack={() => setGuestMode(false)}
         />
     ) : (
-        <EmailAuthForm targetBoard={targetBoard} onGuestModeClick={() => setGuestMode(true)} />
+        <AccountAuthForm targetBoard={targetBoard} onGuestModeClick={() => setGuestMode(true)} />
     );
 });
 

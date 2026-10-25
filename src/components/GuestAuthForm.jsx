@@ -29,7 +29,7 @@ export const GuestAuthForm = observer(({ targetBoard, defaultUsername, onBack })
     return (
         <CardPageLayout
             title={targetBoard ? "Sign in to access this board" : "Sign in with a board login"}
-            subtitle="using a login someone created for you"
+            subtitle="using a guest login shared with you"
         >
             <form className="email-auth-form" onSubmit={handleGuestSubmit}>
                 <fieldset>

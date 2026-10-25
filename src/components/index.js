@@ -26,7 +26,7 @@ export { DialogRoot } from "./Dialogs/DialogRoot.jsx";
 export { BoardSwitcher } from "./BoardSwitcher.jsx";
 export { ShareGamesAsText } from "./ShareGamesAsText.jsx";
 export { Notifications } from "./Notifications.jsx";
-export { EmailAuthForm } from "./EmailAuthForm.jsx";
+export { AccountAuthForm } from "./AccountAuthForm.jsx";
 export { GuestAuthForm } from "./GuestAuthForm.jsx";
 export { GuestLinkForm } from "./GuestLinkForm.jsx";
 

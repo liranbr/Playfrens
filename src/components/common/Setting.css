@@ -1,36 +1,44 @@
 .setting {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: start;
-    gap: 0.25rem;
+    justify-content: space-between;
 
-    h3 {
-        font-size: 1rem;
-        line-height: 1;
-        font-weight: 500;
-        color: #f2f2f2;
-    }
-    .setting-reset {
-        --icon-size: 26px;
-        display: inline-flex;
-        vertical-align: middle;
-        margin-left: 0.375rem;
-        font-size: 1.25rem;
-        transition: none;
+    .setting-descriptor {
+        flex-basis: 66%;
+        display: flex;
+        flex-direction: column;
+        align-items: start;
 
-        svg {
-            transform: scaleX(-1);
+        h3 {
+            font-size: 1rem;
+            line-height: 1;
+            font-weight: 500;
+            color: #f2f2f2;
         }
+        .setting-reset {
+            --icon-size: 26px;
+            display: inline-flex;
+            vertical-align: middle;
+            margin-left: 0.375rem;
+            font-size: 1.25rem;
+            transition: none;
 
-        &.setting-reset-hidden {
-            visibility: hidden; /* so it doesn't nudge */
+            svg {
+                transform: scaleX(-1);
+            }
+
+            &.setting-reset-hidden {
+                visibility: hidden; /* so it doesn't nudge */
+            }
+        }
+        p {
+            font-size: 0.875rem;
+            color: var(--pf-fg-400);
         }
     }
-    p {
-        font-size: 0.875rem;
-        color: var(--pf-fg-400);
-    }
-    & > *:not(h3) {
-        margin-left: 0.5rem;
+
+    .setting-setter {
+        flex-basis: 33%;
     }
 }

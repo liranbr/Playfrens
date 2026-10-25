@@ -18,6 +18,7 @@ export { Setting } from "./common/Setting.jsx";
 export { SettingsSection } from "./common/SettingsSection.jsx";
 export { Slider } from "./common/Slider.jsx";
 export { RadioSetting } from "./common/RadioSetting.jsx";
+export { DropdownSetting } from "./common/DropdownSetting.jsx";
 export { GamesGrid } from "./GameGrid.jsx";
 export { SidebarTagButton } from "./TagButton.jsx";
 export { SidebarTagButtonGroup } from "./TagButtonGroup.jsx";

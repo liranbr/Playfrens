@@ -9,8 +9,8 @@ import { AppearanceTab } from "./AppearanceTab.jsx";
 import "./UserSettingsDialog.css";
 
 const UserSettingsTabs = {
-    account: { label: "Account", Component: AccountTab },
     appearance: { label: "Appearance", Component: AppearanceTab },
+    account: { label: "Account", Component: AccountTab },
 };
 
 export const UserSettingsDialog = observer(({ open, closeDialog }) => {

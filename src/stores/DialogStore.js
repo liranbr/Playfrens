@@ -1,5 +1,5 @@
 import { AboutDialog } from "@/components/Dialogs/AboutDialog.jsx";
-import { AccountSettingsDialog } from "@/components/Dialogs/AccountSettingsDialog.jsx";
+import { UserSettingsDialog } from "@/components/Dialogs/UserSettingsDialog.jsx";
 import { BoardSettingsDialog } from "@/components/Dialogs/BoardSettingsDialog.jsx";
 import { ChoosePartyToAddTagDialog } from "@/components/Dialogs/ChoosePartyToAddTagDialog.jsx";
 import { CreateBoardDialog } from "@/components/Dialogs/CreateBoardDialog.jsx";
@@ -17,7 +17,7 @@ import { action, makeAutoObservable } from "mobx";
 
 export const Dialogs = {
     ChoosePartyToAddTag: ChoosePartyToAddTagDialog,
-    AccountSettings: AccountSettingsDialog,
+    UserSettings: UserSettingsDialog,
     BoardSettings: BoardSettingsDialog,
     CreateBoard: CreateBoardDialog,
     GenericWarning: GenericWarningDialog,

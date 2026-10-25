@@ -226,8 +226,8 @@ const AppUserAvatar = observer(() => {
             }
             triggerClassName="rx-avatar"
         >
-            <Dropdown.Item onClick={() => globalDialogStore.open(Dialogs.AccountSettings)}>
-                Account Settings
+            <Dropdown.Item onClick={() => globalDialogStore.open(Dialogs.UserSettings)}>
+                User Settings
             </Dropdown.Item>
             <Dropdown.Item onClick={() => userStore.logout()}>Logout</Dropdown.Item>
         </Dropdown>

@@ -18,7 +18,7 @@ export const AppearanceTab = observer(() => {
 
     return (
         <>
-            <SettingsSection title="General" subtitle="Size and motion across the whole app">
+            <SettingsSection title="General">
                 <Setting
                     title="Font Size"
                     description="Scales text and spacing across the whole app"

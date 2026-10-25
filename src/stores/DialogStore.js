@@ -1,6 +1,6 @@
 import { AboutDialog } from "@/components/Dialogs/AboutDialog.jsx";
-import { UserSettingsDialog } from "@/components/Dialogs/UserSettingsDialog.jsx";
-import { BoardSettingsDialog } from "@/components/Dialogs/BoardSettingsDialog.jsx";
+import { UserSettingsDialog } from "@/components/Dialogs/UserSettingsDialog/UserSettingsDialog.jsx";
+import { BoardSettingsDialog } from "@/components/Dialogs/BoardSettingsDialog/BoardSettingsDialog.jsx";
 import { ChoosePartyToAddTagDialog } from "@/components/Dialogs/ChoosePartyToAddTagDialog.jsx";
 import { CreateBoardDialog } from "@/components/Dialogs/CreateBoardDialog.jsx";
 import { DeleteWarningDialog } from "@/components/Dialogs/DeleteWarningDialog.jsx";

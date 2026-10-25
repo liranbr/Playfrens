@@ -2,10 +2,10 @@ import { observer } from "mobx-react-lite";
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components";
-import { DialogBase } from "./DialogRoot.jsx";
-import { SettingsTabs } from "./SettingsTabs.jsx";
-import { AccountTab } from "./AccountSettingsDialog/AccountTab.jsx";
-import { AppearanceTab } from "./AccountSettingsDialog/AppearanceTab.jsx";
+import { DialogBase } from "../DialogRoot.jsx";
+import { SettingsTabs } from "../SettingsTabs.jsx";
+import { AccountTab } from "./AccountTab.jsx";
+import { AppearanceTab } from "./AppearanceTab.jsx";
 import "./UserSettingsDialog.css";
 
 const UserSettingsTabs = {

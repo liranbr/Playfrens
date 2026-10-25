@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import { RadioSetting, Setting, SettingsSection, Slider } from "@/components";
+import { DropdownSetting, Setting, SettingsSection, Slider } from "@/components";
 import {
     FontSizeRange,
     FriendIconDisplayOptions,
@@ -41,7 +41,7 @@ export const AppearanceTab = observer(() => {
                     isDefault={settingsStore.reduceMotion === SettingsDefaults.reduceMotion}
                     onReset={() => settingsStore.setReduceMotion(SettingsDefaults.reduceMotion)}
                 >
-                    <RadioSetting
+                    <DropdownSetting
                         name="reduceMotion"
                         value={settingsStore.reduceMotion}
                         options={ReduceMotionOptions}
@@ -64,7 +64,7 @@ export const AppearanceTab = observer(() => {
                         )
                     }
                 >
-                    <RadioSetting
+                    <DropdownSetting
                         name="tagHoverGameHighlight"
                         value={settingsStore.tagHoverGameHighlight}
                         options={TagHoverGameHighlightOptions}
@@ -85,7 +85,7 @@ export const AppearanceTab = observer(() => {
                         )
                     }
                 >
-                    <RadioSetting
+                    <DropdownSetting
                         name="tagGameCounter"
                         value={settingsStore.tagGameCounterDisplay}
                         options={TagGameCounterOptions}
@@ -103,7 +103,7 @@ export const AppearanceTab = observer(() => {
                         settingsStore.setFriendIconDisplay(SettingsDefaults.friendIconDisplay)
                     }
                 >
-                    <RadioSetting
+                    <DropdownSetting
                         name="friendIconDisplay"
                         value={settingsStore.friendIconDisplay}
                         options={FriendIconDisplayOptions}
@@ -141,7 +141,7 @@ export const AppearanceTab = observer(() => {
                         settingsStore.setGamesGridDensity(SettingsDefaults.gamesGridDensity)
                     }
                 >
-                    <RadioSetting
+                    <DropdownSetting
                         name="gamesGridDensity"
                         value={settingsStore.gamesGridDensity}
                         options={GamesGridDensityOptions}
@@ -159,7 +159,7 @@ export const AppearanceTab = observer(() => {
                         settingsStore.setHideGameStoreButtons(SettingsDefaults.hideGameStoreButtons)
                     }
                 >
-                    <RadioSetting
+                    <DropdownSetting
                         name="hideGameStoreButtons"
                         value={settingsStore.hideGameStoreButtons}
                         options={HideGameStoreButtonsOptions}

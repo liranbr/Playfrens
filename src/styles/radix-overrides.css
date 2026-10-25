@@ -355,7 +355,7 @@
 
 .rx-select-trigger {
     display: inline-flex;
-    width: 100%;
+    width: 200px;
     align-items: center;
     justify-content: space-between;
     border-radius: 8px;
@@ -368,6 +368,12 @@
     height: 32px;
     gap: 0.3125rem;
     cursor: default;
+
+    span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-wrap: nowrap;
+    }
 
     svg {
         color: var(--pf-fg-500);

@@ -5,9 +5,9 @@ export const ACCOUNT_SETTINGS_KEYS = [
     "tagHoverGameHighlight",
     "tagGameCounterDisplay",
     "friendIconDisplay",
-    "gamesGridDensity",
+    "toggleCompactGameGrid",
     "gamesGridCardWidth",
-    "hideGameStoreButtons",
+    "toggleHideGameStoreButtons",
 ];
 
 // Keeps only known account keys with primitive values, returns null if the input isn't an object.

@@ -28,13 +28,9 @@ export const SortDirectionOptions = {
     desc: "Descending",
 };
 export const TagGameCounterOptions = {
-    countFiltered: "Game Count (with current filters)",
+    countFiltered: "Game Count (current)",
     countTotal: "Game Count (total)",
     none: "None",
-};
-export const HideGameStoreButtonsOptions = {
-    off: "Off",
-    on: "On",
 };
 export const ShowMatureContentOptions = {
     off: "Off",
@@ -44,10 +40,6 @@ export const FriendIconDisplayOptions = {
     hideMissing: "Hide Missing",
     hide: "Hide All",
     showAll: "Show All",
-};
-export const GamesGridDensityOptions = {
-    simple: "Simple",
-    compact: "Compact",
 };
 export const ReduceMotionOptions = {
     system: "Match System",
@@ -63,9 +55,9 @@ export const SettingsDefaults = {
     tagHoverGameHighlight: "darken",
     tagGameCounterDisplay: "countFiltered",
     friendIconDisplay: "hideMissing",
-    gamesGridDensity: "simple",
+    toggleCompactGameGrid: false,
     gamesGridCardWidth: 210,
-    hideGameStoreButtons: "on",
+    toggleHideGameStoreButtons: false,
     showMatureContent: "off",
 };
 
@@ -94,10 +86,10 @@ class SettingsStore {
     gameSortMethod = "title";
     gameSortDirection = "asc";
     tagGameCounterDisplay = SettingsDefaults.tagGameCounterDisplay;
-    hideGameStoreButtons = SettingsDefaults.hideGameStoreButtons;
+    toggleHideGameStoreButtons = SettingsDefaults.toggleHideGameStoreButtons;
     showMatureContent = SettingsDefaults.showMatureContent;
     friendIconDisplay = SettingsDefaults.friendIconDisplay;
-    gamesGridDensity = SettingsDefaults.gamesGridDensity; // spacing between game cards
+    toggleCompactGameGrid = SettingsDefaults.toggleCompactGameGrid; // spacing between game cards
     gamesGridCardWidth = SettingsDefaults.gamesGridCardWidth; // in px
 
     constructor() {
@@ -175,8 +167,8 @@ class SettingsStore {
         else console.warn(`Invalid TagGameCounterDisplay option: ${option}`);
     }
 
-    setHideGameStoreButtons(option) {
-        if (HideGameStoreButtonsOptions[option]) this.hideGameStoreButtons = option;
+    setToggleHideGameStoreButtons(option) {
+        if (typeof option === "boolean") this.toggleHideGameStoreButtons = option;
         else console.warn(`Invalid HideGameStoreButtons option: ${option}`);
     }
 
@@ -190,8 +182,8 @@ class SettingsStore {
         else console.warn(`Invalid FriendIconDisplay option: ${option}`);
     }
 
-    setGamesGridDensity(option) {
-        if (GamesGridDensityOptions[option]) this.gamesGridDensity = option;
+    setToggleCompactGameGrid(option) {
+        if (typeof option === "boolean") this.toggleCompactGameGrid = option;
         else console.warn(`Invalid GamesGridDensity option: ${option}`);
     }
 

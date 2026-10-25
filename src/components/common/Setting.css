@@ -41,8 +41,11 @@
 
     .setting-setter {
         flex-shrink: 0;
-        width: 200px;
         max-width: 200px;
+        display: flex;
+        flex-direction: row;
+        align-items: end;
+        justify-content: end;
         /*width: fit-content;*/
     }
 }

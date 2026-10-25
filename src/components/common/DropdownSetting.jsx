@@ -14,7 +14,7 @@ export function DropdownSetting({ name, value, options, onChange }) {
                 </Select.Icon>
             </Select.Trigger>
 
-            <Select.Content position="popper" className="rx-select-content">
+            <Select.Content position="popper" className="rx-select-content rx-select-setting">
                 <Select.Viewport>
                     {Object.keys(options).map((option) => {
                         const optKey = `${name}-${option}`;

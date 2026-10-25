@@ -1,11 +1,9 @@
 import { observer } from "mobx-react-lite";
-import { DropdownSetting, Setting, SettingsSection, Slider } from "@/components";
+import { DropdownSetting, Setting, SettingsSection, Slider, ToggleSetting } from "@/components";
 import {
     FontSizeRange,
     FriendIconDisplayOptions,
     GamesGridCardWidthRange,
-    GamesGridDensityOptions,
-    HideGameStoreButtonsOptions,
     ReduceMotionOptions,
     TagGameCounterOptions,
     TagHoverGameHighlightOptions,
@@ -136,16 +134,20 @@ export const AppearanceTab = observer(() => {
                 <Setting
                     title="Grid Spacing"
                     description="Padding and gaps between cards in the games grid"
-                    isDefault={settingsStore.gamesGridDensity === SettingsDefaults.gamesGridDensity}
+                    isDefault={
+                        settingsStore.toggleCompactGameGrid ===
+                        SettingsDefaults.toggleCompactGameGrid
+                    }
                     onReset={() =>
-                        settingsStore.setGamesGridDensity(SettingsDefaults.gamesGridDensity)
+                        settingsStore.setToggleCompactGameGrid(
+                            SettingsDefaults.toggleCompactGameGrid,
+                        )
                     }
                 >
-                    <DropdownSetting
+                    <ToggleSetting
                         name="gamesGridDensity"
-                        value={settingsStore.gamesGridDensity}
-                        options={GamesGridDensityOptions}
-                        onChange={(option) => settingsStore.setGamesGridDensity(option)}
+                        value={settingsStore.toggleCompactGameGrid}
+                        onChange={(checked) => settingsStore.setToggleCompactGameGrid(checked)}
                     />
                 </Setting>
 
@@ -153,17 +155,19 @@ export const AppearanceTab = observer(() => {
                     title="Obscure Game Platform Actions"
                     description="In a Game Page, hide the 'Play' and 'Store Page' buttons unless cover art is hovered on"
                     isDefault={
-                        settingsStore.hideGameStoreButtons === SettingsDefaults.hideGameStoreButtons
+                        settingsStore.toggleHideGameStoreButtons ===
+                        SettingsDefaults.toggleHideGameStoreButtons
                     }
                     onReset={() =>
-                        settingsStore.setHideGameStoreButtons(SettingsDefaults.hideGameStoreButtons)
+                        settingsStore.setToggleHideGameStoreButtons(
+                            SettingsDefaults.toggleHideGameStoreButtons,
+                        )
                     }
                 >
-                    <DropdownSetting
-                        name="hideGameStoreButtons"
-                        value={settingsStore.hideGameStoreButtons}
-                        options={HideGameStoreButtonsOptions}
-                        onChange={(option) => settingsStore.setHideGameStoreButtons(option)}
+                    <ToggleSetting
+                        name="toggleHideGameStoreButtons"
+                        value={settingsStore.toggleHideGameStoreButtons}
+                        onChange={(checked) => settingsStore.setToggleHideGameStoreButtons(checked)}
                     />
                 </Setting>
             </SettingsSection>

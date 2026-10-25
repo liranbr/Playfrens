@@ -347,8 +347,9 @@ const PartyTabs = ({ game, partyID, setPartyID, renamePartyRef, readOnly }) => {
 export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID }) => {
     const filterStore = useFilterStore();
     const settingsStore = useSettingsStore();
-    const storeGameButtonsClassname =
-        settingsStore.hideGameStoreButtons === "on" ? " hide-unless-hover" : "";
+    const storeGameButtonsClassname = settingsStore.toggleHideGameStoreButtons
+        ? " hide-unless-hover"
+        : "";
     const firstPartyIDThatPassesFilters = () => {
         return (
             game.parties.find((party) => filterStore.doesPartyPassFilters(party))?.id ??
@@ -363,8 +364,8 @@ export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID
     const dataStore = useDataStore();
     const partyReminders = party
         ? dataStore.sortedReminders.filter(
-            (reminder) => reminder.gameID === game.id && reminder.partyID === party.id,
-        )
+              (reminder) => reminder.gameID === game.id && reminder.partyID === party.id,
+          )
         : [];
 
     // Party (or game) may get deleted remotely while open, close instead of crashing.

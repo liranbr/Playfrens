@@ -364,7 +364,7 @@
     padding: 0 0.9375rem;
     font-size: 0.875rem;
     color: var(--pf-fg-100);
-    line-height: 1;
+    line-height: 1.5;
     height: 32px;
     gap: 0.3125rem;
     cursor: default;
@@ -437,6 +437,10 @@
             text-overflow: ellipsis;
             text-wrap: nowrap;
         }
+    }
+
+    &.rx-select-setting {
+        min-width: 200px;
     }
 }
 

@@ -50,13 +50,30 @@ export const GamesGridCardWidthRange = { min: 140, max: 320, step: 10 };
 export const FontSizeRange = { min: 75, max: 125, step: 5 }; // in % of the browser default
 
 export const SettingsDefaults = {
+    tagFilterLogic: {
+        [tagTypes.friend]: "AND",
+        [tagTypes.category]: "OR",
+        [tagTypes.status]: "OR",
+    },
+    tagSortMethods: {
+        [tagTypes.friend]: "name",
+        [tagTypes.category]: "custom",
+        [tagTypes.status]: "custom",
+    },
+    tagSortDirection: {
+        [tagTypes.friend]: "asc",
+        [tagTypes.category]: "asc",
+        [tagTypes.status]: "asc",
+    },
+    gameSortMethod: "title",
+    gameSortDirection: "asc",
     fontSize: 100,
     reduceMotion: "system",
     tagHoverGameHighlight: "darken",
     tagGameCounterDisplay: "countFiltered",
     friendIconDisplay: "hideMissing",
-    toggleCompactGameGrid: false,
-    gamesGridCardWidth: 210,
+    toggleCompactGameGrid: false, // spacing between game cards
+    gamesGridCardWidth: 210, // in px
     toggleHideGameStoreButtons: false,
     showMatureContent: "off",
 };
@@ -64,35 +81,8 @@ export const SettingsDefaults = {
 const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 class SettingsStore {
-    // Default values, overridden by settings loaded from storage
-    fontSize = SettingsDefaults.fontSize;
-    reduceMotion = SettingsDefaults.reduceMotion;
-    tagHoverGameHighlight = SettingsDefaults.tagHoverGameHighlight;
-    tagFilterLogic = {
-        [tagTypes.friend]: "AND",
-        [tagTypes.category]: "OR",
-        [tagTypes.status]: "OR",
-    };
-    tagSortMethods = {
-        [tagTypes.friend]: "name",
-        [tagTypes.category]: "custom",
-        [tagTypes.status]: "custom",
-    };
-    tagSortDirection = {
-        [tagTypes.friend]: "asc",
-        [tagTypes.category]: "asc",
-        [tagTypes.status]: "asc",
-    };
-    gameSortMethod = "title";
-    gameSortDirection = "asc";
-    tagGameCounterDisplay = SettingsDefaults.tagGameCounterDisplay;
-    toggleHideGameStoreButtons = SettingsDefaults.toggleHideGameStoreButtons;
-    showMatureContent = SettingsDefaults.showMatureContent;
-    friendIconDisplay = SettingsDefaults.friendIconDisplay;
-    toggleCompactGameGrid = SettingsDefaults.toggleCompactGameGrid; // spacing between game cards
-    gamesGridCardWidth = SettingsDefaults.gamesGridCardWidth; // in px
-
     constructor() {
+        Object.assign(this, structuredClone(SettingsDefaults)); // Default values, overridden by settings loaded from storage
         makeAutoObservable(this);
         // Everything sized in rem scales with this
         autorun(() => {

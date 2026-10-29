@@ -6,8 +6,8 @@ import { ACCOUNT_SETTINGS_KEYS, pickAccountSettings } from "#shared/accountSetti
 export const settingsStorageKey = "settings";
 
 export const TagHoverGameHighlightOptions = {
-    darken: "Darken the rest",
-    highlight: "Highlight",
+    darken: "Darken games without",
+    highlight: "Highlight games with",
     none: "None",
 };
 export const TagFilterLogicOptions = {

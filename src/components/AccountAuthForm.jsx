@@ -121,7 +121,7 @@ export const AccountAuthForm = observer(({ targetBoard, onGuestModeClick }) => {
                         id="email"
                         type="email"
                         required
-                        autoComplete="email"
+                        autoComplete="username"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                     />
@@ -169,7 +169,7 @@ export const AccountAuthForm = observer(({ targetBoard, onGuestModeClick }) => {
                         id="email"
                         type="email"
                         required
-                        autoComplete="email"
+                        autoComplete="username"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                     />
@@ -210,7 +210,7 @@ export const AccountAuthForm = observer(({ targetBoard, onGuestModeClick }) => {
                         id="email"
                         type="email"
                         required
-                        autoComplete="email"
+                        autoComplete="username"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                     />

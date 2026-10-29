@@ -5,6 +5,7 @@ import { useUserStore } from "@/stores";
 import { Button, CardPageLayout } from "@/components";
 import { loadFromStorage, toastError, toastInfo } from "@/Utils";
 import { ErrorCode } from "#shared/http.js";
+import { useDelayedButton } from "@/hooks/useDelayedButton.jsx";
 
 const PROVIDERS = [
     { id: "steam", label: "Steam", icon: <BiLogoSteam />, color: "#171a21" },
@@ -25,15 +26,18 @@ export const AccountAuthForm = observer(({ targetBoard, onGuestModeClick }) => {
     const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
     const [resending, setResending] = useState(false);
     const [resetSent, setResetSent] = useState(false);
+    const { startDelay, delayOngoing, secondsRemaining } = useDelayedButton(60);
 
-    async function handleSendReset() {
+    async function handleSendPassReset() {
         if (submitting) return;
         setSubmitting(true);
         try {
             const result = await userStore.requestPasswordReset(email);
             if (!result.ok) return toastError(result.error);
-            if (resetSent) toastInfo("Reset email sent, check your inbox and spam folder.");
+            if (resetSent)
+                toastInfo("Password Reset email sent, check your inbox and spam folder.");
             setResetSent(true);
+            startDelay();
         } finally {
             setSubmitting(false);
         }
@@ -44,21 +48,18 @@ export const AccountAuthForm = observer(({ targetBoard, onGuestModeClick }) => {
         setResetSent(false);
     }
 
-    async function handleResend() {
+    async function handleResendConfirmation() {
         if (resending) return;
         setResending(true);
         try {
             const result = await userStore.resendConfirmation(email);
-            if (result.ok) toastInfo("Confirmation email sent, check your inbox and spam folder.");
-            else toastError(result.error);
+            if (result.ok) {
+                startDelay();
+                toastInfo("Confirmation email sent, check your inbox and spam folder.");
+            } else toastError(result.error);
         } finally {
             setResending(false);
         }
-    }
-
-    function startSignUp() {
-        setMode("signup");
-        setInEmailForm(true);
     }
 
     function handleBack() {
@@ -67,10 +68,6 @@ export const AccountAuthForm = observer(({ targetBoard, onGuestModeClick }) => {
         setAwaitingConfirmation(false);
         setResetSent(false);
         setPassword("");
-    }
-
-    function toggleMode() {
-        setMode(mode === "signup" ? "login" : "signup");
     }
 
     async function handleEmailSubmit(e) {
@@ -98,11 +95,16 @@ export const AccountAuthForm = observer(({ targetBoard, onGuestModeClick }) => {
             if (mode === "signup") {
                 const result = await userStore.signupWithEmail(email, password, targetBoard);
                 if (!result.ok) toastError(result.error);
-                else if (result.confirmationRequired) setAwaitingConfirmation(true);
+                else if (result.confirmationRequired) {
+                    setAwaitingConfirmation(true);
+                    startDelay();
+                }
             } else {
                 const result = await userStore.loginWithEmail(email, password, targetBoard);
-                if (result.code === ErrorCode.EMAIL_NOT_CONFIRMED) setAwaitingConfirmation(true);
-                else if (!result.ok) toastError(result.error);
+                if (result.code === ErrorCode.EMAIL_NOT_CONFIRMED) {
+                    setAwaitingConfirmation(true);
+                    startDelay();
+                } else if (!result.ok) toastError(result.error);
             }
         } finally {
             setSubmitting(false);
@@ -244,8 +246,8 @@ export const AccountAuthForm = observer(({ targetBoard, onGuestModeClick }) => {
                     We sent a confirmation link to <strong>{email}</strong>. It can take a few
                     minutes, and might end up in your spam folder.
                 </p>
-                <Button onClick={handleResend} disabled={resending}>
-                    Resend confirmation email
+                <Button onClick={handleResendConfirmation} disabled={resending || delayOngoing}>
+                    {"Resend email" + (delayOngoing ? ` (${secondsRemaining}s)` : "")}
                 </Button>
             </div>
         </CardPageLayout>
@@ -258,22 +260,26 @@ export const AccountAuthForm = observer(({ targetBoard, onGuestModeClick }) => {
                 Back
             </button>
             <div className="email-auth-form">
-                <p className="email-confirm-notice">
-                    {resetSent ? (
-                        <>
-                            We sent a password reset link to <strong>{email}</strong>. It can take a
+                {!resetSent ? (
+                    <>
+                        <p className="email-confirm-notice">
+                            We&apos;ll send <b>{email}</b> an email with a password reset link.
+                        </p>
+                        <Button onClick={handleSendPassReset} disabled={submitting}>
+                            Send reset link
+                        </Button>
+                    </>
+                ) : (
+                    <>
+                        <p className="email-confirm-notice">
+                            Sent a password reset link to <strong>{email}</strong>. It can take a
                             few minutes, and might end up in your spam folder.
-                        </>
-                    ) : (
-                        <>
-                            We&apos;ll email a link to reset the password for{" "}
-                            <strong>{email}</strong>.
-                        </>
-                    )}
-                </p>
-                <Button onClick={handleSendReset} disabled={submitting}>
-                    {resetSent ? "Resend reset link" : "Send reset link"}
-                </Button>
+                        </p>
+                        <Button onClick={handleSendPassReset} disabled={submitting || delayOngoing}>
+                            {"Resend reset link" + (delayOngoing ? ` (${secondsRemaining}s)` : "")}
+                        </Button>
+                    </>
+                )}
             </div>
         </CardPageLayout>
     );

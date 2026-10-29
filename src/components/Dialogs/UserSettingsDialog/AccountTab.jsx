@@ -5,6 +5,7 @@ import { globalDataStore, userStore } from "@/stores";
 import { tagTypes } from "@/models";
 import { HttpStatus } from "#shared/http.js";
 import { toastError, toastSuccess } from "@/Utils";
+import { useDelayedButton } from "@/hooks/useDelayedButton.jsx";
 
 const PROVIDER_LABELS = {
     steam: "Steam",
@@ -42,27 +43,9 @@ export const AccountTab = observer(() => {
 
 const DEBUGGING_SKIP_ACCOUNT_DELETION_WARNING = false;
 const DeleteAccountButton = () => {
-    const WARNING_DURATION_SECONDS = 10;
-    const [startedCountdown, setStartedCountdown] = useState(false);
-    const [secondsRemaining, setSecondsRemaining] = useState(
-        DEBUGGING_SKIP_ACCOUNT_DELETION_WARNING ? 1 : WARNING_DURATION_SECONDS,
+    const { startDelay, delayStarted, delayOngoing, secondsRemaining } = useDelayedButton(
+        DEBUGGING_SKIP_ACCOUNT_DELETION_WARNING ? 1 : 10,
     );
-    const [countdownCleared, setCountdownCleared] = useState(false);
-    useEffect(() => {
-        if (startedCountdown) {
-            const countdownInterval = setInterval(() => {
-                if (secondsRemaining <= 0) {
-                    setSecondsRemaining(0);
-                    clearInterval(countdownInterval);
-                    setCountdownCleared(true);
-                }
-
-                setSecondsRemaining(secondsRemaining - 1);
-            }, 1000);
-
-            return () => clearInterval(countdownInterval);
-        }
-    }, [secondsRemaining, startedCountdown]);
     const deleteAccountFunction = async () => {
         try {
             const response = await fetch("/auth/deleteAccount", {
@@ -81,15 +64,14 @@ const DeleteAccountButton = () => {
             toastError("Failed to delete Account");
         }
     };
-    const confirmMessage =
-        secondsRemaining > 0 ? `Are you sure? (${secondsRemaining})` : "Yes, Delete Account";
-    return startedCountdown ? (
-        <Button variant="danger" disabled={!countdownCleared} onClick={deleteAccountFunction}>
-            {confirmMessage}
+
+    return !delayStarted ? (
+        <Button variant="danger-secondary" onClick={startDelay}>
+            Delete Account
         </Button>
     ) : (
-        <Button variant="danger-secondary" onClick={() => setStartedCountdown(true)}>
-            Delete Account
+        <Button variant="danger" disabled={delayOngoing} onClick={deleteAccountFunction}>
+            {delayOngoing ? `Are you sure? (${secondsRemaining}s)` : "Yes, Delete Account"}
         </Button>
     );
 };

@@ -11,6 +11,7 @@ import {
 } from "@/stores";
 import { ReadOnlyCallout } from "../SettingsTabs.jsx";
 import { toastError, toastSuccess } from "@/Utils";
+import { useDelayedButton } from "@/hooks/useDelayedButton.jsx";
 
 export const GeneralTab = observer(({ closeDialog }) => {
     const board = globalBoardStore.activeBoard;
@@ -177,26 +178,9 @@ const FilterSettings = observer(() => {
     );
 });
 
-const DELETE_WARNING_DURATION_SECONDS = 10;
 const DeleteBoardButton = ({ board, closeDialog }) => {
     const isOnlyBoard = globalBoardStore.boards.length <= 1;
-    const [startedCountdown, setStartedCountdown] = useState(false);
-    const [secondsRemaining, setSecondsRemaining] = useState(DELETE_WARNING_DURATION_SECONDS);
-    const [countdownCleared, setCountdownCleared] = useState(false);
-
-    useEffect(() => {
-        if (!startedCountdown) return;
-        const countdownInterval = setInterval(() => {
-            if (secondsRemaining <= 0) {
-                setSecondsRemaining(0);
-                clearInterval(countdownInterval);
-                setCountdownCleared(true);
-                return;
-            }
-            setSecondsRemaining(secondsRemaining - 1);
-        }, 1000);
-        return () => clearInterval(countdownInterval);
-    }, [secondsRemaining, startedCountdown]);
+    const { startDelay, delayOngoing, delayStarted, secondsRemaining } = useDelayedButton(10);
 
     async function handleDelete() {
         try {
@@ -218,17 +202,13 @@ const DeleteBoardButton = ({ board, closeDialog }) => {
         );
     }
 
-    if (!startedCountdown) {
-        return (
-            <Button variant="danger-secondary" onClick={() => setStartedCountdown(true)}>
-                Delete Board
-            </Button>
-        );
-    }
-
-    return (
-        <Button variant="danger" disabled={!countdownCleared} onClick={handleDelete}>
-            {secondsRemaining > 0 ? `Are you sure? (${secondsRemaining})` : "Yes, Delete Board"}
+    return !delayStarted ? (
+        <Button variant="danger-secondary" onClick={startDelay}>
+            Delete Board
+        </Button>
+    ) : (
+        <Button variant="danger" disabled={delayOngoing} onClick={handleDelete}>
+            {delayOngoing ? `Are you sure? (${secondsRemaining}s)` : "Yes, Delete Board"}
         </Button>
     );
 };

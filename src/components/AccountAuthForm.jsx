@@ -4,6 +4,7 @@ import { BiArrowBack, BiLogoDiscordAlt, BiLogoGoogle, BiLogoSteam } from "react-
 import { useUserStore } from "@/stores";
 import { Button, CardPageLayout } from "@/components";
 import { loadFromStorage, toastError, toastInfo } from "@/Utils";
+import { ErrorCode } from "#shared/http.js";
 
 const PROVIDERS = [
     { id: "steam", label: "Steam", icon: <BiLogoSteam />, color: "#171a21" },
@@ -20,6 +21,21 @@ export const AccountAuthForm = observer(({ targetBoard, onGuestModeClick }) => {
     const [password, setPassword] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const [inEmailForm, setInEmailForm] = useState(false);
+    // Signed up or tried logging in, but the account's email isn't confirmed yet.
+    const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
+    const [resending, setResending] = useState(false);
+
+    async function handleResend() {
+        if (resending) return;
+        setResending(true);
+        try {
+            const result = await userStore.resendConfirmation(email);
+            if (result.ok) toastInfo("Confirmation email sent, check your inbox and spam folder.");
+            else toastError(result.error);
+        } finally {
+            setResending(false);
+        }
+    }
 
     function startSignUp() {
         setMode("signup");
@@ -29,6 +45,7 @@ export const AccountAuthForm = observer(({ targetBoard, onGuestModeClick }) => {
     function handleBack() {
         setMode("login");
         setInEmailForm(false);
+        setAwaitingConfirmation(false);
         setPassword("");
     }
 
@@ -60,14 +77,12 @@ export const AccountAuthForm = observer(({ targetBoard, onGuestModeClick }) => {
         try {
             if (mode === "signup") {
                 const result = await userStore.signupWithEmail(email, password, targetBoard);
-                if (!result.ok) {
-                    toastError(result.error);
-                } else if (result.confirmationRequired) {
-                    toastInfo("Check your email to confirm your account.");
-                }
+                if (!result.ok) toastError(result.error);
+                else if (result.confirmationRequired) setAwaitingConfirmation(true);
             } else {
                 const result = await userStore.loginWithEmail(email, password, targetBoard);
-                if (!result.ok) toastError(result.error);
+                if (result.code === ErrorCode.EMAIL_NOT_CONFIRMED) setAwaitingConfirmation(true);
+                else if (!result.ok) toastError(result.error);
             }
         } finally {
             setSubmitting(false);
@@ -200,6 +215,25 @@ export const AccountAuthForm = observer(({ targetBoard, onGuestModeClick }) => {
         </CardPageLayout>
     );
 
+    const AwaitingConfirmationView = (
+        <CardPageLayout title="Check your email" subtitle="to confirm your account">
+            <button type="button" className="link-like back-button" onClick={handleBack}>
+                <BiArrowBack />
+                Back
+            </button>
+            <div className="email-auth-form">
+                <p className="email-confirm-notice">
+                    We sent a confirmation link to <strong>{email}</strong>. It can take a few
+                    minutes, and might end up in your spam folder.
+                </p>
+                <Button onClick={handleResend} disabled={resending}>
+                    Resend confirmation email
+                </Button>
+            </div>
+        </CardPageLayout>
+    );
+
+    if (awaitingConfirmation) return AwaitingConfirmationView;
     if (!inEmailForm) return SignInView;
     else if (mode === "login") return EmailSignInView;
     else if (mode === "signup") return EmailSignUpView;

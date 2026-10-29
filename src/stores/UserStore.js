@@ -144,7 +144,9 @@ export class UserStore {
                 body: JSON.stringify(body),
             });
             const data = await res.json().catch(() => ({}));
-            if (!res.ok) return { ok: false, error: data?.error || "Something went wrong." };
+            if (!res.ok) {
+                return { ok: false, error: data?.error || "Something went wrong.", code: data?.code };
+            }
             return { ok: true, ...data };
         } catch {
             return { ok: false, error: "Could not reach the server." };
@@ -227,6 +229,19 @@ export class UserStore {
 
     async sendMagicLink(email) {
         return this.postAuth("magic-link", { email });
+    }
+
+    async resendConfirmation(email) {
+        return this.postAuth("resend", { email });
+    }
+
+    async verifyEmailToken(tokenHash, type) {
+        const result = await this.postAuth("verify", { token_hash: tokenHash, type });
+        if (result.ok) {
+            await this.getUser();
+            await this.populateStores();
+        }
+        return result;
     }
 
     async completeMagicLinkSession(accessToken) {

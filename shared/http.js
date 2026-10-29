@@ -3,6 +3,7 @@ export const ErrorCode = Object.freeze({
     NOT_AUTHENTICATED: "NOT_AUTHENTICATED",
     FEATURE_DISABLED: "FEATURE_DISABLED",
     STALE_WRITE: "STALE_WRITE",
+    EMAIL_NOT_CONFIRMED: "EMAIL_NOT_CONFIRMED",
 });
 
 export const HttpStatus = Object.freeze({

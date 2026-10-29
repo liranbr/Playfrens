@@ -247,7 +247,54 @@ async function emailLogin(req, res) {
     }
 
     const { data, error } = await supabaseAuth.auth.signInWithPassword({ email, password });
+    // Supabase only reports this once the password checks out, so it doesn't leak which emails exist.
+    if (error?.code === "email_not_confirmed") {
+        return Response.send(res, UNAUTHORIZED, {
+            error: "Please confirm your email before signing in.",
+            code: Response.ErrorCode.EMAIL_NOT_CONFIRMED,
+        });
+    }
     if (error) return Response.send(res, UNAUTHORIZED, { error: "Invalid email or password." });
+
+    try {
+        await establishEmailSession(req, res, data.user);
+    } catch (err) {
+        Response.send(res, INTERNAL_SERVER_ERROR, { error: err.message });
+    }
+}
+
+async function emailResendConfirmation(req, res) {
+    const { BAD_REQUEST, OK, TOO_MANY_REQUESTS } = Response.HttpStatus;
+    const { email } = req.body;
+    if (!email) return Response.send(res, BAD_REQUEST, { error: "Email is required." });
+
+    const { error } = await supabaseAuth.auth.resend({
+        type: "signup",
+        email,
+        options: { emailRedirectTo: EMAIL_CALLBACK_URL },
+    });
+    // Mostly Supabase's per-email cooldown, its message says how long to wait.
+    if (error) {
+        const status = error.status === TOO_MANY_REQUESTS ? TOO_MANY_REQUESTS : BAD_REQUEST;
+        return Response.send(res, status, { error: error.message });
+    }
+
+    Response.send(res, OK, { message: "Confirmation email sent." });
+}
+
+// With token_hash in the email template, nothing is consumed until the user clicks confirm on our callback page.
+const VERIFY_OTP_TYPES = new Set(["email", "signup", "magiclink"]);
+async function emailVerify(req, res) {
+    const { BAD_REQUEST, UNAUTHORIZED, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+    const { token_hash, type } = req.body;
+    if (!token_hash || !VERIFY_OTP_TYPES.has(type)) {
+        return Response.send(res, BAD_REQUEST, { error: "Invalid confirmation link." });
+    }
+
+    const { data, error } = await supabaseAuth.auth.verifyOtp({ token_hash, type });
+    if (error || !data?.user) {
+        return Response.send(res, UNAUTHORIZED, { error: "Invalid or expired link." });
+    }
 
     try {
         await establishEmailSession(req, res, data.user);
@@ -441,6 +488,8 @@ router.post("/email/signup", oauthLimiter, emailSignup);
 router.post("/email/login", oauthLimiter, emailLogin);
 router.post("/email/magic-link", oauthLimiter, emailMagicLink);
 router.post("/email/session", emailSession);
+router.post("/email/resend", oauthLimiter, emailResendConfirmation);
+router.post("/email/verify", oauthLimiter, emailVerify);
 
 router.post("/guest/login", oauthLimiter, guestLogin);
 router.post("/guest/link", oauthLimiter, guestLinkLogin);

@@ -100,6 +100,12 @@
         }
     }
 
+    .email-confirm-notice {
+        margin: 1.25rem 0 0;
+        line-height: 1.4;
+        overflow-wrap: anywhere;
+    }
+
     .last-used-badge {
         background-color: var(--pf-btn-primary-hover);
         padding: 0.125rem 0.25rem;

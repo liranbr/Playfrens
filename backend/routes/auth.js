@@ -10,6 +10,8 @@ import {
     upsertUser,
 } from "../auth/passport.js";
 import { findGuestIdByLoginToken } from "../auth/guestLoginLinks.js";
+import { destroyUserSessions } from "../auth/SupabaseSessionStore.js";
+import { closeUserSockets } from "../ws/boardSocket.js";
 import { pickAccountSettings } from "#shared/accountSettings.js";
 import { getAvatar } from "../services/avatarProxy.js";
 import { supabase, supabaseAuth } from "../supabaseClient.js";
@@ -303,6 +305,66 @@ async function emailVerify(req, res) {
     }
 }
 
+async function emailForgotPassword(req, res) {
+    const { BAD_REQUEST, OK, TOO_MANY_REQUESTS } = Response.HttpStatus;
+    const { email } = req.body;
+    if (!email) return Response.send(res, BAD_REQUEST, { error: "Email is required." });
+
+    const { error } = await supabaseAuth.auth.resetPasswordForEmail(email, {
+        redirectTo: EMAIL_CALLBACK_URL,
+    });
+    if (error) {
+        const status = error.status === TOO_MANY_REQUESTS ? TOO_MANY_REQUESTS : BAD_REQUEST;
+        return Response.send(res, status, { error: error.message });
+    }
+
+    Response.send(res, OK, { message: "Password reset email sent." });
+}
+
+// in case suapbase rejects the new password and the user has to pick another one.
+const PASSWORD_RECOVERY_WINDOW_MS = 15 * 60 * 1000;
+async function emailResetPassword(req, res) {
+    const { BAD_REQUEST, UNAUTHORIZED, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
+    const { token_hash, password } = req.body;
+    if (!password) return Response.send(res, BAD_REQUEST, { error: "Password is required." });
+
+    if (token_hash) {
+        const { data, error } = await supabaseAuth.auth.verifyOtp({ token_hash, type: "recovery" });
+        if (error || !data?.user) {
+            return Response.send(res, UNAUTHORIZED, { error: "Invalid or expired link." });
+        }
+        req.session.passwordRecovery = {
+            userId: data.user.id,
+            expiresAt: Date.now() + PASSWORD_RECOVERY_WINDOW_MS,
+        };
+    }
+
+    const recovery = req.session.passwordRecovery;
+    if (!recovery || recovery.expiresAt < Date.now()) {
+        delete req.session.passwordRecovery;
+        return Response.send(res, UNAUTHORIZED, { error: "Invalid or expired link." });
+    }
+
+    const { data, error } = await supabase.auth.admin.updateUserById(recovery.userId, { password });
+    if (error) {
+        return Response.send(res, BAD_REQUEST, {
+            error: error.message,
+            code: Response.ErrorCode.PASSWORD_REJECTED,
+        });
+    }
+
+    delete req.session.passwordRecovery;
+    try {
+        const user = await upsertUser(emailProfileFrom(data.user), "email");
+        // deletes all sessions that got in using that password, get deleted boozoo.
+        await destroyUserSessions(user.id);
+        closeUserSockets(user.id, "Your password was changed, please sign in again.");
+        await logInAndRespond(req, res, user);
+    } catch (err) {
+        Response.send(res, INTERNAL_SERVER_ERROR, { error: err.message });
+    }
+}
+
 // Unless we want this feature, it's disabled for now.
 const MAGIC_LINK_ENABLED = false;
 async function emailMagicLink(req, res) {
@@ -490,6 +552,8 @@ router.post("/email/magic-link", oauthLimiter, emailMagicLink);
 router.post("/email/session", emailSession);
 router.post("/email/resend", oauthLimiter, emailResendConfirmation);
 router.post("/email/verify", oauthLimiter, emailVerify);
+router.post("/email/forgot-password", oauthLimiter, emailForgotPassword);
+router.post("/email/reset-password", oauthLimiter, emailResetPassword);
 
 router.post("/guest/login", oauthLimiter, guestLogin);
 router.post("/guest/link", oauthLimiter, guestLinkLogin);

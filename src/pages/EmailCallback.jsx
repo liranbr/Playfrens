@@ -3,6 +3,7 @@ import { Navigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { useUserStore } from "@/stores";
 import { Button, CardPageLayout } from "@/components";
+import { PasswordResetForm } from "@/components/PasswordResetForm.jsx";
 import { toastError } from "@/Utils";
 import "./Login.css";
 import "../components/common/CardPageLayout.css";
@@ -10,12 +11,12 @@ import "../components/common/CardPageLayout.css";
 const INVALID_LINK = "That sign-in link is invalid or has expired.";
 
 // Two links land here:
-// - ?token_hash=...&type=... is the email template, only verified once the user clicks confirm
+// - ?token_hash=...&type=... is the email template, only verified once the user clicks confirm (or saves a new password, for type=recovery)
 // - #access_token=... the Supabase's default /verify redirect, handed straight to the backend.
 const EmailCallback = observer(() => {
     const userStore = useUserStore();
-    /** @type {"pending"|"confirm"|"failed"} */
-    const [status, setStatus] = useState("pending"); // "pending" | "confirm" | "failed"
+    /** @type {"pending"|"confirm"|"reset"|"failed"} */
+    const [status, setStatus] = useState("pending"); // "pending" | "confirm" | "reset" | "failed"
     const [submitting, setSubmitting] = useState(false);
     const hasStarted = useRef(false);
 
@@ -29,7 +30,7 @@ const EmailCallback = observer(() => {
         hasStarted.current = true;
 
         if (tokenHash) {
-            setStatus("confirm");
+            setStatus(type === "recovery" ? "reset" : "confirm");
             return;
         }
 
@@ -48,7 +49,7 @@ const EmailCallback = observer(() => {
                 setStatus("failed");
             }
         });
-    }, [userStore, tokenHash]);
+    }, [userStore, tokenHash, type]);
 
     async function handleConfirm() {
         if (submitting) return;
@@ -63,6 +64,11 @@ const EmailCallback = observer(() => {
 
     if (userStore.userInfo) return <Navigate to="/app" replace />;
     if (status === "failed") return <Navigate to="/login?failed=true" replace />;
+    if (status === "reset") {
+        return (
+            <PasswordResetForm tokenHash={tokenHash} onInvalidLink={() => setStatus("failed")} />
+        );
+    }
     if (status === "confirm") {
         return (
             <CardPageLayout title="Confirm your email" subtitle="to finish signing in">

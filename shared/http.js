@@ -4,6 +4,7 @@ export const ErrorCode = Object.freeze({
     FEATURE_DISABLED: "FEATURE_DISABLED",
     STALE_WRITE: "STALE_WRITE",
     EMAIL_NOT_CONFIRMED: "EMAIL_NOT_CONFIRMED",
+    PASSWORD_REJECTED: "PASSWORD_REJECTED",
 });
 
 export const HttpStatus = Object.freeze({

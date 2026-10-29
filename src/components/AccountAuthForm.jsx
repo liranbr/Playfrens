@@ -16,7 +16,7 @@ export const AccountAuthForm = observer(({ targetBoard, onGuestModeClick }) => {
     const userStore = useUserStore();
     const lastAuth = loadFromStorage("last-auth-used", "");
 
-    const [mode, setMode] = useState("login"); // "login" | "signup"
+    const [mode, setMode] = useState("login"); // "login" | "signup" | "forgot"
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [submitting, setSubmitting] = useState(false);
@@ -24,6 +24,25 @@ export const AccountAuthForm = observer(({ targetBoard, onGuestModeClick }) => {
     // Signed up or tried logging in, but the account's email isn't confirmed yet.
     const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
     const [resending, setResending] = useState(false);
+    const [resetSent, setResetSent] = useState(false);
+
+    async function handleSendReset() {
+        if (submitting) return;
+        setSubmitting(true);
+        try {
+            const result = await userStore.requestPasswordReset(email);
+            if (!result.ok) return toastError(result.error);
+            if (resetSent) toastInfo("Reset email sent, check your inbox and spam folder.");
+            setResetSent(true);
+        } finally {
+            setSubmitting(false);
+        }
+    }
+
+    function handleBackFromForgot() {
+        setMode("login");
+        setResetSent(false);
+    }
 
     async function handleResend() {
         if (resending) return;
@@ -46,6 +65,7 @@ export const AccountAuthForm = observer(({ targetBoard, onGuestModeClick }) => {
         setMode("login");
         setInEmailForm(false);
         setAwaitingConfirmation(false);
+        setResetSent(false);
         setPassword("");
     }
 
@@ -129,8 +149,7 @@ export const AccountAuthForm = observer(({ targetBoard, onGuestModeClick }) => {
             </div>
 
             <div className="email-auth-toggles">
-                <button type="button" className="link-like">
-                    {/* TODO: write handler */}
+                <button type="button" className="link-like" onClick={onGuestModeClick}>
                     Have a guest account on a board?
                 </button>
             </div>
@@ -171,8 +190,7 @@ export const AccountAuthForm = observer(({ targetBoard, onGuestModeClick }) => {
             </form>
 
             <div className="email-auth-toggles">
-                <button type="button" className="link-like">
-                    {/* TODO: "forgot password" doesn't do anything yet */}
+                <button type="button" className="link-like" onClick={() => setMode("forgot")}>
                     Forgot password?
                 </button>
             </div>
@@ -233,9 +251,37 @@ export const AccountAuthForm = observer(({ targetBoard, onGuestModeClick }) => {
         </CardPageLayout>
     );
 
+    const ForgotPasswordView = (
+        <CardPageLayout title="Reset password" subtitle="for your Playfrens account">
+            <button type="button" className="link-like back-button" onClick={handleBackFromForgot}>
+                <BiArrowBack />
+                Back
+            </button>
+            <div className="email-auth-form">
+                <p className="email-confirm-notice">
+                    {resetSent ? (
+                        <>
+                            We sent a password reset link to <strong>{email}</strong>. It can take a
+                            few minutes, and might end up in your spam folder.
+                        </>
+                    ) : (
+                        <>
+                            We&apos;ll email a link to reset the password for{" "}
+                            <strong>{email}</strong>.
+                        </>
+                    )}
+                </p>
+                <Button onClick={handleSendReset} disabled={submitting}>
+                    {resetSent ? "Resend reset link" : "Send reset link"}
+                </Button>
+            </div>
+        </CardPageLayout>
+    );
+
     if (awaitingConfirmation) return AwaitingConfirmationView;
     if (!inEmailForm) return SignInView;
     else if (mode === "login") return EmailSignInView;
     else if (mode === "signup") return EmailSignUpView;
+    else if (mode === "forgot") return ForgotPasswordView;
     return SignInView;
 });

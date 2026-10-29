@@ -145,7 +145,11 @@ export class UserStore {
             });
             const data = await res.json().catch(() => ({}));
             if (!res.ok) {
-                return { ok: false, error: data?.error || "Something went wrong.", code: data?.code };
+                return {
+                    ok: false,
+                    error: data?.error || "Something went wrong.",
+                    code: data?.code,
+                };
             }
             return { ok: true, ...data };
         } catch {
@@ -237,6 +241,20 @@ export class UserStore {
 
     async verifyEmailToken(tokenHash, type) {
         const result = await this.postAuth("verify", { token_hash: tokenHash, type });
+        if (result.ok) {
+            await this.getUser();
+            await this.populateStores();
+        }
+        return result;
+    }
+
+    async requestPasswordReset(email) {
+        return this.postAuth("forgot-password", { email });
+    }
+
+    // tokenHash is null when retrying after a rejected password but the backend remembers the link.
+    async resetPassword(tokenHash, password) {
+        const result = await this.postAuth("reset-password", { token_hash: tokenHash, password });
         if (result.ok) {
             await this.getUser();
             await this.populateStores();

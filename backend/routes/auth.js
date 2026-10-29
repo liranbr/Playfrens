@@ -26,7 +26,7 @@ const EMAIL_CALLBACK_URL = `${resolveBaseURL("frontend")}/login/callback`;
 // Only every 15 minutes though
 const oauthLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    limit: 10,
+    limit: 30,
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: "Too many login attempts, please try again later." },

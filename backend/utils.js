@@ -27,6 +27,10 @@ export class ConsoleColors {
     static BgCyan = "\x1b[46m";
     static BgWhite = "\x1b[47m";
 
+    static link = "a";
+    static success = ConsoleColors.FgRGB(191, 255, 0);
+    static url = ConsoleColors.FgRGB(255, 165, 0);
+
     static FgRGB(r, g, b) {
         return `\x1b[38;2;${r};${g};${b}m`;
     }

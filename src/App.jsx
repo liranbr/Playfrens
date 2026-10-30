@@ -7,6 +7,7 @@ import { ToastContainer } from "react-toastify";
 const Home = lazy(() => import("@/pages/Home.jsx"));
 const Playfrens = lazy(() => import("@/pages/Playfrens.jsx"));
 const Login = lazy(() => import("@/pages/Login.jsx"));
+const EmailCallback = lazy(() => import("@/pages/EmailCallback.jsx"));
 const Contact = lazy(() => import("@/pages/Contact.jsx"));
 const Privacy = lazy(() => import("@/pages/Privacy.jsx"));
 const NotFound = lazy(() => import("@/pages/NotFound.jsx"));
@@ -69,8 +70,11 @@ export default function App() {
                 <Suspense fallback={null}>
                     <Routes>
                         <Route index element={<Home />} />
-                        <Route path="/app" element={<Playfrens />} />
+                        <Route path="/app/:shortId?" element={<Playfrens />} />
+                        <Route path="/board/:shortId" element={<Playfrens />} />
+                        <Route path="/board/:shortId/:guestName" element={<Playfrens />} />
                         <Route path="/login" element={<Login />} />
+                        <Route path="/login/callback" element={<EmailCallback />} />
                         <Route path="/contact" element={<Contact />} />
                         <Route path="/privacy" element={<Privacy />} />
                         <Route path="*" element={<NotFound />} />

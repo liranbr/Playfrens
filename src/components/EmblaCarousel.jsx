@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { PrevButton, NextButton } from "./EmblaCarouselArrowButtons";
 import { usePrevNextButtons } from "@/hooks/usePrevNextButtons.js";
 import useEmblaCarousel from "embla-carousel-react";
+import { globalSettingsStore } from "@/stores";
 import "./EmblaCarousel.css";
 
 export const EmblaCarousel = () => {
@@ -22,7 +23,7 @@ export const EmblaCarousel = () => {
 
     const handleScrollNext = useCallback(() => {
         if (autoplayEnabledRef.current) {
-            emblaApi?.scrollNext();
+            emblaApi?.scrollNext(globalSettingsStore.isMotionReduced());
         }
     }, [emblaApi]);
 

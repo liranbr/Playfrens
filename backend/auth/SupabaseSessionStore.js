@@ -16,6 +16,15 @@ function pruneSessionCache() {
     }
 }
 
+// Signs a user out on every device.
+export async function destroyUserSessions(userId) {
+    for (const [sid, entry] of sessionCache) {
+        if (entry.sess?.passport?.user === userId) sessionCache.delete(sid);
+    }
+    const { error } = await supabase.from("sessions").delete().eq("sess->passport->>user", userId);
+    if (error) throw error;
+}
+
 /**
  * `express-session` Store backed by Supabase
  */
@@ -75,7 +84,12 @@ export class SupabaseSessionStore extends Store {
             .then(({ error }) => callback(error ?? null), callback);
     }
 
+    // Update only, so a destroyed session can't come back.
     touch(sid, session, callback) {
-        this.set(sid, session, callback);
+        supabase
+            .from("sessions")
+            .update({ sess: session, expires: new Date(session.cookie.expires).toISOString() })
+            .eq("sid", sid)
+            .then(({ error }) => callback(error ?? null), callback);
     }
 }

@@ -1,4 +1,4 @@
-# Steam `content_descriptorids` Findings
+## Steam `content_descriptorids` Findings
 
 Valve rolled out content-descriptor tagging around 2018. Labels below are purely guessing against an official source, **except ID 3**, which is confirmed empirically: every game whose main focus is explicit sexual content carries it, and every mature-but-not-porn game tested doesn't. The line isn't thin, it's easy to see which games are nudity/sex-focused vs. which merely include it.
 
@@ -69,4 +69,3 @@ Likely low-effort/asset-flip titles that never went through Valve's content revi
 ## Conclusion
 
 `3` (and `4`, which never appeared without `3` in any test) is the only reliable signal for "this game's whole purpose is porn." `1`, `2`, and `5` show up inconsistently across both mature and non-mature games and don't reliably indicate anything on their own. The RPC on supabase `search_steam_apps` filters on `3` alone for exactly this reason.
-

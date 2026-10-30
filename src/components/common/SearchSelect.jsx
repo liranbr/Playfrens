@@ -1,5 +1,7 @@
 import { useDebouncedCallback } from "@/Utils";
 import { useEffect, useRef, useState } from "react";
+import * as Popover from "@radix-ui/react-popover";
+import { globalSettingsStore } from "@/stores";
 import "./SearchSelect.css";
 
 /**
@@ -29,8 +31,8 @@ export function SearchSelect({
     const [highlighted, setHighlighted] = useState(-1);
     const [results, setResults] = useState([]);
     const [initialized, setInitialized] = useState(false);
+    const shouldShowDropdown = results.length > 0 && showDropdown;
 
-    const inputRef = useRef(null);
     const resultsRef = useRef(null);
     const debouncedQuery = useDebouncedCallback(onQuery, delay);
     if (!initialized) {
@@ -43,11 +45,12 @@ export function SearchSelect({
         if (highlighted < 0) return;
         const item = resultsRef.current?.children[highlighted];
         if (!item) return;
+        const behavior = globalSettingsStore.isMotionReduced() ? "instant" : "smooth";
         // "nearest" for first and last option only partially visible when scrolled away from edge
-        if (highlighted === 0) item.scrollIntoView({ behavior: "smooth", block: "end" });
+        if (highlighted === 0) item.scrollIntoView({ behavior, block: "end" });
         else if (highlighted === results.length - 1)
-            item.scrollIntoView({ behavior: "smooth", block: "start" });
-        else item.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            item.scrollIntoView({ behavior, block: "start" });
+        else item.scrollIntoView({ behavior, block: "nearest" });
     }, [highlighted, results.length]);
 
     const handleInputChange = (e) => {
@@ -84,51 +87,62 @@ export function SearchSelect({
         debouncedQuery(option.name, setResults);
     };
 
-    const handleMouseDown = (e) => {
-        setShowDropdown(
-            (inputRef.current && inputRef.current.contains(e.target)) ||
-            (resultsRef.current && resultsRef.current.contains(e.target)),
-        );
-    };
-
     return (
-        <div style={{ position: "relative" }} onMouseDown={handleMouseDown}>
-            <input
-                ref={inputRef}
-                {...inputRest}
-                value={query}
-                onChange={handleInputChange}
-                onKeyDown={handleKeyDown}
-                onFocus={(e) => {
-                    setShowDropdown(true);
-                    inputRest?.onFocus?.(e);
-                }}
-                onBlur={(e) => {
-                    setShowDropdown(false);
-                    inputRest?.onBlur?.(e);
-                }}
-                style={{ width: "100%", ...inputRest.style }}
-                type="text"
-            />
-            {results.length > 0 && showDropdown && (
-                <ul
-                    className="rx-select-content"
-                    style={{ position: "absolute", width: "100%", maxWidth: "none" }}
-                    ref={resultsRef}
-                    onMouseDown={(e) => e.preventDefault()} // stops the input from blurring (and closing this) when grabbing the scrollbar
+        <Popover.Root
+            open={shouldShowDropdown}
+            onOpenChange={(open) => !open && setShowDropdown(false)}
+        >
+            <Popover.Anchor asChild>
+                <input
+                    {...inputRest}
+                    value={query}
+                    onChange={handleInputChange}
+                    onKeyDown={handleKeyDown}
+                    onMouseDown={() => setShowDropdown(true)}
+                    onFocus={(e) => {
+                        setShowDropdown(true);
+                        inputRest?.onFocus?.(e);
+                    }}
+                    onBlur={(e) => {
+                        setShowDropdown(false);
+                        inputRest?.onBlur?.(e);
+                    }}
+                    style={{ width: "100%", ...inputRest.style }}
+                    type="text"
+                />
+            </Popover.Anchor>
+            <Popover.Portal>
+                <Popover.Content
+                    asChild
+                    side="bottom"
+                    align="start"
+                    sideOffset={0}
+                    onOpenAutoFocus={(e) => e.preventDefault()}
+                    onCloseAutoFocus={(e) => e.preventDefault()}
+                    onPointerDownOutside={(e) => e.preventDefault()}
+                    onFocusOutside={(e) => e.preventDefault()}
                 >
-                    {results.map((option, idx) => (
-                        <li
-                            tabIndex={idx}
-                            className={"list-item" + (highlighted === idx ? " highlighted" : "")}
-                            key={option.name + "-id-" + option.id}
-                            onMouseDown={() => handleOptionClick(option)}
-                        >
-                            {option.name}
-                        </li>
-                    ))}
-                </ul>
-            )}
-        </div>
+                    <ul
+                        className="rx-select-content"
+                        style={{ width: "var(--radix-popover-trigger-width)", maxWidth: "none" }}
+                        ref={resultsRef}
+                        onMouseDown={(e) => e.preventDefault()}
+                    >
+                        {results.map((option, idx) => (
+                            <li
+                                tabIndex={idx}
+                                className={
+                                    "list-item" + (highlighted === idx ? " highlighted" : "")
+                                }
+                                key={option.name + "-id-" + option.id}
+                                onClick={() => handleOptionClick(option)}
+                            >
+                                {option.name}
+                            </li>
+                        ))}
+                    </ul>
+                </Popover.Content>
+            </Popover.Portal>
+        </Popover.Root>
     );
 }

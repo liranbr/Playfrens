@@ -1,4 +1,6 @@
 export { SearchSelect } from "./common/SearchSelect.jsx";
+export { MultiCombobox } from "./common/MultiCombobox.jsx";
+export { Input } from "./common/Input.jsx";
 export { Button } from "./common/Button.jsx";
 export { Collapsible } from "./common/Collapsible.jsx";
 export { IconButton } from "./common/IconButton.jsx";
@@ -6,18 +8,29 @@ export { CenterAndEdgesRow } from "./common/CenterAndEdgesRow.jsx";
 export { ScrollView } from "./common/ScrollView.jsx";
 export { Spinner } from "./common/Spinner.jsx";
 export { SimpleTooltip } from "./common/SimpleTooltip.jsx";
+export { Dropdown } from "./common/Dropdown.jsx";
+export { CardPageLayout } from "./common/CardPageLayout.jsx";
 export { InfoIcon } from "./common/InfoIcon.jsx";
 export { LabelBadge } from "./common/LabelBadge.jsx";
 export { ArrowToFeature } from "./common/ArrowToFeature.jsx";
 export { FriendAvatar } from "./common/FriendAvatar.jsx";
 export { Setting } from "./common/Setting.jsx";
+export { SettingsSection } from "./common/SettingsSection.jsx";
 export { Slider } from "./common/Slider.jsx";
 export { RadioSetting } from "./common/RadioSetting.jsx";
+export { DropdownSetting } from "./common/DropdownSetting.jsx";
+export { ToggleSetting } from "./common/ToggleSetting.jsx";
 export { GamesGrid } from "./GameGrid.jsx";
 export { SidebarTagButton } from "./TagButton.jsx";
 export { SidebarTagButtonGroup } from "./TagButtonGroup.jsx";
 export { ReminderCard } from "./ReminderCard.jsx";
 export { DialogRoot } from "./Dialogs/DialogRoot.jsx";
+export { BoardSwitcher } from "./BoardSwitcher.jsx";
+export { ShareGamesAsText } from "./ShareGamesAsText.jsx";
+export { Notifications } from "./Notifications.jsx";
+export { AccountAuthForm } from "./AccountAuthForm.jsx";
+export { GuestAuthForm } from "./GuestAuthForm.jsx";
+export { GuestLinkForm } from "./GuestLinkForm.jsx";
 
 // export { EmblaCarousel } from "./EmblaCarousel.jsx";
 // Not importing the Carousel here, it's only used in the homepage, so that imports it directly.

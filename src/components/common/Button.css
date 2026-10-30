@@ -4,12 +4,12 @@
     justify-content: center;
     min-width: 80px;
     width: fit-content;
-    padding: 4px 8px;
+    padding: 0.25rem 0.5rem;
     min-height: 36px;
     height: fit-content;
     border-radius: 6px;
     border: 0 solid transparent;
-    font-size: 16px;
+    font-size: 1rem;
     font-weight: 500;
     overflow: hidden;
     text-overflow: ellipsis;

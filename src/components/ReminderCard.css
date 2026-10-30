@@ -4,7 +4,7 @@
     justify-content: space-between;
     align-items: center;
     border-radius: 12px;
-    padding: 8px;
+    padding: 0.5rem;
 
     & > .icon-button {
         /* ⋮ menu button */
@@ -51,12 +51,12 @@
             width: fit-content;
         }
         .reminder-message {
-            padding: 4px 8px 0 8px;
+            padding: 0.25rem 0.5rem 0 0.5rem;
         }
     }
 
     &.activated {
-        font-size: 14px;
+        font-size: 0.875rem;
         background-color: var(--pf-bg-300);
 
         &:hover,

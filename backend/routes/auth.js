@@ -333,7 +333,7 @@ async function emailForgotPassword(req, res) {
 const PASSWORD_RECOVERY_WINDOW_MS = 15 * 60 * 1000;
 async function emailResetPassword(req, res) {
     const { BAD_REQUEST, UNAUTHORIZED, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
-    const { token_hash, password } = req.body;
+    const { token_hash, password, email } = req.body;
     if (!password) return Response.send(res, BAD_REQUEST, { error: "Password is required." });
 
     if (token_hash) {
@@ -341,7 +341,10 @@ async function emailResetPassword(req, res) {
             token_hash,
             type: "recovery",
         });
-        if (error || !data?.user) {
+        // The reset page shows the link's email, so it has to be this account's.
+        const emailMismatch =
+            email && String(email).toLowerCase() !== data?.user?.email?.toLowerCase();
+        if (error || !data?.user || emailMismatch) {
             return Response.send(res, UNAUTHORIZED, { error: "Invalid or expired link." });
         }
         req.session.passwordRecovery = {

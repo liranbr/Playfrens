@@ -6,7 +6,7 @@ import { toastError, toastSuccess } from "@/Utils";
 import { ErrorCode } from "#shared/http.js";
 
 // Opened from the reset email, the link is only used up once the new password is submitted.
-export const PasswordResetForm = observer(({ tokenHash, onInvalidLink }) => {
+export const PasswordResetForm = observer(({ tokenHash, email, onInvalidLink }) => {
     const userStore = useUserStore();
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -20,7 +20,7 @@ export const PasswordResetForm = observer(({ tokenHash, onInvalidLink }) => {
         if (password !== confirmPassword) return toastError("Passwords don't match.");
 
         setSubmitting(true);
-        const result = await userStore.resetPassword(linkUsed ? null : tokenHash, password);
+        const result = await userStore.resetPassword(linkUsed ? null : tokenHash, password, email);
         setSubmitting(false);
         if (result.ok) return toastSuccess("Password updated.", "", { personal: true });
 
@@ -33,6 +33,20 @@ export const PasswordResetForm = observer(({ tokenHash, onInvalidLink }) => {
         <CardPageLayout title="Reset password" subtitle="choose a new one">
             <form className="email-auth-form" onSubmit={handleSubmit}>
                 <fieldset>
+                    {/* For password managers, readOnly since some skip disabled fields. */}
+                    {email && (
+                        <>
+                            <label htmlFor="reset-email">Email</label>
+                            <input
+                                id="reset-email"
+                                type="email"
+                                autoComplete="username"
+                                value={email}
+                                readOnly
+                            />
+                        </>
+                    )}
+
                     <label htmlFor="new-password">New password</label>
                     <input
                         id="new-password"

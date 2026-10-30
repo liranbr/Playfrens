@@ -10,8 +10,17 @@ import "../components/common/CardPageLayout.css";
 
 const INVALID_LINK = "That sign-in link is invalid or has expired.";
 
+function readEmailParam() {
+    const raw = window.location.search.match(/[?&]email=([^&]*)/)?.[1];
+    try {
+        return raw ? decodeURIComponent(raw) : "";
+    } catch {
+        return "";
+    }
+}
+
 // Two links land here:
-// - ?token_hash=...&type=... is the email template, only verified once the user clicks confirm (or saves a new password, for type=recovery)
+// - ?token_hash=...&type=... is the email template, only verified once the user clicks confirm (or saves a new password, for type=recovery which also has &email=)
 // - #access_token=... the Supabase's default /verify redirect, handed straight to the backend.
 const EmailCallback = observer(() => {
     const userStore = useUserStore();
@@ -66,7 +75,11 @@ const EmailCallback = observer(() => {
     if (status === "failed") return <Navigate to="/login?failed=true" replace />;
     if (status === "reset") {
         return (
-            <PasswordResetForm tokenHash={tokenHash} onInvalidLink={() => setStatus("failed")} />
+            <PasswordResetForm
+                tokenHash={tokenHash}
+                email={readEmailParam()}
+                onInvalidLink={() => setStatus("failed")}
+            />
         );
     }
     if (status === "confirm") {

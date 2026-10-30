@@ -253,8 +253,12 @@ export class UserStore {
     }
 
     // tokenHash is null when retrying after a rejected password but the backend remembers the link.
-    async resetPassword(tokenHash, password) {
-        const result = await this.postAuth("reset-password", { token_hash: tokenHash, password });
+    async resetPassword(tokenHash, password, email) {
+        const result = await this.postAuth("reset-password", {
+            token_hash: tokenHash,
+            password,
+            email,
+        });
         if (result.ok) {
             await this.getUser();
             await this.populateStores();

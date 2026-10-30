@@ -14,7 +14,7 @@ import { destroyUserSessions } from "../auth/SupabaseSessionStore.js";
 import { closeUserSockets } from "../ws/boardSocket.js";
 import { pickAccountSettings } from "#shared/accountSettings.js";
 import { getAvatar } from "../services/avatarProxy.js";
-import { supabase, supabaseAuth } from "../supabaseClient.js";
+import { supabase, supabaseAuthFor } from "../supabaseClient.js";
 import { resolveBaseURL } from "../utils.js";
 
 const router = Router();
@@ -22,24 +22,32 @@ const LOGIN_FAILED_ROUTE = "/login?failed=true";
 // Not under /auth — that prefix is reserved for backend routes (see vite.config.js proxy).
 const EMAIL_CALLBACK_URL = `${resolveBaseURL("frontend")}/login/callback`;
 
-// Anti-spam against bots mostly, but might also hit users who fail to login (such as bad connection).
-// Only every 15 minutes though
-const oauthLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    limit: 30,
-    standardHeaders: true,
-    legacyHeaders: false,
-    message: { error: "Too many login attempts, please try again later." },
-});
+// Per IP over 15 minutes, each limiter keeps its own count.
+// Supabase sees all our requests as one IP.
+function authLimiter(limit, error, options) {
+    return rateLimit({
+        windowMs: 15 * 60 * 1000,
+        limit,
+        standardHeaders: true,
+        legacyHeaders: false,
+        message: { error },
+        ...options,
+    });
+}
 
-// Looser, since the guest link page looks this up on every visit.
-const guestLinkInfoLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    limit: 30,
-    standardHeaders: true,
-    legacyHeaders: false,
-    message: { error: "Too many requests, please try again later." },
-});
+// Only failed attempts count.
+const passwordLimiter = authLimiter(
+    10,
+    "Too many failed sign-in attempts, please try again later.",
+    {
+        skipSuccessfulRequests: true,
+    },
+);
+const emailSendLimiter = authLimiter(5, "Too many emails requested, please try again later.");
+// Confirm email, reset password and guest login link pages.
+const linkLimiter = authLimiter(20, "Too many attempts, please try again later.");
+const oauthCallbackLimiter = authLimiter(30, "Too many login attempts, please try again later.");
+const guestLinkInfoLimiter = authLimiter(30, "Too many requests, please try again later.");
 
 // Stashes ?board=<shortId> in the session so it survives the OAuth round-trip; read by loginCallback below.
 function stashBoardRedirect(req, res, next) {
@@ -222,7 +230,7 @@ async function emailSignup(req, res) {
         return Response.send(res, BAD_REQUEST, { error: "Email and password are required." });
     }
 
-    const { data, error } = await supabaseAuth.auth.signUp({
+    const { data, error } = await supabaseAuthFor(req).auth.signUp({
         email,
         password,
         options: { emailRedirectTo: EMAIL_CALLBACK_URL },
@@ -248,7 +256,7 @@ async function emailLogin(req, res) {
         return Response.send(res, BAD_REQUEST, { error: "Email and password are required." });
     }
 
-    const { data, error } = await supabaseAuth.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabaseAuthFor(req).auth.signInWithPassword({ email, password });
     // Supabase only reports this once the password checks out, so it doesn't leak which emails exist.
     if (error?.code === "email_not_confirmed") {
         return Response.send(res, UNAUTHORIZED, {
@@ -270,7 +278,7 @@ async function emailResendConfirmation(req, res) {
     const { email } = req.body;
     if (!email) return Response.send(res, BAD_REQUEST, { error: "Email is required." });
 
-    const { error } = await supabaseAuth.auth.resend({
+    const { error } = await supabaseAuthFor(req).auth.resend({
         type: "signup",
         email,
         options: { emailRedirectTo: EMAIL_CALLBACK_URL },
@@ -293,7 +301,7 @@ async function emailVerify(req, res) {
         return Response.send(res, BAD_REQUEST, { error: "Invalid confirmation link." });
     }
 
-    const { data, error } = await supabaseAuth.auth.verifyOtp({ token_hash, type });
+    const { data, error } = await supabaseAuthFor(req).auth.verifyOtp({ token_hash, type });
     if (error || !data?.user) {
         return Response.send(res, UNAUTHORIZED, { error: "Invalid or expired link." });
     }
@@ -310,7 +318,7 @@ async function emailForgotPassword(req, res) {
     const { email } = req.body;
     if (!email) return Response.send(res, BAD_REQUEST, { error: "Email is required." });
 
-    const { error } = await supabaseAuth.auth.resetPasswordForEmail(email, {
+    const { error } = await supabaseAuthFor(req).auth.resetPasswordForEmail(email, {
         redirectTo: EMAIL_CALLBACK_URL,
     });
     if (error) {
@@ -329,7 +337,10 @@ async function emailResetPassword(req, res) {
     if (!password) return Response.send(res, BAD_REQUEST, { error: "Password is required." });
 
     if (token_hash) {
-        const { data, error } = await supabaseAuth.auth.verifyOtp({ token_hash, type: "recovery" });
+        const { data, error } = await supabaseAuthFor(req).auth.verifyOtp({
+            token_hash,
+            type: "recovery",
+        });
         if (error || !data?.user) {
             return Response.send(res, UNAUTHORIZED, { error: "Invalid or expired link." });
         }
@@ -379,7 +390,7 @@ async function emailMagicLink(req, res) {
     const { email } = req.body;
     if (!email) return Response.send(res, BAD_REQUEST, { error: "Email is required." });
 
-    const { error } = await supabaseAuth.auth.signInWithOtp({
+    const { error } = await supabaseAuthFor(req).auth.signInWithOtp({
         email,
         options: { emailRedirectTo: EMAIL_CALLBACK_URL },
     });
@@ -437,7 +448,7 @@ async function guestLogin(req, res) {
     );
     if (authLookupError || !authUser?.user) return invalidCredentials();
 
-    const { error } = await supabaseAuth.auth.signInWithPassword({
+    const { error } = await supabaseAuthFor(req).auth.signInWithPassword({
         email: authUser.user.email,
         password,
     });
@@ -503,7 +514,7 @@ async function emailSession(req, res) {
     const { access_token } = req.body;
     if (!access_token) return Response.send(res, BAD_REQUEST, { error: "Missing access token." });
 
-    const { data, error } = await supabaseAuth.auth.getUser(access_token);
+    const { data, error } = await supabaseAuthFor(req).auth.getUser(access_token);
     if (error || !data?.user) {
         return Response.send(res, UNAUTHORIZED, { error: "Invalid or expired link." });
     }
@@ -521,16 +532,14 @@ router.get("/logout", requireAuth, logout);
 router.get("/avatar", getAvatar);
 router.delete("/deleteAccount", deleteAccount);
 
-// Login routes
+// Login routes only limited through the callback
 router.get(
     "/steam",
-    oauthLimiter,
     stashBoardRedirect,
     passport.authenticate("steam", { failureRedirect: LOGIN_FAILED_ROUTE }),
 );
 router.get(
     "/google",
-    oauthLimiter,
     stashBoardRedirect,
     passport.authenticate("google", {
         failureRedirect: LOGIN_FAILED_ROUTE,
@@ -539,31 +548,30 @@ router.get(
 );
 router.get(
     "/discord",
-    oauthLimiter,
     stashBoardRedirect,
     passport.authenticate("discord", { failureRedirect: LOGIN_FAILED_ROUTE }),
 );
 
 // Email login (password + magic link), built on Supabase Auth
 router.post("/email/exists", emailExists);
-router.post("/email/signup", oauthLimiter, emailSignup);
-router.post("/email/login", oauthLimiter, emailLogin);
-router.post("/email/magic-link", oauthLimiter, emailMagicLink);
+router.post("/email/signup", emailSendLimiter, emailSignup);
+router.post("/email/login", passwordLimiter, emailLogin);
+router.post("/email/magic-link", emailSendLimiter, emailMagicLink);
 router.post("/email/session", emailSession);
-router.post("/email/resend", oauthLimiter, emailResendConfirmation);
-router.post("/email/verify", oauthLimiter, emailVerify);
-router.post("/email/forgot-password", oauthLimiter, emailForgotPassword);
-router.post("/email/reset-password", oauthLimiter, emailResetPassword);
+router.post("/email/resend", emailSendLimiter, emailResendConfirmation);
+router.post("/email/verify", linkLimiter, emailVerify);
+router.post("/email/forgot-password", emailSendLimiter, emailForgotPassword);
+router.post("/email/reset-password", linkLimiter, emailResetPassword);
 
-router.post("/guest/login", oauthLimiter, guestLogin);
-router.post("/guest/link", oauthLimiter, guestLinkLogin);
+router.post("/guest/login", passwordLimiter, guestLogin);
+router.post("/guest/link", linkLimiter, guestLinkLogin);
 // POST so the token stays out of URLs and logs.
 router.post("/guest/link/info", guestLinkInfoLimiter, guestLinkInfo);
 
 // Strategy callbacks
 // Google and Discord - if renamed, update accordingly in the respective developer portal
-router.get("/steam/return", oauthLimiter, authCallback("steam"));
-router.get("/google/callback", oauthLimiter, authCallback("google"));
-router.get("/discord/callback", oauthLimiter, authCallback("discord"));
+router.get("/steam/return", oauthCallbackLimiter, authCallback("steam"));
+router.get("/google/callback", oauthCallbackLimiter, authCallback("google"));
+router.get("/discord/callback", oauthCallbackLimiter, authCallback("discord"));
 
 export default router;

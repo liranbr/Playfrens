@@ -123,7 +123,7 @@ export function attachBoardSocketServer(httpServer, { sessionMiddleware, passpor
                 return;
             }
 
-            if (message.type === "subscribe" && message.boardId) {
+            if (message?.type === "subscribe" && typeof message.boardId === "string") {
                 const requestedBoardId = message.boardId;
                 latestRequestedBoardId = requestedBoardId;
                 const allowed = await userHasBoardAccess(userId, requestedBoardId);

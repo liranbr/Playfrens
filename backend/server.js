@@ -19,6 +19,7 @@ import steamRoutes from "./routes/steam.js";
 import steamgriddbRoutes from "./routes/steamgriddb.js";
 import steamCatalogRoutes from "./routes/steamCatalog.js";
 import boardsRoutes from "./routes/boards.js";
+import { sanitizeDeep } from "#shared/sanitize.js";
 
 // === Support for __dirname in ES modules ===
 const __filename = fileURLToPath(import.meta.url);
@@ -39,10 +40,15 @@ const useHttps = resolveUseHttps();
 // Init express
 const app = express();
 app.set("trust proxy", 1);
+app.set("query parser", (str) => sanitizeDeep(Object.fromEntries(new URLSearchParams(str))));
 
+app.use(express.urlencoded({ extended: true }));
 app.use(compression());
 app.use(express.json({ limit: "5mb" }));
-app.use(express.urlencoded({ extended: true }));
+app.use((req, _res, next) => {
+    if (req.body) req.body = sanitizeDeep(req.body);
+    next();
+});
 
 // Enable Cross-Origin Resource Sharing
 app.use(

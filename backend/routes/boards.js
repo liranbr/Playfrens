@@ -6,11 +6,7 @@ import {
     MAX_BOARD_HISTORY_MESSAGE_LENGTH,
     MAX_OWNED_BOARDS,
 } from "#shared/boardLimits.js";
-import {
-    sanitizeBoardValue,
-    validateBoardData,
-    validateBoardValue,
-} from "#shared/boardValidation.js";
+import { validateBoardData, validateBoardValue } from "#shared/boardValidation.js";
 import { Response } from "../response.js";
 import { supabase } from "../supabaseClient.js";
 import { requireAuth } from "../auth/requireAuth.js";
@@ -117,7 +113,7 @@ async function getBoard(req, res) {
 /** Replaces the entire board's data blob. Receives { data }. */
 async function saveBoard(req, res) {
     const { OK, BAD_REQUEST } = Response.HttpStatus;
-    const data = sanitizeBoardValue(req.body.data);
+    const data = req.body.data;
     if (!data) return Response.send(res, BAD_REQUEST, { error: "Missing board data" });
     const invalid = validateBoardData(data);
     if (invalid) return Response.send(res, BAD_REQUEST, { error: invalid });
@@ -197,7 +193,6 @@ async function updateBoard(req, res) {
     if (!WRITABLE_BOARD_KEYS.includes(path[0])) {
         return Response.send(res, BAD_REQUEST, { error: "That board key can't be updated." });
     }
-    value = sanitizeBoardValue(value);
     const invalid = validateBoardValue(path[0], value);
     if (invalid) return Response.send(res, BAD_REQUEST, { error: invalid });
     if (OWNER_ONLY_BOARD_KEYS.includes(path[0]) && !req.isBoardOwner) {

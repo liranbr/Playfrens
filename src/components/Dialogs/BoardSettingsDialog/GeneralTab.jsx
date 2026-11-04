@@ -50,7 +50,7 @@ export const GeneralTab = observer(({ closeDialog }) => {
             <fieldset>
                 {isOwner && (
                     <>
-                        <label className="board-name-label">Board Name</label>
+                        <label>Board Name</label>
                         <div className="board-name-row">
                             <input
                                 value={name}

@@ -1,27 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { Link, Navigate, useParams } from "react-router-dom";
 import * as Avatar from "@radix-ui/react-avatar";
 import {
-    MdChevronRight,
     MdClose,
     MdFilterAltOff,
-    MdMenu,
-    MdOutlineFileDownload,
-    MdOutlineFileUpload,
     MdOutlineGamepad,
     MdOutlineVisibility,
     MdPerson,
 } from "react-icons/md";
 
 import { tagTypes } from "@/models";
-import { pickFile } from "@/Utils";
 import {
-    backupToFile,
     Dialogs,
     globalDataStore,
     globalDialogStore,
-    restoreFromFile,
     useBoardStore,
     useFilterStore,
     useUserStore,
@@ -43,67 +36,6 @@ import { guestLinkToken } from "@/services/GuestLinkToken.js";
 
 import "./Playfrens.css";
 
-const AppMenu = observer(() => {
-    const boardStore = useBoardStore();
-    const { userInfo } = useUserStore();
-    const [dropdownOpen, setDropdownOpen] = useState(false);
-    const isViewer = boardStore.isReadOnly;
-    return (
-        <Dropdown
-            trigger={<IconButton icon={<MdMenu />} activate={dropdownOpen} />}
-            onOpenChange={setDropdownOpen}
-        >
-            {!isViewer && !userInfo.isGuest && (
-                <Dropdown.Item onClick={() => globalDialogStore.open(Dialogs.SteamImport)}>
-                    Import from Steam
-                </Dropdown.Item>
-            )}
-            {!isViewer && (
-                <Dropdown.Sub>
-                    <Dropdown.SubTrigger>
-                        Backup
-                        <MdChevronRight className="rx-dropdown-right-slot" />
-                    </Dropdown.SubTrigger>
-                    <Dropdown.SubContent>
-                        <Dropdown.Item
-                            disabled={!boardStore.isOwner}
-                            onSelect={() => {
-                                globalDialogStore.open(Dialogs.GenericWarning, {
-                                    message:
-                                        "Importing a backup will overwrite all of your current data.",
-                                    continueFunction: () => pickFile(restoreFromFile, ".json"),
-                                });
-                            }}
-                        >
-                            <MdOutlineFileUpload /> Restore
-                        </Dropdown.Item>
-                        <Dropdown.Item onClick={backupToFile}>
-                            <MdOutlineFileDownload /> Backup
-                        </Dropdown.Item>
-                    </Dropdown.SubContent>
-                </Dropdown.Sub>
-            )}
-            {!isViewer && <Dropdown.Separator />}
-            <Dropdown.Sub>
-                <Dropdown.SubTrigger>
-                    Links
-                    <MdChevronRight className="rx-dropdown-right-slot" />
-                </Dropdown.SubTrigger>
-                <Dropdown.SubContent>
-                    <Dropdown.LinkItem label="GitHub" url="https://github.com/liranbr/Playfrens" />
-                    <Dropdown.LinkItem label="Discord" url="https://discord.gg/aTdwEGau4Q" />
-                    <Dropdown.LinkItem label="Homepage" url="/" />
-                </Dropdown.SubContent>
-            </Dropdown.Sub>
-            <Dropdown.Separator />
-            <Dropdown.LinkItem
-                label="Send feedback"
-                url="mailto:playfrens@proton.me?subject=Feedback"
-            />
-        </Dropdown>
-    );
-});
-
 const AppHeader = observer(() => {
     const filterStore = useFilterStore();
     const boardStore = useBoardStore();
@@ -114,7 +46,6 @@ const AppHeader = observer(() => {
     return (
         <CenterAndEdgesRow className="app-header">
             <div className="app-header-left">
-                <AppMenu />
                 <div className="app-brand-row">
                     <div className="app-brand">
                         <img src="/Playfrens_Logo.png" alt="Playfrens Logo" />
@@ -229,6 +160,23 @@ const AppUserAvatar = observer(() => {
             <Dropdown.Item onClick={() => globalDialogStore.open(Dialogs.UserSettings)}>
                 User Settings
             </Dropdown.Item>
+            {boardStore.isOwner && (
+                <Dropdown.Item onClick={() => globalDialogStore.open(Dialogs.SteamImport)}>
+                    Import from Steam
+                </Dropdown.Item>
+            )}
+
+            <Dropdown.Separator />
+            <Dropdown.Label>Links</Dropdown.Label>
+            <Dropdown.LinkItem label="Homepage" url="/" />
+            <Dropdown.LinkItem label="GitHub" url="https://github.com/liranbr/Playfrens" />
+            <Dropdown.LinkItem label="Discord" url="https://discord.gg/aTdwEGau4Q" />
+            <Dropdown.Separator />
+
+            <Dropdown.LinkItem
+                label="Send feedback"
+                url="mailto:playfrens@proton.me?subject=Feedback"
+            />
             <Dropdown.Item onClick={() => userStore.logout()}>Logout</Dropdown.Item>
         </Dropdown>
     );

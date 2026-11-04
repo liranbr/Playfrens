@@ -97,6 +97,10 @@
         }
     }
 
+    .rx-dropdown-label {
+        padding: 0 0.875rem;
+    }
+
     div[role="separator"] {
         height: 0;
         flex-shrink: 0;

@@ -1,7 +1,23 @@
 import { observer } from "mobx-react-lite";
-import { MdAdd, MdKeyboardArrowDown, MdSettings } from "react-icons/md";
-import { Dialogs, globalDialogStore, useBoardStore, useUserStore } from "@/stores";
+import {
+    MdAdd,
+    MdChevronRight,
+    MdKeyboardArrowDown,
+    MdOutlineFileDownload,
+    MdOutlineFileUpload,
+    MdSave,
+    MdSettings,
+} from "react-icons/md";
+import {
+    backupToFile,
+    Dialogs,
+    globalDialogStore,
+    restoreFromFile,
+    useBoardStore,
+    useUserStore,
+} from "@/stores";
 import { Dropdown } from "@/components";
+import { pickFile } from "@/Utils.js";
 
 /**
  * Allows users to manage current boards setting and switch to other ones.
@@ -10,11 +26,12 @@ import { Dropdown } from "@/components";
 export const BoardSwitcher = observer(() => {
     const boardStore = useBoardStore();
     const { userInfo } = useUserStore();
-    const canSwitch = userInfo && !userInfo.isGuest;
+    const isAccount = userInfo && !userInfo.isGuest;
+    const isViewer = boardStore.isReadOnly;
     const boardName = boardStore.activeBoard?.name ?? "Board";
 
     // Public viewer with nothing to switch to or manage
-    if (!canSwitch && boardStore.isReadOnly) {
+    if (isViewer) {
         return (
             <span className="board-switcher-trigger">
                 <span className="board-switcher-trigger-label">{boardName}</span>
@@ -31,7 +48,7 @@ export const BoardSwitcher = observer(() => {
                 </span>
             }
         >
-            {canSwitch && (
+            {isAccount && (
                 <>
                     {boardStore.boards.map((board) => (
                         <Dropdown.Item
@@ -50,10 +67,33 @@ export const BoardSwitcher = observer(() => {
                     )}
                 </>
             )}
-            {!boardStore.isReadOnly && (
-                <Dropdown.Item onClick={() => globalDialogStore.open(Dialogs.BoardSettings)}>
-                    <MdSettings /> Board Settings
-                </Dropdown.Item>
+            <Dropdown.Item onClick={() => globalDialogStore.open(Dialogs.BoardSettings)}>
+                <MdSettings /> Board Settings
+            </Dropdown.Item>
+            {!isViewer && (
+                <Dropdown.Sub>
+                    <Dropdown.SubTrigger>
+                        <MdSave /> Backup
+                        <MdChevronRight className="rx-dropdown-right-slot" />
+                    </Dropdown.SubTrigger>
+                    <Dropdown.SubContent>
+                        <Dropdown.Item
+                            disabled={!boardStore.isOwner}
+                            onSelect={() => {
+                                globalDialogStore.open(Dialogs.GenericWarning, {
+                                    message:
+                                        "Importing a backup will overwrite all of your current data.",
+                                    continueFunction: () => pickFile(restoreFromFile, ".json"),
+                                });
+                            }}
+                        >
+                            <MdOutlineFileUpload /> Restore
+                        </Dropdown.Item>
+                        <Dropdown.Item onClick={backupToFile}>
+                            <MdOutlineFileDownload /> Backup
+                        </Dropdown.Item>
+                    </Dropdown.SubContent>
+                </Dropdown.Sub>
             )}
         </Dropdown>
     );

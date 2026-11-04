@@ -35,7 +35,11 @@ export function Dropdown({
     );
     return (
         <RadixDropdown.Root open={open} onOpenChange={onOpenChange}>
-            {tooltip ? <SimpleTooltip message={tooltip}>{triggerElement}</SimpleTooltip> : triggerElement}
+            {tooltip ? (
+                <SimpleTooltip message={tooltip}>{triggerElement}</SimpleTooltip>
+            ) : (
+                triggerElement
+            )}
             <RadixDropdown.Portal>
                 <RadixDropdown.Content
                     className="rx-dropdown-menu"
@@ -54,6 +58,9 @@ Dropdown.Item = RadixDropdown.Item;
 Dropdown.Separator = RadixDropdown.Separator;
 Dropdown.Sub = RadixDropdown.Sub;
 Dropdown.SubTrigger = RadixDropdown.SubTrigger;
+Dropdown.Label = function DropdownLabel({ children }) {
+    return <RadixDropdown.Label className="rx-dropdown-label">{children}</RadixDropdown.Label>;
+};
 
 Dropdown.LinkItem = function DropdownLinkItem({ label, url }) {
     return (

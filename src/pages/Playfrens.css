@@ -6,7 +6,6 @@
     border-bottom: var(--pf-border-500);
     z-index: 2;
     .app-brand-row {
-        margin-left: 1rem;
         display: flex;
         align-items: center;
         gap: 0.75rem;

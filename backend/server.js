@@ -42,6 +42,16 @@ const app = express();
 app.set("trust proxy", 1);
 app.set("query parser", (str) => sanitizeDeep(Object.fromEntries(new URLSearchParams(str))));
 
+const DEBUG_ADHD_INFO_DUMPING = false;
+if (DEBUG_ADHD_INFO_DUMPING)
+    app.use((req, res, next) => {
+        res.on("finish", () => {
+            // don't say those, that's mean
+            const { password, token, token_hash, access_token, ...body } = req.body ?? {};
+            console.log(req.method, req.originalUrl, res.statusCode, { query: req.query, body });
+        });
+        next();
+    });
 app.use(express.urlencoded({ extended: true }));
 app.use(compression());
 app.use(express.json({ limit: "5mb" }));

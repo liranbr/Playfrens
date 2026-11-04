@@ -23,9 +23,7 @@ export const AccountTab = observer(() => {
                 <dd>{userInfo?.displayName}</dd>
                 <dt>Sign-in Method</dt>
                 <dd>{userInfo?.isGuest ? "Guest" : PROVIDER_LABELS[userInfo?.provider]}</dd>
-            </dl>
-            <dl className="account-stats">
-                <dt>Data</dt>
+                <dt>Stats</dt>
                 <dd className="account-data-table">
                     <label>Created:</label>
                     <p>{userInfo?.createdAt.toLocaleDateString()}</p>

@@ -7,11 +7,6 @@ import validator from "validator";
 const TAG_TYPES = ["friend", "category", "status"];
 const TAG_COLLECTIONS = { allFriends: "friend", allCategories: "category", allStatuses: "status" };
 
-// Keys whose text may span multiple lines
-const MULTILINE_KEYS = ["note", "message"];
-// C1 controls, zero-width space, direction marks/overrides and Byte Order Mark. Joiners stay since emojis need them.
-const HIDDEN_CHARS = "\\x80-\\x9F\\u200B\\u200E\\u200F\\u202A-\\u202E\\u2066-\\u2069\\uFEFF";
-
 const isObject = (v) => typeof v === "object" && v !== null && !Array.isArray(v);
 const isFilled = (v) => typeof v === "string" && !validator.isEmpty(v);
 const isOptionalString = (v) => v == null || typeof v === "string";
@@ -20,21 +15,6 @@ const isISODate = (v) => typeof v === "string" && validator.isISO8601(v, { stric
 const isTagIDs = (v) =>
     isObject(v) &&
     Object.entries(v).every(([type, ids]) => TAG_TYPES.includes(type) && isStringArray(ids));
-
-/** Strips control and invisible characters from every string, run it before validating. */
-export function sanitizeBoardValue(value, key = "") {
-    if (typeof value === "string") {
-        const text = validator.stripLow(value, MULTILINE_KEYS.includes(key));
-        return validator.blacklist(text, HIDDEN_CHARS);
-    }
-    if (Array.isArray(value)) return value.map((item) => sanitizeBoardValue(item, key));
-    if (isObject(value)) {
-        return Object.fromEntries(
-            Object.entries(value).map(([k, v]) => [k, sanitizeBoardValue(v, k)]),
-        );
-    }
-    return value;
-}
 
 // Collections are stored as [id, json] pairs
 function checkEntries(value, checkJson) {

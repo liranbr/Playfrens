@@ -1,14 +1,8 @@
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { MdContentCopy } from "react-icons/md";
-import { Button, InfoIcon, RadioSetting, Setting } from "@/components";
-import {
-    globalBoardStore,
-    SettingsDefaults,
-    ShowMatureContentOptions,
-    useFilterStore,
-    useSettingsStore,
-} from "@/stores";
+import { Button, InfoIcon, Setting, ToggleSetting } from "@/components";
+import { globalBoardStore, SettingsDefaults, useFilterStore, useSettingsStore } from "@/stores";
 import { ReadOnlyCallout } from "../SettingsTabs.jsx";
 import { toastError, toastSuccess } from "@/Utils";
 import { useDelayedButton } from "@/hooks/useDelayedButton.jsx";
@@ -24,6 +18,7 @@ export const GeneralTab = observer(({ closeDialog }) => {
 
     const trimmed = name.trim();
     const canSave = !saving && trimmed && trimmed !== board?.name;
+    const link = `${window.location.origin}/board/${board.shortId}`;
 
     async function handleSave() {
         if (!canSave) return;
@@ -52,70 +47,27 @@ export const GeneralTab = observer(({ closeDialog }) => {
                     <ReadOnlyCallout />
                 </div>
             )}
-            {isOwner && (
-                <fieldset>
-                    <label className="board-name-label">Board Name</label>
-                    <div className="board-name-row">
-                        <input
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            onKeyDown={saveOnEnter}
-                        />
-                        <Button variant="primary" disabled={!canSave} onClick={handleSave}>
-                            Save
-                        </Button>
-                    </div>
-                </fieldset>
-            )}
+            <fieldset>
+                {isOwner && (
+                    <>
+                        <label className="board-name-label">Board Name</label>
+                        <div className="board-name-row">
+                            <input
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                onKeyDown={saveOnEnter}
+                                maxLength={30}
+                            />
+                            <Button variant="primary" disabled={!canSave} onClick={handleSave}>
+                                Save
+                            </Button>
+                        </div>
+                    </>
+                )}
 
-            <div className={`settings-tab${isOwner ? "" : " read-only"}`} inert={!isOwner}>
-                {isOwner && board && <PublicLinkSetting board={board} />}
-                <FilterSettings />
-            </div>
-
-            {isOwner && (
-                <>
-                    <div className="separator" />
-                    <DeleteBoardButton board={board} closeDialog={closeDialog} />
-                </>
-            )}
-        </>
-    );
-});
-
-const PublicLinkOptions = { off: "Off", on: "On" };
-
-const PublicLinkSetting = observer(({ board }) => {
-    const [saving, setSaving] = useState(false);
-    const link = `${window.location.origin}/board/${board.shortId}`;
-
-    async function handleChange(option) {
-        if (saving) return;
-        const isPublic = option === "on";
-        setSaving(true);
-        try {
-            await globalBoardStore.setVisibility(board.id, isPublic);
-            toastSuccess(isPublic ? "Board is now publicly viewable" : "Board is now private");
-        } catch (err) {
-            toastError(err.message);
-        } finally {
-            setSaving(false);
-        }
-    }
-
-    return (
-        <Setting
-            title="Public Read-Only Link"
-            description="Anyone with the board link can view it without logging in, but can't change anything"
-        >
-            <RadioSetting
-                name="publicReadOnly"
-                value={board.isPublic ? "on" : "off"}
-                options={PublicLinkOptions}
-                onChange={handleChange}
-            />
-            {board.isPublic && (
-                <div className="board-members-copy-row">
+                <label>Board Link</label>
+                <div className="link-copy-row">
+                    {board.isPublic && <span className="field-badge">Publicly viewable</span>}
                     <input readOnly value={link} onFocus={(e) => e.target.select()} />
                     <Button
                         variant="secondary"
@@ -131,8 +83,47 @@ const PublicLinkSetting = observer(({ board }) => {
                         <MdContentCopy /> Copy
                     </Button>
                 </div>
-            )}
-        </Setting>
+            </fieldset>
+
+            <div className={`settings-tab${isOwner ? "" : " read-only"}`} inert={!isOwner}>
+                {isOwner && board && <PublicLinkSetting board={board} />}
+                <FilterSettings />
+            </div>
+
+            {isOwner && <DeleteBoardButton board={board} closeDialog={closeDialog} />}
+        </>
+    );
+});
+
+const PublicLinkSetting = observer(({ board }) => {
+    const [saving, setSaving] = useState(false);
+
+    async function handleChange(checked) {
+        if (saving) return;
+        setSaving(true);
+        try {
+            await globalBoardStore.setVisibility(board.id, checked);
+            toastSuccess(checked ? "Board is now publicly viewable" : "Board is now private");
+        } catch (err) {
+            toastError(err.message);
+        } finally {
+            setSaving(false);
+        }
+    }
+
+    return (
+        <>
+            <Setting
+                title="Public Read-Only Link"
+                description="Anyone with the board link can view it without logging in, but can't change anything"
+            >
+                <ToggleSetting
+                    name="togglePublicReadOnly"
+                    value={board.isPublic}
+                    onChange={(checked) => handleChange(checked)}
+                />
+            </Setting>
+        </>
     );
 });
 
@@ -147,17 +138,21 @@ const FilterSettings = observer(() => {
                 titleExtra={
                     <InfoIcon message="Only affects games whose main content is explicit sexual material. Games with general mature themes, violence, or occasional nudity aren't hidden by this." />
                 }
-                description="Include explicit/adult-only games when searching for a game to add"
-                isDefault={settingsStore.showMatureContent === SettingsDefaults.showMatureContent}
+                description="Include explicit/adult-only games when adding games"
+                isDefault={
+                    settingsStore.toggleShowMatureContent ===
+                    SettingsDefaults.toggleShowMatureContent
+                }
                 onReset={() =>
-                    settingsStore.setShowMatureContent(SettingsDefaults.showMatureContent)
+                    settingsStore.setToggleShowMatureContent(
+                        SettingsDefaults.toggleShowMatureContent,
+                    )
                 }
             >
-                <RadioSetting
-                    name="showMatureContent"
-                    value={settingsStore.showMatureContent}
-                    options={ShowMatureContentOptions}
-                    onChange={(option) => settingsStore.setShowMatureContent(option)}
+                <ToggleSetting
+                    name="toggleShowMatureContent"
+                    value={settingsStore.toggleShowMatureContent}
+                    onChange={(checked) => settingsStore.setToggleShowMatureContent(checked)}
                 />
             </Setting>
 

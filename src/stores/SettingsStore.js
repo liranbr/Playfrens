@@ -32,10 +32,6 @@ export const TagGameCounterOptions = {
     countTotal: "Game Count (of total)",
     none: "None",
 };
-export const ShowMatureContentOptions = {
-    off: "Off",
-    on: "On",
-};
 export const FriendIconDisplayOptions = {
     hideMissing: "Hide Missing",
     hide: "Hide All",
@@ -75,7 +71,7 @@ export const SettingsDefaults = {
     toggleCompactGameGrid: false, // spacing between game cards
     gamesGridCardWidth: 210, // in px
     toggleHideGameStoreButtons: false,
-    showMatureContent: "off",
+    toggleShowMatureContent: false,
 };
 
 const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -162,8 +158,8 @@ class SettingsStore {
         else console.warn(`Invalid HideGameStoreButtons option: ${option}`);
     }
 
-    setShowMatureContent(option) {
-        if (ShowMatureContentOptions[option]) this.showMatureContent = option;
+    setToggleShowMatureContent(option) {
+        if (typeof option === "boolean") this.toggleShowMatureContent = option;
         else console.warn(`Invalid ShowMatureContent option: ${option}`);
     }
 

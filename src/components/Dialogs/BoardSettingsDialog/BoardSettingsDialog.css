@@ -52,14 +52,14 @@
     gap: 0.5rem;
 }
 
-.board-members-copy-row {
+.link-copy-row {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    position: relative;
 
     input,
     code {
-        background: var(--pf-bg-200);
         border-radius: 4px;
         padding: 0.25rem 0.5rem;
         flex: 1;
@@ -67,6 +67,26 @@
     }
     code {
         flex: none;
+    }
+
+    input {
+        height: 100%;
+        border-width: 1px;
+        background: var(--pf-bg-500);
+        color: var(--pf-fg-200);
+    }
+
+    .field-badge {
+        position: absolute;
+        bottom: 0;
+        left: 8px;
+        transform: translateY(100%);
+        background-color: var(--pf-btn-primary-hover);
+        padding: 0 0.25rem;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        white-space: nowrap;
+        pointer-events: none;
     }
 }
 

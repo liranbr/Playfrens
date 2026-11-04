@@ -108,7 +108,14 @@ export const MembersTab = observer(() => {
             );
             const { username } = result.guest;
             setLatestInvite({
-                username, password: result.password, text: buildGuestInvite(activeBoard, username, result.loginLink?.token, result.password,),
+                username,
+                password: result.password,
+                text: buildGuestInvite(
+                    activeBoard,
+                    username,
+                    result.loginLink?.token,
+                    result.password,
+                ),
             });
             if (!result.loginLink) {
                 toastError("Couldn't create a login link, try again from their row.");
@@ -146,7 +153,7 @@ export const MembersTab = observer(() => {
         <>
             <div className="dialog-callout">
                 <label>Board link</label>
-                <div className="board-members-copy-row">
+                <div className="link-copy-row">
                     <input readOnly value={boardLink} onFocus={(e) => e.target.select()} />
                     <Button
                         variant="secondary"
@@ -228,7 +235,8 @@ export const MembersTab = observer(() => {
                         <div className="dialog-callout">
                             <label>Create New Guest</label>
                             <small>
-                                Guest logins let others participate in this board, without making a regular account
+                                Guest logins let others participate in this board, without making a
+                                regular account
                             </small>
                         </div>
                         {showCreateForm ? (
@@ -286,7 +294,7 @@ export const MembersTab = observer(() => {
                                 {latestInvite.password && " now, the password won't be shown again"}
                                 .
                             </b>
-                            <div className="board-members-copy-row">
+                            <div className="link-copy-row">
                                 <code>{latestInvite.username}</code>
                                 {latestInvite.password && <code>{latestInvite.password}</code>}
                                 <Button

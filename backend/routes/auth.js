@@ -211,12 +211,14 @@ async function emailExists(req, res) {
     const { BAD_REQUEST, OK, INTERNAL_SERVER_ERROR } = Response.HttpStatus;
     const { email } = req.body;
     if (!email) return Response.send(res, BAD_REQUEST, { error: "Email is required." });
+    if (typeof email !== "string" || !email.trim())
+        return Response.send(res, BAD_REQUEST, { error: "Email is required" });
 
     const { data, error } = await supabase
         .from("users")
         .select("id")
         .eq("provider", "email")
-        .ilike("email", email)
+        .eq("email", email.trim().toLowerCase())
         .limit(1);
     if (error) return Response.send(res, INTERNAL_SERVER_ERROR, { error: error.message });
 

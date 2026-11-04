@@ -13,8 +13,8 @@
 
         h3 {
             font-size: 1rem;
-            line-height: 1;
-            font-weight: 500;
+            height: 26px;
+            font-weight: 400;
             color: #f2f2f2;
         }
         .setting-reset {

@@ -2,13 +2,13 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 8px;
+    gap: 0.5rem;
 }
 
 .collapsible-trigger {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 0.25rem;
     border: none;
     background: none;
     color: inherit;

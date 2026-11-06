@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { globalSettingsStore } from "@/stores";
 
 export const usePrevNextButtons = (emblaApi, onButtonClick) => {
     const [prevBtnDisabled, setPrevBtnDisabled] = useState(true);
@@ -6,13 +7,13 @@ export const usePrevNextButtons = (emblaApi, onButtonClick) => {
 
     const onPrevButtonClick = useCallback(() => {
         if (!emblaApi) return;
-        emblaApi.scrollPrev();
+        emblaApi.scrollPrev(globalSettingsStore.isMotionReduced());
         if (onButtonClick) onButtonClick(emblaApi);
     }, [emblaApi, onButtonClick]);
 
     const onNextButtonClick = useCallback(() => {
         if (!emblaApi) return;
-        emblaApi.scrollNext();
+        emblaApi.scrollNext(globalSettingsStore.isMotionReduced());
         if (onButtonClick) onButtonClick(emblaApi);
     }, [emblaApi, onButtonClick]);
 

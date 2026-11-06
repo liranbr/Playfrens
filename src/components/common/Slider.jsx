@@ -26,6 +26,7 @@ export function Slider({ value, min, max, step = 1, onChange, formatValue = (v) 
     const commit = (e) => onChange(e.target.value);
     return (
         <div className="slider-row">
+            <span className="slider-value">{formatValue(liveValue)}</span>
             <input
                 type="range"
                 className="rx-slider"
@@ -38,7 +39,6 @@ export function Slider({ value, min, max, step = 1, onChange, formatValue = (v) 
                 onBlur={commit}
                 onKeyUp={commit}
             />
-            <span className="slider-value">{formatValue(liveValue)}</span>
         </div>
     );
 }

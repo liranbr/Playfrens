@@ -7,7 +7,9 @@ import {
     Dialogs,
     globalDialogStore,
     updateTagBothGameCounters,
+    useBoardStore,
     useDataStore,
+    useUserStore,
 } from "@/stores";
 import { toastError } from "@/Utils";
 import { SlGameController } from "react-icons/sl";
@@ -21,6 +23,8 @@ const GameCard = observer(({ game }) => {
     const filterStore = useFilterStore();
     const { draggedTag, hoveredTag } = filterStore;
     const hoverTagSetting = useSettingsStore().tagHoverGameHighlight;
+    const { userInfo } = useUserStore();
+    const { isOwner, isReadOnly } = useBoardStore();
 
     const hasPartyWithoutTag = (tag) => game.parties.some((party) => !party.hasTag(tag));
     const allPartiesHaveTag = (tag) => !hasPartyWithoutTag(tag);
@@ -49,6 +53,10 @@ const GameCard = observer(({ game }) => {
 
     const handleDrop = () => {
         setDraggedOver(false);
+        if (!draggedTag || isReadOnly) return;
+        if (!draggedTag.isManageableBy({ accountId: userInfo?.id, isOwner })) {
+            return toastError(`You don't have permission to add ${draggedTag.name} to a game.`);
+        }
         if (game.parties.length === 1) {
             game.parties[0].addTag(draggedTag); // just 1 party, can attempt to add directly
             updateTagBothGameCounters(draggedTag);
@@ -113,7 +121,7 @@ function EmptyGridPlaceholder() {
 
 export const GamesGrid = observer(() => {
     const { filteredGames } = useFilterStore();
-    const { gamesGridCardWidth, gamesGridDensity } = useSettingsStore();
+    const { gamesGridCardWidth, toggleCompactGameGrid } = useSettingsStore();
 
     // useEffect to update the grid justification if there aren't enough items to fill the row
     const gridRef = useRef(null);
@@ -132,9 +140,9 @@ export const GamesGrid = observer(() => {
         window.addEventListener("resize", updateGridJustification);
         return () => window.removeEventListener("resize", updateGridJustification);
         // card size/density change how games wrap into rows, so it needs rechecking too
-    }, [filteredGames, gamesGridCardWidth, gamesGridDensity]);
+    }, [filteredGames, gamesGridCardWidth, toggleCompactGameGrid]);
 
-    const densityClass = gamesGridDensity === "compact" ? " density-compact" : "";
+    const densityClass = toggleCompactGameGrid ? " density-compact" : "";
     return (
         <div className={"games-grid-container" + densityClass}>
             <div

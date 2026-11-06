@@ -12,42 +12,42 @@
 
     .wishlist-star-icon {
         flex: 0 0 auto;
-        font-size: 12px;
+        font-size: 0.75rem;
         color: hsl(48, 100%, 55%);
     }
     .singleplayer-icon {
         flex: 0 0 auto;
-        font-size: 12px;
+        font-size: 0.75rem;
         color: hsl(210, 15%, 65%);
     }
     .unreleased-icon {
         flex: 0 0 auto;
-        font-size: 12px;
+        font-size: 0.75rem;
         color: hsl(200, 70%, 65%);
     }
     .explicit-icon {
         flex: 0 0 auto;
-        font-size: 12px;
+        font-size: 0.75rem;
         color: var(--pf-btn-danger);
     }
 
     .steam-confirm-import-hidden-notice {
-        margin: 6px 0 0;
-        font-size: 12px;
+        margin: 0.375rem 0 0;
+        font-size: 0.75rem;
         color: hsl(0, 0%, 70%);
     }
 
     .steam-confirm-import-badges-legend {
         display: flex;
         flex-direction: column;
-        margin: 6px 0;
-        font-size: 12px;
+        margin: 0.375rem 0;
+        font-size: 0.75rem;
         color: hsl(0, 0%, 70%);
 
         p {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 0.375rem;
             margin: 0;
         }
     }
@@ -55,9 +55,9 @@
     .steam-confirm-import-profile {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 0.5rem;
         width: fit-content;
-        margin-bottom: 8px;
+        margin-bottom: 0.5rem;
         color: inherit;
         text-decoration: none;
 
@@ -68,7 +68,7 @@
         }
         h3 {
             align-self: flex-start;
-            font-size: 32px;
+            font-size: 2rem;
         }
         a {
             color: inherit;
@@ -81,7 +81,7 @@
             align-self: flex-end;
         }
         .steam-confirm-import-info {
-            padding-left: 8px;
+            padding-left: 0.5rem;
             height: 100%;
             align-items: flex-start;
         }
@@ -91,10 +91,10 @@
         display: flex;
         flex-direction: column;
         overflow-y: auto;
-        padding-right: calc(var(--scrollbar-width) + 6px);
+        padding-right: calc(var(--scrollbar-width) + 0.375rem);
 
         .separator {
-            margin: 12px 0;
+            margin: 0.75rem 0;
         }
 
         .steam-confirm-import-container {
@@ -105,7 +105,7 @@
         .steam-confirm-import-header {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 0.375rem;
             width: 100%;
             border: none;
             padding: 0;
@@ -117,10 +117,10 @@
             box-shadow: -0px 5px 10px var(--pf-bg-900);
             h2 {
                 margin: 0;
-                padding: 8px 0;
+                padding: 0.5rem 0;
             }
             .collapsible-chevron {
-                font-size: 24px;
+                font-size: 1.5rem;
             }
         }
 
@@ -129,26 +129,26 @@
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                gap: 8px;
-                margin-top: 12px;
+                gap: 0.5rem;
+                margin-top: 0.75rem;
             }
             .steam-confirm-import-section-toggle {
                 display: flex;
                 align-items: center;
-                gap: 4px;
+                gap: 0.25rem;
                 width: fit-content;
                 border: none;
                 background: none;
                 color: #fff;
                 font: inherit;
-                font-size: 14px;
+                font-size: 0.875rem;
                 font-weight: 500;
                 cursor: pointer;
                 padding: 0;
             }
             .steam-confirm-import-bulk-actions {
                 display: flex;
-                gap: 6px;
+                gap: 0.375rem;
                 flex: 0 0 auto;
 
                 .btn.steam-confirm-import-bulk-btn {
@@ -157,7 +157,7 @@
                     width: 44px;
                     height: 18px;
                     padding: 0;
-                    font-size: 12px;
+                    font-size: 0.75rem;
                     font-weight: 600;
                     border-radius: 3px;
                 }
@@ -165,16 +165,16 @@
             .steam-confirm-import-list {
                 display: flex;
                 flex-wrap: wrap;
-                margin-top: 8px;
-                margin-left: 12px;
+                margin-top: 0.5rem;
+                margin-left: 0.75rem;
                 .steam-confirm-import-item {
                     display: inline-flex;
                     align-items: center;
-                    gap: 4px;
-                    margin: 2px;
-                    padding: 2px 4px;
+                    gap: 0.25rem;
+                    margin: 0.125rem;
+                    padding: 0.125rem 0.25rem;
                     border-radius: 6px;
-                    font-size: 12px;
+                    font-size: 0.75rem;
                     font-family: inherit;
                     text-align: left;
                     border: none;
@@ -192,7 +192,7 @@
                             cursor: default;
 
                             & svg.rx-avatarless {
-                                font-size: 10px;
+                                font-size: 0.625rem;
                             }
                         }
                     }

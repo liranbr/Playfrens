@@ -1,12 +1,11 @@
 import { usePageMeta } from "@/hooks/usePageMeta.js";
 import "./Privacy.css";
-import "./CardPage.css";
+import "../components/common/CardPageLayout.css";
 
 export default function Privacy() {
     usePageMeta({
         title: "Privacy Policy",
-        description:
-            "Information regarding what data we collect, how it's used, and your rights.",
+        description: "Information regarding what data we collect, how it's used, and your rights.",
         path: "/privacy",
     });
 

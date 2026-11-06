@@ -14,7 +14,7 @@ RUN npm install
 # Copy everything
 COPY . .
 
-# Build frontend -> /app/dist
+# Build frontend -> /app/backend/public
 RUN npm run build
 
 
@@ -28,8 +28,11 @@ RUN apk add --no-cache python3 make g++
 # Copy backend source (flattened into /app)
 COPY backend/ ./ 
 
+# Code shared between frontend and backend
+COPY shared/ ./shared/
+
 # Copy frontend build into /app/public
-COPY --from=build /app/dist ./public
+COPY --from=build /app/backend/public ./public
 
 # Copy only package.json + lockfile
 COPY package*.json ./

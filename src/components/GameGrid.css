@@ -6,9 +6,9 @@
         calc(var(--game-grid-container-padding) - var(--scrollbar-width));
 
     &.density-compact {
-        --game-grid-gap: 10px;
-        --game-grid-row-gap: 14px;
-        --game-grid-container-padding: 16px;
+        --game-grid-gap: 0.625rem;
+        --game-grid-row-gap: 0.875rem;
+        --game-grid-container-padding: 1rem;
     }
 }
 .games-grid {
@@ -62,11 +62,11 @@
         position: absolute;
         bottom: 4px;
         left: 4px;
-        font-size: 22px;
+        font-size: 1.375rem;
         font-weight: bold;
         background-color: var(--pf-btn-primary-hover);
         border-radius: 12px;
-        padding: 2px 6px;
+        padding: 0.125rem 0.375rem;
         border: 1px solid var(--pf-btn-primary);
         box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
         text-rendering: optimizeLegibility;
@@ -76,11 +76,11 @@
         position: absolute;
         top: 4px;
         right: 4px;
-        font-size: 22px;
+        font-size: 1.375rem;
         color: #fff;
         background-color: var(--pf-btn-danger-hover);
         border-radius: 12px;
-        padding: 2px;
+        padding: 0.125rem;
         border: 1px solid var(--pf-btn-danger);
         box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
     }
@@ -92,8 +92,8 @@
         right: 0;
         background: linear-gradient(to bottom, rgba(0, 0, 0, 0.66), rgba(0, 0, 0, 0));
         color: #fff;
-        padding: 10px;
-        font-size: 16px;
+        padding: 0.625rem;
+        font-size: 1rem;
         font-weight: bold;
         text-align: center;
         font-family: sans-serif;
@@ -193,28 +193,28 @@
 
 .empty-grid-placeholder {
     width: 100%;
-    padding-right: calc(var(--ui-card-width) + 12px);
+    padding-right: calc(var(--ui-card-width) + 0.75rem);
     /* padding-right equal to the sidebar's width. This centers the element in the screen, right under the search bar */
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 8px;
+    gap: 0.5rem;
 
     svg {
-        font-size: 28px;
+        font-size: 1.75rem;
         color: var(--pf-fg-700);
     }
 
     p {
-        font-size: 24px;
+        font-size: 1.5rem;
         font-style: italic;
         color: var(--pf-fg-700);
     }
 
     img {
         width: min(600px, 50vw);
-        margin-top: 32px;
+        margin-top: 2rem;
         opacity: 0.6;
     }
 }

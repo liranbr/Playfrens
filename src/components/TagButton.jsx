@@ -1,25 +1,30 @@
 import { useState } from "react";
 import { observer } from "mobx-react-lite";
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { MdDeleteOutline, MdEdit, MdMoreVert, MdOutlineSearchOff } from "react-icons/md";
 import { RxDragHandleHorizontal } from "react-icons/rx";
 import {
     useFilterStore,
     Dialogs,
     globalDialogStore,
+    useBoardStore,
     useDataStore,
     useSettingsStore,
+    useUserStore,
 } from "@/stores";
-import { IconButton, FriendAvatar } from "@/components";
-import { tagTypes } from "@/models";
+import { Dropdown, IconButton, FriendAvatar } from "@/components";
+import { storeTypes, tagTypes } from "@/models";
 import "./TagButton.css";
 
-export const SidebarTagButton = observer(({ tag }) => {
+export const SidebarTagButton = observer(({ tag, isOwn = false }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [draggedOverDirection, setDraggedOverDirection] = useState(""); // another tag is being dragged over the "bottom" or "top" half of this one, or not ("")
     const filterStore = useFilterStore();
     const settingsStore = useSettingsStore();
     const dataStore = useDataStore();
+    const { isOwner, isReadOnly } = useBoardStore();
+    const { userInfo } = useUserStore();
+    // Dragging tags only edits (reorder, add to game)
+    const canDrag = !isReadOnly && tag.isManageableBy({ accountId: userInfo?.id, isOwner });
 
     // CSS for button different states
     const classes = ["tag-button-container", "sidebar-tbc"];
@@ -27,6 +32,8 @@ export const SidebarTagButton = observer(({ tag }) => {
     if (filterStore.isTagExcluded(tag)) classes.push("excluded");
     if (filterStore.draggedTag?.id === tag.id) classes.push("being-dragged");
     if (dropdownOpen) classes.push("dd-open");
+    if (isOwn) classes.push("own-tag");
+    if (!canDrag) classes.push("not-draggable");
 
     // Handling Custom Sorting, when another tag is being dragged over this one
     const draggedTag = filterStore.draggedTag;
@@ -35,7 +42,7 @@ export const SidebarTagButton = observer(({ tag }) => {
     let onDragLeave = undefined;
     if (
         draggedTag &&
-        settingsStore.tagSortMethods[tag.type] === "custom" &&
+        settingsStore.tagSortMethods[tag.type] === storeTypes.custom &&
         draggedTag.type === tag.type &&
         draggedTag.id !== tag.id
     ) {
@@ -98,16 +105,16 @@ export const SidebarTagButton = observer(({ tag }) => {
                 }}
                 onMouseEnter={() => filterStore.setHoveredTag(tag)}
                 onMouseLeave={() => filterStore.setHoveredTag(null)}
-                draggable="true"
-                onDragStart={() => filterStore.setDraggedTag(tag)} // instead of e.dataTransfer, has more functionality
-                onDragEnd={() => filterStore.setDraggedTag(null)}
+                draggable={canDrag ? "true" : "false"}
+                onDragStart={canDrag ? () => filterStore.setDraggedTag(tag) : undefined} // instead of e.dataTransfer, has more functionality
+                onDragEnd={canDrag ? () => filterStore.setDraggedTag(null) : undefined}
             >
                 <span className="tag-name-wrapper">
                     {tag.type === tagTypes.friend && <FriendAvatar iconURL={tag.iconURL} />}
                     <span className="tag-name">{tag.name}</span>
                 </span>
                 <label>{gameCounter !== 0 ? gameCounter : ""}</label>
-                <RxDragHandleHorizontal className="hover-drag-indicator" />
+                {canDrag && <RxDragHandleHorizontal className="hover-drag-indicator" />}
             </span>
             <SidebarTBMenuButton
                 tag={tag}
@@ -121,6 +128,10 @@ export const SidebarTagButton = observer(({ tag }) => {
 
 const SidebarTBMenuButton = observer(({ tag, filterStore, dropdownOpen, setDropdownOpen }) => {
     const dataStore = useDataStore();
+    const { userInfo } = useUserStore();
+    const { isOwner, isReadOnly } = useBoardStore();
+    // Friend tags linked to an account can only be managed by the owner or an assigned account
+    const canManage = !isReadOnly && tag.isManageableBy({ accountId: userInfo?.id, isOwner });
     const excludeLabel = filterStore.isTagExcluded(tag) ? "Undo Exclude" : "Exclude";
     const toggleExclusion = () => filterStore.toggleTagExclusion(tag);
 
@@ -139,31 +150,25 @@ const SidebarTBMenuButton = observer(({ tag, filterStore, dropdownOpen, setDropd
         });
     };
 
-    const DD = DropdownMenu;
     return (
-        <DD.Root open={dropdownOpen} onOpenChange={setDropdownOpen}>
-            <DD.Trigger asChild>
-                <IconButton icon={<MdMoreVert />} />
-            </DD.Trigger>
-
-            <DD.Portal>
-                <DD.Content
-                    className="rx-dropdown-menu"
-                    align={"start"}
-                    side={"bottom"}
-                    sideOffset={5}
-                >
-                    <DD.Item onClick={toggleExclusion}>
-                        <MdOutlineSearchOff /> {excludeLabel}
-                    </DD.Item>
-                    <DD.Item onClick={openEditDialog}>
-                        <MdEdit /> Edit
-                    </DD.Item>
-                    <DD.Item data-danger onClick={openDeleteDialog}>
-                        <MdDeleteOutline /> Delete
-                    </DD.Item>
-                </DD.Content>
-            </DD.Portal>
-        </DD.Root>
+        <Dropdown
+            trigger={<IconButton icon={<MdMoreVert />} />}
+            open={dropdownOpen}
+            onOpenChange={setDropdownOpen}
+        >
+            <Dropdown.Item onClick={toggleExclusion}>
+                <MdOutlineSearchOff /> {excludeLabel}
+            </Dropdown.Item>
+            {canManage && (
+                <Dropdown.Item onClick={openEditDialog}>
+                    <MdEdit /> Edit
+                </Dropdown.Item>
+            )}
+            {canManage && (
+                <Dropdown.Item data-danger onClick={openDeleteDialog}>
+                    <MdDeleteOutline /> Delete
+                </Dropdown.Item>
+            )}
+        </Dropdown>
     );
 });

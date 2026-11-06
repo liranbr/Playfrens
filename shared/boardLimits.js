@@ -6,7 +6,7 @@ export const MAX_BOARD_HISTORY_MESSAGE_LENGTH = 300;
 
 // Limits to strings length to user inputs.
 export const STRING_LIMITS = Object.freeze({
-    GAME_NAME: 160,
+    GAME_NAME: 256, // similar to the Steam limit
     BOARD_NAME: 96,
     PARTY_NAME: 64,
     TAG_NAME: 32,

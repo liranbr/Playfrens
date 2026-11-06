@@ -12,6 +12,7 @@ import { storeDisplayNames, storeTypes } from "@/models";
 import { getOfficialCoverImageURL, searchTitleOnStore, sgdbDatedTitle } from "@/APIUtils.js";
 import { GameCoverDisplay } from "@/components/GameCoverDisplay.jsx";
 import { HttpStatus } from "#shared/http.js";
+import { STRING_LIMITS } from "#shared/boardLimits.js";
 
 const GameEntryContext = createContext(null);
 
@@ -158,6 +159,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                                     onQuery={searchTitle}
                                     onKeyDown={saveOnEnter}
                                     onSelect={handleGameSelected}
+                                    maxLength={STRING_LIMITS.GAME_NAME}
                                 />
                             </div>
                             {!advancedView && !userInfo.isGuest && (

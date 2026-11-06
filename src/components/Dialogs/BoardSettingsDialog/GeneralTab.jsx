@@ -6,6 +6,7 @@ import { globalBoardStore, SettingsDefaults, useFilterStore, useSettingsStore } 
 import { ReadOnlyCallout } from "../SettingsTabs.jsx";
 import { toastError, toastSuccess } from "@/Utils";
 import { useDelayedButton } from "@/hooks/useDelayedButton.jsx";
+import { STRING_LIMITS } from "#shared/boardLimits.js";
 
 export const GeneralTab = observer(({ closeDialog }) => {
     const board = globalBoardStore.activeBoard;
@@ -56,7 +57,7 @@ export const GeneralTab = observer(({ closeDialog }) => {
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 onKeyDown={saveOnEnter}
-                                maxLength={30}
+                                maxLength={STRING_LIMITS.BOARD_NAME}
                             />
                             <Button variant="primary" disabled={!canSave} onClick={handleSave}>
                                 Save

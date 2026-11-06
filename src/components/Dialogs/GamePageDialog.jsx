@@ -29,6 +29,7 @@ import {
 } from "@/stores";
 import { ReminderObject, tagTypes, tagTypeStrings } from "@/models";
 import { DialogBase } from "./DialogRoot.jsx";
+import { STRING_LIMITS } from "#shared/boardLimits.js";
 
 import "@/components/TagButtonGroup.css";
 import "@/components/TagButton.css";
@@ -334,6 +335,7 @@ const PartyTabs = ({ game, partyID, setPartyID, renamePartyRef, readOnly }) => {
                             onKeyDown={(e) => {
                                 if (e.key === "Enter") handleRename();
                             }}
+                            maxLength={STRING_LIMITS.PARTY_NAME}
                         />
                     ) : (
                         <span>{party.name}</span>

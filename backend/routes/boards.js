@@ -5,6 +5,7 @@ import {
     MAX_BOARD_HISTORY_ENTRIES,
     MAX_BOARD_HISTORY_MESSAGE_LENGTH,
     MAX_OWNED_BOARDS,
+    STRING_LIMITS,
 } from "#shared/boardLimits.js";
 import { validateBoardData, validateBoardValue } from "#shared/boardValidation.js";
 import { Response } from "../response.js";
@@ -146,6 +147,12 @@ async function renameBoard(req, res) {
     }
 
     const trimmed = name.trim();
+    if (validator.isLength(trimmed, { max: STRING_LIMITS.BOARD_NAME })) {
+        return Response.send(res, BAD_REQUEST, {
+            error: `Board Name length longer than ${STRING_LIMITS.BOARD_NAME}.`,
+        });
+    }
+
     const { error } = await supabase
         .from("boards")
         .update({ name: trimmed })
@@ -769,3 +776,4 @@ router.delete(
 );
 
 export default router;
+

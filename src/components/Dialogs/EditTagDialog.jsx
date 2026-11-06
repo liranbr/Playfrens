@@ -17,6 +17,7 @@ import { BiLogoSteam } from "react-icons/bi";
 import { MdClose } from "react-icons/md";
 import { toastError } from "@/Utils";
 import { assignAccountToTag, listBoardUsers, unassignAccountFromTag } from "@/APIUtils.js";
+import { STRING_LIMITS } from "#shared/boardLimits.js";
 import "./EditTagDialog.css";
 
 // Un-/Assign board members onto a friend tag. Assigned accounts can use this tag and manage it.
@@ -172,6 +173,7 @@ export const EditTagDialog = observer(function EditTagDialog({
                     defaultValue={editingTag?.name}
                     disabled={!canManage}
                     autoFocus
+                    maxLength={STRING_LIMITS.TAG_NAME}
                 />
                 {isFriend && (advancedView || editingTag?.steamID || editingTag?.iconURL) && (
                     <>

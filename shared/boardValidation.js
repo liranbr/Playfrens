@@ -1,4 +1,5 @@
 import validator from "validator";
+import { STRING_LIMITS } from "./boardLimits.js";
 
 // Securtiy check for strings that cleans nad checks the board data before it gets stored
 // This is done to avoid bad entries from breaking the board to everyone.
@@ -33,6 +34,8 @@ function checkTag(json, type) {
     if (json.type !== type) return `must be a ${type} tag`;
     if (typeof json.name !== "string" || validator.isEmpty(json.name, { ignore_whitespace: true }))
         return "needs a name";
+    if (!validator.isLength(json.name, { max: STRING_LIMITS.TAG_NAME }))
+        return `name must be at most ${STRING_LIMITS.TAG_NAME} characters`;
     if (json.linkedAccountIds !== undefined && !isStringArray(json.linkedAccountIds))
         return "has invalid linkedAccountIds";
     return null;
@@ -41,6 +44,8 @@ function checkTag(json, type) {
 function checkParty(party) {
     if (!isObject(party) || !isFilled(party.id) || !isFilled(party.name))
         return "needs an id and name";
+    if (!validator.isLength(party.name, { max: STRING_LIMITS.PARTY_NAME }))
+        return `name must be at most ${STRING_LIMITS.PARTY_NAME} characters`;
     if (!isOptionalString(party.note)) return "has an invalid note";
     if (party.tagIDs !== undefined && !isTagIDs(party.tagIDs)) return "has invalid tagIDs";
     return null;
@@ -49,6 +54,8 @@ function checkParty(party) {
 function checkGame(json) {
     if (!isFilled(json.id)) return "needs an id";
     if (typeof json.title !== "string") return "needs a title";
+    if (!validator.isLength(json.title, { max: STRING_LIMITS.GAME_NAME }))
+        return `title must be at most ${STRING_LIMITS.GAME_NAME} characters`;
     for (const key of ["sortingTitle", "coverImageURL", "coverThumbURL"])
         if (!isOptionalString(json[key])) return `has an invalid ${key}`;
     if (json.parties === undefined) return null;

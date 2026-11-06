@@ -476,7 +476,7 @@ export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID
                                 value={party.note}
                                 onCommit={(value) => party.setNote(value)}
                                 active={open}
-                                maxLength={2000}
+                                maxLength={STRING_LIMITS.PARTY_NOTE}
                                 readOnly={isReadOnly}
                             />
                         </div>
@@ -504,3 +504,4 @@ export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID
         </DialogBase>
     );
 });
+

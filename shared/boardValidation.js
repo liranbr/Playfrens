@@ -47,6 +47,8 @@ function checkParty(party) {
     if (!validator.isLength(party.name, { max: STRING_LIMITS.PARTY_NAME }))
         return `name must be at most ${STRING_LIMITS.PARTY_NAME} characters`;
     if (!isOptionalString(party.note)) return "has an invalid note";
+    if (party.note && !validator.isLength(party.note, { max: STRING_LIMITS.PARTY_NOTE }))
+        return `note must be at most ${STRING_LIMITS.PARTY_NOTE} characters`;
     if (party.tagIDs !== undefined && !isTagIDs(party.tagIDs)) return "has invalid tagIDs";
     return null;
 }
@@ -130,3 +132,4 @@ export function validateBoardData(data) {
     }
     return null;
 }
+

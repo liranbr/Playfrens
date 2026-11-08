@@ -2,6 +2,8 @@ import { getSteamIDFromVanity, getSteamUserSummary } from "@/APIUtils.js";
 import { storeTypes } from "@/models";
 import { FriendTagObject } from "@/models/TagObject.js";
 import { loadFromStorage } from "@/Utils";
+import { HttpStatus } from "#shared/http.js";
+import { ContentDescriptor } from "../../backend/services/steamCatalogSync";
 
 // Kept in localStorage only (not the Supabase-backed board) since this is a
 // temporary, per-browser stand-in until "last imported Steam profile" gets a
@@ -43,8 +45,6 @@ export async function processUsername(username) {
     return json.id;
 }
 
-const ADULT_ONLY_SEXUAL_CONTENT_DESCRIPTOR = 3;
-
 function buildSteamAssetURL(item, filename) {
     if (!filename) return null;
     const base = item.assets?.asset_url_format
@@ -54,10 +54,27 @@ function buildSteamAssetURL(item, filename) {
     return base.split("?")[0];
 }
 
+const UNAVAILABLE_LIST_STATUSES = [
+    HttpStatus.NO_CONTENT,
+    HttpStatus.UNAUTHORIZED,
+    HttpStatus.NOT_FOUND,
+];
+
+// Returns the list's JSON, or null after recording why it couldn't be fetched in `errors[key]`.
+async function fetchImportList(url, key, title, errors) {
+    const res = await fetch(url);
+    if (UNAVAILABLE_LIST_STATUSES.includes(res.status))
+        errors[key] = `Can't access ${title}, or it is empty.`;
+    else if (!res.ok) errors[key] = `Error occurred while importing ${title}`;
+    else return res.json();
+    return null;
+}
+
 /**
  * Fetches a Steam profile's summary and (optionally) library/wishlist/friends data.
  * Does not touch DataStore or dialogs, so it can be
  * reused by both the import dialog and a "Sync Now" action.
+ * `errors` is keyed by the failed option (e.g. importWishlist); when non-empty, nothing else is fetched.
  */
 export async function fetchSteamImportData(
     steamID,
@@ -82,24 +99,39 @@ export async function fetchSteamImportData(
 
     const groupedIDs = {};
     let frens = [];
+    const errors = {};
 
     if (importLibrary) {
-        const res = await fetch(`/api/steam/getUserLibraryIDs?id=${steamID}`);
-        if (!res.ok) throw Error("Error occurred during importing game libraries");
-        groupedIDs["game_library"] = await res.json();
+        const ids = await fetchImportList(
+            `/api/steam/getUserLibraryIDs?id=${steamID}`,
+            "importLibrary",
+            "Games library",
+            errors,
+        );
+        if (ids) groupedIDs["game_library"] = ids;
     }
 
     if (importWishlist) {
-        const res = await fetch(`/api/steam/getWishlistIDs?id=${steamID}`);
-        if (!res.ok) throw Error("Error occurred during importing wishlist");
-        if (res.status !== 204) groupedIDs["wishlist"] = await res.json();
+        const ids = await fetchImportList(
+            `/api/steam/getWishlistIDs?id=${steamID}`,
+            "importWishlist",
+            "Wishlist",
+            errors,
+        );
+        if (ids) groupedIDs["wishlist"] = ids;
     }
 
     if (importFriendslist) {
-        const res = await fetch(`/api/steam/getFriends?id=${steamID}`);
-        if (!res.ok) throw Error("Error occurred during importing friend list");
-        frens = await res.json();
+        frens =
+            (await fetchImportList(
+                `/api/steam/getFriends?id=${steamID}`,
+                "importFriendslist",
+                "Friendslist",
+                errors,
+            )) ?? [];
     }
+
+    if (Object.keys(errors).length > 0) return { steamProfile, friendTags: [], games: [], errors };
 
     let games = [];
     if (Object.keys(groupedIDs).length > 0) {
@@ -136,7 +168,8 @@ export async function fetchSteamImportData(
             singleplayer: !item.categories?.supported_player_categoryids?.includes(1),
             unreleased: item.is_coming_soon === true,
             isAdult:
-                item.content_descriptorids?.includes(ADULT_ONLY_SEXUAL_CONTENT_DESCRIPTOR) ?? false,
+                item.content_descriptorids?.includes(ContentDescriptor.ADULT_ONLY_SEXUAL_CONTENT) ??
+                false,
         }));
     }
 
@@ -149,5 +182,5 @@ export async function fetchSteamImportData(
             }),
     );
 
-    return { steamProfile, friendTags, games };
+    return { steamProfile, friendTags, games, errors };
 }

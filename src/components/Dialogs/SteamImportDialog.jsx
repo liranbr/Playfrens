@@ -2,7 +2,6 @@ import { Button, InfoIcon } from "@/components";
 import { fetchSteamImportData, getLastSteamSync, processUsername } from "@/services/SteamImport.js";
 import { useDataStore } from "@/stores/DataStore.js";
 import { Dialogs, globalDialogStore } from "@/stores/DialogStore.js";
-import { HttpStatus } from "#shared/http.js";
 import { toastError, toastInfo } from "@/Utils";
 import * as Avatar from "@radix-ui/react-avatar";
 import * as Dialog from "@radix-ui/react-dialog";
@@ -18,7 +17,6 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
     const [instructionsVisible, setInstructionsVisible] = useState(false);
     const [lastSync] = useState(() => getLastSteamSync());
     const dataStore = useDataStore();
-    const { NO_CONTENT, UNAUTHORIZED, NOT_FOUND } = HttpStatus;
     const [form, setForm] = useState({
         username: "",
         importLibrary: true,
@@ -27,58 +25,28 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
     });
     const [errors, setErrors] = useState({}); // used in validation
 
-    // TODO LATER: Avoid fetching twice, for validation + import
+    // List access errors come back from the import fetch itself, so as a result it won't fetch twice.
     const validateInput = async () => {
         setErrors({});
-        const nextErrors = {};
         if (!(form.importLibrary || form.importWishlist || form.importFriendslist)) {
             toastInfo("Choose some data to import");
-            return false;
+            return;
         }
 
+        let steamID;
         try {
-            let steamID;
-            try {
-                steamID = await processUsername(form.username);
-            } catch (e) {
-                nextErrors["username"] = e.message;
-            }
-
-            if (steamID) {
-                const testImport = async (dataString, dataTitle, apiQuery) => {
-                    if (form[dataString]) {
-                        const res = await fetch(`/api/steam/${apiQuery}?id=${steamID}`);
-                        if ([NO_CONTENT, UNAUTHORIZED, NOT_FOUND].includes(res.status))
-                            nextErrors[dataString] = `Can't access ${dataTitle}, or it is empty.`;
-                        else if (!res.ok)
-                            nextErrors[dataString] = `Error occurred while importing ${dataTitle}`;
-                    }
-                };
-
-                const checks = [];
-                checks.push(testImport("importLibrary", "Games library", "getUserLibraryIDs"));
-                checks.push(testImport("importWishlist", "Wishlist", "getWishlistIDs"));
-                checks.push(testImport("importFriendslist", "Friendslist", "getFriends"));
-                await Promise.all(checks);
-            }
-            setErrors(nextErrors);
+            steamID = await processUsername(form.username);
         } catch (e) {
+            setErrors({ username: e.message });
             toastError(e.message);
+            return;
         }
-
-        if (Object.keys(nextErrors).length === 0) {
-            await doImport();
-            return true;
-        }
-        for (const err of Object.values(nextErrors)) {
-            toastError(err);
-        }
-        return false;
+        await doImport(steamID);
     };
 
-    // Pass overrideSteamID/overrideOptions to re-run a previous sync (see the "Sync Now" button)
+    // Pass overrideOptions to re-run a previous sync (see the "Sync Now" button)
     // instead of reading the manual entry form.
-    const doImport = async (overrideSteamID, overrideOptions) => {
+    const doImport = async (steamID, overrideOptions) => {
         if (loading) return;
         setLoading(true);
 
@@ -92,15 +60,20 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
         };
 
         try {
-            const steamID =
-                overrideSteamID ??
-                (await processUsername(document.getElementById("SteamIDInput").value));
-
             const {
                 steamProfile: profileInfo,
                 friendTags,
                 games,
+                errors: listErrors,
             } = await fetchSteamImportData(steamID, importOptions);
+
+            if (Object.keys(listErrors).length > 0) {
+                if (!overrideOptions) setErrors(listErrors); // only mark the form when it was used
+                Object.values(listErrors).forEach((err) => toastError(err));
+                setLoading(false);
+                setSyncing(false);
+                return;
+            }
 
             if (friendTags.length === 0 && games.length === 0) {
                 toastInfo("No data found to import.");
@@ -185,9 +158,9 @@ export const SteamImportDialog = ({ open, closeDialog }) => {
                             onClick={
                                 !loading
                                     ? () => {
-                                          setSyncing(true);
-                                          return doImport(lastSync.steamID, lastSync.options);
-                                      }
+                                        setSyncing(true);
+                                        return doImport(lastSync.steamID, lastSync.options);
+                                    }
                                     : undefined
                             }
                         >

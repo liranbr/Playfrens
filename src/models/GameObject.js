@@ -21,33 +21,31 @@ export const storeTypes = Object.freeze({
     custom: "custom",
 });
 
-/**
- * @class
- * @property {string} id - A UUID identifier for the game object.
- * @property {string} title - The title of the game.
- * @property {string} coverImageURL - The path to the game's cover image file.
- * @property {string} coverThumbURL - The path to the game's cover thumbnail file.
- * @property {boolean} coverIsOfficial - Whether coverImageURL is the store's official cover, used to auto-refresh against the store's current art.
- * @property {string} sortingTitle - The (optional) title used for sorting the game.
- * @property {string} storeType - Store that the game is from, options in storeTypes, like 'steam', 'gog'. Can be none.
- * @property {string} storeID - ID of the Game on its store.
- * @property {string} sgdbID - ID of the Game on SteamGridDB. Usually derived from storeType+ID, but can be independent.
- * @property {boolean} isAdult - Whether the game is flagged as explicit/adult-only content. This is hidden from the games grid unless the "Show Explicit Content" setting is on.
- * @property {Party[]} parties - the Parties/Groups/Playthroughs in a game, each containing TagIDs, Note, Reminders etc.
- */
 export class GameObject {
+    /** A UUID identifier for the game object. */
+    id;
+    /** The title of the game. */
     title;
+    /** The path to the game's cover image file. */
     coverImageURL = "/missing_game_cover.png";
+    /** The path to the game's cover thumbnail file. */
     coverThumbURL = "/missing_game_cover.png";
+    /** Whether coverImageURL is the store's official cover, used to auto-refresh against the store's current art. */
     coverIsOfficial = false;
+    /** The (optional) title used for sorting the game. */
     sortingTitle = "";
+    /** Store that the game is from, options in storeTypes, like 'steam', 'gog'. Can be none. */
     storeType = storeTypes.custom;
+    /** ID of the Game on its store. */
     storeID = "";
+    /** ID of the Game on SteamGridDB. Usually derived from storeType+ID, but can be independent. */
     sgdbID = "";
+    /** Whether the game is flagged as explicit/adult-only content. This is hidden from the games grid unless the "Show Explicit Content" setting is on. */
     isAdult = false;
+    /** the Parties/Groups/Playthroughs in a game, each containing TagIDs, Note, Reminders etc. */
     parties = [new Party({ name: "Group 1" })];
-    id; // UUID
 
+    /** Creates a GameObject, filling in defaults for any field left undefined and injecting itself as the parent of each party. */
     constructor({
         title,
         coverImageURL,
@@ -76,15 +74,18 @@ export class GameObject {
         this.parties.forEach((party) => (party.parent = this));
     }
 
-    /**Checks if any party within this game contains the tag.
-     * @returns {string} the ID of the first party found to have the tag, or an empty string if none do. */
+    /** Checks if any party within this game contains the tag.
+     * @param {TagObject} tag - the tag to look for.
+     * @returns {string} the ID of the first party found to have the tag, or an empty string if none do.
+     */
     hasTag(tag) {
         for (const party of this.parties) if (party.hasTag(tag)) return party.id;
         return "";
     }
 
-    // Applies a fresh JSON snapshot onto this instance in place
-    // Should also sync with dialogs
+    /** Applies a new JSON snapshot onto this instance in place. Should also sync with dialogs.
+     * @param {object} json - the serialized GameObject data to apply.
+     */
     patchFromJSON(json) {
         this.title = json.title;
         this.coverImageURL = json.coverImageURL ?? this.coverImageURL;
@@ -98,7 +99,10 @@ export class GameObject {
         this.#patchParties(json.parties ?? []);
     }
 
-    // Same as above but for groups.
+    /**
+     * Same as patchFromJSON but for parties/groups: patches existing parties in place, adds new ones, and removes any no longer present.
+     * @param {object[]} partyJsons - the serialized list of parties to reconcile against.
+     */
     #patchParties(partyJsons) {
         const incomingIds = new Set();
         for (const partyJson of partyJsons) {
@@ -124,6 +128,11 @@ export class GameObject {
         }
     }
 
+    /**
+     * Creates and adds a new party/group to this game.
+     * @param {string} [name] - the name for the new party; defaults to "Group N".
+     * @returns the result of the success toast shown for the new group.
+     */
     createParty(name = "") {
         if (!name) name = `Group ${this.parties.length + 1}`;
         const party = new Party({ parent: this, name: name });
@@ -133,6 +142,12 @@ export class GameObject {
         });
     }
 
+    /**
+     * Removes a party/group from this game by ID.
+     * @param {string} id - the ID of the party to delete.
+     * @returns the result of the success/error toast shown for the deletion.
+     *
+     */
     deleteParty(id) {
         if (!id || typeof id !== "string") return toastError(`Unable to delete party ${id}`);
         const partyIndex = this.parties.findIndex((party) => party.id === id);
@@ -142,16 +157,16 @@ export class GameObject {
         });
     }
 
+    /**
+     * Finds a party belonging to this game by ID.
+     * @param {string} id - the ID of the party to find.
+     * @returns {Party|undefined} the matching party, or undefined if none found.
+     */
     getParty(id) {
         return this.parties.find((party) => party.id === id);
     }
 
-    // used on all games when deleting a tag from the DataStore, to avoid spamming toasts
-    silentRemoveTag(tag) {
-        if (!(tag instanceof TagObject)) return console.error(`Invalid tag: ${tag}`);
-        for (const party of this.parties) party.tagIDs[tag.type].delete(tag.id);
-    }
-
+    /** @returns {string} summary of this game for debugging/logging. */
     toString() {
         return `Game Title: ${this.title}, Game ID: ${this.id}, party amount: ${this.parties.length}`;
     }
@@ -240,7 +255,13 @@ export class Party {
             );
     }
 
-    removeTag(tag) {
+    /**
+     * Removes a tag belonging to this to this party.
+     * @param {string} tag - The tag we want to remove.
+     * @param {boolean} silent - Doesn't call toast or add to the history. Used on all games when deleting a tag from the DataStore, to avoid spamming toasts.
+     * @returns `true` if removed successfully. `false` otherwise.
+     */
+    removeTag(tag, silent = false) {
         if (!(tag instanceof TagObject)) {
             console.error(`Invalid tag: ${tag}`);
             return false;
@@ -248,15 +269,17 @@ export class Party {
 
         const tagIDsSet = this.tagIDs[tag.type];
         if (tagIDsSet.delete(tag.id)) {
+            if (silent) return true;
             return toastSuccess(
                 `Removed the ${tag.typeStrings.single} ${tag.name} from ${this.gameTitleWithParty}`,
                 "",
                 { gameLink: this.gameLink },
             );
-        } else
+        } else {
             return toastError(
                 `${tag.name} is not a ${tag.typeStrings.single} for ${this.gameTitleWithParty}`,
             );
+        }
     }
 
     hasTag(tag) {

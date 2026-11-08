@@ -369,7 +369,10 @@ export class DataStore {
                 (json) => new Ctor(json),
                 // Prune from every game's parties too, like the local deleteTag() path,
                 // or a dangling tag ID crashes GamePage on open.
-                (removedTag) => this.allGames.forEach((game) => game.silentRemoveTag(removedTag)),
+                (removedTag) =>
+                    this.allGames.forEach((game) =>
+                        game.parties.forEach((party) => party.removeTag(removedTag, true)),
+                    ),
             );
             this.#lastSyncedByKey[storageKey] = entries;
             return;
@@ -639,3 +642,4 @@ export function restoreFromFile(file) {
 // ‖ FIRST VISIT DEFAULT TAGS ‖
 // #==========================#
 seedFirstVisitDefaults(dataStore);
+

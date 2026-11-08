@@ -117,7 +117,7 @@ export function deleteTag(store, tag) {
     if (!store.allTags[tag.type].has(tag.id))
         return toastError(`${tag.name} does not exist in ${tag.typeStrings.plural} list`);
 
-    store.allGames.forEach((game) => game.silentRemoveTag(tag));
+    store.allGames.forEach((game) => game.parties.forEach((party) => party.removeTag(tag, true)));
     store.allTags[tag.type].delete(tag.id);
     deleteItemFromArray(store.tagsCustomOrders[tag.type], tag.id);
     return toastSuccess(`Deleted ${tag.name} from ${tag.typeStrings.plural} list`);

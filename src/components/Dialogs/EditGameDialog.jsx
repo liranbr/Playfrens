@@ -31,13 +31,14 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
     const [sgdbTitle, setSgdbTitle] = useState("");
     const [advancedView, setAdvancedView] = useState(false);
 
-    const dialogTitle = game ? "Edit Game Details" : "Add Game";
-    const dialogDescription = game ? `Editing ${game.title}` : "Adding a new game";
+    const isEditing = game != null;
+    const dialogTitle = isEditing ? "Edit Game Details" : "Add Game";
+    const dialogDescription = isEditing ? `Editing ${game.title}` : "Adding a new game";
     const titlePlaceholder =
         storeType === storeTypes.custom ? "Enter title" : `Search for a ${storeDisplayNames[storeType]} game`;
 
     const handleSave = async () => {
-        if (game) {
+        if (isEditing) {
             const editedSuccess = dataStore.editGame(
                 game,
                 title,
@@ -122,7 +123,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
             <DialogBase
                 open={open}
                 onOpenChange={closeDialog}
-                contentProps={{ forceMount: !game, className: "rx-dialog edit-game-dialog" }}
+                contentProps={{ forceMount: !isEditing, className: "rx-dialog edit-game-dialog" }}
             >
                 <Dialog.Title>{dialogTitle}</Dialog.Title>
                 <VisuallyHidden>
@@ -162,7 +163,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                                     maxLength={STRING_LIMITS.GAME_NAME}
                                 />
                             </div>
-                            {!advancedView && !userInfo.isGuest && (
+                            {!advancedView && !userInfo.isGuest && !isEditing && (
                                 <div className="steam-import-informer">
                                     <p>Would you like to import your Steam games library?</p>
                                     <Button variant="secondary" onClick={handleGoToImport}>

@@ -2,12 +2,10 @@
     .default-filters-buttons {
         display: flex;
         gap: 0.75rem;
+    }
 
-        button {
-            min-height: 28px;
-            height: 28px;
-            font-size: 0.875rem;
-        }
+    fieldset label:first-child {
+        margin-top: 0;
     }
 }
 
@@ -67,9 +65,9 @@
 
     input {
         height: 100%;
-        border-width: 1px;
         background: var(--pf-bg-500);
         color: var(--pf-fg-200);
+        border: var(--pf-border-500);
     }
 
     .field-badge {

@@ -68,4 +68,10 @@
         border: var(--pf-border-300);
         cursor: default;
     }
+
+    &.square-button {
+        min-width: 36px;
+        width: 36px;
+        height: 36px;
+    }
 }

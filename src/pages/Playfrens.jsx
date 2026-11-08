@@ -167,16 +167,18 @@ const AppUserAvatar = observer(() => {
             )}
 
             <Dropdown.Separator />
+
             <Dropdown.Label>Links</Dropdown.Label>
             <Dropdown.LinkItem label="Homepage" url="/" />
             <Dropdown.LinkItem label="GitHub" url="https://github.com/liranbr/Playfrens" />
             <Dropdown.LinkItem label="Discord" url="https://discord.gg/aTdwEGau4Q" />
-            <Dropdown.Separator />
-
             <Dropdown.LinkItem
                 label="Send feedback"
                 url="mailto:playfrens@proton.me?subject=Feedback"
             />
+
+            <Dropdown.Separator />
+
             <Dropdown.Item onClick={() => userStore.logout()}>Logout</Dropdown.Item>
         </Dropdown>
     );

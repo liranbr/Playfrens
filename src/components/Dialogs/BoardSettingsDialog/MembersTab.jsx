@@ -152,14 +152,15 @@ export const MembersTab = observer(() => {
     return (
         <>
             <div className="dialog-callout">
-                <label>Board link</label>
+                <label>Board Link</label>
                 <div className="link-copy-row">
                     <input readOnly value={boardLink} onFocus={(e) => e.target.select()} />
                     <Button
                         variant="secondary"
+                        className="square-button"
                         onClick={() => copyToClipboard(boardLink, "Board link copied!")}
                     >
-                        <MdContentCopy /> Copy
+                        <MdContentCopy />
                     </Button>
                 </div>
                 <small>

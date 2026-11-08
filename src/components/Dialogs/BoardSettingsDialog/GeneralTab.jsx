@@ -2,9 +2,15 @@ import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { MdContentCopy } from "react-icons/md";
 import { Button, InfoIcon, Setting, ToggleSetting } from "@/components";
-import { globalBoardStore, SettingsDefaults, useFilterStore, useSettingsStore } from "@/stores";
+import {
+    defaultFiltersStorageKey,
+    globalBoardStore,
+    SettingsDefaults,
+    useFilterStore,
+    useSettingsStore,
+} from "@/stores";
 import { ReadOnlyCallout } from "../SettingsTabs.jsx";
-import { toastError, toastSuccess } from "@/Utils";
+import { loadFromStorage, toastError, toastSuccess } from "@/Utils";
 import { useDelayedButton } from "@/hooks/useDelayedButton.jsx";
 import { STRING_LIMITS } from "#shared/boardLimits.js";
 
@@ -72,6 +78,7 @@ export const GeneralTab = observer(({ closeDialog }) => {
                     <input readOnly value={link} onFocus={(e) => e.target.select()} />
                     <Button
                         variant="secondary"
+                        className="square-button"
                         onClick={() =>
                             navigator.clipboard
                                 .writeText(link)
@@ -81,10 +88,12 @@ export const GeneralTab = observer(({ closeDialog }) => {
                                 .catch((err) => toastError("Failed to copy: " + err))
                         }
                     >
-                        <MdContentCopy /> Copy
+                        <MdContentCopy />
                     </Button>
                 </div>
             </fieldset>
+
+            <div className="separator" />
 
             <div className={`settings-tab${isOwner ? "" : " read-only"}`} inert={!isOwner}>
                 {isOwner && board && <PublicLinkSetting board={board} />}
@@ -160,13 +169,12 @@ const FilterSettings = observer(() => {
             <Setting
                 title="Default Filter State"
                 description="Set current filters as the default state to show on load"
+                onReset={() => filterStore.resetDefaultFilters()}
+                isDefault={loadFromStorage(defaultFiltersStorageKey, {}) === {}} // TODO: This doesn't properly check. Anyway, lets convert defaultFilters to a regular Board Setting.
             >
                 <div className="default-filters-buttons">
                     <Button variant="secondary" onClick={() => filterStore.saveDefaultFilters()}>
-                        Set as Default
-                    </Button>
-                    <Button variant="secondary" onClick={() => filterStore.resetDefaultFilters()}>
-                        Reset
+                        Set
                     </Button>
                 </div>
             </Setting>

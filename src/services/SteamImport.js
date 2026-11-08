@@ -3,7 +3,7 @@ import { storeTypes } from "@/models";
 import { FriendTagObject } from "@/models/TagObject.js";
 import { loadFromStorage } from "@/Utils";
 import { HttpStatus } from "#shared/http.js";
-import { ContentDescriptor } from "../../backend/services/steamCatalogSync";
+import { ContentDescriptor } from "#shared/contentDescriptors.js";
 
 // Kept in localStorage only (not the Supabase-backed board) since this is a
 // temporary, per-browser stand-in until "last imported Steam profile" gets a

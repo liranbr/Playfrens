@@ -318,7 +318,7 @@ export function configurePassport() {
                 clientID: process.env.DISCORD_CLIENT_ID,
                 clientSecret: process.env.DISCORD_CLIENT_SECRET,
                 callbackURL: `${URL}/auth/discord/callback`,
-                scope: ["identify", "email"],
+                scope: ["identify"],
                 state: true,
             },
             async (accessToken, refreshToken, profile, done) => {

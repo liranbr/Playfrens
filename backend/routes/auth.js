@@ -548,7 +548,7 @@ router.get(
     stashBoardRedirect,
     passport.authenticate("google", {
         failureRedirect: LOGIN_FAILED_ROUTE,
-        scope: ["profile", "email", "openid"],
+        scope: ["profile", "openid"],
     }),
 );
 router.get(

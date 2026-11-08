@@ -35,33 +35,31 @@ export function gameFromJson(gameJson) {
  * @param {[string, GameObject][]} entries
  * @returns {Promise<boolean>} true if any cover was changed
  */
-async function refreshOfficialCovers(entries) {
-    // Disabled due to the HUGE performance issue.
-    return false;
-    // eslint-disable-next-line no-unreachable
-    const officialSteamGames = entries
-        .map(([, game]) => game)
-        .filter(
-            (game) => game.storeType === storeTypes.steam && game.coverIsOfficial && game.storeID,
-        );
-    if (officialSteamGames.length === 0) return false; // Based and skin-pilled
-
-    const covers = await getOfficialCoverImageURLs(
-        storeTypes.steam,
-        officialSteamGames.map((game) => game.storeID),
-    );
-    if (!covers) return false;
-
-    let changed = false;
-    for (const game of officialSteamGames) {
-        const cover = covers[game.storeID];
-        if (!cover || cover.url === game.coverImageURL) continue;
-        game.coverImageURL = cover.url;
-        game.coverThumbURL = cover.thumb;
-        changed = true;
-    }
-    return changed;
-}
+// Disabled due to the HUGE performance issue.
+// async function refreshOfficialCovers(entries) {
+//     const officialSteamGames = entries
+//         .map(([, game]) => game)
+//         .filter(
+//             (game) => game.storeType === storeTypes.steam && game.coverIsOfficial && game.storeID,
+//         );
+//     if (officialSteamGames.length === 0) return false; // Based and skin-pilled
+//
+//     const covers = await getOfficialCoverImageURLs(
+//         storeTypes.steam,
+//         officialSteamGames.map((game) => game.storeID),
+//     );
+//     if (!covers) return false;
+//
+//     let changed = false;
+//     for (const game of officialSteamGames) {
+//         const cover = covers[game.storeID];
+//         if (!cover || cover.url === game.coverImageURL) continue;
+//         game.coverImageURL = cover.url;
+//         game.coverThumbURL = cover.thumb;
+//         changed = true;
+//     }
+//     return changed;
+// }
 
 // eslint-disable-next-line no-unused-vars -- unused, kept for future use case.
 export async function populateGames(store, gameJsons, version) {
@@ -84,7 +82,7 @@ export async function populateGames(store, gameJsons, version) {
             }),
     );
 
-    changed = (await refreshOfficialCovers(entries)) || changed;
+    // changed = (await refreshOfficialCovers(entries)) || changed; Disabled due to huge performance cost
 
     runInAction(() => {
         store.allGames.replace(entries); // mutate in place, don't reassign the Map

@@ -117,8 +117,9 @@ app.use((req, res, next) => {
 // Error logging listener after everything initialized
 // eslint-disable-next-line no-unused-vars -- Express only treats a 4-arg function as error-handling middleware
 app.use((err, _req, res, _next) => {
-    console.error(err);
-    res.status(500).json({ error: err.message });
+    const status = err.status ?? err.statusCode ?? 500;
+    if (status >= 500) console.error(err);
+    res.status(status).json({ error: err.expose ? err.message : "Internal server error" });
 });
 
 const createHttpsServer = (app) => {

@@ -31,17 +31,17 @@ function PrivacyPolicy() {
             <h2 id="we-may-collect-pii">When you visit, sign up, or otherwise use the site</h2>
             <p>We may collect necessary personally identifiable information (PII).</p>
             <h2 id="what-data-collected">What Data do we Collect?</h2>
-            <h3 id="3rd-party-accounts">3rd party account type, ID, name, profile picture</h3>
+            <h3 id="3rd-party-accounts">Account Providers</h3>
             <p>
-                If you sign up via 3rd party account authentication providers (Steam, Google,
-                Discord), we will automatically create a 3rd party profile entry.{" "}
+                If you sign up using one of our 3rd party account authentication providers (Steam,
+                Google, Discord), we will automatically create a 3rd party profile entry.{" "}
             </p>
             <p>
-                This entry consists of account type, account ID, display name, and profile picture
-                url.
+                This entry is made of your account type, account ID, display name and profile
+                picture url.
             </p>
-            <h3 id="email">Email</h3>
-            <p>If you sign up via an email and password combination, we will store your email.</p>
+            <h3 id="email">Email Address</h3>
+            <p>If you sign up using an email and password combination, we will store your email.</p>
             <p>
                 Besides signing in, an email is also required if you want us to send you email
                 notifications.
@@ -51,7 +51,7 @@ function PrivacyPolicy() {
                 We may record your IP in system logs, along with visited URL and/or user-agent. Logs
                 are removed automatically after about a month.
             </p>
-            <p>In cases where we detect abuse, your IP may be blocked.</p>
+            <p>In cases where we detect abuse, your IP may be temporarily blocked.</p>
             <h2 id="data-storage-duration">For how long will we store your data?</h2>
             <p>
                 Data from logs are deleted automatically after a short amount of time, usually a
@@ -64,30 +64,10 @@ function PrivacyPolicy() {
             <h2 id="cookies">Cookies</h2>
             <p>
                 We use a necessary session cookie to maintain your login session. This cookie
-                expires when your session ends or after a defined period. We do not use analytics,
-                tracking, or advertising cookies.
+                expires when your session ends or after a defined period. For accounts using an email, when you reset password or
+                delete your account, all your login sessions end immediately.
             </p>
-            <h2 id="3rd-parties">3rd Parties</h2>
-            <p>
-                We do not share your private data, but we use 3rd parties for their services.
-                <p>
-                    <b>
-                        NOTE: These are temporarily used in this stage of development, and are
-                        subject to change
-                    </b>
-                </p>
-                <p>
-                    Render{" "}
-                    <a href="https://render.com/docs/certifications-compliance">
-                        (Compliance Link)
-                    </a>{" "}
-                    is the host of our backend server.
-                </p>
-                <p>
-                    Supabase <a href="https://supabase.com/legal/dpa">(Compliance Link)</a> is the
-                    host of our database.
-                </p>
-            </p>
+            <p>We do not use analytics, tracking, or advertising cookies.</p>
             <h2 id="sharing-data">Sharing data</h2>
             <p>
                 We are not sharing any PII to anyone. We are not selling away your emails nor any
@@ -96,6 +76,25 @@ function PrivacyPolicy() {
             <p>
                 We may share statistical data about the website such as number of registered users
                 or how many visits we get.
+            </p>
+            <h3>External Services</h3>
+            <p>
+                The infrastructure of Playfrens relies on some external services, and complies with
+                them:
+            </p>
+            <p>
+                <b>Render</b> is the host of our backend server.{" "}
+                <a href="https://render.com/docs/certifications-compliance">(Compliance Link)</a>
+            </p>
+            <p>
+                <b>Supabase</b> is the host of our database.{" "}
+                <a href="https://supabase.com/legal/dpa">(Compliance Link)</a>
+            </p>
+            <p>
+                <b>
+                    NOTE: These providers are used in this stage of development, and are subject to
+                    change
+                </b>
             </p>
             <h2 id="right-to-erasure">Right to erasure - deleting your account</h2>
             <p>

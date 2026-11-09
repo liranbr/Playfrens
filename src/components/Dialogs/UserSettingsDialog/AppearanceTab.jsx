@@ -16,38 +16,6 @@ export const AppearanceTab = observer(() => {
 
     return (
         <>
-            <SettingsSection title="General">
-                <Setting
-                    title="Font Size"
-                    description="Scales text and spacing across the whole app"
-                    isDefault={settingsStore.fontSize === SettingsDefaults.fontSize}
-                    onReset={() => settingsStore.setFontSize(SettingsDefaults.fontSize)}
-                >
-                    <Slider
-                        min={FontSizeRange.min}
-                        max={FontSizeRange.max}
-                        step={FontSizeRange.step}
-                        value={settingsStore.fontSize}
-                        onChange={(value) => settingsStore.setFontSize(value)}
-                        formatValue={(v) => `${v}%`}
-                    />
-                </Setting>
-
-                <Setting
-                    title="Reduce Motion"
-                    description="Turns off animations and transitions"
-                    isDefault={settingsStore.reduceMotion === SettingsDefaults.reduceMotion}
-                    onReset={() => settingsStore.setReduceMotion(SettingsDefaults.reduceMotion)}
-                >
-                    <DropdownSetting
-                        name="reduceMotion"
-                        value={settingsStore.reduceMotion}
-                        options={ReduceMotionOptions}
-                        onChange={(option) => settingsStore.setReduceMotion(option)}
-                    />
-                </Setting>
-            </SettingsSection>
-
             <SettingsSection title="Sidebar" subtitle="How tags look and behave in the sidebar">
                 <Setting
                     title="Tag Hover Highlight"
@@ -168,6 +136,38 @@ export const AppearanceTab = observer(() => {
                         name="toggleHideGameStoreButtons"
                         value={settingsStore.toggleHideGameStoreButtons}
                         onChange={(checked) => settingsStore.setToggleHideGameStoreButtons(checked)}
+                    />
+                </Setting>
+            </SettingsSection>
+
+            <SettingsSection title="Accessability">
+                <Setting
+                    title="Font Size"
+                    description="Scales text and spacing across the whole app"
+                    isDefault={settingsStore.fontSize === SettingsDefaults.fontSize}
+                    onReset={() => settingsStore.setFontSize(SettingsDefaults.fontSize)}
+                >
+                    <Slider
+                        min={FontSizeRange.min}
+                        max={FontSizeRange.max}
+                        step={FontSizeRange.step}
+                        value={settingsStore.fontSize}
+                        onChange={(value) => settingsStore.setFontSize(value)}
+                        formatValue={(v) => `${v}%`}
+                    />
+                </Setting>
+
+                <Setting
+                    title="Reduce Motion"
+                    description="Turns off animations and transitions"
+                    isDefault={settingsStore.reduceMotion === SettingsDefaults.reduceMotion}
+                    onReset={() => settingsStore.setReduceMotion(SettingsDefaults.reduceMotion)}
+                >
+                    <DropdownSetting
+                        name="reduceMotion"
+                        value={settingsStore.reduceMotion}
+                        options={ReduceMotionOptions}
+                        onChange={(option) => settingsStore.setReduceMotion(option)}
                     />
                 </Setting>
             </SettingsSection>

@@ -56,7 +56,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(compression());
 app.use(express.json({ limit: "5mb" }));
 app.use((req, _res, next) => {
-    if (req.body) req.body = sanitizeDeep(req.body);
+    req.body = req.body ? sanitizeDeep(req.body) : {};
     next();
 });
 

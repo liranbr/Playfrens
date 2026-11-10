@@ -1,6 +1,6 @@
 import { MdRefresh } from "react-icons/md";
 import { IconButton, SimpleTooltip } from "@/components";
-import "./Setting.css";
+import "./Item.css";
 
 /**
  * A settings row, a title with optional extra content next to it (e.g. an InfoIcon),
@@ -19,7 +19,7 @@ import "./Setting.css";
  * }} props
  * @returns {JSX.Element}
  */
-export function Setting({ title, titleExtra, description, isDefault = true, onReset, children }) {
+export function Item({ title, titleExtra, description, isDefault = true, onReset, children }) {
     return (
         <div className="setting">
             <div className="setting-descriptor">

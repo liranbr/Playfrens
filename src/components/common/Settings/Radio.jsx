@@ -1,6 +1,6 @@
 import * as RadioGroup from "@radix-ui/react-radio-group";
 
-export function RadioSetting({ name, value, options, onChange }) {
+export function Radio({ name, value, options, onChange }) {
     return (
         <RadioGroup.Root value={value} className="rx-radio-group" onValueChange={onChange}>
             {Object.keys(options).map((option) => {

@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import { DropdownSetting, Setting, SettingsSection, Slider, ToggleSetting } from "@/components";
+import { Settings } from "@/components";
 import {
     FontSizeRange,
     FriendIconDisplayOptions,
@@ -16,8 +16,8 @@ export const AppearanceTab = observer(() => {
 
     return (
         <>
-            <SettingsSection title="Sidebar" subtitle="How tags look and behave in the sidebar">
-                <Setting
+            <Settings.Section title="Sidebar" subtitle="How tags look and behave in the sidebar">
+                <Settings.Item
                     title="Tag Hover Highlight"
                     description="Highlight games when hovering on a sidebar tag"
                     isDefault={
@@ -30,15 +30,15 @@ export const AppearanceTab = observer(() => {
                         )
                     }
                 >
-                    <DropdownSetting
+                    <Settings.Dropdown
                         name="tagHoverGameHighlight"
                         value={settingsStore.tagHoverGameHighlight}
                         options={TagHoverGameHighlightOptions}
                         onChange={(option) => settingsStore.setTagHoverGameHighlight(option)}
                     />
-                </Setting>
+                </Settings.Item>
 
-                <Setting
+                <Settings.Item
                     title="Game Count Badge"
                     description="Show a Game Counter next to each Tag in the Sidebar"
                     isDefault={
@@ -51,15 +51,15 @@ export const AppearanceTab = observer(() => {
                         )
                     }
                 >
-                    <DropdownSetting
+                    <Settings.Dropdown
                         name="tagGameCounter"
                         value={settingsStore.tagGameCounterDisplay}
                         options={TagGameCounterOptions}
                         onChange={(option) => settingsStore.setTagGameCounterDisplay(option)}
                     />
-                </Setting>
+                </Settings.Item>
 
-                <Setting
+                <Settings.Item
                     title="Friend Icons"
                     description="Show friend avatars in the Friends sidebar and a game's tag list"
                     isDefault={
@@ -69,17 +69,17 @@ export const AppearanceTab = observer(() => {
                         settingsStore.setFriendIconDisplay(SettingsDefaults.friendIconDisplay)
                     }
                 >
-                    <DropdownSetting
+                    <Settings.Dropdown
                         name="friendIconDisplay"
                         value={settingsStore.friendIconDisplay}
                         options={FriendIconDisplayOptions}
                         onChange={(option) => settingsStore.setFriendIconDisplay(option)}
                     />
-                </Setting>
-            </SettingsSection>
+                </Settings.Item>
+            </Settings.Section>
 
-            <SettingsSection title="Games Grid" subtitle="Layout of the game cards">
-                <Setting
+            <Settings.Section title="Games Grid" subtitle="Layout of the game cards">
+                <Settings.Item
                     title="Game Card Size"
                     description="Width of game cards in the grid, more or fewer fit per row automatically"
                     isDefault={
@@ -89,7 +89,7 @@ export const AppearanceTab = observer(() => {
                         settingsStore.setGamesGridCardWidth(SettingsDefaults.gamesGridCardWidth)
                     }
                 >
-                    <Slider
+                    <Settings.Slider
                         min={GamesGridCardWidthRange.min}
                         max={GamesGridCardWidthRange.max}
                         step={GamesGridCardWidthRange.step}
@@ -97,9 +97,9 @@ export const AppearanceTab = observer(() => {
                         onChange={(value) => settingsStore.setGamesGridCardWidth(value)}
                         formatValue={(v) => `${v}px`}
                     />
-                </Setting>
+                </Settings.Item>
 
-                <Setting
+                <Settings.Item
                     title="Compact Grid Spacing"
                     description="Make the games grid's padding and gaps smaller"
                     isDefault={
@@ -112,14 +112,14 @@ export const AppearanceTab = observer(() => {
                         )
                     }
                 >
-                    <ToggleSetting
+                    <Settings.Toggle
                         name="gamesGridDensity"
                         value={settingsStore.toggleCompactGameGrid}
                         onChange={(checked) => settingsStore.setToggleCompactGameGrid(checked)}
                     />
-                </Setting>
+                </Settings.Item>
 
-                <Setting
+                <Settings.Item
                     title="Obscure Game Platform Actions"
                     description="In a Game Page, hide the 'Play' and 'Store Page' buttons unless cover art is hovered on"
                     isDefault={
@@ -132,22 +132,22 @@ export const AppearanceTab = observer(() => {
                         )
                     }
                 >
-                    <ToggleSetting
+                    <Settings.Toggle
                         name="toggleHideGameStoreButtons"
                         value={settingsStore.toggleHideGameStoreButtons}
                         onChange={(checked) => settingsStore.setToggleHideGameStoreButtons(checked)}
                     />
-                </Setting>
-            </SettingsSection>
+                </Settings.Item>
+            </Settings.Section>
 
-            <SettingsSection title="Accessability">
-                <Setting
+            <Settings.Section title="Accessability">
+                <Settings.Item
                     title="Font Size"
                     description="Scales text and spacing across the whole app"
                     isDefault={settingsStore.fontSize === SettingsDefaults.fontSize}
                     onReset={() => settingsStore.setFontSize(SettingsDefaults.fontSize)}
                 >
-                    <Slider
+                    <Settings.Slider
                         min={FontSizeRange.min}
                         max={FontSizeRange.max}
                         step={FontSizeRange.step}
@@ -155,22 +155,22 @@ export const AppearanceTab = observer(() => {
                         onChange={(value) => settingsStore.setFontSize(value)}
                         formatValue={(v) => `${v}%`}
                     />
-                </Setting>
+                </Settings.Item>
 
-                <Setting
+                <Settings.Item
                     title="Reduce Motion"
                     description="Turns off animations and transitions"
                     isDefault={settingsStore.reduceMotion === SettingsDefaults.reduceMotion}
                     onReset={() => settingsStore.setReduceMotion(SettingsDefaults.reduceMotion)}
                 >
-                    <DropdownSetting
+                    <Settings.Dropdown
                         name="reduceMotion"
                         value={settingsStore.reduceMotion}
                         options={ReduceMotionOptions}
                         onChange={(option) => settingsStore.setReduceMotion(option)}
                     />
-                </Setting>
-            </SettingsSection>
+                </Settings.Item>
+            </Settings.Section>
         </>
     );
 });

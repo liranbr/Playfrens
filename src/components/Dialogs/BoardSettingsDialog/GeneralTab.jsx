@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { MdContentCopy } from "react-icons/md";
-import { Button, InfoIcon, Setting, ToggleSetting } from "@/components";
+import { Button, InfoIcon, Settings } from "@/components";
 import {
     defaultFiltersStorageKey,
     globalBoardStore,
@@ -123,16 +123,16 @@ const PublicLinkSetting = observer(({ board }) => {
 
     return (
         <>
-            <Setting
+            <Settings.Item
                 title="Public Read-Only Link"
                 description="Anyone with the board link can view it without logging in, but can't change anything"
             >
-                <ToggleSetting
+                <Settings.Toggle
                     name="togglePublicReadOnly"
                     value={board.isPublic}
                     onChange={(checked) => handleChange(checked)}
                 />
-            </Setting>
+            </Settings.Item>
         </>
     );
 });
@@ -143,7 +143,7 @@ const FilterSettings = observer(() => {
 
     return (
         <>
-            <Setting
+            <Settings.Item
                 title="Show Explicit Content"
                 titleExtra={
                     <InfoIcon message="Only affects games whose main content is explicit sexual material. Games with general mature themes, violence, or occasional nudity aren't hidden by this." />
@@ -159,14 +159,14 @@ const FilterSettings = observer(() => {
                     )
                 }
             >
-                <ToggleSetting
+                <Settings.Toggle
                     name="toggleShowMatureContent"
                     value={settingsStore.toggleShowMatureContent}
                     onChange={(checked) => settingsStore.setToggleShowMatureContent(checked)}
                 />
-            </Setting>
+            </Settings.Item>
 
-            <Setting
+            <Settings.Item
                 title="Default Filter State"
                 description="Set current filters as the default state to show on load"
                 onReset={() => filterStore.resetDefaultFilters()}
@@ -177,7 +177,7 @@ const FilterSettings = observer(() => {
                         Set
                     </Button>
                 </div>
-            </Setting>
+            </Settings.Item>
         </>
     );
 });

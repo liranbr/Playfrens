@@ -1,7 +1,7 @@
 import * as Select from "@radix-ui/react-select";
 import { MdCheck, MdKeyboardArrowDown } from "react-icons/md";
 
-export function DropdownSetting({ name, value, options, onChange }) {
+export function Dropdown({ name, value, options, onChange }) {
     return (
         <Select.Root value={value} onValueChange={onChange} className="rx-select">
             <Select.Trigger

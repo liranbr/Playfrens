@@ -1,7 +1,7 @@
-import "./SettingsSection.css";
+import "./Section.css";
 
 /** A titled group of Settings */
-export function SettingsSection({ title, subtitle, children }) {
+export function Section({ title, subtitle, children }) {
     return (
         <section className="settings-section">
             <header>

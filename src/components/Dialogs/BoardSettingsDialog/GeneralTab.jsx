@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { MdContentCopy } from "react-icons/md";
-import { Button, InfoIcon, Settings } from "@/components";
+import { Button, Settings } from "@/components";
 import {
     defaultFiltersStorageKey,
     globalBoardStore,
-    SettingsDefaults,
     useFilterStore,
     useSettingsStore,
 } from "@/stores";
@@ -13,6 +12,8 @@ import { ReadOnlyCallout } from "../SettingsTabs.jsx";
 import { loadFromStorage, toastError, toastSuccess } from "@/Utils";
 import { useDelayedButton } from "@/hooks/useDelayedButton.jsx";
 import { STRING_LIMITS } from "#shared/boardLimits.js";
+
+const { Item, Toggle, Setting } = Settings;
 
 export const GeneralTab = observer(({ closeDialog }) => {
     const board = globalBoardStore.activeBoard;
@@ -123,16 +124,17 @@ const PublicLinkSetting = observer(({ board }) => {
 
     return (
         <>
-            <Settings.Item
+            {/* This component is not in BoardSettings so it cannot use the SettingObject, to-do move?... should we even move it? */}
+            <Item
                 title="Public Read-Only Link"
                 description="Anyone with the board link can view it without logging in, but can't change anything"
             >
-                <Settings.Toggle
+                <Toggle
                     name="togglePublicReadOnly"
                     value={board.isPublic}
                     onChange={(checked) => handleChange(checked)}
                 />
-            </Settings.Item>
+            </Item>
         </>
     );
 });
@@ -143,41 +145,21 @@ const FilterSettings = observer(() => {
 
     return (
         <>
-            <Settings.Item
-                title="Show Explicit Content"
-                titleExtra={
-                    <InfoIcon message="Only affects games whose main content is explicit sexual material. Games with general mature themes, violence, or occasional nudity aren't hidden by this." />
-                }
-                description="Include explicit/adult-only games when adding games"
-                isDefault={
-                    settingsStore.toggleShowMatureContent ===
-                    SettingsDefaults.toggleShowMatureContent
-                }
-                onReset={() =>
-                    settingsStore.setToggleShowMatureContent(
-                        SettingsDefaults.toggleShowMatureContent,
-                    )
-                }
-            >
-                <Settings.Toggle
-                    name="toggleShowMatureContent"
-                    value={settingsStore.toggleShowMatureContent}
-                    onChange={(checked) => settingsStore.setToggleShowMatureContent(checked)}
-                />
-            </Settings.Item>
+            <Setting setting={settingsStore.board.toggleShowMatureContent} />
 
-            <Settings.Item
+            <Item
                 title="Default Filter State"
                 description="Set current filters as the default state to show on load"
                 onReset={() => filterStore.resetDefaultFilters()}
-                isDefault={loadFromStorage(defaultFiltersStorageKey, {}) === {}} // TODO: This doesn't properly check. Anyway, lets convert defaultFilters to a regular Board Setting.
+                // TODO: convert defaultFilters to a regular Board Setting, so this updates live
+                isDefault={!Object.keys(loadFromStorage(defaultFiltersStorageKey, {}) ?? {}).length}
             >
                 <div className="default-filters-buttons">
                     <Button variant="secondary" onClick={() => filterStore.saveDefaultFilters()}>
                         Set
                     </Button>
                 </div>
-            </Settings.Item>
+            </Item>
         </>
     );
 });

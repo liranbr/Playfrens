@@ -1,4 +1,6 @@
 import { createContext, useContext } from "react";
+import { autorun, comparer, makeAutoObservable, toJS } from "mobx";
+
 import { UserSettings } from "./Settings/UserSettings.js";
 import { BoardSettings } from "./Settings/BoardSettings.js";
 
@@ -101,14 +103,24 @@ export const SettingsDefaults = {
 
 const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
+const clone = (value) => structuredClone(toJS(value));
+
 class SettingsStore {
+    /** Settings on the user level. */
+    user = new UserSettings();
+    /** Settings on the board level. */
+    board = new BoardSettings();
+
     constructor() {
-        Object.assign(this, structuredClone(SettingsDefaults)); // Default values, overridden by settings loaded from storage
-        makeAutoObservable(this);
+        for (const group of [this.user, this.board]) {
+            for (const setting of Object.values(group)) setting.value = clone(setting.default);
+            makeAutoObservable(group);
+        }
+        makeAutoObservable(this, { user: false, board: false });
         // Everything sized in rem scales with this
         autorun(() => {
-            document.documentElement.style.fontSize = `${this.fontSize}%`;
-            document.documentElement.dataset.reduceMotion = this.reduceMotion; // see index.css
+            document.documentElement.style.fontSize = `${this.user.fontSize.value}%`;
+            document.documentElement.dataset.reduceMotion = this.user.reduceMotion.value; // see index.css
         });
     }
 

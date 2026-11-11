@@ -294,7 +294,7 @@ export class DataStore {
                 this.syncBoardKeyToBackend(
                     storageKeys.settings,
                     globalSettingsStore.boardValues,
-                    1000,
+                    300,
                 );
             },
         );
@@ -642,4 +642,3 @@ export function restoreFromFile(file) {
 // ‖ FIRST VISIT DEFAULT TAGS ‖
 // #==========================#
 seedFirstVisitDefaults(dataStore);
-

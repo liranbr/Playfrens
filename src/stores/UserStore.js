@@ -108,7 +108,7 @@ export class UserStore {
                     this.#saveTimers,
                     "settings",
                     () => this.saveAccountSettings(globalSettingsStore.userValues),
-                    1000,
+                    300,
                 ),
         );
     }

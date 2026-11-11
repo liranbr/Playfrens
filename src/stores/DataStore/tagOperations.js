@@ -11,6 +11,7 @@ import {
     toastSuccess,
     updateObject,
 } from "@/Utils";
+import { STRING_LIMITS } from "#shared/boardLimits.js";
 import { preImportList, tT } from "./constants.js";
 
 // Used when loading some predefined set, like the starting defaults
@@ -60,6 +61,7 @@ export function addTag(store, tag) {
     tag.name = ensureUniqueName(
         [...fullList.values()].map((t) => t.name),
         tag.name,
+        STRING_LIMITS.TAG_NAME,
     );
 
     fullList.set(tag.id, tag);
@@ -147,6 +149,7 @@ export function editTag(store, tag, data = {}) {
             data["name"] = ensureUniqueName(
                 [...fullList.values()].map((t) => t.name),
                 newName,
+                STRING_LIMITS.TAG_NAME,
             );
             storedTag.name = data["name"];
         }

@@ -156,13 +156,17 @@ export function parseDuration(str) {
     return 0;
 }
 
-export function ensureUniqueName(namesList, newName) {
+export function ensureUniqueName(namesList, newName, maxLength = Infinity) {
     const lowerSet = new Set(namesList.map((name) => name.toLowerCase()));
     const lowerName = newName.toLowerCase();
 
     if (!lowerSet.has(lowerName)) return newName;
 
-    const nameWithCount = (name, c) => `${name} (${c})`;
+    // Cut the name so the suffix still fits via maxLength
+    const nameWithCount = (name, c) => {
+        const suffix = ` (${c})`;
+        return name.slice(0, maxLength - suffix.length) + suffix;
+    };
     let counter = 1;
     while (lowerSet.has(nameWithCount(lowerName, counter))) counter++;
 

@@ -12,6 +12,7 @@ import {
     toastSuccess,
     toPlainObject,
 } from "@/Utils";
+import { STRING_LIMITS } from "#shared/boardLimits.js";
 import { preImportList, storageKeys } from "./constants.js";
 
 function parseParties(parties) {
@@ -140,6 +141,7 @@ export function addGame(
     title = ensureUniqueName(
         allGamesArray.map((g) => g.title),
         title,
+        STRING_LIMITS.GAME_NAME,
     );
 
     const newGame = new GameObject({
@@ -211,6 +213,7 @@ export function importSteamGames(store, remoteGames) {
         const uniqueTitle = ensureUniqueName(
             [...store.allGames.values()].map((g) => g.title),
             title,
+            STRING_LIMITS.GAME_NAME,
         );
 
         const newGame = new GameObject({
@@ -284,6 +287,7 @@ export function editGame(
         title = ensureUniqueName(
             allGamesArray.map((g) => g.title),
             title,
+            STRING_LIMITS.GAME_NAME,
         );
     }
 

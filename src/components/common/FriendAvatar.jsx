@@ -14,7 +14,9 @@ export const FriendAvatar = observer(
     ({ iconURL, className = "", ignoreDisplaySetting = false }) => {
         const settingsStore = useSettingsStore();
         const dataStore = useDataStore();
-        let displayMode = ignoreDisplaySetting ? "showAll" : settingsStore.friendIconDisplay;
+        let displayMode = ignoreDisplaySetting
+            ? "showAll"
+            : settingsStore.user.friendIconDisplay.value;
 
         // Hide Missing is pointless noise when NO friend has an icon yet - every slot would be an empty
         // placeholder. Fall back to fully hidden until at least one friend actually has an icon set.

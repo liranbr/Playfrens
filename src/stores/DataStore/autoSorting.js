@@ -69,12 +69,10 @@ export function setupAutoSorting(store) {
     }
 
     // And these set the sorting reactions, by reacting to changes in the SettingsStore.
+    const { board } = globalSettingsStore;
     const sortBySettingsReaction = (tagType) =>
         reaction(
-            () => [
-                globalSettingsStore.tagSortMethods[tagType],
-                globalSettingsStore.tagSortDirection[tagType],
-            ],
+            () => [board.tagSortMethods.value[tagType], board.tagSortDirection.value[tagType]],
             (sortBy) => setTagSorting(tagType, sortBy[0], sortBy[1]),
             { fireImmediately: true },
         );
@@ -83,7 +81,7 @@ export function setupAutoSorting(store) {
     sortBySettingsReaction(tT.status);
 
     reaction(
-        () => [globalSettingsStore.gameSortMethod, globalSettingsStore.gameSortDirection],
+        () => [board.gameSortMethod.value, board.gameSortDirection.value],
         (sortBy) => setGameSorting(sortBy[0], sortBy[1]),
         { fireImmediately: true },
     );

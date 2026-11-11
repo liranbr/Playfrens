@@ -162,7 +162,7 @@ export function addGame(
 export function preImportSteamGames(store, remoteGames) {
     const list = preImportList();
     const currentGameList = [...store.allGames.values()];
-    const allowExplicitContent = globalSettingsStore.toggleShowMatureContent;
+    const allowExplicitContent = globalSettingsStore.board.toggleShowMatureContent.value;
     list.hiddenByContentSettings = 0;
     for (const remoteGame of remoteGames) {
         // Only import if its not from Steam and mismatched ID.

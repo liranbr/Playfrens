@@ -137,7 +137,7 @@ class FilterStore {
 
             const selectionSet = this.selectedTagIDs[tagType];
             if (selectionSet.size) {
-                const selectionLogic = globalSettingsStore.tagFilterLogic[tagType];
+                const selectionLogic = globalSettingsStore.board.tagFilterLogic.value[tagType];
                 if (selectionLogic === "AND" && !selectionSet.isSubsetOf(partyTagsSet)) {
                     return false;
                 }

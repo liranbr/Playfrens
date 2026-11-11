@@ -288,12 +288,12 @@ export class DataStore {
     // Call only after SettingsStore's initial populate, otherwise this echoes the just-loaded settings right back.
     watchSettingsForBackendSync() {
         reaction(
-            () => JSON.stringify(globalSettingsStore.boardSettings),
+            () => JSON.stringify(globalSettingsStore.boardValues),
             () => {
                 if (this.#applyingRemote) return;
                 this.syncBoardKeyToBackend(
                     storageKeys.settings,
-                    globalSettingsStore.boardSettings,
+                    globalSettingsStore.boardValues,
                     1000,
                 );
             },

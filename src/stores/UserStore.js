@@ -91,7 +91,7 @@ export class UserStore {
     }
 
     async populateStores(targetBoard) {
-        globalSettingsStore.populateAccountSettings(this.#accountSettings);
+        globalSettingsStore.populateUserSettings(this.#accountSettings);
         this.#watchAccountSettings();
         // Resolves the active board and loads the stores for it.
         await globalBoardStore.populate(targetBoard);
@@ -102,12 +102,12 @@ export class UserStore {
         if (this.#watchingAccountSettings) return;
         this.#watchingAccountSettings = true;
         reaction(
-            () => JSON.stringify(globalSettingsStore.accountSettings),
+            () => JSON.stringify(globalSettingsStore.userValues),
             () =>
                 debounce(
                     this.#saveTimers,
                     "settings",
-                    () => this.saveAccountSettings(globalSettingsStore.accountSettings),
+                    () => this.saveAccountSettings(globalSettingsStore.userValues),
                     1000,
                 ),
         );

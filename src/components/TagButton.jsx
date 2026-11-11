@@ -42,7 +42,7 @@ export const SidebarTagButton = observer(({ tag, isOwn = false }) => {
     let onDragLeave = undefined;
     if (
         draggedTag &&
-        settingsStore.tagSortMethods[tag.type] === storeTypes.custom &&
+        settingsStore.board.tagSortMethods.value[tag.type] === storeTypes.custom &&
         draggedTag.type === tag.type &&
         draggedTag.id !== tag.id
     ) {
@@ -69,7 +69,7 @@ export const SidebarTagButton = observer(({ tag, isOwn = false }) => {
     }
 
     // Handling the tag's Game Count display
-    const gameCounterType = settingsStore.tagGameCounterDisplay;
+    const gameCounterType = settingsStore.user.tagGameCounterDisplay.value;
     const gameCounter = {
         countFiltered: tag.filteredGamesCount,
         countTotal: tag.totalGamesCount,

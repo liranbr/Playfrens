@@ -8,8 +8,6 @@ import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import { tagTypes, tagTypeStrings } from "@/models";
 import {
     useSettingsStore,
-    TagFilterLogicOptions,
-    TagSortOptions,
     Dialogs,
     globalDialogStore,
     useBoardStore,
@@ -89,6 +87,7 @@ export const SidebarTagButtonGroup = observer(({ tagType }) => {
 
 const SidebarTBGMenu = observer(({ tagType }) => {
     const settingsStore = useSettingsStore();
+    const { tagSortMethods, tagSortDirection, tagFilterLogic } = settingsStore.board;
     const [popoverOpen, setPopoverOpen] = useState(false);
     const pluralString = tagTypeStrings[tagType].plural;
     return (
@@ -107,9 +106,11 @@ const SidebarTBGMenu = observer(({ tagType }) => {
 
                     <p>Sort {pluralString} by</p>
                     <Select.Root
-                        value={settingsStore.tagSortMethods[tagType]}
+                        value={tagSortMethods.value[tagType]}
                         className="rx-select"
-                        onValueChange={(option) => settingsStore.setTagSort(tagType, option)}
+                        onValueChange={(option) =>
+                            settingsStore.set(tagSortMethods, option, tagType)
+                        }
                     >
                         <Select.Trigger
                             className="rx-select-trigger"
@@ -122,9 +123,11 @@ const SidebarTBGMenu = observer(({ tagType }) => {
                         </Select.Trigger>
                         <Select.Content position="popper" className="rx-select-content">
                             <Select.Viewport>
-                                {Object.keys(TagSortOptions).map((option) => (
+                                {Object.keys(tagSortMethods.options).map((option) => (
                                     <Select.Item value={option} key={option}>
-                                        <Select.ItemText>{TagSortOptions[option]}</Select.ItemText>
+                                        <Select.ItemText>
+                                            {tagSortMethods.options[option]}
+                                        </Select.ItemText>
                                         <Select.ItemIndicator className="item-indicator">
                                             <MdCheck />
                                         </Select.ItemIndicator>
@@ -136,9 +139,9 @@ const SidebarTBGMenu = observer(({ tagType }) => {
                     <ToggleGroup.Root
                         type="single"
                         className="rx-toggle-group"
-                        value={settingsStore.tagSortDirection[tagType]}
+                        value={tagSortDirection.value[tagType]}
                         onValueChange={(option) =>
-                            settingsStore.setTagSortDirection(tagType, option)
+                            settingsStore.set(tagSortDirection, option, tagType)
                         }
                     >
                         <ToggleGroup.Item value="asc">Ascending</ToggleGroup.Item>
@@ -149,13 +152,15 @@ const SidebarTBGMenu = observer(({ tagType }) => {
                     <p>Selecting multiple {pluralString} will filter for games that</p>
                     <RadioGroup.Root
                         className="rx-radio-group"
-                        defaultValue={settingsStore.tagFilterLogic[tagType]}
-                        onValueChange={(option) => settingsStore.setTagFilterLogic(tagType, option)}
+                        defaultValue={tagFilterLogic.value[tagType]}
+                        onValueChange={(option) =>
+                            settingsStore.set(tagFilterLogic, option, tagType)
+                        }
                     >
-                        {Object.keys(TagFilterLogicOptions).map((option) => (
+                        {Object.keys(tagFilterLogic.options).map((option) => (
                             <label htmlFor={option} key={option}>
                                 <RadioGroup.Item value={option} id={option} autoFocus />
-                                {TagFilterLogicOptions[option]}
+                                {tagFilterLogic.options[option]}
                             </label>
                         ))}
                     </RadioGroup.Root>

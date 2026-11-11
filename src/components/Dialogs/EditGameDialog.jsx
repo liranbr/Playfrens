@@ -92,7 +92,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
         closeDialog();
     };
 
-    const includeMatureInSearch = settingsStore.toggleShowMatureContent;
+    const includeMatureInSearch = settingsStore.board.toggleShowMatureContent.value;
     const searchTitle = async (query, setResults) =>
         setResults(await searchTitleOnStore(query, storeType, includeMatureInSearch));
 

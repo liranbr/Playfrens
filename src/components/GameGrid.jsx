@@ -22,7 +22,7 @@ const GameCard = observer(({ game }) => {
     const [draggedOver, setDraggedOver] = useState(false);
     const filterStore = useFilterStore();
     const { draggedTag, hoveredTag } = filterStore;
-    const hoverTagSetting = useSettingsStore().tagHoverGameHighlight;
+    const hoverTagSetting = useSettingsStore().user.tagHoverGameHighlight.value;
     const { userInfo } = useUserStore();
     const { isOwner, isReadOnly } = useBoardStore();
 
@@ -121,7 +121,9 @@ function EmptyGridPlaceholder() {
 
 export const GamesGrid = observer(() => {
     const { filteredGames } = useFilterStore();
-    const { gamesGridCardWidth, toggleCompactGameGrid } = useSettingsStore();
+    const { user } = useSettingsStore();
+    const gamesGridCardWidth = user.gamesGridCardWidth.value;
+    const toggleCompactGameGrid = user.toggleCompactGameGrid.value;
 
     // useEffect to update the grid justification if there aren't enough items to fill the row
     const gridRef = useRef(null);

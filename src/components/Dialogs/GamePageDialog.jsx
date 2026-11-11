@@ -349,7 +349,7 @@ const PartyTabs = ({ game, partyID, setPartyID, renamePartyRef, readOnly }) => {
 export const GamePageDialog = observer(({ open, closeDialog, game, openOnPartyID }) => {
     const filterStore = useFilterStore();
     const settingsStore = useSettingsStore();
-    const storeGameButtonsClassname = settingsStore.toggleHideGameStoreButtons
+    const storeGameButtonsClassname = settingsStore.user.toggleHideGameStoreButtons.value
         ? " hide-unless-hover"
         : "";
     const firstPartyIDThatPassesFilters = () => {

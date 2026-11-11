@@ -260,6 +260,7 @@ export class Party {
      * @param {string} tag - The tag we want to remove.
      * @param {boolean} silent - Doesn't call toast or add to the history. Used on all games when deleting a tag from the DataStore, to avoid spamming toasts.
      * @returns `true` if removed successfully. `false` otherwise.
+     * @todo This function is called on ALL games when a tag is out right deleted, this should be checked more.
      */
     removeTag(tag, silent = false) {
         if (!(tag instanceof TagObject)) {
@@ -276,6 +277,7 @@ export class Party {
                 { gameLink: this.gameLink },
             );
         } else {
+            if (silent) return false;
             return toastError(
                 `${tag.name} is not a ${tag.typeStrings.single} for ${this.gameTitleWithParty}`,
             );

@@ -1,7 +1,32 @@
 import { createContext, useContext } from "react";
-import { autorun, makeAutoObservable } from "mobx";
-import { tagTypes } from "@/models";
-import { ACCOUNT_SETTINGS_KEYS, pickAccountSettings } from "#shared/accountSettings.js";
+import { UserSettings } from "./Settings/UserSettings.js";
+import { BoardSettings } from "./Settings/BoardSettings.js";
+
+/**
+ * @typedef {"toggle" | "dropdown" | "radio" | "slider"} settingType - Type of the setting.
+ */
+
+/**
+ * @typedef {Object} Range
+ * @property {number} min - Minimum value of this range.
+ * @property {number} max - Maximum value of this range.
+ * @property {number?} step - Default is 1, steps the current value by the step amount between min and max range.
+ */
+
+/** @typedef {{ [key: string]: string }} OptionList */
+
+/**
+ * @typedef SettingObject - Object setting holding all relevant rules of that setting.
+ * @property {number | string | boolean | Object<string, string>} [value] - Current value, filled from default by the SettingsStore. An object when keyed by tag type.
+ * @property {number | string | boolean | Object<string, string>} default - Default value.
+ * @property {string} title - Title of the setting.
+ * @property {string} description - Description of the setting.
+ * @property {string} [info] - Shown in an InfoIcon next to the title.
+ * @property {settingType} settingType - Type of the setting.
+ * @property {Range?} range - If {@link settingType} is set to "slider".
+ * @property {string} [unit] - Suffix of the slider's displayed value.
+ * @property {OptionList?} options - If {@link settingType} is set to "dropdown" and "radio".
+ */
 
 export const settingsStorageKey = "settings";
 

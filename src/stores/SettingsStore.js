@@ -32,78 +32,29 @@ import { BoardSettings } from "./Settings/BoardSettings.js";
 
 export const settingsStorageKey = "settings";
 
-export const TagHoverGameHighlightOptions = {
-    darken: "Darken games without",
-    highlight: "Highlight games with",
-    none: "None",
-};
-export const TagFilterLogicOptions = {
-    AND: "Have all",
-    OR: "Have at least one",
-};
-export const TagSortOptions = {
-    name: "Name",
-    countFiltered: "Game Count (Filtered)",
-    countTotal: "Game Count (Total)",
-    custom: "Custom (drag to rearrange)",
-};
-export const GameSortOptions = {
-    title: "Title",
-};
-export const SortDirectionOptions = {
-    asc: "Ascending",
-    desc: "Descending",
-};
-export const TagGameCounterOptions = {
-    countFiltered: "Game Count (of filtered)",
-    countTotal: "Game Count (of total)",
-    none: "None",
-};
-export const FriendIconDisplayOptions = {
-    hideMissing: "Hide Missing",
-    hide: "Hide All",
-    showAll: "Show All",
-};
-export const ReduceMotionOptions = {
-    system: "Match System",
-    on: "On",
-    off: "Off",
-};
-export const GamesGridCardWidthRange = { min: 140, max: 320, step: 10 };
-export const FontSizeRange = { min: 75, max: 125, step: 5 }; // in % of the browser default
-
-export const SettingsDefaults = {
-    tagFilterLogic: {
-        [tagTypes.friend]: "AND",
-        [tagTypes.category]: "OR",
-        [tagTypes.status]: "OR",
-    },
-    tagSortMethods: {
-        [tagTypes.friend]: "name",
-        [tagTypes.category]: "custom",
-        [tagTypes.status]: "custom",
-    },
-    tagSortDirection: {
-        [tagTypes.friend]: "asc",
-        [tagTypes.category]: "asc",
-        [tagTypes.status]: "asc",
-    },
-    gameSortMethod: "title",
-    gameSortDirection: "asc",
-    fontSize: 100,
-    reduceMotion: "system",
-    tagHoverGameHighlight: "darken",
-    tagGameCounterDisplay: "countFiltered",
-    friendIconDisplay: "hideMissing",
-    toggleCompactGameGrid: false, // spacing between game cards
-    gamesGridCardWidth: 210, // in px
-    toggleHideGameStoreButtons: false,
-    toggleShowMatureContent: false,
-};
-
 const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 const clone = (value) => structuredClone(toJS(value));
+const isKeyedByTagType = (setting) => typeof setting.default === "object";
+const toValues = (group) =>
+    Object.fromEntries(Object.entries(group).map(([key, setting]) => [key, toJS(setting.value)]));
+
+/** Returns the value normalized for the setting's type, or undefined if it's invalid. */
+function validate(setting, value) {
+    switch (setting.settingType) {
+        case "toggle":
+            return typeof value === "boolean" ? value : undefined;
+        case "dropdown":
+        case "radio":
+            return Object.hasOwn(setting.options, value) ? value : undefined;
+        case "slider": {
+            const number = Number(value);
+            if (!Number.isFinite(number)) return undefined;
+            const { min, max } = setting.range;
+            return Math.min(max, Math.max(min, number));
+        }
+    }
+}
 
 class SettingsStore {
     /** Settings on the user level. */
@@ -124,99 +75,64 @@ class SettingsStore {
         });
     }
 
-    populate(settings = {}) {
-        Object.assign(this, settings);
+    /** Verify the about to be set setting's value. Pass subKey for settings keyed by the tag type. */
+    set(setting, value, subKey) {
+        const valid = validate(setting, value);
+        if (valid === undefined) return console.warn(`Invalid "${setting.title}" value: ${value}`);
+
+        if (subKey === undefined) setting.value = valid;
+        else setting.value[subKey] = valid;
     }
 
-    populateAccountSettings(settings) {
-        this.populate(pickAccountSettings(settings) ?? {});
+    reset(setting) {
+        setting.value = clone(setting.default);
     }
 
-    // Board data may still hold account keys from before they moved to the account
-    populateBoardSettings(settings = {}) {
-        const boardOnly = { ...settings };
-        for (const key of ACCOUNT_SETTINGS_KEYS) delete boardOnly[key];
-        this.populate(boardOnly);
+    isDefault(setting) {
+        return comparer.structural(setting.value, setting.default);
     }
 
-    get accountSettings() {
-        return Object.fromEntries(ACCOUNT_SETTINGS_KEYS.map((key) => [key, this[key]]));
+    populateUserSettings(values) {
+        this.#populate(this.user, values);
     }
 
-    get boardSettings() {
-        const settings = JSON.parse(JSON.stringify(this));
-        for (const key of ACCOUNT_SETTINGS_KEYS) delete settings[key];
-        return settings;
+    populateBoardSettings(values) {
+        this.#populate(this.board, values);
+    }
+
+    /** Flat { key: value } object */
+    get userValues() {
+        return toValues(this.user);
+    }
+
+    /** Flat { key: value } object */
+    get boardValues() {
+        return toValues(this.board);
     }
 
     /** Checks if there's Motion Reduction enabled, use this call when CSS motion is handled inside JS */
     isMotionReduced() {
-        if (this.reduceMotion === "system") return reducedMotionQuery.matches;
-        return this.reduceMotion === "on";
+        const { value } = this.user.reduceMotion;
+        if (value === "system") return reducedMotionQuery.matches;
+        return value === "on";
     }
 
-    setReduceMotion(option) {
-        if (ReduceMotionOptions[option]) this.reduceMotion = option;
-        else console.warn(`Invalid ReduceMotion option: ${option}`);
-    }
-
-    setFontSize(percent) {
-        const { min, max } = FontSizeRange;
-        this.fontSize = Math.min(max, Math.max(min, Number(percent)));
-    }
-
-    setTagHoverGameHighlight(option) {
-        if (TagHoverGameHighlightOptions[option]) this.tagHoverGameHighlight = option;
-        else console.warn(`Invalid TagHoverGameHighlight option: ${option}`);
-    }
-
-    setTagFilterLogic(tagType, option) {
-        if (TagFilterLogicOptions[option]) this.tagFilterLogic[tagType] = option;
-        else console.warn(`Invalid TagFilterLogic option for ${tagType}: ${option}`);
-    }
-
-    setTagSort(tagType, option) {
-        if (TagSortOptions[option]) this.tagSortMethods[tagType] = option;
-        else console.warn(`Invalid TagSortMethod option for ${tagType}: ${option}`);
-    }
-
-    setTagSortDirection(tagType, option) {
-        if (SortDirectionOptions[option]) this.tagSortDirection[tagType] = option;
-        else console.warn(`Invalid TagSortDirection option for ${tagType}: ${option}`);
-    }
-
-    setTagGameCounterDisplay(option) {
-        if (TagGameCounterOptions[option]) this.tagGameCounterDisplay = option;
-        else console.warn(`Invalid TagGameCounterDisplay option: ${option}`);
-    }
-
-    setToggleHideGameStoreButtons(option) {
-        if (typeof option === "boolean") this.toggleHideGameStoreButtons = option;
-        else console.warn(`Invalid HideGameStoreButtons option: ${option}`);
-    }
-
-    setToggleShowMatureContent(option) {
-        if (typeof option === "boolean") this.toggleShowMatureContent = option;
-        else console.warn(`Invalid ShowMatureContent option: ${option}`);
-    }
-
-    setFriendIconDisplay(option) {
-        if (FriendIconDisplayOptions[option]) this.friendIconDisplay = option;
-        else console.warn(`Invalid FriendIconDisplay option: ${option}`);
-    }
-
-    setToggleCompactGameGrid(option) {
-        if (typeof option === "boolean") this.toggleCompactGameGrid = option;
-        else console.warn(`Invalid GamesGridDensity option: ${option}`);
-    }
-
-    setGamesGridCardWidth(width) {
-        const { min, max } = GamesGridCardWidthRange;
-        this.gamesGridCardWidth = Math.min(max, Math.max(min, Number(width)));
+    // Only reads the group's own keys, so stale keys in saved data are ignored
+    #populate(group, values) {
+        if (!values || typeof values !== "object") return;
+        for (const [key, setting] of Object.entries(group)) {
+            const value = values[key];
+            if (value === undefined) continue;
+            if (!isKeyedByTagType(setting)) this.set(setting, value);
+            else if (value && typeof value === "object") {
+                for (const subKey of Object.keys(setting.default))
+                    if (value[subKey] !== undefined) this.set(setting, value[subKey], subKey);
+            }
+        }
     }
 }
 
-const settingsStore = new SettingsStore(); // After creation, settings are populated by userStore from the board
+const settingsStore = new SettingsStore(); // After creation, settings are populated by userStore and the active board
 // Prefer to use the context version in components, for expanded functionality in the future
 // but the global version is available for non-component uses
 const SettingsStoreContext = createContext(settingsStore);

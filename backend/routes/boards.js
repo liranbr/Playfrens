@@ -25,6 +25,7 @@ import {
 } from "../auth/guestLoginLinks.js";
 import { destroyUserSessions } from "../auth/SupabaseSessionStore.js";
 import { broadcastToBoard, closeUserSockets } from "../ws/boardSocket.js";
+import validator from "validator";
 
 // Lists boards the caller can access, their own plus any they've joined.
 async function listBoards(req, res) {
@@ -147,7 +148,7 @@ async function renameBoard(req, res) {
     }
 
     const trimmed = name.trim();
-    if (validator.isLength(trimmed, { max: STRING_LIMITS.BOARD_NAME })) {
+    if (!validator.isLength(trimmed, { max: STRING_LIMITS.BOARD_NAME })) {
         return Response.send(res, BAD_REQUEST, {
             error: `Board Name length longer than ${STRING_LIMITS.BOARD_NAME}.`,
         });
@@ -776,4 +777,3 @@ router.delete(
 );
 
 export default router;
-

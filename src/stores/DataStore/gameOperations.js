@@ -108,6 +108,7 @@ export function addGame(
     storeType,
     storeID,
     sgdbID,
+    isAdult,
 ) {
     if (!title) {
         toastError("Cannot save a game without a title");
@@ -153,6 +154,7 @@ export function addGame(
         storeType: storeType,
         storeID: storeID,
         sgdbID: sgdbID,
+        isAdult: isAdult,
     });
     if (store.allGames.has(newGame.id))
         throw new Error(`What do you MEAN this uuid (${newGame.id}) already exists`);
@@ -259,6 +261,7 @@ export function editGame(
     storeType,
     storeID,
     sgdbID,
+    isAdult,
 ) {
     // Editing needs to be in the DataStore rather than the object itself, to prevent duplicate names
     if (!(game instanceof GameObject)) return toastError("Invalid game object: " + game);
@@ -300,6 +303,7 @@ export function editGame(
     storedGame.storeType = storeType;
     storedGame.storeID = storeID;
     storedGame.sgdbID = sgdbID;
+    storedGame.isAdult = isAdult;
     const options = { gameLink: { gameID: storedGame.id } };
     if (oldTitle !== title)
         return toastSuccess(`Updated ${oldTitle} to ${storedGame.title}`, "", options);
@@ -314,3 +318,4 @@ export function sortGamesByMethod(store, sortMethod, isDescending) {
     // Needs to be runInAction because used by reaction, which seems to lose binding otherwise
     runInAction(() => store.allGames.replace(entriesArray));
 }
+

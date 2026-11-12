@@ -531,6 +531,7 @@ export class DataStore {
         storeType,
         storeID,
         sgdbID,
+        isAdult,
     ) {
         return addGame(
             this,
@@ -542,6 +543,7 @@ export class DataStore {
             storeType,
             storeID,
             sgdbID,
+            isAdult,
         );
     }
 
@@ -567,6 +569,7 @@ export class DataStore {
         storeType,
         storeID,
         sgdbID,
+        isAdult,
     ) {
         return editGame(
             this,
@@ -579,6 +582,7 @@ export class DataStore {
             storeType,
             storeID,
             sgdbID,
+            isAdult,
         );
     }
 
@@ -642,3 +646,4 @@ export function restoreFromFile(file) {
 // ‖ FIRST VISIT DEFAULT TAGS ‖
 // #==========================#
 seedFirstVisitDefaults(dataStore);
+

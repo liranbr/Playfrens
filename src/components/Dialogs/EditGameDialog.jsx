@@ -28,6 +28,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
     const [storeType, setStoreType] = useState(game?.storeType ?? "steam");
     const [storeID, setStoreID] = useState(game?.storeID ?? "");
     const [sgdbID, setSgdbID] = useState(game?.sgdbID ?? "");
+    const [isAdult, setIsAdult] = useState(game?.isAdult ?? false);
     const [sgdbTitle, setSgdbTitle] = useState("");
     const [advancedView, setAdvancedView] = useState(false);
 
@@ -35,7 +36,9 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
     const dialogTitle = isEditing ? "Edit Game Details" : "Add Game";
     const dialogDescription = isEditing ? `Editing ${game.title}` : "Adding a new game";
     const titlePlaceholder =
-        storeType === storeTypes.custom ? "Enter title" : `Search for a ${storeDisplayNames[storeType]} game`;
+        storeType === storeTypes.custom
+            ? "Enter title"
+            : `Search for a ${storeDisplayNames[storeType]} game`;
 
     const handleSave = async () => {
         if (isEditing) {
@@ -49,6 +52,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                 storeType,
                 storeID,
                 sgdbID,
+                isAdult,
             );
             if (editedSuccess) closeDialog();
         } else {
@@ -61,6 +65,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                 storeType,
                 storeID,
                 sgdbID,
+                isAdult,
             );
             if (newGame) {
                 globalDialogStore.insertPrevious(Dialogs.GamePage, { game: newGame });
@@ -143,7 +148,9 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                                     }}
                                 >
                                     {Object.entries(storeDisplayNames)
-                                        .filter(([key]) => [storeTypes.steam, storeTypes.custom].includes(key)) // other store types not supported yet
+                                        .filter(([key]) =>
+                                            [storeTypes.steam, storeTypes.custom].includes(key),
+                                        ) // other store types not supported yet
                                         .map(([key, value]) => (
                                             <ToggleGroup.Item key={key} value={key}>
                                                 {value}
@@ -189,6 +196,16 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                             )}
                             {advancedView && storeType !== storeTypes.custom && (
                                 <>
+                                    <label>
+                                        Adult Game
+                                        <InfoIcon message="Flag a game who's main theme focuses on sexual content." />
+                                    </label>
+                                    <input
+                                        type="checkbox"
+                                        value={isAdult}
+                                        onChange={(e) => setIsAdult(e.target.value)}
+                                        onKeyDown={saveOnEnter}
+                                    />
                                     <label style={{ color: "#777" }}>
                                         {storeDisplayNames[storeType] + " Game ID"}
                                     </label>

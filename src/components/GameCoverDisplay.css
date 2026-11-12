@@ -27,7 +27,7 @@
 }
 
 img.blur {
-    filter: blur(0.5rem);
+    filter: blur(1rem);
     &:hover {
         filter: none;
     }

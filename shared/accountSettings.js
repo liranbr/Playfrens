@@ -11,6 +11,7 @@ export const ACCOUNT_SETTINGS_KEYS = [
     "toggleMatureContent",
 ];
 
+/** Returns true if the value is string, boolean or number. */
 const isValidValue = (value) => {
     return (
         typeof value === "string" ||

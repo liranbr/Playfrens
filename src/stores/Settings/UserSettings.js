@@ -1,6 +1,7 @@
 /** @typedef {import("../SettingsStore.js").SettingObject} SettingObject */
 
-/** Saved per account. Keys must match ACCOUNT_SETTINGS_KEYS in shared/accountSettings.js */
+/** @typedef {import("#shared/accountSettings.js").ACCOUNT_SETTINGS_KEYS} ACCOUNT_SETTINGS_KEYS */
+/** Saved per account. Keys must match {@link ACCOUNT_SETTINGS_KEYS} */
 class UserSettings {
     /** @type {SettingObject} */
     tagHoverGameHighlight = {

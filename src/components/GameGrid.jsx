@@ -25,7 +25,8 @@ const GameCard = observer(({ game }) => {
     const hoverTagSetting = useSettingsStore().user.tagHoverGameHighlight.value;
     const { userInfo } = useUserStore();
     const { isOwner, isReadOnly } = useBoardStore();
-
+    const { user } = useSettingsStore();
+    const isAdult = user.hideMatureContent.value && game.isAdult;
     const hasPartyWithoutTag = (tag) => game.parties.some((party) => !party.hasTag(tag));
     const allPartiesHaveTag = (tag) => !hasPartyWithoutTag(tag);
 
@@ -83,7 +84,7 @@ const GameCard = observer(({ game }) => {
                 }}
                 onDragLeave={() => setDraggedOver(false)}
             >
-                <GameCoverDisplay src={game.coverThumbURL} />
+                <GameCoverDisplay src={game.coverThumbURL} class={isAdult ? "blur" : ""} />
                 <p className="game-card-title-overlay">{game.title}</p>
                 {game.isAdult && (
                     <SimpleTooltip message="Explicit content" delayDuration={0}>
@@ -124,7 +125,6 @@ export const GamesGrid = observer(() => {
     const { user } = useSettingsStore();
     const gamesGridCardWidth = user.gamesGridCardWidth.value;
     const toggleCompactGameGrid = user.toggleCompactGameGrid.value;
-    const toggleMatureContent = user.toggleMatureContent.value;
 
     // useEffect to update the grid justification if there aren't enough items to fill the row
     const gridRef = useRef(null);
@@ -143,10 +143,9 @@ export const GamesGrid = observer(() => {
         window.addEventListener("resize", updateGridJustification);
         return () => window.removeEventListener("resize", updateGridJustification);
         // card size/density change how games wrap into rows, so it needs rechecking too
-    }, [filteredGames, gamesGridCardWidth, toggleCompactGameGrid, toggleMatureContent]);
+    }, [filteredGames, gamesGridCardWidth, toggleCompactGameGrid]);
 
     const densityClass = toggleCompactGameGrid ? " density-compact" : "";
-    const blurClass = toggleMatureContent ? " blur" : "";
     return (
         <div className={"games-grid-container" + densityClass}>
             <div

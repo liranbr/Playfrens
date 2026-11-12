@@ -8,7 +8,7 @@ export const ACCOUNT_SETTINGS_KEYS = [
     "toggleCompactGameGrid",
     "gamesGridCardWidth",
     "toggleHideGameStoreButtons",
-    "toggleMatureContent",
+    "hideMatureContent",
 ];
 
 /** Returns true if the value is string, boolean or number. */
@@ -30,3 +30,4 @@ export function pickAccountSettings(settings) {
     }
     return picked;
 }
+

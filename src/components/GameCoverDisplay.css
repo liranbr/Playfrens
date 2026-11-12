@@ -25,3 +25,10 @@
     object-fit: cover;
     border-radius: inherit;
 }
+
+img.blur {
+    filter: blur(0.5rem);
+    &:hover {
+        filter: none;
+    }
+}

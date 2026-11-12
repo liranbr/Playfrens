@@ -19,6 +19,7 @@ export const AppearanceTab = observer(() => {
                 <Setting setting={user.gamesGridCardWidth} />
                 <Setting setting={user.toggleCompactGameGrid} />
                 <Setting setting={user.toggleHideGameStoreButtons} />
+                <Setting setting={user.toggleMatureContent} />
             </Section>
 
             <Section title="Accessability">

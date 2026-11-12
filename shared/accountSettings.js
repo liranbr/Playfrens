@@ -8,6 +8,7 @@ export const ACCOUNT_SETTINGS_KEYS = [
     "toggleCompactGameGrid",
     "gamesGridCardWidth",
     "toggleHideGameStoreButtons",
+    "toggleMatureContent",
 ];
 
 const isValidValue = (value) => {

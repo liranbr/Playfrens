@@ -68,6 +68,13 @@ class UserSettings {
         settingType: "toggle",
     };
 
+    toggleMatureContent = {
+        default: false,
+        title: "Show Mature Content",
+        description: "Make games that are marked as Adult content visible instead of being blured.",
+        settingType: "toggle",
+    };
+
     /** @type {SettingObject} */
     fontSize = {
         default: 100,

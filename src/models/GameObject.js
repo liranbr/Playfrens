@@ -42,6 +42,8 @@ export class GameObject {
     sgdbID = "";
     /** Whether the game is flagged as explicit/adult-only content. This is hidden from the games grid unless the "Show Explicit Content" setting is on. */
     isAdult = false;
+    /** Whether the selected cover is marked NSFW by SteamGridDB, independent of isAdult. */
+    coverIsAdult = false;
     /** the Parties/Groups/Playthroughs in a game, each containing TagIDs, Note, Reminders etc. */
     parties = [new Party({ name: "Group 1" })];
 
@@ -56,6 +58,7 @@ export class GameObject {
         storeID,
         sgdbID,
         isAdult,
+        coverIsAdult,
         parties,
         id,
     }) {
@@ -68,6 +71,7 @@ export class GameObject {
         this.storeID = storeID ?? this.storeID;
         this.sgdbID = sgdbID ?? this.sgdbID;
         this.isAdult = isAdult ?? this.isAdult;
+        this.coverIsAdult = coverIsAdult ?? this.coverIsAdult;
         this.parties = parties ?? this.parties;
         this.id = id ?? randomUUID();
         makeAutoObservable(this);
@@ -96,6 +100,7 @@ export class GameObject {
         this.storeID = json.storeID ?? this.storeID;
         this.sgdbID = json.sgdbID ?? this.sgdbID;
         this.isAdult = json.isAdult ?? this.isAdult;
+        this.coverIsAdult = json.coverIsAdult ?? this.coverIsAdult;
         this.#patchParties(json.parties ?? []);
     }
 

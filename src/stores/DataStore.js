@@ -532,6 +532,7 @@ export class DataStore {
         storeID,
         sgdbID,
         isAdult,
+        coverIsAdult,
     ) {
         return addGame(
             this,
@@ -544,6 +545,7 @@ export class DataStore {
             storeID,
             sgdbID,
             isAdult,
+            coverIsAdult,
         );
     }
 
@@ -570,6 +572,7 @@ export class DataStore {
         storeID,
         sgdbID,
         isAdult,
+        coverIsAdult,
     ) {
         return editGame(
             this,
@@ -583,6 +586,7 @@ export class DataStore {
             storeID,
             sgdbID,
             isAdult,
+            coverIsAdult,
         );
     }
 

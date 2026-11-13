@@ -109,6 +109,7 @@ export function addGame(
     storeID,
     sgdbID,
     isAdult,
+    coverIsAdult,
 ) {
     if (!title) {
         toastError("Cannot save a game without a title");
@@ -155,6 +156,7 @@ export function addGame(
         storeID: storeID,
         sgdbID: sgdbID,
         isAdult: isAdult,
+        coverIsAdult: coverIsAdult,
     });
     if (store.allGames.has(newGame.id))
         throw new Error(`What do you MEAN this uuid (${newGame.id}) already exists`);
@@ -262,6 +264,7 @@ export function editGame(
     storeID,
     sgdbID,
     isAdult,
+    coverIsAdult,
 ) {
     // Editing needs to be in the DataStore rather than the object itself, to prevent duplicate names
     if (!(game instanceof GameObject)) return toastError("Invalid game object: " + game);
@@ -304,6 +307,7 @@ export function editGame(
     storedGame.storeID = storeID;
     storedGame.sgdbID = sgdbID;
     storedGame.isAdult = isAdult;
+    storedGame.coverIsAdult = coverIsAdult;
     const options = { gameLink: { gameID: storedGame.id } };
     if (oldTitle !== title)
         return toastSuccess(`Updated ${oldTitle} to ${storedGame.title}`, "", options);

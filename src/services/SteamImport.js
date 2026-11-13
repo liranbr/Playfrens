@@ -168,8 +168,11 @@ export async function fetchSteamImportData(
             singleplayer: !item.categories?.supported_player_categoryids?.includes(1),
             unreleased: item.is_coming_soon === true,
             isAdult:
-                item.content_descriptorids?.includes(ContentDescriptor.ADULT_ONLY_SEXUAL_CONTENT) ??
-                false,
+                item.content_descriptorids?.some(
+                    (id) =>
+                        id === ContentDescriptor.ADULT_ONLY_SEXUAL_CONTENT ||
+                        id === ContentDescriptor.FREQUENT_NUDITY_OR_SEXUAL_CONTENT,
+                ) ?? false,
         }));
     }
 

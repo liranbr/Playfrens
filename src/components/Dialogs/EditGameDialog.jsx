@@ -89,6 +89,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
         setStoreType(selectedOption.storeType);
         setStoreID(selectedOption.storeID);
 
+        if (selectedOption.storeType === storeTypes.steam) setIsAdult(selectedOption.isAdult);
         if (selectedOption.storeType === storeTypes.custom) {
             setSgdbID(selectedOption.sgdbID);
             setSgdbTitle(selectedOption.sgdbTitle);

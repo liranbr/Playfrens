@@ -37,6 +37,7 @@ export async function searchTitleOnStore(title, storeType, includeMature = false
                 title: item.name,
                 storeType: storeTypes.steam,
                 storeID: item.appid,
+                isAdult: item.is_adult === true,
             }));
             break;
         case storeTypes.custom:

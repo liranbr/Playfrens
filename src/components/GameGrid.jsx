@@ -86,8 +86,11 @@ const GameCard = observer(({ game }) => {
             >
                 <GameCoverDisplay src={game.coverThumbURL} className={blurCover ? "blur" : ""} />
                 <p className="game-card-title-overlay">{game.title}</p>
-                {game.isAdult && (
-                    <SimpleTooltip message="Explicit content" delayDuration={0}>
+                {(game.isAdult || game.coverIsAdult) && (
+                    <SimpleTooltip
+                        message={game.isAdult ? "Explicit content" : "Explicit cover"}
+                        delayDuration={0}
+                    >
                         <MdExplicit className="explicit-content-badge" />
                     </SimpleTooltip>
                 )}

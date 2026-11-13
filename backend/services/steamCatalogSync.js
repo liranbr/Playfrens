@@ -119,7 +119,7 @@ export async function syncSteamAppList({ onPage, sinceUnixSeconds } = {}) {
 
 /**
  * Fetches per-app data to classify `type` (see AppType above) and `content_descriptorids`
- * (Steam's own mature-content tags, e.g. `[1,2,5]` — descriptor 3 is what search filters on).
+ * (Steam's own mature-content tags, e.g. `[1,2,5]` but descriptors 3 and 4 are what search filters on).
  * @param {number[]} appids
  */
 async function fetchItemTypes(appids) {

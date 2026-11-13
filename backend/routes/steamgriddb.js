@@ -6,7 +6,7 @@ import { strToBool } from "../utils.js";
 
 const client = new SGDB(process.env.STEAMGRIDDB_API_KEY);
 
-/** from a sgdbID, and optional animatedOnly and nsfw params, returns sgdb grids{url, thumb} */
+/** from a sgdbID, and optional animatedOnly and nsfw params, returns sgdb grids{url, thumb, nsfw} */
 async function getGrids(req, res) {
     const { sgdbID, nsfw = "false", animatedOnly = "false" } = req.query;
     const { NOT_FOUND, OK } = Response.HttpStatus;
@@ -26,7 +26,7 @@ async function getGrids(req, res) {
     }
     if (!grids.length)
         return Response.sendMessage(res, NOT_FOUND, `No grids were found for this game.`);
-    const result = grids.map((grid) => ({ url: grid.url, thumb: grid.thumb }));
+    const result = grids.map((grid) => ({ url: grid.url, thumb: grid.thumb, nsfw: !!grid.nsfw }));
 
     Response.send(res, OK, result);
 }

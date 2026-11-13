@@ -27,7 +27,8 @@
 }
 
 .game-cover-display.blur {
-    filter: blur(1rem);
+    --cover-blur: blur(1rem);
+    filter: var(--cover-blur);
     &:hover {
         filter: none;
     }

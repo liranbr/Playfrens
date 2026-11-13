@@ -125,7 +125,7 @@
             box-shadow 0.3s ease 0.8s; /* delay on appearance, not disappearance */
     }
     &.darken img {
-        filter: brightness(0.5) grayscale(1);
+        filter: var(--cover-blur, blur(0)) brightness(0.5) grayscale(1);
         transition: filter 0.3s ease 0.8s; /* longer delay on appearance */
     }
     .drag-indicator {
@@ -145,7 +145,7 @@
 
     &.doesnt-have-dragged-tag {
         img {
-            filter: brightness(0.5) grayscale(1);
+            filter: var(--cover-blur, blur(0)) brightness(0.5) grayscale(1);
             transition: none;
         }
         .drag-indicator {
@@ -153,7 +153,7 @@
         }
         &.dragged-over {
             img {
-                filter: brightness(0.75) grayscale(0.33);
+                filter: var(--cover-blur, blur(0)) brightness(0.75) grayscale(0.33);
                 transition: 0.3s;
             }
             .drag-indicator {

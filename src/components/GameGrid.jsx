@@ -26,7 +26,7 @@ const GameCard = observer(({ game }) => {
     const { userInfo } = useUserStore();
     const { isOwner, isReadOnly } = useBoardStore();
     const { user } = useSettingsStore();
-    const isAdult = user.hideMatureContent.value && game.isAdult;
+    const blurCover = user.hideMatureContent.value && (game.isAdult || game.coverIsAdult);
     const hasPartyWithoutTag = (tag) => game.parties.some((party) => !party.hasTag(tag));
     const allPartiesHaveTag = (tag) => !hasPartyWithoutTag(tag);
 
@@ -84,7 +84,7 @@ const GameCard = observer(({ game }) => {
                 }}
                 onDragLeave={() => setDraggedOver(false)}
             >
-                <GameCoverDisplay src={game.coverThumbURL} class={isAdult ? "blur" : ""} />
+                <GameCoverDisplay src={game.coverThumbURL} className={blurCover ? "blur" : ""} />
                 <p className="game-card-title-overlay">{game.title}</p>
                 {game.isAdult && (
                     <SimpleTooltip message="Explicit content" delayDuration={0}>

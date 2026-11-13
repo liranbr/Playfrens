@@ -29,6 +29,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
     const [storeID, setStoreID] = useState(game?.storeID ?? "");
     const [sgdbID, setSgdbID] = useState(game?.sgdbID ?? "");
     const [isAdult, setIsAdult] = useState(game?.isAdult ?? false);
+    const [coverIsAdult, setCoverIsAdult] = useState(game?.coverIsAdult ?? false);
     const [sgdbTitle, setSgdbTitle] = useState("");
     const [advancedView, setAdvancedView] = useState(false);
 
@@ -53,6 +54,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                 storeID,
                 sgdbID,
                 isAdult,
+                coverIsAdult,
             );
             if (editedSuccess) closeDialog();
         } else {
@@ -66,6 +68,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                 storeID,
                 sgdbID,
                 isAdult,
+                coverIsAdult,
             );
             if (newGame) {
                 globalDialogStore.insertPrevious(Dialogs.GamePage, { game: newGame });
@@ -112,6 +115,8 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                 setCoverThumbURL,
                 coverIsOfficial,
                 setCoverIsOfficial,
+                coverIsAdult,
+                setCoverIsAdult,
                 sortingTitle,
                 setSortingTitle,
                 storeType,
@@ -194,18 +199,24 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                                     />
                                 </>
                             )}
-                            {advancedView && storeType !== storeTypes.custom && (
+                            {advancedView && (
                                 <>
                                     <label>
                                         Adult Game
-                                        <InfoIcon message="Flag a game who's main theme focuses on sexual content." />
+                                        <InfoIcon message="Flag a game whose main theme focuses on sexual content." />
                                     </label>
-                                    <input
-                                        type="checkbox"
-                                        value={isAdult}
-                                        onChange={(e) => setIsAdult(e.target.value)}
-                                        onKeyDown={saveOnEnter}
-                                    />
+                                    <Switch.Root
+                                        className="rx-switch"
+                                        id="adult-game-switch"
+                                        checked={isAdult}
+                                        onCheckedChange={setIsAdult}
+                                    >
+                                        <Switch.Thumb />
+                                    </Switch.Root>
+                                </>
+                            )}
+                            {advancedView && storeType !== storeTypes.custom && (
+                                <>
                                     <label style={{ color: "#777" }}>
                                         {storeDisplayNames[storeType] + " Game ID"}
                                     </label>
@@ -246,6 +257,7 @@ function CoverSelector({ saveOnEnter }) {
         // coverThumbURL,
         setCoverThumbURL,
         setCoverIsOfficial,
+        setCoverIsAdult,
         storeType,
         storeID,
         setSgdbID,
@@ -327,6 +339,7 @@ function CoverSelector({ saveOnEnter }) {
                                 setCoverThumbURL(e.target.value);
                                 setCoverImageURL(e.target.value);
                                 setCoverIsOfficial(false);
+                                setCoverIsAdult(false);
                             }}
                             onKeyDown={saveOnEnter}
                             placeholder="Choose a cover, or manually enter URL"
@@ -360,13 +373,22 @@ function CoversGallery({
         coverThumbURL,
         setCoverThumbURL,
         setCoverIsOfficial,
+        coverIsAdult,
+        setCoverIsAdult,
         storeType,
         storeID,
         sgdbID,
         sgdbTitle,
     } = useContext(GameEntryContext);
+    const { board, user } = useSettingsStore();
+    const blurNsfwCovers = user.hideMatureContent.value;
     const currentCoverImage = () => {
-        return { url: coverImageURL, thumb: coverThumbURL, previousSelection: true };
+        return {
+            url: coverImageURL,
+            thumb: coverThumbURL,
+            nsfw: coverIsAdult,
+            previousSelection: true,
+        };
     };
     const [images, setImages] = useState(coverImageURL ? [currentCoverImage()] : []);
 
@@ -387,6 +409,7 @@ function CoversGallery({
 
         const params = new URLSearchParams({ sgdbID });
         if (animatedOnly) params.append("animatedOnly", "true");
+        if (board.toggleShowMatureContent.value) params.append("nsfw", "any");
 
         const sgdbReq = fetch(`/api/steamgriddb/getGrids?${params}`).then((res) => {
             if (!res.ok) {
@@ -412,6 +435,7 @@ function CoversGallery({
                         setCoverImageURL(officialCoverImage.url);
                         setCoverThumbURL(officialCoverImage.thumb);
                         setCoverIsOfficial(true);
+                        setCoverIsAdult(false);
                     } else if (coverImageURL === officialCoverImage.url) {
                         officialCoverImage.previousSelection = true;
                         setCoverIsOfficial(true);
@@ -451,10 +475,12 @@ function CoversGallery({
                     <div key={cover.url} className={classes.join(" ")}>
                         <GameCoverDisplay
                             src={cover.thumb}
+                            className={blurNsfwCovers && cover.nsfw ? "blur" : ""}
                             onClick={() => {
                                 setCoverThumbURL(cover.thumb);
                                 setCoverImageURL(cover.url);
                                 setCoverIsOfficial(cover.officialOf === sgdbID);
+                                setCoverIsAdult(cover.nsfw === true);
                             }}
                         />
                     </div>

@@ -3,7 +3,6 @@ import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import "./GameCoverDisplay.css";
 import { Spinner } from "@/components/common/Spinner.jsx";
-import { useSettingsStore } from "@/stores";
 
 export const GameCoverDisplay = observer(
     ({ src, className = "", skeleton = true, spinner = false, ...rest }) => {

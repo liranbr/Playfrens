@@ -1,5 +1,5 @@
 # -------- Build Stage --------
-FROM node:20-alpine AS build
+FROM node:22-alpine AS build
 WORKDIR /app
 
 # Install build tools (needed to compile some deps during npm install)
@@ -19,7 +19,7 @@ RUN npm run build
 
 
 # -------- Backend Stage --------
-FROM node:20-alpine AS backend-build
+FROM node:22-alpine AS backend-build
 WORKDIR /app
 
 # Install build tools for backend install
@@ -45,7 +45,7 @@ RUN apk del python3 make g++
 
 
 # -------- Final Runtime Stage --------
-FROM node:20-alpine
+FROM node:22-alpine
 WORKDIR /app
 ENV NODE_ENV=production
 

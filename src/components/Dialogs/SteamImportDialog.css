@@ -1,6 +1,6 @@
 .rx-dialog.steam-import-dialog {
     width: 600px;
-    font-size: 16px;
+    font-size: 1rem;
 
     [aria-invalid="true"] {
         outline: 3px solid red !important;
@@ -9,16 +9,16 @@
         outline-offset: 2px;
     }
     .separator {
-        margin: 8px 0 12px;
+        margin: 0.5rem 0 0.75rem;
     }
 }
 
 input#SteamIDInput {
-    margin-bottom: 4px;
+    margin-bottom: 0.25rem;
 }
 
 .steam-privacy-instructions {
-    font-size: 14px;
+    font-size: 0.875rem;
     line-height: 1.5;
     height: 64px; /* 3 lines of 14px * 1.5 line-height */
     overflow: hidden;
@@ -30,7 +30,7 @@ input#SteamIDInput {
 }
 
 .link-like.expander {
-    font-size: 14px !important;
+    font-size: 0.875rem !important;
     font-weight: 500;
     opacity: 0.75;
 }
@@ -38,7 +38,7 @@ input#SteamIDInput {
 .steam-last-sync {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 0.75rem;
 
     .rx-avatar {
         width: 48px;
@@ -53,7 +53,7 @@ input#SteamIDInput {
 
         a {
             color: inherit;
-            font-size: 16px;
+            font-size: 1rem;
             text-decoration: none;
             &:hover {
                 text-decoration: underline;
@@ -66,8 +66,8 @@ input#SteamIDInput {
 }
 
 .steam-last-sync-divider {
-    font-size: 13px;
+    font-size: 0.8125rem;
     opacity: 0.6;
     text-align: center;
-    margin-bottom: 12px;
+    margin-bottom: 0.75rem;
 }

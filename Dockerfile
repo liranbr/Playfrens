@@ -1,5 +1,5 @@
 # -------- Build Stage --------
-FROM node:20-alpine AS build
+FROM node:22-alpine AS build
 WORKDIR /app
 
 # Install build tools (needed to compile some deps during npm install)
@@ -14,12 +14,12 @@ RUN npm install
 # Copy everything
 COPY . .
 
-# Build frontend -> /app/dist
+# Build frontend -> /app/backend/public
 RUN npm run build
 
 
 # -------- Backend Stage --------
-FROM node:20-alpine AS backend-build
+FROM node:22-alpine AS backend-build
 WORKDIR /app
 
 # Install build tools for backend install
@@ -28,8 +28,11 @@ RUN apk add --no-cache python3 make g++
 # Copy backend source (flattened into /app)
 COPY backend/ ./ 
 
+# Code shared between frontend and backend
+COPY shared/ ./shared/
+
 # Copy frontend build into /app/public
-COPY --from=build /app/dist ./public
+COPY --from=build /app/backend/public ./public
 
 # Copy only package.json + lockfile
 COPY package*.json ./
@@ -42,7 +45,7 @@ RUN apk del python3 make g++
 
 
 # -------- Final Runtime Stage --------
-FROM node:20-alpine
+FROM node:22-alpine
 WORKDIR /app
 ENV NODE_ENV=production
 

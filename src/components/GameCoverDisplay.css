@@ -25,3 +25,11 @@
     object-fit: cover;
     border-radius: inherit;
 }
+
+.game-cover-display.blur {
+    --cover-blur: blur(1rem);
+    filter: var(--cover-blur);
+    &:hover {
+        filter: none;
+    }
+}

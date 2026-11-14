@@ -316,7 +316,7 @@ export const SteamConfirmImportDialog = ({
     const dataStore = useDataStore();
     const results = { games: gamesResult, friends: friendsResult };
     const visibleGroups = IMPORT_GROUPS.filter(({ key }) => hasResult(results[key]));
-    const gameBadges = visibleGameBadges(globalSettingsStore.showMatureContent === "on");
+    const gameBadges = visibleGameBadges(globalSettingsStore.board.toggleShowMatureContent.value);
 
     const [selection, setSelection] = useState(() => ({
         games: initSelection(gamesResult),

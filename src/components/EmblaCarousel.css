@@ -7,7 +7,7 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    margin: 64px 0;
+    margin: 4rem 0;
     --slide-spacing: 1rem;
     --slide-size: 100%;
 }
@@ -24,8 +24,8 @@
     flex: 0 0 var(--slide-size);
     min-width: 0;
     width: 100%;
-    margin-left: 8px;
-    margin-right: 8px;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
 }
 .embla__slide__media {
     box-shadow: inset 0 0 0 0.2rem var(--pf-bg-300);
@@ -43,7 +43,7 @@
     width: 100%;
     display: flex;
     justify-content: space-between;
-    padding: 0 16px;
+    padding: 0 1rem;
     pointer-events: none;
 }
 .embla__button {

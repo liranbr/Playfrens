@@ -1,6 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { Dialogs, globalDialogStore, useDataStore, useSettingsStore } from "@/stores";
+import { Dialogs, globalDialogStore, useDataStore, useSettingsStore, useUserStore } from "@/stores";
 import { Button, Spinner, SearchSelect, InfoIcon, LabelBadge } from "@/components";
 import { DialogBase } from "./DialogRoot.jsx";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -8,16 +8,18 @@ import "./GamePageDialog.css";
 import "./EditGameDialog.css";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import * as Switch from "@radix-ui/react-switch";
-import { storeTypes } from "@/models";
+import { storeDisplayNames, storeTypes } from "@/models";
 import { getOfficialCoverImageURL, searchTitleOnStore, sgdbDatedTitle } from "@/APIUtils.js";
 import { GameCoverDisplay } from "@/components/GameCoverDisplay.jsx";
-import { HttpStatus } from "@/Utils";
+import { HttpStatus } from "#shared/http.js";
+import { STRING_LIMITS } from "#shared/boardLimits.js";
 
 const GameEntryContext = createContext(null);
 
 export function EditGameDialog({ open, closeDialog, game = null }) {
     const dataStore = useDataStore();
     const settingsStore = useSettingsStore();
+    const { userInfo } = useUserStore();
     const [title, setTitle] = useState(game?.title ?? "");
     const [coverImageURL, setCoverImageURL] = useState(game?.coverImageURL ?? "");
     const [coverThumbURL, setCoverThumbURL] = useState(game?.coverThumbURL ?? "");
@@ -26,16 +28,21 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
     const [storeType, setStoreType] = useState(game?.storeType ?? "steam");
     const [storeID, setStoreID] = useState(game?.storeID ?? "");
     const [sgdbID, setSgdbID] = useState(game?.sgdbID ?? "");
+    const [isAdult, setIsAdult] = useState(game?.isAdult ?? false);
+    const [coverIsAdult, setCoverIsAdult] = useState(game?.coverIsAdult ?? false);
     const [sgdbTitle, setSgdbTitle] = useState("");
     const [advancedView, setAdvancedView] = useState(false);
 
-    const dialogTitle = game ? "Edit Game Details" : "Add Game";
-    const dialogDescription = game ? `Editing ${game.title}` : "Adding a new game";
+    const isEditing = game != null;
+    const dialogTitle = isEditing ? "Edit Game Details" : "Add Game";
+    const dialogDescription = isEditing ? `Editing ${game.title}` : "Adding a new game";
     const titlePlaceholder =
-        storeType === "custom" ? "Enter title" : `Search for a ${storeTypes[storeType]} game`;
+        storeType === storeTypes.custom
+            ? "Enter title"
+            : `Search for a ${storeDisplayNames[storeType]} game`;
 
     const handleSave = async () => {
-        if (game) {
+        if (isEditing) {
             const editedSuccess = dataStore.editGame(
                 game,
                 title,
@@ -46,6 +53,8 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                 storeType,
                 storeID,
                 sgdbID,
+                isAdult,
+                coverIsAdult,
             );
             if (editedSuccess) closeDialog();
         } else {
@@ -58,6 +67,8 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                 storeType,
                 storeID,
                 sgdbID,
+                isAdult,
+                coverIsAdult,
             );
             if (newGame) {
                 globalDialogStore.insertPrevious(Dialogs.GamePage, { game: newGame });
@@ -78,7 +89,8 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
         setStoreType(selectedOption.storeType);
         setStoreID(selectedOption.storeID);
 
-        if (selectedOption.storeType === "custom") {
+        if (selectedOption.storeType === storeTypes.steam) setIsAdult(selectedOption.isAdult);
+        if (selectedOption.storeType === storeTypes.custom) {
             setSgdbID(selectedOption.sgdbID);
             setSgdbTitle(selectedOption.sgdbTitle);
         }
@@ -89,7 +101,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
         closeDialog();
     };
 
-    const includeMatureInSearch = settingsStore.showMatureContent === "on";
+    const includeMatureInSearch = settingsStore.board.toggleShowMatureContent.value;
     const searchTitle = async (query, setResults) =>
         setResults(await searchTitleOnStore(query, storeType, includeMatureInSearch));
 
@@ -104,6 +116,8 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                 setCoverThumbURL,
                 coverIsOfficial,
                 setCoverIsOfficial,
+                coverIsAdult,
+                setCoverIsAdult,
                 sortingTitle,
                 setSortingTitle,
                 storeType,
@@ -120,7 +134,7 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
             <DialogBase
                 open={open}
                 onOpenChange={closeDialog}
-                contentProps={{ forceMount: !game, className: "rx-dialog edit-game-dialog" }}
+                contentProps={{ forceMount: !isEditing, className: "rx-dialog edit-game-dialog" }}
             >
                 <Dialog.Title>{dialogTitle}</Dialog.Title>
                 <VisuallyHidden>
@@ -139,8 +153,10 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                                         if (value) setStoreType(value); // to avoid empty values
                                     }}
                                 >
-                                    {Object.entries(storeTypes)
-                                        .filter(([key]) => ["steam", "custom"].includes(key)) // other store types not supported yet
+                                    {Object.entries(storeDisplayNames)
+                                        .filter(([key]) =>
+                                            [storeTypes.steam, storeTypes.custom].includes(key),
+                                        ) // other store types not supported yet
                                         .map(([key, value]) => (
                                             <ToggleGroup.Item key={key} value={key}>
                                                 {value}
@@ -157,9 +173,10 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                                     onQuery={searchTitle}
                                     onKeyDown={saveOnEnter}
                                     onSelect={handleGameSelected}
+                                    maxLength={STRING_LIMITS.GAME_NAME}
                                 />
                             </div>
-                            {!advancedView && (
+                            {!advancedView && !userInfo.isGuest && !isEditing && (
                                 <div className="steam-import-informer">
                                     <p>Would you like to import your Steam games library?</p>
                                     <Button variant="secondary" onClick={handleGoToImport}>
@@ -183,10 +200,26 @@ export function EditGameDialog({ open, closeDialog, game = null }) {
                                     />
                                 </>
                             )}
-                            {advancedView && storeType !== "custom" && (
+                            {advancedView && (
+                                <>
+                                    <label>
+                                        Adult Game
+                                        <InfoIcon message="Flag a game whose main theme focuses on sexual content." />
+                                    </label>
+                                    <Switch.Root
+                                        className="rx-switch"
+                                        id="adult-game-switch"
+                                        checked={isAdult}
+                                        onCheckedChange={setIsAdult}
+                                    >
+                                        <Switch.Thumb />
+                                    </Switch.Root>
+                                </>
+                            )}
+                            {advancedView && storeType !== storeTypes.custom && (
                                 <>
                                     <label style={{ color: "#777" }}>
-                                        {storeTypes[storeType] + " Game ID"}
+                                        {storeDisplayNames[storeType] + " Game ID"}
                                     </label>
                                     <input disabled value={storeID} />
                                 </>
@@ -225,6 +258,7 @@ function CoverSelector({ saveOnEnter }) {
         // coverThumbURL,
         setCoverThumbURL,
         setCoverIsOfficial,
+        setCoverIsAdult,
         storeType,
         storeID,
         setSgdbID,
@@ -306,6 +340,7 @@ function CoverSelector({ saveOnEnter }) {
                                 setCoverThumbURL(e.target.value);
                                 setCoverImageURL(e.target.value);
                                 setCoverIsOfficial(false);
+                                setCoverIsAdult(false);
                             }}
                             onKeyDown={saveOnEnter}
                             placeholder="Choose a cover, or manually enter URL"
@@ -339,13 +374,22 @@ function CoversGallery({
         coverThumbURL,
         setCoverThumbURL,
         setCoverIsOfficial,
+        coverIsAdult,
+        setCoverIsAdult,
         storeType,
         storeID,
         sgdbID,
         sgdbTitle,
     } = useContext(GameEntryContext);
+    const { board, user } = useSettingsStore();
+    const blurNsfwCovers = user.hideMatureContent.value;
     const currentCoverImage = () => {
-        return { url: coverImageURL, thumb: coverThumbURL, previousSelection: true };
+        return {
+            url: coverImageURL,
+            thumb: coverThumbURL,
+            nsfw: coverIsAdult,
+            previousSelection: true,
+        };
     };
     const [images, setImages] = useState(coverImageURL ? [currentCoverImage()] : []);
 
@@ -366,6 +410,7 @@ function CoversGallery({
 
         const params = new URLSearchParams({ sgdbID });
         if (animatedOnly) params.append("animatedOnly", "true");
+        if (board.toggleShowMatureContent.value) params.append("nsfw", "any");
 
         const sgdbReq = fetch(`/api/steamgriddb/getGrids?${params}`).then((res) => {
             if (!res.ok) {
@@ -391,6 +436,7 @@ function CoversGallery({
                         setCoverImageURL(officialCoverImage.url);
                         setCoverThumbURL(officialCoverImage.thumb);
                         setCoverIsOfficial(true);
+                        setCoverIsAdult(false);
                     } else if (coverImageURL === officialCoverImage.url) {
                         officialCoverImage.previousSelection = true;
                         setCoverIsOfficial(true);
@@ -430,10 +476,12 @@ function CoversGallery({
                     <div key={cover.url} className={classes.join(" ")}>
                         <GameCoverDisplay
                             src={cover.thumb}
+                            className={blurNsfwCovers && cover.nsfw ? "blur" : ""}
                             onClick={() => {
                                 setCoverThumbURL(cover.thumb);
                                 setCoverImageURL(cover.url);
                                 setCoverIsOfficial(cover.officialOf === sgdbID);
+                                setCoverIsAdult(cover.nsfw === true);
                             }}
                         />
                     </div>

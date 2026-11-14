@@ -4,6 +4,7 @@ import cors from "cors";
 import compression from "compression";
 import session from "express-session";
 import passport from "passport";
+import http from "http";
 import https from "https";
 import selfsigned from "selfsigned";
 import path from "path";
@@ -11,12 +12,14 @@ import { fileURLToPath } from "url";
 import { ConsoleColors, logRoutes, resolveBaseURL, strToBool } from "./utils.js";
 import { configurePassport } from "./auth/passport.js";
 import { SupabaseSessionStore } from "./auth/SupabaseSessionStore.js";
+import { attachBoardSocketServer } from "./ws/boardSocket.js";
 import generalRoutes from "./routes/general.js";
 import authRoutes from "./routes/auth.js";
 import steamRoutes from "./routes/steam.js";
 import steamgriddbRoutes from "./routes/steamgriddb.js";
 import steamCatalogRoutes from "./routes/steamCatalog.js";
-import boardRoutes from "./routes/board.js";
+import boardsRoutes from "./routes/boards.js";
+import { sanitizeDeep } from "#shared/sanitize.js";
 
 // === Support for __dirname in ES modules ===
 const __filename = fileURLToPath(import.meta.url);
@@ -37,10 +40,25 @@ const useHttps = resolveUseHttps();
 // Init express
 const app = express();
 app.set("trust proxy", 1);
+app.set("query parser", (str) => sanitizeDeep(Object.fromEntries(new URLSearchParams(str))));
 
+const DEBUG_ADHD_INFO_DUMPING = false;
+if (DEBUG_ADHD_INFO_DUMPING)
+    app.use((req, res, next) => {
+        res.on("finish", () => {
+            // don't say those, that's mean
+            const { password, token, token_hash, access_token, ...body } = req.body ?? {};
+            console.log(req.method, req.originalUrl, res.statusCode, { query: req.query, body });
+        });
+        next();
+    });
+app.use(express.urlencoded({ extended: true }));
 app.use(compression());
 app.use(express.json({ limit: "5mb" }));
-app.use(express.urlencoded({ extended: true }));
+app.use((req, _res, next) => {
+    req.body = req.body ? sanitizeDeep(req.body) : {};
+    next();
+});
 
 // Enable Cross-Origin Resource Sharing
 app.use(
@@ -51,20 +69,19 @@ app.use(
 );
 
 // Sessions + Passport
-app.use(
-    session({
-        store: new SupabaseSessionStore(),
-        secret: env.SESSION_SECRET,
-        resave: false,
-        saveUninitialized: false,
-        cookie: {
-            secure: "auto",
-            httpOnly: true,
-            sameSite: "lax",
-            maxAge: 180 * 24 * 60 * 60 * 1000, // 180 days
-        },
-    }),
-);
+const sessionMiddleware = session({
+    store: new SupabaseSessionStore(),
+    secret: env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: "auto",
+        httpOnly: true,
+        sameSite: "lax",
+        maxAge: 180 * 24 * 60 * 60 * 1000, // 180 days
+    },
+});
+app.use(sessionMiddleware);
 app.use(passport.initialize());
 app.use(passport.session());
 configurePassport();
@@ -73,10 +90,10 @@ configurePassport();
 const mounts = [
     ["/api", generalRoutes, "general.js"],
     ["/auth", authRoutes, "auth.js"],
+    ["/api/steam/catalog", steamCatalogRoutes, "steamCatalog.js"],
     ["/api/steam", steamRoutes, "steam.js"],
     ["/api/steamgriddb", steamgriddbRoutes, "steamgriddb.js"],
-    ["/api/steam/catalog", steamCatalogRoutes, "steamCatalog.js"],
-    ["/api/board", boardRoutes, "board.js"],
+    ["/api/boards", boardsRoutes, "boards.js"],
 ];
 for (const [prefix, router, label] of mounts) {
     app.use(prefix, router);
@@ -100,8 +117,9 @@ app.use((req, res, next) => {
 // Error logging listener after everything initialized
 // eslint-disable-next-line no-unused-vars -- Express only treats a 4-arg function as error-handling middleware
 app.use((err, _req, res, _next) => {
-    console.error(err);
-    res.status(500).json({ error: err.message });
+    const status = err.status ?? err.statusCode ?? 500;
+    if (status >= 500) console.error(err);
+    res.status(status).json({ error: err.expose ? err.message : "Internal server error" });
 });
 
 const createHttpsServer = (app) => {
@@ -112,8 +130,16 @@ const createHttpsServer = (app) => {
     return https.createServer({ key: pems.private, cert: pems.cert }, app);
 };
 
-(useHttps ? createHttpsServer(app) : app).listen(env.BACKEND_PORT, env.DOMAIN, () => {
+const httpServer = useHttps ? createHttpsServer(app) : http.createServer(app);
+attachBoardSocketServer(httpServer, { sessionMiddleware, passport });
+
+httpServer.listen(env.BACKEND_PORT, env.DOMAIN, () => {
+    const { FgCyan, Reset, success, url } = ConsoleColors;
+    const baseURL = resolveBaseURL();
     console.log(
-        `${ConsoleColors.FgRGB(191, 255, 0)} Playfrens server running @ ${resolveBaseURL()}${ConsoleColors.Reset}`,
+        `${success} Playfrens server running :)${Reset}\n` +
+            `  ${FgCyan}[_]${Reset}     ${url}${baseURL}${Reset}\n` +
+            `  ${FgCyan}[App]${Reset}   ${url}${baseURL}/app${Reset}\n` +
+            `  ${FgCyan}[Login]${Reset} ${url}${baseURL}/login${Reset}`,
     );
 });

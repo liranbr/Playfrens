@@ -1,5 +1,8 @@
 # Self Hosting (advanced)
 
+> [!WARNING]  
+> This file has a lot of issues, and while it does give a good glance on how to self host, its inconsistent and likely won't work, local hosting is a high priority, but for now: Take this README with a grain of salt. :(
+
 ## Requirements
 
 - [Node.js](https://nodejs.org/) version 20 or above.

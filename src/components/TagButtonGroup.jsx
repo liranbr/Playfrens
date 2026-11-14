@@ -5,14 +5,14 @@ import * as Popover from "@radix-ui/react-popover";
 import * as RadioGroup from "@radix-ui/react-radio-group";
 import * as Select from "@radix-ui/react-select";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
-import { tagTypeStrings } from "@/models";
+import { tagTypes, tagTypeStrings } from "@/models";
 import {
     useSettingsStore,
-    TagFilterLogicOptions,
-    TagSortOptions,
     Dialogs,
     globalDialogStore,
+    useBoardStore,
     useDataStore,
+    useUserStore,
 } from "@/stores";
 import {
     SidebarTagButton,
@@ -26,7 +26,15 @@ import { useState } from "react";
 
 export const SidebarTagButtonGroup = observer(({ tagType }) => {
     const { allTags } = useDataStore();
+    const { isOwner } = useBoardStore();
+    const { userInfo } = useUserStore();
     const typeStrings = tagTypeStrings[tagType];
+    // Guests see the friend tags they control above the rest
+    const splitOwnTags = !!userInfo?.isGuest && tagType === tagTypes.friend;
+    const tags = [...allTags[tagType].values()];
+    const isOwnTag = (tag) => tag.linkedAccountIds?.includes(userInfo.id);
+    const ownTags = splitOwnTags ? tags.filter(isOwnTag) : [];
+    const otherTags = splitOwnTags ? tags.filter((t) => !isOwnTag(t)) : tags;
     const handleAddButtonClick = () => {
         globalDialogStore.open(Dialogs.EditTag, { addingTagOfType: tagType });
     };
@@ -36,24 +44,39 @@ export const SidebarTagButtonGroup = observer(({ tagType }) => {
             <CenterAndEdgesRow className="ui-card-header">
                 <SidebarTBGMenu tagType={tagType} />
                 <h4>{typeStrings.plural.toUpperCase()}</h4>
-                <ArrowToFeature enable={allTags[tagType].size === 0}>
-                    <SimpleTooltip message={"Add a new " + typeStrings.single}>
-                        <IconButton icon={<MdAdd />} onClick={handleAddButtonClick} />
-                    </SimpleTooltip>
-                </ArrowToFeature>
+                {isOwner && (
+                    <ArrowToFeature enable={allTags[tagType].size === 0}>
+                        <SimpleTooltip message={"Add a new " + typeStrings.single}>
+                            <IconButton icon={<MdAdd />} onClick={handleAddButtonClick} />
+                        </SimpleTooltip>
+                    </ArrowToFeature>
+                )}
             </CenterAndEdgesRow>
 
             <div className="tag-button-list">
-                {[...allTags[tagType]].map(([id, tag]) => (
-                    <SidebarTagButton key={id} tag={tag} />
+                {splitOwnTags && (
+                    <>
+                        {ownTags.map((tag) => (
+                            <SidebarTagButton key={tag.id} tag={tag} isOwn />
+                        ))}
+                        {ownTags.length === 0 && <span className="own-tags-none">None</span>}
+                        <div className="separator own-tags-separator" />
+                    </>
+                )}
+                {otherTags.map((tag) => (
+                    <SidebarTagButton key={tag.id} tag={tag} />
                 ))}
 
                 {allTags[tagType].size === 0 && (
                     <span className="empty-list-placeholder">
                         <p>
                             <b>You have no {typeStrings.plural}!</b>
-                            <br />
-                            click the + to add some
+                            {isOwner && (
+                                <>
+                                    <br />
+                                    click the + to add some
+                                </>
+                            )}
                         </p>
                     </span>
                 )}
@@ -64,13 +87,14 @@ export const SidebarTagButtonGroup = observer(({ tagType }) => {
 
 const SidebarTBGMenu = observer(({ tagType }) => {
     const settingsStore = useSettingsStore();
+    const { tagSortMethods, tagSortDirection, tagFilterLogic } = settingsStore.board;
     const [popoverOpen, setPopoverOpen] = useState(false);
     const pluralString = tagTypeStrings[tagType].plural;
     return (
         <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
             <SimpleTooltip message={pluralString + " settings"}>
                 <Popover.Trigger asChild>
-                    <IconButton icon={<LuSettings2 fontSize={18} />} activate={popoverOpen} />
+                    <IconButton icon={<LuSettings2 fontSize="1.125rem" />} activate={popoverOpen} />
                 </Popover.Trigger>
             </SimpleTooltip>
             <Popover.Portal>
@@ -82,9 +106,11 @@ const SidebarTBGMenu = observer(({ tagType }) => {
 
                     <p>Sort {pluralString} by</p>
                     <Select.Root
-                        value={settingsStore.tagSortMethods[tagType]}
+                        value={tagSortMethods.value[tagType]}
                         className="rx-select"
-                        onValueChange={(option) => settingsStore.setTagSort(tagType, option)}
+                        onValueChange={(option) =>
+                            settingsStore.set(tagSortMethods, option, tagType)
+                        }
                     >
                         <Select.Trigger
                             className="rx-select-trigger"
@@ -97,9 +123,11 @@ const SidebarTBGMenu = observer(({ tagType }) => {
                         </Select.Trigger>
                         <Select.Content position="popper" className="rx-select-content">
                             <Select.Viewport>
-                                {Object.keys(TagSortOptions).map((option) => (
+                                {Object.keys(tagSortMethods.options).map((option) => (
                                     <Select.Item value={option} key={option}>
-                                        <Select.ItemText>{TagSortOptions[option]}</Select.ItemText>
+                                        <Select.ItemText>
+                                            {tagSortMethods.options[option]}
+                                        </Select.ItemText>
                                         <Select.ItemIndicator className="item-indicator">
                                             <MdCheck />
                                         </Select.ItemIndicator>
@@ -111,9 +139,9 @@ const SidebarTBGMenu = observer(({ tagType }) => {
                     <ToggleGroup.Root
                         type="single"
                         className="rx-toggle-group"
-                        value={settingsStore.tagSortDirection[tagType]}
+                        value={tagSortDirection.value[tagType]}
                         onValueChange={(option) =>
-                            settingsStore.setTagSortDirection(tagType, option)
+                            settingsStore.set(tagSortDirection, option, tagType)
                         }
                     >
                         <ToggleGroup.Item value="asc">Ascending</ToggleGroup.Item>
@@ -124,13 +152,15 @@ const SidebarTBGMenu = observer(({ tagType }) => {
                     <p>Selecting multiple {pluralString} will filter for games that</p>
                     <RadioGroup.Root
                         className="rx-radio-group"
-                        defaultValue={settingsStore.tagFilterLogic[tagType]}
-                        onValueChange={(option) => settingsStore.setTagFilterLogic(tagType, option)}
+                        defaultValue={tagFilterLogic.value[tagType]}
+                        onValueChange={(option) =>
+                            settingsStore.set(tagFilterLogic, option, tagType)
+                        }
                     >
-                        {Object.keys(TagFilterLogicOptions).map((option) => (
+                        {Object.keys(tagFilterLogic.options).map((option) => (
                             <label htmlFor={option} key={option}>
                                 <RadioGroup.Item value={option} id={option} autoFocus />
-                                {TagFilterLogicOptions[option]}
+                                {tagFilterLogic.options[option]}
                             </label>
                         ))}
                     </RadioGroup.Root>

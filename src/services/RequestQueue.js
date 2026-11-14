@@ -16,6 +16,7 @@ async function runWithRetries(task) {
         try {
             return await task();
         } catch (error) {
+            if (error?.staleWrite) throw error;
             console.warn(`Queued request failed (attempt ${attempt}/${MAX_ATTEMPTS})`, error);
             if (attempt === MAX_ATTEMPTS) throw error;
             await wait(RETRY_DELAY_MS * attempt);
@@ -31,6 +32,7 @@ export function enqueueRequest(task) {
     const result = tail.then(() => {
         if (hasFailedPermanently) return;
         return runWithRetries(task).catch((error) => {
+            if (error?.staleWrite) throw error;
             hasFailedPermanently = true;
             globalDialogStore.open(Dialogs.SyncError);
             throw error;
@@ -40,3 +42,8 @@ export function enqueueRequest(task) {
     return result;
 }
 
+// Starts a new one, call this whenever the active board changes.
+export function resetRequestQueue() {
+    hasFailedPermanently = false;
+    tail = Promise.resolve();
+}

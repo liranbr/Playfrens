@@ -22,15 +22,6 @@ export const AppType = Object.freeze({
     UNKNOWN: -1, // GetItems returned nothing for this appid.
 });
 
-// Unverified labels, see CONTENT_DESCRIPTOR.md for explanation.
-export const ContentDescriptor = Object.freeze({
-    SOME_NUDITY_OR_SEXUAL_CONTENT: 1, // has mild sexual content, e.g. BG3 and Skyrim, The Forest
-    FREQUENT_VIOLENCE_OR_GORE: 2, // has violence or gore as its theme, e.g. Fallout, Doom games, The Forest, Corpse Party
-    ADULT_ONLY_SEXUAL_CONTENT: 3, // the game's actual entire purpose is porn.
-    FREQUENT_NUDITY_OR_SEXUAL_CONTENT: 4, // it seems to be always matched with descriptor 3.
-    GENERAL_MATURE_CONTENT: 5, // pretty much on any game that is flagged 18+ regardless of nudity or not.
-});
-
 /** fetch() that retries on HTTP 429 with max retries. */
 async function fetchWithRetry(url) {
     for (let attempt = 0; attempt <= MAX_RATE_LIMIT_RETRIES; attempt++) {
@@ -128,7 +119,7 @@ export async function syncSteamAppList({ onPage, sinceUnixSeconds } = {}) {
 
 /**
  * Fetches per-app data to classify `type` (see AppType above) and `content_descriptorids`
- * (Steam's own mature-content tags, e.g. `[1,2,5]` — descriptor 3 is what search filters on).
+ * (Steam's own mature-content tags, e.g. `[1,2,5]` but descriptors 3 and 4 are what search filters on).
  * @param {number[]} appids
  */
 async function fetchItemTypes(appids) {

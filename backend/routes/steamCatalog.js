@@ -3,6 +3,7 @@ import { Router } from "express";
 import { Response } from "../response.js";
 import { supabase } from "../supabaseClient.js";
 import { syncSteamAppList, enrichAppTypes } from "../services/steamCatalogSync.js";
+import { requireAuth } from "../auth/requireAuth.js";
 
 // steam_apps.type is an AppType value (see services/steamCatalogSync.js); null means
 // enrichTypes hasn't classified that row yet.
@@ -85,10 +86,9 @@ async function searchCatalog(req, res) {
 }
 
 const router = Router();
-// router.use(requireAuth);
+
 router.post("/sync", syncAppList);
 router.post("/enrichTypes", enrichTypes);
-router.get("/search", searchCatalog);
+router.get("/search", requireAuth, searchCatalog);
 
 export default router;
-

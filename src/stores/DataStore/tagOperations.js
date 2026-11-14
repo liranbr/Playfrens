@@ -265,11 +265,12 @@ export function sortTagsByCustomOrder(store, tagType, isDescending) {
         return;
     } // if no custom order yet, make one from the current order
 
-    const entriesArray = orderArray
-        .map((tagID) => [tagID, store.allTags[tagType].get(tagID)])
-        .filter(([, tag]) => tag !== undefined);
+    const tags = store.allTags[tagType];
+    const inOrder = new Set(orderArray);
+    const entriesArray = orderArray.filter((id) => tags.has(id)).map((id) => [id, tags.get(id)]);
     if (isDescending) entriesArray.reverse();
 
-    runInAction(() => store.allTags[tagType].replace(entriesArray));
-}
+    for (const [id, tag] of tags) if (!inOrder.has(id)) entriesArray.push([id, tag]);
 
+    runInAction(() => tags.replace(entriesArray));
+}

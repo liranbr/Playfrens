@@ -253,7 +253,8 @@ export class BoardStore {
         await globalDataStore.populate(this.activeBoardId);
         globalSettingsStore.populateBoardSettings(loadFromStorage(settingsStorageKey, {}));
         globalFilterStore.populate(loadFromStorage(defaultFiltersStorageKey, {}));
-        globalDataStore.watchSettingsForBackendSync();
+        /** @todo This fixes issues where the tag sorting is changed causing out of sync for Guests, for now only board owner can do this sorting request change. */
+        if (this.isOwner) globalDataStore.watchSettingsForBackendSync();
 
         subscribeToBoard(this.activeBoardId);
     }

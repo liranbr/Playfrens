@@ -90,9 +90,9 @@ configurePassport();
 const mounts = [
     ["/api", generalRoutes, "general.js"],
     ["/auth", authRoutes, "auth.js"],
+    ["/api/steam/catalog", steamCatalogRoutes, "steamCatalog.js"],
     ["/api/steam", steamRoutes, "steam.js"],
     ["/api/steamgriddb", steamgriddbRoutes, "steamgriddb.js"],
-    ["/api/steam/catalog", steamCatalogRoutes, "steamCatalog.js"],
     ["/api/boards", boardsRoutes, "boards.js"],
 ];
 for (const [prefix, router, label] of mounts) {

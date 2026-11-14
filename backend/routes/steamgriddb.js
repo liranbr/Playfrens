@@ -3,6 +3,7 @@ import { Router } from "express";
 import SGDB from "steamgriddb";
 import { Response } from "../response.js";
 import { strToBool } from "../utils.js";
+import { requireAuth } from "../auth/requireAuth.js";
 
 const client = new SGDB(process.env.STEAMGRIDDB_API_KEY);
 
@@ -77,9 +78,9 @@ async function searchTitle(req, res) {
 }
 
 const router = Router();
+router.use(requireAuth);
 router.get("/getGrids", getGrids);
 router.get("/getGameFromStore", getGameFromStore);
 router.get("/searchTitle", searchTitle);
 
 export default router;
-

@@ -3,6 +3,7 @@ import { Router } from "express";
 import SteamAPI from "steamapi";
 import { Response } from "../response.js";
 import { includesAny, isImageUrlValid } from "../utils.js";
+import { requireAuth } from "../auth/requireAuth.js";
 
 const DEBUG_GET_ITEMS_SAMPLE = false;
 const DEFAULT_CHUNK_ARRAY_SIZE = 100;
@@ -405,6 +406,7 @@ async function getWishlist(_req, res) {
 }
 
 const router = Router();
+router.use(requireAuth);
 router.get("/getUserIDFromVanityName", getUserIDFromVanityName);
 router.get("/getUserSummary", getUserSummary);
 router.get("/getUserLibrary", getUserLibrary);

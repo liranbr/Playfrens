@@ -105,7 +105,13 @@ export class DataStore {
     #lastSyncedByKey = {};
 
     constructor() {
-        makeAutoObservable(this, { sortedReminders: computed, anyFriendHasIcon: computed });
+        makeAutoObservable(this, {
+            sortedReminders: computed,
+            anyFriendHasIcon: computed,
+            // Not actions, so reactions run while #applyingRemote is still true.
+            withRemoteApplyGuard: false,
+            applyRemoteUpdate: false,
+        });
 
         // when any game is added/removed, update the totalGamesCounter in every tag
         reaction(
@@ -170,17 +176,16 @@ export class DataStore {
         this.#lastSyncedByKey[storageKeys.games] = snapshotOf(this.allGames);
 
         // keep the backend in sync, per key
-        const watchAndSync = (storageKey, item) => {
+        const watchAndSync = (storageKey, getItem) =>
             reaction(
-                () => JSON.stringify(item),
+                () => JSON.stringify(getItem()),
                 () => {
-                    if (this.#applyingRemote) return; // a remote update caused this change, don't echo it back
-                    this.#syncKeyToBackend(storageKey, item);
+                    if (this.#applyingRemote) return;
+                    this.#syncKeyToBackend(storageKey, getItem());
                 },
             );
-        };
-        watchAndSync(storageKeys.reminders, this.allReminders);
-        watchAndSync(storageKeys.tagsCustomOrders, this.tagsCustomOrders);
+        watchAndSync(storageKeys.reminders, () => this.allReminders);
+        watchAndSync(storageKeys.tagsCustomOrders, () => this.tagsCustomOrders);
 
         const watchAndSyncCollection = (storageKey, map) => {
             reaction(
@@ -650,4 +655,3 @@ export function restoreFromFile(file) {
 // ‖ FIRST VISIT DEFAULT TAGS ‖
 // #==========================#
 seedFirstVisitDefaults(dataStore);
-
